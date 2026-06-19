@@ -2,502 +2,1024 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
 <style>
-* { box-sizing: border-box; margin: 0; padding: 0; }
-:root {
-  --bg: #0a0a12; --bg2: #12121e; --bg3: #1a1a2e; --bg4: #22223a;
-  --accent: #7c5cbf; --accent2: #9d7fe0; --accent3: #b8a0f0;
-  --gold: #f0b429; --gold2: #ffd166;
-  --green: #2dd4a0; --red: #f05252; --blue: #4facfe;
-  --text: #e8e8ff; --text2: #9898c0; --text3: #6060a0;
-  --border: #2a2a45; --card: #161628;
-  --r: 12px; --r2: 8px;
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+--bg:#0a0a12;--bg2:#12121e;--bg3:#1a1a2e;--bg4:#22223a;
+--accent:#7c5cbf;--accent2:#9d7fe0;--accent3:#b8a0f0;
+--gold:#f0b429;--gold2:#ffd166;
+--green:#2dd4a0;--red:#f05252;--blue:#4facfe;
+--text:#e8e8ff;--text2:#9898c0;--text3:#6060a0;
+--border:#2a2a45;--card:#161628;
+--r:12px;--r2:8px;
 }
-body { 
-  background: var(--bg); color: var(--text); 
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; 
-  height: 100vh; display: flex; flex-direction: column; overflow: hidden;
-}
+body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;min-height:100vh;overflow-x:hidden;padding-bottom:70px}
 
-/* Основной лейаут */
-.app { flex: 1; display: flex; flex-direction: column; overflow-y: auto; padding-bottom: 70px; }
-header { background: var(--bg2); padding: 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); }
-.user-info { display: flex; flex-direction: column; gap: 5px; }
-.nickname { font-weight: bold; color: var(--accent2); cursor: pointer; display: flex; align-items: center; gap: 5px; }
-.balance { color: var(--gold); font-size: 1.2rem; font-weight: bold; }
+.app{display:flex;flex-direction:column;min-height:100vh;max-width:480px;margin:0 auto}
 
-/* Навигация */
-.tabs { display: flex; overflow-x: auto; background: var(--bg3); padding: 10px; gap: 10px; }
-.tab-btn { background: var(--bg4); border: 1px solid var(--border); color: var(--text); padding: 8px 16px; border-radius: var(--r2); cursor: pointer; white-space: nowrap; transition: 0.2s; }
-.tab-btn.active { background: var(--accent); border-color: var(--accent2); }
+.header{background:var(--bg2);border-bottom:1px solid var(--border);padding:12px 16px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.header-title{font-size:18px;font-weight:700;background:linear-gradient(135deg,var(--accent2),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.header-coins{display:flex;align-items:center;gap:6px;background:var(--bg3);border:1px solid var(--border);border-radius:20px;padding:6px 12px;font-size:14px;font-weight:600;color:var(--gold)}
 
-/* Контент вкладок */
-.tab-content { display: none; padding: 20px; }
-.tab-content.active { display: block; }
+.nav{background:var(--bg2);border-top:1px solid var(--border);padding:8px 0 max(8px,env(safe-area-inset-bottom));display:grid;grid-template-columns:repeat(5,1fr);position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;z-index:100}
+.nav-btn{display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 4px;background:none;border:none;color:var(--text3);font-size:10px;cursor:pointer;transition:color 0.2s}
+.nav-btn.active{color:var(--accent2)}
+.nav-btn i{font-size:22px}
 
-/* Карточки и кнопки */
-.card { background: var(--card); border: 1px solid var(--border); border-radius: var(--r); padding: 15px; margin-bottom: 15px; }
-button { background: var(--accent); color: #fff; border: none; padding: 10px 15px; border-radius: var(--r2); cursor: pointer; font-weight: bold; transition: 0.2s; }
-button:hover { background: var(--accent2); }
-button:disabled { background: var(--text3); cursor: not-allowed; }
+.screen{display:none;padding:16px 16px 20px;flex-direction:column;gap:16px;animation:fadeIn 0.3s ease}
+.screen.active{display:flex}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 
-/* Анимации игр */
-.dice-box, .roulette-box { font-size: 3rem; text-align: center; margin: 20px 0; min-height: 80px; display: flex; align-items: center; justify-content: center; }
-.spinning { animation: spin 0.1s linear infinite; }
-@keyframes spin { 0% { transform: translateY(-5px) scale(1.1); } 50% { transform: translateY(5px) scale(0.9); } 100% { transform: translateY(-5px) scale(1.1); } }
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:16px}
+.card-title{font-size:13px;color:var(--text2);margin-bottom:12px;text-transform:uppercase;letter-spacing:.5px}
 
-/* Боссы и Арена */
-.health-bar-bg { background: var(--bg4); border-radius: 20px; width: 100%; height: 20px; overflow: hidden; margin-top: 10px; }
-.health-bar-fill { background: var(--red); height: 100%; width: 100%; transition: width 0.3s; }
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.stat{background:var(--bg3);border-radius:var(--r2);padding:12px;text-align:center}
+.stat-val{font-size:22px;font-weight:700;color:var(--gold)}
+.stat-lbl{font-size:11px;color:var(--text2);margin-top:2px}
 
-/* Модальное окно подтверждения */
-.modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); display: none; justify-content: center; align-items: center; z-index: 1000; }
-.modal { background: var(--bg2); padding: 20px; border-radius: var(--r); border: 1px solid var(--border); width: 90%; max-width: 400px; text-align: center; }
-.modal-btns { display: flex; justify-content: center; gap: 10px; margin-top: 20px; }
-.btn-cancel { background: var(--bg4); }
+.btn{width:100%;padding:14px;border:none;border-radius:var(--r2);font-size:15px;font-weight:600;cursor:pointer;transition:all 0.15s;display:flex;align-items:center;justify-content:center;gap:8px}
+.btn-primary{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff}
+.btn-primary:active{transform:scale(0.97)}
+.btn-primary:disabled{opacity:0.5;cursor:not-allowed;transform:none}
+.btn-secondary{background:var(--bg3);color:var(--text);border:1px solid var(--border)}
+.btn-gold{background:linear-gradient(135deg,#e0920f,var(--gold));color:#fff}
 
-/* Баннер (Реклама/Спонсор) */
-.banner-container {
-  height: 60px;
-  background: var(--bg2);
-  border-top: 1px solid var(--border);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-shrink: 0;
-}
-.banner-container img {
-  max-height: 100%;
-  max-width: 100%;
-  object-fit: contain;
-  border-radius: var(--r2);
-}
+.progress-bar{background:var(--bg3);border-radius:20px;height:8px;overflow:hidden;margin-top:8px}
+.progress-fill{height:100%;border-radius:20px;transition:width 0.5s ease;background:linear-gradient(90deg,var(--accent),var(--accent2))}
+.progress-fill.gold{background:linear-gradient(90deg,#e0920f,var(--gold2))}
+.progress-fill.green{background:linear-gradient(90deg,#1d9e75,var(--green))}
 
-/* Уведомления */
-.toast-container { position: fixed; top: 20px; right: 20px; z-index: 999; display: flex; flex-direction: column; gap: 10px; }
-.toast { background: var(--card); border-left: 4px solid var(--accent); padding: 10px 20px; border-radius: var(--r2); color: var(--text); animation: slideIn 0.3s forwards; }
-@keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+.toast{position:fixed;top:70px;left:50%;transform:translateX(-50%) translateY(-20px);background:var(--accent);color:#fff;padding:10px 20px;border-radius:20px;font-size:14px;font-weight:600;opacity:0;transition:all 0.3s;z-index:999;pointer-events:none;max-width:90%;text-align:center}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.toast.success{background:var(--green);color:#0a2a20}
+.toast.error{background:var(--red)}
+.toast.gold{background:var(--gold);color:#3a2000}
+
+.badge{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:20px;font-size:12px;font-weight:600}
+.badge-gold{background:#3a2a00;color:var(--gold);border:1px solid #5a4000}
+.badge-green{background:#003a2a;color:var(--green);border:1px solid #005a40}
+.badge-purple{background:#2a1a5a;color:var(--accent2);border:1px solid #4a2a8a}
+.badge-red{background:#3a0000;color:var(--red);border:1px solid #5a0000}
+
+.divider{height:1px;background:var(--border);margin:4px 0}
+
+.top-item{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border)}
+.top-item:last-child{border-bottom:none}
+.top-rank{font-size:18px;font-weight:700;min-width:28px;color:var(--text2)}
+.top-rank.r1{color:var(--gold)}
+.top-rank.r2{color:#c0c0d0}
+.top-rank.r3{color:#cd7f32}
+.top-name{flex:1;font-size:14px;font-weight:500}
+.top-val{font-size:14px;font-weight:700;color:var(--gold)}
+
+.nick-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.nick-card{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r2);padding:10px;display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;transition:all 0.2s}
+.nick-card.owned{border-color:var(--accent);background:#1a0f35}
+.nick-card.active{border-color:var(--gold);background:#2a1f00;box-shadow:0 0 0 2px rgba(240,180,41,0.3)}
+.nick-emoji{font-size:24px}
+.nick-name{font-size:12px;color:var(--text2)}
+.nick-price{font-size:11px;color:var(--gold)}
+
+.shard-item{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)}
+.shard-item:last-child{border-bottom:none}
+.shard-stars{color:var(--gold);font-size:12px;min-width:60px}
+.shard-name{flex:1;font-size:13px}
+.shard-count{font-size:14px;font-weight:700;color:var(--accent2)}
+
+.game-area{background:var(--bg3);border-radius:var(--r);padding:20px;text-align:center}
+.roulette-ball{width:80px;height:80px;border-radius:50%;margin:0 auto 16px;display:flex;align-items:center;justify-content:center;font-size:32px;transition:all 0.5s;border:3px solid var(--border)}
+.roulette-ball.red{background:rgba(240,82,82,0.2);border-color:var(--red)}
+.roulette-ball.black{background:rgba(44,44,60,0.5);border-color:#666}
+.roulette-ball.green{background:rgba(45,212,160,0.2);border-color:var(--green)}
+
+.bet-btns{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:12px}
+.bet-btn{padding:10px;border:1px solid var(--border);border-radius:var(--r2);background:var(--bg3);color:var(--text);font-size:13px;font-weight:600;cursor:pointer;transition:all 0.15s}
+.bet-btn:active{transform:scale(0.95)}
+.bet-btn.red-btn{border-color:var(--red);color:var(--red)}
+.bet-btn.black-btn{border-color:#888;color:#ccc}
+.bet-btn.green-btn{border-color:var(--green);color:var(--green)}
+
+.clan-header{background:linear-gradient(135deg,#1a0f35,#0f1a35);border:1px solid var(--accent);border-radius:var(--r);padding:20px;text-align:center}
+.clan-name{font-size:20px;font-weight:700;color:var(--accent2)}
+.clan-diamonds{font-size:32px;font-weight:700;color:var(--gold)}
+
+.prof-card{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r2);padding:14px;margin-bottom:10px}
+.prof-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.prof-name{font-size:15px;font-weight:600}
+.prof-income{font-size:12px;color:var(--green)}
+
+.mission-item{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r2);padding:14px;margin-bottom:10px}
+.mission-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+.mission-done{background:var(--bg3);border-color:var(--green)}
+
+.input-row{display:flex;gap:8px}
+.input-row input{flex:1;background:var(--bg3);border:1px solid var(--border);border-radius:var(--r2);padding:12px;color:var(--text);font-size:14px;outline:none}
+.input-row input:focus{border-color:var(--accent)}
+
+.farm-status{display:flex;align-items:center;justify-content:center;gap:8px;padding:12px;background:var(--bg3);border-radius:var(--r2);margin-bottom:12px}
+
+.spin-container{position:relative;height:120px;overflow:hidden;border-radius:var(--r2);background:var(--bg3);margin:12px 0}
+.spin-items{display:flex;transition:transform 0.5s cubic-bezier(0.17,0.67,0.28,1)}
+.spin-item{min-width:80px;height:80px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:28px;border-right:1px solid var(--border)}
+
+.tab-row{display:flex;gap:4px;margin-bottom:12px}
+.tab{flex:1;padding:8px;text-align:center;border:1px solid var(--border);border-radius:var(--r2);font-size:12px;cursor:pointer;color:var(--text2);transition:all 0.2s}
+.tab.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+
+.shop-item{display:flex;align-items:center;gap:10px;padding:12px 0;border-bottom:1px solid var(--border)}
+.shop-item:last-child{border-bottom:none}
+.shop-emoji{font-size:24px;min-width:36px;text-align:center}
+.shop-info{flex:1}
+.shop-name{font-size:14px;font-weight:500}
+.shop-desc{font-size:12px;color:var(--text2);margin-top:2px}
+.shop-price{font-size:14px;font-weight:700;color:var(--gold)}
+
+.vault-visual{display:flex;align-items:center;justify-content:center;gap:4px;flex-wrap:wrap;padding:12px 0}
+.vault-coin{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;transition:all 0.3s}
+.vault-coin.filled{background:var(--gold);color:#3a2000}
+.vault-coin.empty{background:var(--bg4);border:1px solid var(--border)}
+
+.recruit-code{background:var(--bg3);border:1px solid var(--accent);border-radius:var(--r2);padding:12px;font-size:13px;word-break:break-all;color:var(--accent2);text-align:center;margin:8px 0}
+
+.auction-bid-display{text-align:center;padding:20px 0}
+.auction-amount{font-size:48px;font-weight:700;color:var(--gold)}
+.auction-leader{font-size:13px;color:var(--text2);margin-top:4px}
+
+.boss-card{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r2);padding:16px;margin-bottom:10px;text-align:center}
+.boss-hp{height:12px;background:var(--bg4);border-radius:10px;overflow:hidden;margin:8px 0}
+.boss-hp-fill{height:100%;background:linear-gradient(90deg,var(--red),var(--gold));border-radius:10px;transition:width 0.3s}
+
+.arena-battle{background:var(--bg3);border-radius:var(--r2);padding:16px;text-align:center;margin-bottom:10px}
+.arena-fighters{display:flex;justify-content:space-around;align-items:center;font-size:40px;padding:10px 0}
+
+.banner-container{position:fixed;bottom:70px;left:50%;transform:translateX(-50%);width:100%;max-width:480px;z-index:99;padding:0 16px 8px;pointer-events:none}
+.banner-container img{width:100%;border-radius:var(--r2);pointer-events:auto;cursor:pointer;border:1px solid var(--border);max-height:60px;object-fit:cover}
+
+@media(max-width:380px){.nick-grid{grid-template-columns:1fr 1fr}.stat-grid{grid-template-columns:1fr 1fr}}
 </style>
 </head>
 <body>
-
-<div class="toast-container" id="toasts"></div>
-
-<div class="modal-overlay" id="confirmModal">
-  <div class="modal">
-    <h3 id="confirmTitle">Подтверждение</h3>
-    <p id="confirmDesc" style="margin-top: 10px; color: var(--text2);"></p>
-    <div class="modal-btns">
-      <button class="btn-cancel" onclick="closeConfirm()">Отмена</button>
-      <button id="confirmBtn" onclick="executeConfirm()">Подтвердить</button>
-    </div>
-  </div>
-</div>
-
-<header>
-  <div class="user-info">
-    <div class="nickname" onclick="changeNickname()">
-      <i class="ti ti-edit"></i> <span id="ui-nickname">Player_1</span>
-    </div>
-    <div class="balance"><i class="ti ti-coin"></i> <span id="ui-coins">0</span></div>
-  </div>
-  <button onclick="openTab('shop')" style="background: var(--gold); color: #000;">Магазин</button>
-</header>
-
-<div class="tabs">
-  <button class="tab-btn active" onclick="openTab('main')">Майнинг</button>
-  <button class="tab-btn" onclick="openTab('games')">Игры</button>
-  <button class="tab-btn" onclick="openTab('bosses')">Боссы</button>
-  <button class="tab-btn" onclick="openTab('arena')">Арена</button>
-  <button class="tab-btn" onclick="openTab('top')">Топ 10</button>
-</div>
-
 <div class="app">
-  <div id="tab-main" class="tab-content active">
-    <div class="card" style="text-align: center; padding: 40px 20px;">
-      <button onclick="mineClick()" style="font-size: 1.5rem; padding: 20px 40px; border-radius: 50px;">КЛИК (+<span id="ui-click-power">1</span>)</button>
-    </div>
-    <div class="card">
-      <h3>Улучшения</h3>
-      <div style="margin-top: 15px; display: flex; justify-content: space-between; align-items: center;">
-        <div>
-          <div>Сила клика (Ур. <span id="ui-click-lvl">1</span>)</div>
-          <div style="color: var(--text2); font-size: 0.9rem;">+1 монета за клик</div>
-        </div>
-        <button onclick="upgrade('click')">Улучшить (<span id="ui-click-cost">50</span>)</button>
-      </div>
-      <div style="margin-top: 15px; display: flex; justify-content: space-between; align-items: center;">
-        <div>
-          <div>Автомайнер (Ур. <span id="ui-auto-lvl">0</span>)</div>
-          <div style="color: var(--text2); font-size: 0.9rem;">+1 монета в секунду</div>
-        </div>
-        <button onclick="upgrade('auto')">Улучшить (<span id="ui-auto-cost">100</span>)</button>
+<div class="header">
+  <div class="header-title">💎 MinerCoins</div>
+  <div class="header-coins" id="header-coins">
+    <i class="ti ti-coin" aria-hidden="true"></i>
+    <span id="coins-display">0</span>
+  </div>
+</div>
+
+<div id="screen-home" class="screen active">
+  <div class="card">
+    <div class="card-title">Профиль игрока</div>
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
+      <div id="profile-avatar" style="width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:22px">👤</div>
+      <div>
+        <div id="profile-name" style="font-size:16px;font-weight:700">Путешественник</div>
+        <div id="profile-nick" style="font-size:12px;color:var(--text2);margin-top:2px">Стиль ника: нет</div>
       </div>
     </div>
-  </div>
-
-  <div id="tab-games" class="tab-content">
-    <div class="card">
-      <h3>Рулетка</h3>
-      <p style="color: var(--text2); margin-bottom: 10px;">Ставка: 100 монет. Выигрыш x2.</p>
-      <div class="roulette-box" id="roulette-display">❓</div>
-      <button onclick="playRoulette()" style="width: 100%;">Крутить рулетку (100 монет)</button>
-    </div>
-    
-    <div class="card">
-      <h3>Кости</h3>
-      <p style="color: var(--text2); margin-bottom: 10px;">Ставка: 50 монет. Больше 3 = Победа.</p>
-      <div class="dice-box" id="dice-display">🎲</div>
-      <button onclick="playDice()" style="width: 100%;">Бросить кости (50 монет)</button>
+    <div class="stat-grid">
+      <div class="stat"><div class="stat-val" id="stat-coins">0</div><div class="stat-lbl">Монет</div></div>
+      <div class="stat"><div class="stat-val" id="stat-farms">0</div><div class="stat-lbl">Фармов</div></div>
+      <div class="stat"><div class="stat-val" id="stat-refs">0</div><div class="stat-lbl">Рефералов</div></div>
+      <div class="stat"><div class="stat-val" id="stat-keys">0</div><div class="stat-lbl">Ключей</div></div>
     </div>
   </div>
 
-  <div id="tab-bosses" class="tab-content">
+  <div class="card">
+    <div class="card-title">Ферма</div>
+    <div class="farm-status" id="farm-status-text">
+      <i class="ti ti-plant" style="font-size:18px;color:var(--green)" aria-hidden="true"></i>
+      <span style="font-size:13px;color:var(--text2)">Нажмите для фарма</span>
+    </div>
+    <div class="progress-bar" id="farm-cooldown-bar"><div class="progress-fill" id="farm-progress" style="width:100%"></div></div>
+    <div style="margin-top:8px;display:flex;gap:4px;align-items:center;justify-content:space-between">
+      <span style="font-size:12px;color:var(--text2)">Уровень фермы: <span id="farm-level-txt" style="color:var(--accent2);font-weight:700">1</span></span>
+      <span id="farm-cooldown-txt" style="font-size:12px;color:var(--text3)"></span>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px">
+      <button class="btn btn-primary" id="farm-btn" onclick="doFarm()"><i class="ti ti-pickaxe" aria-hidden="true"></i> Фармить</button>
+      <button class="btn btn-secondary" onclick="upgradeFarm()"><i class="ti ti-arrow-up" aria-hidden="true"></i> Прокачать</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Хранилище</div>
+    <div id="vault-visual" class="vault-visual"></div>
+    <div style="display:flex;justify-content:space-between;font-size:13px;color:var(--text2);margin-bottom:12px">
+      <span>Хранится: <b id="vault-stored" style="color:var(--text)">0</b></span>
+      <span>Лимит: <b id="vault-limit" style="color:var(--text)">50</b></span>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+      <button class="btn btn-secondary" onclick="vaultAction('deposit',10)"><i class="ti ti-plus" aria-hidden="true"></i> +10</button>
+      <button class="btn btn-secondary" onclick="vaultAction('withdraw',10)"><i class="ti ti-minus" aria-hidden="true"></i> -10</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Осколки</div>
+    <div id="shards-preview" style="font-size:13px;color:var(--text2)">Осколки появятся после фарма</div>
+  </div>
+</div>
+
+<div id="screen-game" class="screen">
+  <div class="tab-row">
+    <div class="tab active" onclick="switchGameTab('roulette',this)">Рулетка</div>
+    <div class="tab" onclick="switchGameTab('dice',this)">Кубики</div>
+    <div class="tab" onclick="switchGameTab('boss',this)">Боссы</div>
+    <div class="tab" onclick="switchGameTab('arena',this)">Арена</div>
+  </div>
+
+  <div id="game-roulette">
     <div class="card">
-      <h3>Лесной Голем</h3>
-      <p style="color: var(--text2);">Награда: 500 монет</p>
-      <div class="health-bar-bg">
-        <div class="health-bar-fill" id="boss-hp-fill"></div>
+      <div class="card-title">Рулетка</div>
+      <div class="roulette-ball" id="roulette-ball">🎰</div>
+      <div style="text-align:center;font-size:14px;color:var(--text2);margin-bottom:12px" id="roulette-result">Сделайте ставку</div>
+      <div class="bet-btns">
+        <button class="bet-btn red-btn" onclick="openBet('red')">🔴 Красный</button>
+        <button class="bet-btn black-btn" onclick="openBet('black')">⚫ Чёрный</button>
+        <button class="bet-btn green-btn" onclick="openBet('green')">🟩 Зелёный</button>
       </div>
-      <p style="text-align: center; margin-top: 5px;"><span id="boss-hp-text">1000</span> / 1000 HP</p>
-      <button onclick="attackBoss()" style="width: 100%; margin-top: 15px; background: var(--red);">Атаковать (Урон: <span id="ui-boss-dmg">1</span>)</button>
     </div>
-  </div>
-
-  <div id="tab-arena" class="tab-content">
-    <div class="card">
-      <h3>PvP Арена</h3>
-      <p style="color: var(--text2);">Сражайся с другими игроками. Взнос 200 монет.</p>
-      <button onclick="findOpponent()" style="width: 100%; margin-top: 15px;">Найти противника (200 монет)</button>
-      <div id="arena-log" style="margin-top: 15px; color: var(--gold); text-align: center;"></div>
-    </div>
-  </div>
-
-  <div id="tab-top" class="tab-content">
-    <div class="card">
-      <h3>Топ 10 игроков</h3>
-      <p style="color: var(--text3); font-size: 0.8rem; margin-bottom: 10px;">Обновляется каждые 10 минут</p>
-      <div id="leaderboard-list">Загрузка данных из БД...</div>
-    </div>
-  </div>
-
-  <div id="tab-shop" class="tab-content">
-    <div class="card">
-      <h3>Покупка монет</h3>
-      <p style="color: var(--text2); margin-bottom: 15px;">Поддержите проект!</p>
-      <div style="display: flex; flex-direction: column; gap: 10px;">
-        <button onclick="buyCoins(1000, '0.99$')" style="background: var(--bg4); border: 1px solid var(--gold);">1 000 монет - 0.99$</button>
-        <button onclick="buyCoins(5000, '3.99$')" style="background: var(--bg4); border: 1px solid var(--gold);">5 000 монет - 3.99$</button>
-        <button onclick="buyCoins(15000, '9.99$')" style="background: var(--bg4); border: 1px solid var(--gold);">15 000 монет - 9.99$</button>
+    <div class="card" id="bet-panel" style="display:none">
+      <div class="card-title">Ставка: <span id="bet-color-label"></span></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px">
+        <button class="bet-btn" onclick="setBet(10)">10</button>
+        <button class="bet-btn" onclick="setBet(50)">50</button>
+        <button class="bet-btn" onclick="setBet(100)">100</button>
       </div>
+      <div style="font-size:13px;color:var(--text2);margin-bottom:12px;text-align:center">Ставка: <b id="current-bet-display" style="color:var(--gold)">0</b> монет</div>
+      <button class="btn btn-gold" id="spin-btn" onclick="spinRoulette()"><i class="ti ti-player-play" aria-hidden="true"></i> Крутить!</button>
+    </div>
+  </div>
+
+  <div id="game-dice" style="display:none">
+    <div class="card">
+      <div class="card-title">Кубики (ставка 50 монет)</div>
+      <div class="game-area">
+        <div style="font-size:60px;margin-bottom:12px" id="dice-display">🎲</div>
+        <div style="font-size:14px;color:var(--text2)" id="dice-result">Нажмите для игры</div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px">
+        <button class="btn btn-secondary" onclick="playDice('red')">🔴 Красный</button>
+        <button class="btn btn-secondary" onclick="playDice('black')">⚫ Чёрный</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="game-boss" style="display:none">
+    <div class="card">
+      <div class="card-title">Боссы</div>
+      <div id="boss-list"></div>
+    </div>
+  </div>
+
+  <div id="game-arena" style="display:none">
+    <div class="card">
+      <div class="card-title">Арена</div>
+      <div id="arena-list"></div>
     </div>
   </div>
 </div>
 
-<div class="banner-container">
-  <img src="image_3beb46.jpg" alt="Реклама спонсора" id="sponsor-banner">
+<div id="screen-clan" class="screen">
+  <div id="clan-no" style="display:none">
+    <div class="card" style="text-align:center">
+      <div style="font-size:48px;margin-bottom:12px">🏰</div>
+      <div style="font-size:18px;font-weight:700;margin-bottom:8px">Нет клана</div>
+      <div style="font-size:13px;color:var(--text2);margin-bottom:16px">Создайте клан за 1500 монет и начните добывать алмазы</div>
+      <button class="btn btn-primary" onclick="createClan()"><i class="ti ti-plus" aria-hidden="true"></i> Создать клан (1500 монет)</button>
+    </div>
+  </div>
+  <div id="clan-yes" style="display:none">
+    <div class="clan-header">
+      <div class="clan-name" id="clan-name-display">—</div>
+      <div style="font-size:13px;color:var(--text2);margin:4px 0">Алмазы</div>
+      <div class="clan-diamonds" id="clan-diamonds-display">0 💎</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Участники (<span id="clan-member-count">1</span>/5)</div>
+      <div id="clan-members-list"></div>
+    </div>
+    <button class="btn btn-primary" onclick="clanFarm()"><i class="ti ti-pickaxe" aria-hidden="true"></i> Добыть алмазы</button>
+    <button class="btn btn-secondary" onclick="exchangeDiamonds(1)"><i class="ti ti-exchange" aria-hidden="true"></i> Обменять 1💎 → 5 монет</button>
+    <button class="btn btn-secondary" style="margin-top:8px;border-color:var(--red);color:var(--red)" onclick="disbandClan()"><i class="ti ti-trash" aria-hidden="true"></i> Распустить клан</button>
+  </div>
 </div>
+
+<div id="screen-shop" class="screen">
+  <div class="card">
+    <div class="card-title">Стили ника</div>
+    <div class="nick-grid" id="nick-grid"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Покупка монет</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
+      <button class="btn btn-gold" onclick="buyCoins(100,10)">100💎 → 10💰</button>
+      <button class="btn btn-gold" onclick="buyCoins(500,60)">500💎 → 60💰</button>
+      <button class="btn btn-gold" onclick="buyCoins(1000,150)">1000💎 → 150💰</button>
+    </div>
+    <div style="font-size:11px;color:var(--text3);margin-top:8px;text-align:center">💎 — внутриигровая валюта, зарабатывается в клане</div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Промокоды</div>
+    <div class="input-row" style="margin-bottom:8px">
+      <input id="promo-input" placeholder="Введите код..." maxlength="30">
+      <button class="btn btn-primary" style="width:auto;padding:0 16px" onclick="usePromo()">OK</button>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:8px" id="promo-list">
+      <button class="btn btn-secondary" onclick="activatePromo('free')">🎁 FREE — 15 монет</button>
+      <button class="btn btn-secondary" onclick="activatePromo('denchak')">🎁 DENCHAK — 15 монет</button>
+      <button class="btn btn-secondary" onclick="activatePromo('starter')">🎁 STARTER — 50 монет</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Реферальная программа</div>
+    <div class="recruit-code" id="recruit-link">Кликните чтобы скопировать: ref_demo_1234</div>
+    <div style="font-size:13px;color:var(--text2);margin-top:8px">За каждого приглашённого: <b style="color:var(--gold)">+25 монет</b></div>
+    <button class="btn btn-secondary" style="margin-top:10px" onclick="addReferral()"><i class="ti ti-user-plus" aria-hidden="true"></i> Добавить реферала (демо)</button>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Осколки — магазин</div>
+    <div id="shards-shop-list">
+      <div style="font-size:13px;color:var(--text2)">Накопите осколки через фарм и продавайте их</div>
+    </div>
+    <button class="btn btn-secondary" style="margin-top:12px" onclick="goToScreen('home')"><i class="ti ti-pickaxe" aria-hidden="true"></i> Идти фармить</button>
+  </div>
+</div>
+
+<div id="screen-top" class="screen">
+  <div class="tab-row">
+    <div class="tab active" onclick="switchTopTab('balance',this)">Баланс</div>
+    <div class="tab" onclick="switchTopTab('farms',this)">Фармы</div>
+    <div class="tab" onclick="switchTopTab('refs',this)">Рефералы</div>
+  </div>
+  <div class="card">
+    <div class="card-title" id="top-title">Топ по балансу</div>
+    <div id="top-list"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Миссии дня</div>
+    <div id="missions-list"></div>
+    <div style="margin-top:12px;text-align:center">
+      <span style="font-size:13px;color:var(--text2)">Ключи: </span>
+      <span id="keys-display" style="font-size:18px;font-weight:700;color:var(--gold)">0 🔑</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Профессии</div>
+    <div id="prof-list"></div>
+  </div>
+</div>
+
+<nav class="nav">
+  <button class="nav-btn active" onclick="goToScreen('home')" id="nav-home">
+    <i class="ti ti-home" aria-hidden="true"></i>
+    <span>Главная</span>
+  </button>
+  <button class="nav-btn" onclick="goToScreen('game')" id="nav-game">
+    <i class="ti ti-dice-5" aria-hidden="true"></i>
+    <span>Игры</span>
+  </button>
+  <button class="nav-btn" onclick="goToScreen('clan')" id="nav-clan">
+    <i class="ti ti-shield" aria-hidden="true"></i>
+    <span>Клан</span>
+  </button>
+  <button class="nav-btn" onclick="goToScreen('shop')" id="nav-shop">
+    <i class="ti ti-shopping-bag" aria-hidden="true"></i>
+    <span>Магазин</span>
+  </button>
+  <button class="nav-btn" onclick="goToScreen('top')" id="nav-top">
+    <i class="ti ti-trophy" aria-hidden="true"></i>
+    <span>Рейтинг</span>
+  </button>
+</nav>
+</div>
+
+<!-- Баннер (картинка) -->
+<div class="banner-container" id="bannerContainer">
+  <img id="bannerImage" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='60' viewBox='0 0 400 60'%3E%3Crect width='400' height='60' fill='%231a1a2e' rx='8'/%3E%3Ctext x='200' y='38' font-family='Arial' font-size='18' fill='%239d7fe0' text-anchor='middle' font-weight='bold'%3E📢 Рекламное место%3C/text%3E%3C/svg%3E" alt="Баннер" onclick="alert('Переход на сайт спонсора')">
+</div>
+
+<div class="toast" id="toast"></div>
 
 <script>
-// ==========================================
-// 1. СЛОЙ ДАННЫХ (Mock API / Имитация Базы Данных)
-// Здесь запросы заменяются на fetch('/api/...') когда появится сервер.
-// ==========================================
-const api = {
-  getUser: async () => {
-    let data = localStorage.getItem('miner_db');
-    if(!data) return { nickname: 'Player_' + Math.floor(Math.random()*1000), coins: 0, clickLvl: 1, autoLvl: 0 };
-    return JSON.parse(data);
-  },
-  saveUser: async (data) => {
-    localStorage.setItem('miner_db', JSON.stringify(data));
-  },
-  getTop: async () => {
-    // Имитация ответа от реальной БД
-    return [
-      { name: "Nagibator2000", coins: 999999 },
-      { name: "ProMiner", coins: 540200 },
-      { name: G.nickname, coins: G.coins } // Добавляем себя для вида
-    ].sort((a,b) => b.coins - a.coins);
-  }
+// ============== ДАННЫЕ ==============
+const NICK_STYLES={gold:{e:'🌟',n:'Золотой'},diamond:{e:'💎',n:'Алмазный'},fire:{e:'🔥',n:'Огненный'},vip:{e:'👑',n:'VIP'},star:{e:'⭐',n:'Звёздный'},ice:{e:'❄️',n:'Ледяной'},shadow:{e:'🌑',n:'Теневой'},angel:{e:'😇',n:'Ангельский'},devil:{e:'😈',n:'Дьявольский'},toxic:{e:'☣️',n:'Токсичный'},neon:{e:'🌈',n:'Неоновый'},cyber:{e:'🤖',n:'Кибер'},ninja:{e:'🥷',n:'Ниндзя'},heart:{e:'💖',n:'Сердечный'},galaxy:{e:'🌌',n:'Галактический'},pumpkin:{e:'🎃',n:'Тыквенный'},mystic:{e:'🔮',n:'Мистический'},leaf:{e:'🍃',n:'Лесной'},pirate:{e:'🏴‍☠️',n:'Пиратский'},crown:{e:'💠',n:'Королевский'}};
+
+const SHARDS={
+  'Осколок Вечности':{lvl:1,chance:0.0005},
+  'Кристалл Призрачного Света':{lvl:1,chance:0.0005},
+  'Обсидиановая Слеза':{lvl:2,chance:0.001},
+  'Фрагмент Древнего Пламени':{lvl:2,chance:0.001},
+  'Ледяное Сердце':{lvl:3,chance:0.002},
+  'Осколок Забытой Тени':{lvl:3,chance:0.002},
+  'Ядро Грозового Шторма':{lvl:4,chance:0.004},
+  'Песчинка Времени':{lvl:4,chance:0.004},
+  'Свет Луны':{lvl:5,chance:0.008},
+  'Ткань Реальности':{lvl:5,chance:0.008}
 };
 
-// Глобальное состояние (КЭШ)
-let G = {};
-let bossHp = 1000;
-let autoMinerInterval = null;
-let topUpdateInterval = null;
+const PROMOS={free:{reward:15,used:false},denchak:{reward:15,used:false},starter:{reward:50,used:false}};
 
-// ==========================================
-// 2. ИНИЦИАЛИЗАЦИЯ И UI
-// ==========================================
-async function init() {
-  G = await api.getUser();
-  updateUI();
-  
-  // Автомайнер
-  if(autoMinerInterval) clearInterval(autoMinerInterval);
-  autoMinerInterval = setInterval(() => {
-    if(G.autoLvl > 0) { G.coins += G.autoLvl; updateUI(); api.saveUser(G); }
-  }, 1000);
+const MISSIONS_DEF=[
+  {id:'farm8',name:'🌾 Фермерский труд',desc:'Сделать 8 фармов',target:8,type:'farm',reward:1},
+  {id:'refs10',name:'👥 Вербовщик',desc:'Пригласить 10 друзей',target:10,type:'refs',reward:2},
+  {id:'shards1',name:'💎 Коллекционер',desc:'Получить осколок',target:1,type:'shards',reward:2},
+  {id:'work5',name:'⏰ Трудоголик',desc:'5 работ за день',target:5,type:'work',reward:2},
+];
 
-  // Обновление топов каждые 10 минут (600 000 мс)
-  updateLeaderboard();
-  if(topUpdateInterval) clearInterval(topUpdateInterval);
-  topUpdateInterval = setInterval(updateLeaderboard, 600000);
+const PROFS=[
+  {id:'farmer',name:'👨‍🌾 Крестьянин',income:60,cd:4,desc:'Собирает растения'},
+  {id:'hunter',name:'🏹 Охотник',income:90,cd:6,desc:'Добывает мясо'},
+  {id:'healer',name:'💊 Лекарь',income:120,cd:8,desc:'Создаёт зелья'},
+  {id:'smith',name:'⚔️ Оружейник',income:180,cd:12,desc:'Кует оружие'},
+];
+
+const VAULT_LEVELS={0:50,1:100,2:250,3:400,4:500};
+const VAULT_COSTS={0:100,1:150,2:200,3:250};
+
+const BOSSES = [
+  {id:'goblin',name:'Гоблин-шаман',hp:100,maxHp:100,damage:12,reward:40},
+  {id:'orc',name:'Орк-вождь',hp:200,maxHp:200,damage:20,reward:80},
+  {id:'dragon',name:'Дракон',hp:500,maxHp:500,damage:35,reward:200},
+  {id:'shadow',name:'Теневой властелин',hp:1000,maxHp:1000,damage:50,reward:400},
+];
+
+const ARENA_PLAYERS = ['⚔️ Воин','🏹 Лучник','🧙 Маг','🛡️ Паладин','🗡️ Разбойник'];
+
+// ============== СОСТОЯНИЕ ==============
+let G={
+  coins:100,farms:0,refs:0,keys:0,
+  lastFarm:0,farmLevel:1,
+  vault:{stored:0,level:0},
+  nicks:{purchased:[],active:null},
+  shards:{},
+  clan:null,
+  clanLastFarm:0,
+  promos:{free:false,denchak:false,starter:false},
+  missions:{daily:{},lastReset:0,keys:0},
+  professions:{},
+  lastWork:{},
+  auctionBid:0,
+  topPlayers:[
+    {name:'ВасяПупкин',coins:5420,farms:234,refs:12},
+    {name:'КоролькоинС',coins:3890,farms:189,refs:8},
+    {name:'МегаФармер',coins:2100,farms:145,refs:5},
+    {name:'Ты',coins:100,farms:0,refs:0},
+  ],
+  currentBet:0,
+  currentBetColor:'',
+  bossBattles:{}, // id: {hp, lastAttack}
+  arenaFights:[], // {player1, player2, winner}
+  _bannerUrl:'data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'400\' height=\'60\' viewBox=\'0 0 400 60\'%3E%3Crect width=\'400\' height=\'60\' fill=\'%231a1a2e\' rx=\'8\'/%3E%3Ctext x=\'200\' y=\'38\' font-family=\'Arial\' font-size=\'18\' fill=\'%239d7fe0\' text-anchor=\'middle\' font-weight=\'bold\'%3E📢 Рекламное место%3C/text%3E%3C/svg%3E'
+};
+
+let toastT=null;
+function showToast(msg,type=''){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.className='toast '+(type||'');
+  if(toastT)clearTimeout(toastT);
+  requestAnimationFrame(()=>t.classList.add('show'));
+  toastT=setTimeout(()=>t.classList.remove('show'),2500);
 }
 
-function updateUI() {
-  document.getElementById('ui-nickname').textContent = G.nickname;
-  document.getElementById('ui-coins').textContent = Math.floor(G.coins);
-  
-  document.getElementById('ui-click-power').textContent = G.clickLvl;
-  document.getElementById('ui-click-lvl').textContent = G.clickLvl;
-  document.getElementById('ui-click-cost').textContent = getCost('click');
+function save(){try{localStorage.setItem('mcg',JSON.stringify(G));}catch(e){}}
+function load(){try{const d=localStorage.getItem('mcg');if(d){const p=JSON.parse(d);Object.assign(G,p);}}catch(e){}}
 
-  document.getElementById('ui-auto-lvl').textContent = G.autoLvl;
-  document.getElementById('ui-auto-cost').textContent = getCost('auto');
-  
-  document.getElementById('ui-boss-dmg').textContent = G.clickLvl * 2;
+// ============== БАННЕР ==============
+function updateBanner(url){
+  if(url && url.trim()) G._bannerUrl = url.trim();
+  document.getElementById('bannerImage').src = G._bannerUrl;
 }
+function setBanner(url){ updateBanner(url); }
 
-function openTab(tabId) {
-  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-  document.querySelectorAll('.tab-btn').forEach(t => t.classList.remove('active'));
-  document.getElementById('tab-' + tabId).classList.add('active');
-  event.target.classList.add('active');
-}
+// ============== UI ОБНОВЛЕНИЕ ==============
+function updateUI(){
+  const c=Math.floor(G.coins);
+  document.getElementById('coins-display').textContent=c.toLocaleString('ru');
+  document.getElementById('stat-coins').textContent=c.toLocaleString('ru');
+  document.getElementById('stat-farms').textContent=G.farms;
+  document.getElementById('stat-refs').textContent=G.refs;
+  document.getElementById('stat-keys').textContent=G.keys;
+  document.getElementById('farm-level-txt').textContent=G.farmLevel;
 
-function showToast(msg, type = 'info') {
-  const container = document.getElementById('toasts');
-  const t = document.createElement('div');
-  t.className = 'toast';
-  t.textContent = msg;
-  if(type === 'error') t.style.borderColor = 'var(--red)';
-  if(type === 'success') t.style.borderColor = 'var(--green)';
-  container.appendChild(t);
-  setTimeout(() => t.remove(), 3000);
-}
+  const activeNick=G.nicks.active?NICK_STYLES[G.nicks.active]:null;
+  document.getElementById('profile-nick').textContent=activeNick?`Стиль: ${activeNick.e} ${activeNick.n}`:'Стиль ника: нет';
+  if(activeNick)document.getElementById('profile-avatar').textContent=activeNick.e;
+  else document.getElementById('profile-avatar').textContent='👤';
 
-// ==========================================
-// 3. СИСТЕМА ПОДТВЕРЖДЕНИЙ (Модальное окно)
-// ==========================================
-let confirmCallback = null;
-function requireConfirm(title, desc, callback) {
-  document.getElementById('confirmTitle').textContent = title;
-  document.getElementById('confirmDesc').textContent = desc;
-  document.getElementById('confirmModal').style.display = 'flex';
-  confirmCallback = callback;
-}
-function closeConfirm() {
-  document.getElementById('confirmModal').style.display = 'none';
-  confirmCallback = null;
-}
-function executeConfirm() {
-  if(confirmCallback) confirmCallback();
-  closeConfirm();
+  updateFarmUI();
+  updateVaultUI();
+  updateShardsPreview();
+  updateClanUI();
+  updateNickGrid();
+  updateMissions();
+  updateProfsUI();
+  updateBossUI();
+  updateArenaUI();
 }
 
-// ==========================================
-// 4. ИГРОВАЯ МЕХАНИКА И ЭКОНОМИКА
-// ==========================================
-function getCost(type) {
-  const base = type === 'click' ? 50 : 100;
-  const lvl = type === 'click' ? G.clickLvl : (G.autoLvl + 1);
-  return Math.floor(base * Math.pow(1.15, lvl - 1));
+function updateFarmUI(){
+  const now=Date.now();
+  const cd=3600000;
+  const elapsed=now-G.lastFarm;
+  const ready=elapsed>=cd||G.lastFarm===0;
+  const btn=document.getElementById('farm-btn');
+  btn.disabled=!ready;
+
+  if(ready){
+    document.getElementById('farm-status-text').innerHTML='<i class="ti ti-plant" style="font-size:18px;color:var(--green)" aria-hidden="true"></i><span style="font-size:13px;color:var(--green)">Готово к фарму!</span>';
+    document.getElementById('farm-progress').style.width='100%';
+    document.getElementById('farm-cooldown-txt').textContent='';
+  } else {
+    const rem=cd-elapsed;
+    const m=Math.floor(rem/60000);
+    const s=Math.floor((rem%60000)/1000);
+    document.getElementById('farm-status-text').innerHTML=`<i class="ti ti-clock" style="font-size:18px;color:var(--text2)" aria-hidden="true"></i><span style="font-size:13px;color:var(--text2)">Перезарядка...</span>`;
+    document.getElementById('farm-progress').style.width=(elapsed/cd*100)+'%';
+    document.getElementById('farm-cooldown-txt').textContent=`${m}м ${s}с`;
+  }
 }
 
-function mineClick() {
-  G.coins += G.clickLvl;
-  updateUI();
-  api.saveUser(G);
+function updateVaultUI(){
+  const limit=VAULT_LEVELS[G.vault.level];
+  document.getElementById('vault-stored').textContent=G.vault.stored;
+  document.getElementById('vault-limit').textContent=limit;
+  const vv=document.getElementById('vault-visual');
+  const max=10;const filled=Math.round(G.vault.stored/limit*max);
+  vv.innerHTML='';
+  for(let i=0;i<max;i++){
+    const d=document.createElement('div');
+    d.className='vault-coin '+(i<filled?'filled':'empty');
+    d.textContent=i<filled?'💰':'·';
+    vv.appendChild(d);
+  }
 }
 
-function upgrade(type) {
-  const cost = getCost(type);
-  requireConfirm('Улучшение', `Купить улучшение за ${cost} монет?`, () => {
-    if(G.coins >= cost) {
-      G.coins -= cost;
-      if(type === 'click') G.clickLvl++;
-      if(type === 'auto') G.autoLvl++;
-      updateUI();
-      api.saveUser(G);
-      showToast('Улучшено!', 'success');
-    } else {
-      showToast('Недостаточно монет!', 'error');
+function updateShardsPreview(){
+  const el=document.getElementById('shards-preview');
+  const hasShards=Object.keys(G.shards).length>0;
+  if(!hasShards){el.textContent='Осколки появятся после фарма';return;}
+  let html='';
+  for(const[name,cnt] of Object.entries(G.shards)){
+    if(cnt>0){
+      const lvl=SHARDS[name]?.lvl||1;
+      html+=`<div class="shard-item"><div class="shard-stars">${'⭐'.repeat(lvl)}</div><div class="shard-name">${name}</div><div class="shard-count">×${cnt}</div></div>`;
     }
-  });
+  }
+  el.innerHTML=html;
 }
 
-function changeNickname() {
-  const newName = prompt("Введите новый никнейм (макс 12 символов):", G.nickname);
-  if(newName && newName.trim().length > 0 && newName.length <= 12) {
-    requireConfirm('Смена ника', `Вы точно хотите изменить ник на "${newName}"?`, () => {
-      G.nickname = newName.trim();
-      updateUI();
-      api.saveUser(G);
-      showToast('Никнейм изменен', 'success');
-    });
+function updateClanUI(){
+  document.getElementById('clan-no').style.display=G.clan?'none':'block';
+  document.getElementById('clan-yes').style.display=G.clan?'block':'none';
+  if(G.clan){
+    document.getElementById('clan-name-display').textContent=G.clan.name;
+    document.getElementById('clan-diamonds-display').textContent=G.clan.diamonds+' 💎';
+    document.getElementById('clan-member-count').textContent=G.clan.members.length;
+    document.getElementById('clan-members-list').innerHTML=G.clan.members.map(m=>`<div class="top-item"><i class="ti ti-user" style="color:var(--accent2)" aria-hidden="true"></i><span class="top-name">${m}</span></div>`).join('');
   }
 }
 
-function buyCoins(amount, price) {
-  requireConfirm('Покупка монет', `Перейти к оплате ${amount} монет за ${price}?`, () => {
-    // Здесь должна быть интеграция с платежной системой
-    showToast('Перенаправление на кассу...', 'info');
-    setTimeout(() => {
-      G.coins += amount;
-      updateUI();
-      api.saveUser(G);
-      showToast(`Успешно куплено ${amount} монет!`, 'success');
-    }, 1500);
+function updateNickGrid(){
+  const grid=document.getElementById('nick-grid');
+  grid.innerHTML='';
+  Object.entries(NICK_STYLES).forEach(([id,s])=>{
+    const owned=G.nicks.purchased.includes(id);
+    const active=G.nicks.active===id;
+    const d=document.createElement('div');
+    d.className='nick-card'+(owned?' owned':'')+(active?' active':'');
+    d.innerHTML=`<div class="nick-emoji">${s.e}</div><div class="nick-name">${s.n}</div><div class="nick-price">${owned?'✓ Куплен':'250 💰'}</div>`;
+    d.onclick=()=>nickAction(id,owned);
+    grid.appendChild(d);
   });
 }
 
-// ==========================================
-// 5. ИГРЫ С АНИМАЦИЯМИ
-// ==========================================
-let isAnimating = false;
-
-function playRoulette() {
-  if(isAnimating) return;
-  const cost = 100;
-  requireConfirm('Рулетка', `Поставить ${cost} монет?`, () => {
-    if(G.coins < cost) { showToast('Мало монет', 'error'); return; }
-    G.coins -= cost;
-    updateUI();
-    isAnimating = true;
-    
-    const box = document.getElementById('roulette-display');
-    box.classList.add('spinning');
-    
-    // Имитация кручения
-    let colors = ['🔴', '⚫', '🟢'];
-    let animInt = setInterval(() => { box.textContent = colors[Math.floor(Math.random()*colors.length)]; }, 100);
-
-    setTimeout(() => {
-      clearInterval(animInt);
-      box.classList.remove('spinning');
-      isAnimating = false;
-      
-      const win = Math.random() < 0.45; // 45% шанс победы (баланс)
-      if(win) {
-        box.textContent = '🟢 Победил!';
-        G.coins += cost * 2;
-        showToast(`Выиграно ${cost*2} монет!`, 'success');
-      } else {
-        box.textContent = '🔴 Проиграл';
-        showToast('Ставка сгорела', 'error');
-      }
-      updateUI();
-      api.saveUser(G);
-    }, 2000); // 2 секунды крутится
-  });
-}
-
-function playDice() {
-  if(isAnimating) return;
-  const cost = 50;
-  requireConfirm('Кости', `Бросить кости за ${cost} монет?`, () => {
-    if(G.coins < cost) { showToast('Мало монет', 'error'); return; }
-    G.coins -= cost;
-    updateUI();
-    isAnimating = true;
-    
-    const box = document.getElementById('dice-display');
-    box.classList.add('spinning');
-    const emojis = ['1️⃣','2️⃣','3️⃣','4️⃣','5️⃣','6️⃣'];
-    
-    let animInt = setInterval(() => { box.textContent = emojis[Math.floor(Math.random()*6)]; }, 100);
-
-    setTimeout(() => {
-      clearInterval(animInt);
-      box.classList.remove('spinning');
-      isAnimating = false;
-      
-      const result = Math.floor(Math.random()*6) + 1;
-      box.textContent = emojis[result-1];
-      
-      if(result > 3) {
-        G.coins += cost * 2;
-        showToast('Победа!', 'success');
-      } else {
-        showToast('Проигрыш', 'error');
-      }
-      updateUI();
-      api.saveUser(G);
-    }, 1500);
-  });
-}
-
-// ==========================================
-// 6. БОССЫ И АРЕНА
-// ==========================================
-function attackBoss() {
-  const dmg = G.clickLvl * 2;
-  bossHp -= dmg;
-  if(bossHp <= 0) {
-    bossHp = 1000; // Респавн
-    G.coins += 500;
-    showToast('Босс повержен! +500 монет', 'success');
-    api.saveUser(G);
-    updateUI();
+function updateMissions(){
+  document.getElementById('keys-display').textContent=G.keys+' 🔑';
+  const now=Date.now();
+  if(now-G.missions.lastReset>86400000||!G.missions.daily||Object.keys(G.missions.daily).length===0){
+    G.missions.daily={};
+    const picked=MISSIONS_DEF.slice().sort(()=>Math.random()-0.5).slice(0,3);
+    picked.forEach(m=>{G.missions.daily[m.id]={...m,progress:0,claimed:false};});
+    G.missions.lastReset=now;
+    save();
   }
-  document.getElementById('boss-hp-text').textContent = Math.max(0, bossHp);
-  document.getElementById('boss-hp-fill').style.width = (bossHp / 1000 * 100) + '%';
-}
-
-function findOpponent() {
-  const cost = 200;
-  requireConfirm('Арена', `Искать бой за ${cost} монет?`, () => {
-    if(G.coins < cost) { showToast('Мало монет', 'error'); return; }
-    G.coins -= cost;
-    updateUI();
-    document.getElementById('arena-log').textContent = "Поиск противника...";
-    
-    setTimeout(() => {
-      const win = Math.random() > 0.5;
-      if(win) {
-        G.coins += cost * 1.8; // Баланс (вывод комиссии системы)
-        document.getElementById('arena-log').textContent = "Победа! Вы забрали награду.";
-        showToast('Победа на арене!', 'success');
-      } else {
-        document.getElementById('arena-log').textContent = "Поражение. Противник оказался сильнее.";
-        showToast('Поражение', 'error');
-      }
-      updateUI();
-      api.saveUser(G);
-    }, 2000);
+  const el=document.getElementById('missions-list');
+  el.innerHTML='';
+  Object.values(G.missions.daily).forEach(m=>{
+    const done=m.progress>=m.target;
+    const pct=Math.min(100,Math.round(m.progress/m.target*100));
+    el.innerHTML+=`<div class="mission-item${done?' mission-done':''}">
+      <div class="mission-header">
+        <span style="font-size:13px;font-weight:600">${m.name}</span>
+        ${done&&!m.claimed?`<button class="btn btn-gold" style="width:auto;padding:4px 10px;font-size:12px" onclick="claimMission('${m.id}')">Забрать</button>`:m.claimed?`<span class="badge badge-green">✓</span>`:`<span class="badge badge-purple">${m.reward}🔑</span>`}
+      </div>
+      <div style="font-size:12px;color:var(--text2);margin-bottom:6px">${m.desc} — ${m.progress}/${m.target}</div>
+      <div class="progress-bar"><div class="progress-fill${done?' green':''}" style="width:${pct}%"></div></div>
+    </div>`;
   });
 }
 
-// ==========================================
-// 7. ТОП ИГРОКОВ (Глобальный рейтинг)
-// ==========================================
-async function updateLeaderboard() {
-  const list = document.getElementById('leaderboard-list');
-  list.innerHTML = 'Загрузка...';
-  try {
-    const topData = await api.getTop();
-    list.innerHTML = '';
-    topData.forEach((u, i) => {
-      const div = document.createElement('div');
-      div.style.padding = "10px";
-      div.style.borderBottom = "1px solid var(--border)";
-      div.textContent = `${i+1}. ${u.name} — ${Math.floor(u.coins)} монет`;
-      list.appendChild(div);
-    });
-  } catch(e) {
-    list.innerHTML = 'Ошибка загрузки топа';
+function updateProfsUI(){
+  const el=document.getElementById('prof-list');
+  el.innerHTML='';
+  PROFS.forEach(p=>{
+    const unlocked=G.professions[p.id]||false;
+    const lastW=G.lastWork[p.id]||0;
+    const cdMs=p.cd*3600000;
+    const canWork=unlocked&&(Date.now()-lastW>=cdMs);
+    el.innerHTML+=`<div class="prof-card">
+      <div class="prof-header">
+        <span class="prof-name">${p.name}</span>
+        <span class="prof-income">+${p.income} монет</span>
+      </div>
+      <div style="font-size:12px;color:var(--text2);margin-bottom:8px">${p.desc} | КД: ${p.cd}ч</div>
+      ${unlocked?`<button class="btn btn-${canWork?'primary':'secondary'}" ${canWork?'':'disabled'} onclick="workProf('${p.id}')" style="padding:8px">${canWork?'Работать':'На перезарядке'}</button>`:`<button class="btn btn-secondary" style="padding:8px" onclick="learnProf('${p.id}')">Обучиться (${p.income*2} монет)</button>`}
+    </div>`;
+  });
+}
+
+function updateBossUI(){
+  const el=document.getElementById('boss-list');
+  el.innerHTML='';
+  BOSSES.forEach(b=>{
+    const battle=G.bossBattles[b.id]||{hp:b.maxHp,lastAttack:0};
+    const hp=Math.max(0,battle.hp);
+    const pct=(hp/b.maxHp*100);
+    const canAttack=Date.now()-battle.lastAttack>30000;
+    el.innerHTML+=`<div class="boss-card">
+      <div style="font-size:20px;font-weight:700;color:var(--accent2)">${b.name}</div>
+      <div style="font-size:13px;color:var(--text2)">Награда: ${b.reward} монет</div>
+      <div class="boss-hp"><div class="boss-hp-fill" style="width:${pct}%"></div></div>
+      <div style="font-size:12px;color:var(--text3)">${Math.floor(hp)}/${b.maxHp} HP</div>
+      ${hp>0?`<button class="btn btn-primary" style="margin-top:8px;padding:8px" ${canAttack?'':'disabled'} onclick="attackBoss('${b.id}')">${canAttack?'⚔️ Атаковать':'⏳ Перезарядка 30с'}</button>`:`<span class="badge badge-gold">Повержен!</span>`}
+    </div>`;
+  });
+}
+
+function updateArenaUI(){
+  const el=document.getElementById('arena-list');
+  el.innerHTML='';
+  // Генерируем бой
+  if(G.arenaFights.length===0){
+    const p1=ARENA_PLAYERS[Math.floor(Math.random()*ARENA_PLAYERS.length)];
+    const p2=ARENA_PLAYERS[Math.floor(Math.random()*ARENA_PLAYERS.length)];
+    const winner=Math.random()>0.5?p1:p2;
+    G.arenaFights=[{player1:p1,player2:p2,winner,time:Date.now()}];
+  }
+  const f=G.arenaFights[G.arenaFights.length-1];
+  el.innerHTML=`
+    <div class="arena-battle">
+      <div class="arena-fighters">
+        <span>${f.player1}</span>
+        <span style="font-size:24px">⚔️</span>
+        <span>${f.player2}</span>
+      </div>
+      <div style="font-size:14px;color:var(--gold)">🏆 Победитель: ${f.winner}</div>
+      <button class="btn btn-secondary" style="margin-top:8px;padding:8px" onclick="newArenaFight()">🔄 Новый бой (10 монет)</button>
+    </div>
+  `;
+}
+
+// ============== ДЕЙСТВИЯ ==============
+function goToScreen(name){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('screen-'+name).classList.add('active');
+  document.getElementById('nav-'+name).classList.add('active');
+  updateUI();
+}
+
+function switchGameTab(tab,el){
+  document.querySelectorAll('#screen-game .tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('game-roulette').style.display=tab==='roulette'?'block':'none';
+  document.getElementById('game-dice').style.display=tab==='dice'?'block':'none';
+  document.getElementById('game-boss').style.display=tab==='boss'?'block':'none';
+  document.getElementById('game-arena').style.display=tab==='arena'?'block':'none';
+  if(tab==='boss') updateBossUI();
+  if(tab==='arena') updateArenaUI();
+}
+
+function switchTopTab(tab,el){
+  document.querySelectorAll('#screen-top .tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  const titles={balance:'Топ по балансу',farms:'Топ по фармам',refs:'Топ по рефералам'};
+  document.getElementById('top-title').textContent=titles[tab];
+  // Обновляем топы каждые 10 минут (имитация)
+  G.topPlayers[3].coins=G.coins;G.topPlayers[3].farms=G.farms;G.topPlayers[3].refs=G.refs;
+  const sorted=[...G.topPlayers].sort((a,b)=>b[tab==='balance'?'coins':tab==='farms'?'farms':'refs']-(a[tab==='balance'?'coins':tab==='farms'?'farms':'refs']));
+  const el2=document.getElementById('top-list');
+  el2.innerHTML=sorted.map((p,i)=>{
+    const rankC=['r1','r2','r3',''][Math.min(i,3)];
+    const val=tab==='balance'?p.coins.toLocaleString('ru')+' 💰':tab==='farms'?p.farms+' фармов':p.refs+' реф.';
+    return `<div class="top-item"><div class="top-rank ${rankC}">${i+1}</div><div class="top-name">${p.name}</div><div class="top-val">${val}</div></div>`;
+  }).join('');
+}
+
+function doFarm(){
+  const now=Date.now();
+  if(now-G.lastFarm<3600000&&G.lastFarm!==0){showToast('Слишком рано!','error');return;}
+  const mult=Math.min(2,1+(G.farmLevel-1)*0.2);
+  const base=Math.floor(Math.random()*5)+1;
+  const earned=Math.floor(base*mult);
+  G.coins+=earned;G.farms++;G.lastFarm=now;
+  G.topPlayers[3].coins=G.coins;G.topPlayers[3].farms=G.farms;
+
+  let shardMsg='';
+  for(const[name,info] of Object.entries(SHARDS)){
+    if(Math.random()<info.chance){
+      G.shards[name]=(G.shards[name]||0)+1;
+      shardMsg=`\n✨ ${name}`;
+      const m=G.missions.daily;
+      if(m.shards1)m.shards1.progress=Math.min(m.shards1.target,(m.shards1.progress||0)+1);
+      break;
+    }
+  }
+  const m=G.missions.daily;
+  if(m.farm8)m.farm8.progress=Math.min(m.farm8.target,(m.farm8.progress||0)+1);
+
+  save();updateUI();
+  showToast(`+${earned} монет!${shardMsg}`,'success');
+}
+
+function upgradeFarm(){
+  const costs=[50,100,250,500];
+  if(G.farmLevel>=5){showToast('Максимальный уровень!');return;}
+  const cost=costs[G.farmLevel-1];
+  if(G.coins<cost){showToast(`Нужно ${cost} монет`,'error');return;}
+  if(!confirm(`Улучшить ферму до ур.${G.farmLevel+1} за ${cost} монет?`)) return;
+  G.coins-=cost;G.farmLevel++;save();updateUI();
+  showToast(`Ферма улучшена до ур.${G.farmLevel}!`,'gold');
+}
+
+function vaultAction(type,amount){
+  const limit=VAULT_LEVELS[G.vault.level];
+  if(type==='deposit'){
+    if(G.coins<amount){showToast('Мало монет','error');return;}
+    if(G.vault.stored+amount>limit){showToast('Хранилище полно','error');return;}
+    if(!confirm(`Положить ${amount} монет в хранилище?`)) return;
+    G.coins-=amount;G.vault.stored+=amount;
+  } else {
+    if(G.vault.stored<amount){showToast('В хранилище мало','error');return;}
+    if(!confirm(`Снять ${amount} монет из хранилища?`)) return;
+    G.vault.stored-=amount;G.coins+=amount;
+  }
+  save();updateUI();showToast(type==='deposit'?`Положено ${amount} монет`:`Снято ${amount} монет`,'success');
+}
+
+function nickAction(id,owned){
+  if(owned){
+    G.nicks.active=G.nicks.active===id?null:id;
+    save();updateUI();showToast(G.nicks.active===id?`Активирован стиль ${NICK_STYLES[id].n}`:'Стиль снят');
+  } else {
+    if(G.coins<250){showToast('Нужно 250 монет','error');return;}
+    if(!confirm(`Купить стиль "${NICK_STYLES[id].n}" за 250 монет?`)) return;
+    G.coins-=250;G.nicks.purchased.push(id);G.nicks.active=id;
+    save();updateUI();showToast(`Куплен стиль ${NICK_STYLES[id].n}!`,'gold');
   }
 }
 
-// Запуск
-window.onload = init;
+function buyCoins(diamondsCost,coinsReward){
+  if(!G.clan){showToast('Нужен клан для покупки!','error');return;}
+  if(G.clan.diamonds<diamondsCost){showToast(`Нужно ${diamondsCost}💎`,'error');return;}
+  if(!confirm(`Потратить ${diamondsCost}💎 и получить ${coinsReward}💰?`)) return;
+  G.clan.diamonds-=diamondsCost;
+  G.coins+=coinsReward;
+  save();updateUI();
+  showToast(`+${coinsReward} монет!`,'gold');
+}
+
+function activatePromo(code){
+  const p=PROMOS[code.toLowerCase()];
+  if(!p){showToast('Промокод не найден','error');return;}
+  if(G.promos[code]){showToast('Уже использован','error');return;}
+  G.coins+=p.reward;G.promos[code]=true;save();updateUI();
+  showToast(`+${p.reward} монет по коду ${code.toUpperCase()}!`,'gold');
+}
+
+function usePromo(){
+  const v=document.getElementById('promo-input').value.trim().toLowerCase();
+  if(!v){showToast('Введите код','error');return;}
+  activatePromo(v);
+  document.getElementById('promo-input').value='';
+}
+
+function addReferral(){
+  G.refs++;G.coins+=25;
+  if(G.missions.daily.refs10)G.missions.daily.refs10.progress=Math.min(10,(G.missions.daily.refs10.progress||0)+1);
+  save();updateUI();showToast('+25 монет за реферала!','gold');
+}
+
+function createClan(){
+  if(G.coins<1500){showToast('Нужно 1500 монет','error');return;}
+  if(!confirm('Создать клан за 1500 монет?')) return;
+  const names=['Kingdom Squad','Empire Crew','Titan Force','Guardian Order','Dragon Clan'];
+  const name=names[Math.floor(Math.random()*names.length)];
+  G.coins-=1500;
+  G.clan={name,diamonds:0,members:['Ты'],lastFarm:0};
+  save();updateUI();showToast(`Клан ${name} создан!`,'success');
+}
+
+function disbandClan(){
+  if(!confirm('Распустить клан? Все алмазы будут потеряны!')) return;
+  G.clan=null;save();updateUI();showToast('Клан распущен');
+}
+
+function clanFarm(){
+  if(!G.clan){return;}
+  const now=Date.now();
+  if(now-G.clan.lastFarm<6*3600000){
+    const rem=Math.ceil((6*3600000-(now-G.clan.lastFarm))/3600000);
+    showToast(`Фарм через ${rem}ч`,'error');return;
+  }
+  const mined=Math.floor(Math.random()*3)+1;
+  G.clan.diamonds+=mined;G.clan.lastFarm=now;
+  save();updateUI();showToast(`+${mined} алмазов!`,'gold');
+}
+
+function exchangeDiamonds(n){
+  if(!G.clan||G.clan.diamonds<n){showToast('Нет алмазов','error');return;}
+  if(!confirm(`Обменять ${n}💎 на ${n*5} монет?`)) return;
+  G.clan.diamonds-=n;G.coins+=n*5;
+  save();updateUI();showToast(`+${n*5} монет!`,'gold');
+}
+
+function claimMission(id){
+  const m=G.missions.daily[id];
+  if(!m||m.claimed||m.progress<m.target){return;}
+  m.claimed=true;G.keys+=m.reward;G.missions.keys=(G.missions.keys||0)+m.reward;
+  save();updateUI();showToast(`+${m.reward} ключ(ей)!`,'gold');
+}
+
+function workProf(id){
+  const p=PROFS.find(x=>x.id===id);
+  if(!p||!G.professions[id]){return;}
+  const cdMs=p.cd*3600000;
+  if(Date.now()-(G.lastWork[id]||0)<cdMs){showToast('Ещё на перезарядке','error');return;}
+  G.coins+=p.income;G.lastWork[id]=Date.now();
+  if(G.missions.daily.work5)G.missions.daily.work5.progress=Math.min(5,(G.missions.daily.work5.progress||0)+1);
+  save();updateUI();showToast(`+${p.income} монет от работы!`,'success');
+}
+
+function learnProf(id){
+  const p=PROFS.find(x=>x.id===id);
+  if(!p)return;
+  const cost=p.income*2;
+  if(G.coins<cost){showToast(`Нужно ${cost} монет`,'error');return;}
+  if(!confirm(`Изучить профессию "${p.name}" за ${cost} монет?`)) return;
+  G.coins-=cost;G.professions[id]=true;
+  save();updateUI();showToast(`Профессия ${p.name} изучена!`,'success');
+}
+
+// ============== РУЛЕТКА ==============
+let rouletteRunning=false;
+function openBet(color){
+  G.currentBetColor=color;G.currentBet=0;
+  const labels={red:'🔴 Красный',black:'⚫ Чёрный',green:'🟩 Зелёный'};
+  document.getElementById('bet-color-label').textContent=labels[color];
+  document.getElementById('current-bet-display').textContent='0';
+  document.getElementById('bet-panel').style.display='block';
+}
+
+function setBet(amount){
+  if(G.coins<amount){showToast('Мало монет','error');return;}
+  G.currentBet=amount;
+  document.getElementById('current-bet-display').textContent=amount;
+}
+
+function spinRoulette(){
+  if(rouletteRunning){return;}
+  if(G.currentBet<=0){showToast('Выберите ставку','error');return;}
+  if(G.coins<G.currentBet){showToast('Мало монет','error');return;}
+  rouletteRunning=true;
+  G.coins-=G.currentBet;
+  const ball=document.getElementById('roulette-ball');
+  const res=document.getElementById('roulette-result');
+  ball.className='roulette-ball';ball.textContent='🎰';
+  res.textContent='Крутим...';
+  let ticks=0;const colors=['red','black','green'];
+  const interval=setInterval(()=>{
+    const c=colors[ticks%3];
+    ball.className='roulette-ball '+c;
+    ball.textContent={red:'🔴',black:'⚫',green:'🟩'}[c];
+    ticks++;
+  },80);
+  setTimeout(()=>{
+    clearInterval(interval);
+    const r=Math.random();
+    let landed=r<0.40?'red':r<0.80?'black':'green';
+    ball.className='roulette-ball '+landed;
+    ball.textContent={red:'🔴',black:'⚫',green:'🟩'}[landed];
+    let win=0;
+    if(G.currentBetColor===landed){
+      win=landed==='green'?G.currentBet*5:Math.floor(G.currentBet*1.75);
+      G.coins+=win;
+      res.textContent=`Выигрыш! +${win} монет`;
+      showToast(`+${win} монет!`,'gold');
+    } else {
+      res.textContent=`Проигрыш — ${G.currentBet} монет`;
+      showToast(`-${G.currentBet} монет`,'error');
+    }
+    rouletteRunning=false;G.currentBet=0;
+    document.getElementById('current-bet-display').textContent='0';
+    save();updateUI();
+  },1800);
+}
+
+// ============== КУБИКИ ==============
+function playDice(color){
+  if(G.coins<50){showToast('Нужно 50 монет','error');return;}
+  G.coins-=50;
+  const val=Math.floor(Math.random()*6)+1;
+  const win = (color==='red' && val<=3) || (color==='black' && val>=4) ? 100 : 0;
+  G.coins+=win;
+  const emojis=['1️⃣','2️⃣','3️⃣','4️⃣','5️⃣','6️⃣'];
+  const diceEl=document.getElementById('dice-display');
+  diceEl.textContent=emojis[val-1];
+  // Анимация
+  diceEl.style.transition='transform 0.3s';
+  diceEl.style.transform='rotate(360deg)';
+  setTimeout(()=>{diceEl.style.transform='rotate(0deg)';},400);
+  document.getElementById('dice-result').textContent=win>0?`🎉 Выигрыш! +${win-50} монет`:`😞 Проигрыш -50 монет`;
+  save();updateUI();
+  showToast(win>0?`+${win-50} монет!`:'Не повезло', win>0?'gold':'error');
+}
+
+// ============== БОССЫ ==============
+function attackBoss(id){
+  const boss=BOSSES.find(b=>b.id===id);
+  if(!boss)return;
+  const battle=G.bossBattles[id]||{hp:boss.maxHp,lastAttack:0};
+  if(Date.now()-battle.lastAttack<30000){showToast('Перезарядка 30с','error');return;}
+  if(battle.hp<=0){showToast('Босс уже повержен!','error');return;}
+  const dmg=Math.floor(Math.random()*15)+5;
+  battle.hp=Math.max(0,battle.hp-dmg);
+  battle.lastAttack=Date.now();
+  G.bossBattles[id]=battle;
+  if(battle.hp<=0){
+    G.coins+=boss.reward;
+    showToast(`🎉 Босс повержен! +${boss.reward} монет!`,'gold');
+  } else {
+    showToast(`⚔️ ${dmg} урона! Осталось ${Math.floor(battle.hp)} HP`,'success');
+  }
+  save();updateUI();
+}
+
+// ============== АРЕНА ==============
+function newArenaFight(){
+  if(G.coins<10){showToast('Нужно 10 монет','error');return;}
+  if(!confirm('Новый бой за 10 монет?')) return;
+  G.coins-=10;
+  const p1=ARENA_PLAYERS[Math.floor(Math.random()*ARENA_PLAYERS.length)];
+  const p2=ARENA_PLAYERS[Math.floor(Math.random()*ARENA_PLAYERS.length)];
+  const winner=Math.random()>0.5?p1:p2;
+  G.arenaFights.push({player1:p1,player2:p2,winner,time:Date.now()});
+  if(G.arenaFights.length>20) G.arenaFights.shift();
+  save();updateUI();
+  showToast(`🏆 ${winner} победил!`,'gold');
+}
+
+// ============== ТОП ОБНОВЛЕНИЕ ==============
+setInterval(()=>{
+  // Имитация обновления топов
+  G.topPlayers[0].coins += Math.floor(Math.random()*5);
+  G.topPlayers[1].coins += Math.floor(Math.random()*4);
+  G.topPlayers[2].coins += Math.floor(Math.random()*3);
+  save();
+  if(document.getElementById('screen-top').classList.contains('active')){
+    switchTopTab('balance',document.querySelector('#screen-top .tab.active'));
+  }
+},600000); // 10 минут
+
+// ============== ЗАПУСК ==============
+load();
+updateUI();
+switchTopTab('balance',document.querySelector('#screen-top .tab'));
+
+setInterval(()=>{
+  if(document.getElementById('screen-home').classList.contains('active')){
+    updateFarmUI();
+  }
+},1000);
+
+// ============== ИЗМЕНЕНИЕ БАННЕРА ==============
+// Пример: setBanner('https://example.com/banner.png');
+// Или можно оставить SVG по умолчанию
+
+console.log('💎 MinerCoins загружена!');
+console.log('📢 Для смены баннера используйте setBanner("URL")');
 </script>
 </body>
 </html>
-
-```
