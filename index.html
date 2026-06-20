@@ -25,7 +25,6 @@
             --red: #ef4444;
             --tx: #f0f0ff;
             --tx2: #9090b8;
-            --tx3: #50508080;
             --bd: #ffffff15;
             --bd2: #ffffff22;
             --r: 10px;
@@ -45,6 +44,7 @@
             display: flex;
             flex-direction: column;
             min-height: 100vh;
+            padding-bottom: 70px;
         }
         .hdr {
             background: var(--bg2);
@@ -81,7 +81,6 @@
             display: flex;
             flex-direction: column;
             gap: 10px;
-            padding-bottom: 70px;
         }
         .nav {
             background: var(--bg2);
@@ -117,13 +116,24 @@
         .nb i {
             font-size: 19px;
         }
+
+        /* Баннер - теперь над навигацией, виден всегда */
         .bnr {
             border-top: 1px solid var(--bd2);
+            border-bottom: 1px solid var(--bd2);
             padding: 0;
             display: flex;
             align-items: stretch;
             overflow: hidden;
             height: 62px;
+            background: var(--bg2);
+            position: fixed;
+            bottom: 60px;
+            left: 0;
+            right: 0;
+            max-width: 430px;
+            margin: 0 auto;
+            z-index: 45;
         }
         .bnr-img {
             flex-shrink: 0;
@@ -173,11 +183,12 @@
             flex-shrink: 0;
             white-space: nowrap;
         }
+
         .sc {
             display: none;
             flex-direction: column;
             gap: 10px;
-            padding-bottom: 10px;
+            padding-bottom: 130px;
         }
         .sc.on {
             display: flex;
@@ -240,6 +251,7 @@
             justify-content: center;
             gap: 5px;
             transition: .12s;
+            min-height: 48px;
         }
         .btn:active {
             transform: scale(.97);
@@ -463,7 +475,6 @@
             border-color: var(--acc);
         }
 
-        /* Модальные окна - всегда по центру */
         .modal-wrap {
             display: none;
             position: fixed;
@@ -508,7 +519,6 @@
             flex: 1;
         }
 
-        /* Игровые элементы */
         .roulette-buttons {
             display: grid;
             grid-template-columns: 1fr 1fr 1fr;
@@ -528,11 +538,6 @@
             padding: 14px 0;
         }
 
-        #MOD_wrap .modal-box,
-        #MOD_nick .modal-box {
-            margin: 0;
-        }
-
         .game-result {
             font-size: 14px;
             text-align: center;
@@ -548,7 +553,6 @@
             color: var(--red);
         }
 
-        /* Тост всегда сверху */
         #_t {
             position: fixed;
             top: 70px;
@@ -573,48 +577,35 @@
             opacity: 1;
         }
 
-        /* Увеличенные кнопки в карточках */
-        .card .btn {
-            min-height: 48px;
-        }
-
-        /* Баннер с картинкой */
-        .bnr-img {
-            width: 110px;
-            height: 62px;
-            object-fit: cover;
-            flex-shrink: 0;
-        }
-
-        /* Стили для кубиков */
         .dice-container {
             display: flex;
             justify-content: center;
             gap: 6px;
             margin: 8px 0;
+            flex-wrap: wrap;
         }
         .dice {
-            width: 48px;
-            height: 48px;
+            width: 52px;
+            height: 52px;
             background: var(--bg4);
             border: 2px solid var(--acc);
             border-radius: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 28px;
+            font-size: 30px;
             color: var(--tx);
             transition: transform 0.1s;
         }
         .dice.rolling {
-            animation: diceRoll 0.1s infinite alternate;
+            animation: diceRoll 0.08s infinite alternate;
         }
         @keyframes diceRoll {
             0% {
-                transform: rotate(0deg) scale(1);
+                transform: rotate(-10deg) scale(0.95);
             }
             100% {
-                transform: rotate(15deg) scale(1.05);
+                transform: rotate(10deg) scale(1.05);
             }
         }
     </style>
@@ -654,7 +645,7 @@
                 <div class="card">
                     <div class="ct">шахта — добыча монет</div>
                     <div style="background:var(--bg4);border-radius:var(--r2);padding:9px 11px;margin-bottom:9px;display:flex;align-items:center;gap:8px">
-                        <i class="ti ti-pickaxe" style="font-size:17px;color:var(--acc2)" aria-hidden="true">⛏</i>
+                        <span style="font-size:17px;color:var(--acc2)">⛏</span>
                         <div style="flex:1">
                             <div style="font-size:12px;color:var(--tx2)" id="F_st">Готово к добыче!</div>
                             <div class="pb" style="margin-top:4px"><div class="pf pf-gld" id="F_pb" style="width:100%"></div></div>
@@ -663,8 +654,8 @@
                     </div>
                     <div style="font-size:11px;color:var(--tx2);margin-bottom:9px">Уровень: <b id="F_lv" style="color:var(--acc3)">1</b> · Множитель: <b id="F_mx" style="color:var(--gld)">×1.0</b> · Стоимость улучшения: <b id="F_up_cost" style="color:var(--tx)">50 монет</b></div>
                     <div class="g2">
-                        <button class="btn bp" id="F_btn" onclick="confirmAction('Добыть монеты?','Кулдаун 1 час. Монеты зависят от уровня шахты и множителя.',doFarm)"><i>⛏</i> Добыть</button>
-                        <button class="btn bs" onclick="confirmAction('Улучшить шахту?','Стоимость: ' + getFarmCost() + ' монет. Каждый уровень +20% к добыче.',upgradeFarm)"><i>⬆</i> Прокачать</button>
+                        <button class="btn bp" id="F_btn" onclick="confirmAction('Добыть монеты?','Кулдаун 1 час. Монеты зависят от уровня шахты и множителя.',doFarm)">⛏ Добыть</button>
+                        <button class="btn bs" onclick="confirmAction('Улучшить шахту?','Стоимость: ' + getFarmCost() + ' монет. Каждый уровень +20% к добыче.',upgradeFarm)">⬆ Прокачать</button>
                     </div>
                 </div>
 
@@ -677,8 +668,8 @@
                     <div class="pb" style="margin-bottom:9px"><div class="pf pf-acc" id="V_pb" style="width:0%"></div></div>
                     <div style="font-size:11px;color:var(--tx2);margin-bottom:9px">Монеты в хранилище защищены от краж и не тратятся случайно</div>
                     <div class="g2">
-                        <button class="btn bs" onclick="confirmAction('Положить 50 монет?','50 монет перейдут из баланса в хранилище. Защита от потерь.',()=>vaultAct('d',50))"><i>⬇</i> +50 в хранилище</button>
-                        <button class="btn bs" onclick="confirmAction('Снять 50 монет?','50 монет вернутся из хранилища на ваш баланс.',()=>vaultAct('w',50))"><i>⬆</i> -50 из хранилища</button>
+                        <button class="btn bs" onclick="confirmAction('Положить 50 монет?','50 монет перейдут из баланса в хранилище. Защита от потерь.',()=>vaultAct('d',50))">⬇ +50 в хранилище</button>
+                        <button class="btn bs" onclick="confirmAction('Снять 50 монет?','50 монет вернутся из хранилища на ваш баланс.',()=>vaultAct('w',50))">⬆ -50 из хранилища</button>
                     </div>
                 </div>
 
@@ -775,8 +766,8 @@
                         <span id="BS_drop">Шанс сундука: 20%</span>
                     </div>
                     <div class="g2">
-                        <button class="btn bp" onclick="confirmAction('Атаковать босса?','Стоимость: 20 монет. Нанесёте 10–50 урона. 20% шанс получить сундук.',atkBoss)"><i>⚔</i> Атаковать (20 мон.)</button>
-                        <button class="btn bs" id="CH_btn" onclick="confirmAction('Открыть сундук?','Случайная награда: монеты, ключи или редкий осколок.',openChest)"><i>📦</i> Сундук (<span id="CH_cnt">0</span>)</button>
+                        <button class="btn bp" onclick="confirmAction('Атаковать босса?','Стоимость: 20 монет. Нанесёте 10–50 урона. 20% шанс получить сундук.',atkBoss)">⚔ Атаковать (20 мон.)</button>
+                        <button class="btn bs" id="CH_btn" onclick="confirmAction('Открыть сундук?','Случайная награда: монеты, ключи или редкий осколок.',openChest)">📦 Сундук (<span id="CH_cnt">0</span>)</button>
                     </div>
                     <div style="font-size:12px;color:var(--grn);margin-top:8px;min-height:16px" id="ATK_log"></div>
                 </div>
@@ -803,7 +794,7 @@
                         <div style="font-size:40px;margin-bottom:8px">🏰</div>
                         <div style="font-size:14px;font-weight:700;margin-bottom:5px">Вы не в клане</div>
                         <div style="font-size:12px;color:var(--tx2);margin-bottom:14px">Создайте клан за 1500 монет и добывайте алмазы командой до 5 человек</div>
-                        <button class="btn bp" onclick="confirmAction('Создать клан за 1500 монет?','Вы получите случайное название. Можно пригласить до 4 участников и вместе добывать алмазы.',createClan)"><i>➕</i> Создать клан (1500 монет)</button>
+                        <button class="btn bp" onclick="confirmAction('Создать клан за 1500 монет?','Вы получите случайное название. Можно пригласить до 4 участников и вместе добывать алмазы.',createClan)">➕ Создать клан (1500 монет)</button>
                     </div>
                 </div>
                 <div id="CL_yes" style="display:none">
@@ -816,9 +807,9 @@
                         <div class="ct">участники (<span id="CL_mc">1</span>/5)</div>
                         <div id="CL_mlist"></div>
                     </div>
-                    <button class="btn bp" style="margin-bottom:7px" onclick="confirmAction('Добыть алмазы?','Клановый фарм раз в 6 часов. Алмазы идут в казну клана.',clanFarm)"><i>⛏</i> Добыть алмазы (кд 6ч)</button>
-                    <button class="btn bs" style="margin-bottom:7px" onclick="confirmAction('Обменять 5 💎 → 25 монет?','5 алмазов из казны клана станут 25 монетами на вашем балансе.',()=>exDiam(5))"><i>🔄</i> Обменять 5 💎 → 25 монет</button>
-                    <button class="btn bred" onclick="confirmAction('Распустить клан?','Клан удалится навсегда. Алмазы сгорят.',disbandClan)"><i>🗑</i> Распустить клан</button>
+                    <button class="btn bp" style="margin-bottom:7px" onclick="confirmAction('Добыть алмазы?','Клановый фарм раз в 6 часов. Алмазы идут в казну клана.',clanFarm)">⛏ Добыть алмазы (кд 6ч)</button>
+                    <button class="btn bs" style="margin-bottom:7px" onclick="confirmAction('Обменять 5 💎 → 25 монет?','5 алмазов из казны клана станут 25 монетами на вашем балансе.',()=>exDiam(5))">🔄 Обменять 5 💎 → 25 монет</button>
+                    <button class="btn bred" onclick="confirmAction('Распустить клан?','Клан удалится навсегда. Алмазы сгорят.',disbandClan)">🗑 Распустить клан</button>
                 </div>
             </div>
 
@@ -875,7 +866,7 @@
                     <div class="ct">реферальная программа</div>
                     <div onclick="copyRef()" style="background:var(--bg4);border:1px solid #4c1d95;border-radius:var(--r2);padding:9px;font-size:12px;color:var(--acc3);text-align:center;cursor:pointer;margin-bottom:7px">🔗 coinmine.app/ref/demo_1234 (нажмите — скопировать)</div>
                     <div style="font-size:12px;color:var(--tx2);margin-bottom:9px">За каждого приглашённого друга: <b style="color:var(--gld)">+25 монет</b></div>
-                    <button class="btn bs" onclick="addRef()"><i>👤</i> Добавить реферала (демо)</button>
+                    <button class="btn bs" onclick="addRef()">👤 Добавить реферала (демо)</button>
                 </div>
             </div>
 
@@ -897,14 +888,7 @@
 
         </div>
 
-        <nav class="nav">
-            <button class="nb on" onclick="goSc('home')" id="NB_home"><i>🏠</i><span>Главная</span></button>
-            <button class="nb" onclick="goSc('games')" id="NB_games"><i>🎲</i><span>Игры</span></button>
-            <button class="nb" onclick="goSc('arena')" id="NB_arena"><i>⚔️</i><span>Арена</span></button>
-            <button class="nb" onclick="goSc('clan')" id="NB_clan"><i>🛡️</i><span>Клан</span></button>
-            <button class="nb" onclick="goSc('shop')" id="NB_shop"><i>🛒</i><span>Магазин</span></button>
-        </nav>
-
+        <!-- Баннер теперь зафиксирован над навигацией -->
         <div class="bnr" id="BNR">
             <img id="BNR_img" src="" alt="CoinMine баннер" class="bnr-img" onerror="this.style.display='none';document.getElementById('BNR_ph').style.display='flex'" style="display:none">
             <div id="BNR_ph" class="bnr-img-placeholder">⛏ CM</div>
@@ -915,7 +899,15 @@
             <button class="bnr-btn" onclick="goSc('shop')">Играть</button>
         </div>
 
-        <!-- Модальное окно подтверждения -->
+        <nav class="nav">
+            <button class="nb on" onclick="goSc('home')" id="NB_home"><span>🏠</span><span>Главная</span></button>
+            <button class="nb" onclick="goSc('games')" id="NB_games"><span>🎲</span><span>Игры</span></button>
+            <button class="nb" onclick="goSc('arena')" id="NB_arena"><span>⚔️</span><span>Арена</span></button>
+            <button class="nb" onclick="goSc('clan')" id="NB_clan"><span>🛡️</span><span>Клан</span></button>
+            <button class="nb" onclick="goSc('shop')" id="NB_shop"><span>🛒</span><span>Магазин</span></button>
+        </nav>
+
+        <!-- Модальные окна -->
         <div class="modal-wrap" id="MOD_wrap">
             <div class="modal-box">
                 <div class="title" id="M_title"></div>
@@ -927,7 +919,6 @@
             </div>
         </div>
 
-        <!-- Модальное окно ника -->
         <div class="modal-wrap" id="MOD_nick">
             <div class="modal-box">
                 <div class="title">Изменить никнейм</div>
@@ -940,7 +931,6 @@
             </div>
         </div>
 
-        <!-- Тост -->
         <div id="_t"></div>
     </div>
 
@@ -1025,7 +1015,9 @@
             const raw = localStorage.getItem('cm3');
             if (raw) {
                 const p = JSON.parse(raw);
-                ['coins', 'farms', 'refs', 'keys', 'lastFarm', 'farmLv', 'vault', 'name', 'nicks', 'shards', 'clan', 'clanLF', 'promos', 'missions', 'profs', 'lastWork', 'auctionBid', 'chests', 'boss', 'topUpdated'].forEach(k => {
+                ['coins', 'farms', 'refs', 'keys', 'lastFarm', 'farmLv', 'vault', 'name', 'nicks', 'shards', 'clan', 'clanLF',
+                    'promos', 'missions', 'profs', 'lastWork', 'auctionBid', 'chests', 'boss', 'topUpdated'
+                ].forEach(k => {
                     if (p[k] !== undefined) G[k] = p[k];
                 });
             }
@@ -1241,8 +1233,8 @@
             const now = Date.now(),
                 cd = 6 * 3600000,
                 el = now - G.clanLF;
-            document.getElementById('CL_cd').textContent = el >= cd ? 'Фарм доступен!' : 'Фарм через ' + Math.ceil((cd - el) / 3600000) +
-                'ч';
+            document.getElementById('CL_cd').textContent = el >= cd ? 'Фарм доступен!' : 'Фарм через ' + Math.ceil((cd - el) /
+                3600000) + 'ч';
         }
 
         function renderTop(tp) {
@@ -1278,7 +1270,7 @@
             });
             if (el) el.classList.add('on');
             if (t === 'rl') setTimeout(() => drawRoulette(), 40);
-            if (t === 'dc') setTimeout(() => updateDiceDisplay([]), 40);
+            if (t === 'dc') setTimeout(() => updateDiceDisplay([0, 0, 0, 0, 0]), 40);
         }
 
         function topTab(t, el) {
@@ -1289,8 +1281,9 @@
 
         // ===== ИГРОВЫЕ ФУНКЦИИ =====
 
-        // ---- Рулетка ----
+        // ---- РУЛЕТКА (исправлена) ----
         let roulRunning = false;
+        let roulLanded = null;
 
         function drawRoulette(angle, result) {
             const cv = document.getElementById('RC');
@@ -1304,8 +1297,13 @@
                 cy = 100,
                 R = 78;
             ctx.clearRect(0, 0, w, 200);
-            const segs = [...Array(18)].map((_, i) => i % 2 === 0 ? 'red' : 'black');
+
+            // 20 сегментов: 18 цветных + 2 зеленых
+            const segs = [];
+            for (let i = 0; i < 9; i++) { segs.push('red');
+                segs.push('black'); }
             segs.push('green', 'green');
+
             const n = segs.length;
             const a0 = angle || 0;
             segs.forEach((c, i) => {
@@ -1321,10 +1319,13 @@
                 ctx.lineWidth = .8;
                 ctx.stroke();
             });
+
+            // Центр
             ctx.beginPath();
             ctx.arc(cx, cy, 18, 0, Math.PI * 2);
             ctx.fillStyle = result ? { red: '#ef4444', black: '#6b7280', green: '#10b981' } [result] : '#d0d0e0';
             ctx.fill();
+            // Стрелка
             ctx.beginPath();
             ctx.moveTo(cx, cy - R - 12);
             ctx.lineTo(cx - 7, cy - R + 6);
@@ -1338,15 +1339,36 @@
             if (roulRunning) { toast('Уже крутится!', 'err'); return; }
             const bet = parseInt(document.getElementById('RL_bet').value);
             if (G.coins < bet) { toast('Мало монет', 'err'); return; }
+
             confirmAction(`Ставка ${bet} монет на ${col==='red'?'красный':col==='black'?'чёрный':'зелёный'}?`,
                 `Коэффициент: ${col==='green'?'×5':'×1.75'}. Шанс зелёного — 10%.`,
                 () => {
                     G.coins -= bet;
                     roulRunning = true;
-                    // Честный выбор результата заранее
+
+                    // ЧЕСТНЫЙ результат заранее
                     const r = Math.random();
-                    const landed = r < .4 ? 'red' : r < .8 ? 'black' : 'green';
-                    const total = Math.PI * 2 * 6 + Math.random() * Math.PI * 2;
+                    roulLanded = r < .4 ? 'red' : r < .8 ? 'black' : 'green';
+
+                    // Находим нужный угол для остановки на выбранном цвете
+                    const segs = [];
+                    for (let i = 0; i < 9; i++) { segs.push('red');
+                        segs.push('black'); }
+                    segs.push('green', 'green');
+                    const n = segs.length;
+                    // Ищем индекс сегмента с нужным цветом
+                    let targetIdx = -1;
+                    // Ищем случайный сегмент нужного цвета
+                    const possible = [];
+                    segs.forEach((c, i) => { if (c === roulLanded) possible.push(i); });
+                    targetIdx = possible[Math.floor(Math.random() * possible.length)];
+
+                    // Угол: стрелка смотрит вверх (0), сегмент i занимает угол от i/n*2π до (i+1)/n*2π
+                    // Нужно чтобы центр сегмента был сверху: a0 + (i+0.5)/n*2π = 0 (или 2π)
+                    const targetAngle = -(targetIdx + 0.5) / n * Math.PI * 2;
+                    // Добавляем несколько оборотов
+                    const total = targetAngle + Math.PI * 2 * (6 + Math.random() * 2);
+
                     const dur = 2800;
                     const t0 = Date.now();
 
@@ -1354,26 +1376,32 @@
                         const el = Date.now() - t0,
                             prog = Math.min(1, el / dur);
                         const ease = 1 - Math.pow(1 - prog, 3.5);
-                        drawRoulette(ease * total, prog >= 1 ? landed : null);
-                        if (prog < 1) { requestAnimationFrame(anim); } else {
+                        drawRoulette(ease * total, prog >= 1 ? roulLanded : null);
+                        if (prog < 1) {
+                            requestAnimationFrame(anim);
+                        } else {
                             roulRunning = false;
-                            const win = col === landed ? (landed === 'green' ? bet * 5 : Math.floor(bet * 1.75)) : 0;
+                            const win = col === roulLanded ? (roulLanded === 'green' ? bet * 5 : Math.floor(bet *
+                            1.75)) : 0;
                             if (win) G.coins += win;
-                            const lbl = landed === 'red' ? 'красное' : landed === 'black' ? 'чёрное' : 'зелёное';
+                            const lbl = roulLanded === 'red' ? 'красное' : roulLanded === 'black' ? 'чёрное' :
+                            'зелёное';
                             const resEl = document.getElementById('RL_res');
-                            resEl.textContent = col === landed ? `✅ ${lbl.charAt(0).toUpperCase()+lbl.slice(1)}! +${win} монет` :
+                            resEl.textContent = col === roulLanded ?
+                                `✅ ${lbl.charAt(0).toUpperCase()+lbl.slice(1)}! +${win} монет` :
                                 `❌ ${lbl.charAt(0).toUpperCase()+lbl.slice(1)} — проигрыш`;
-                            resEl.className = 'game-result ' + (col === landed ? 'win' : 'lose');
+                            resEl.className = 'game-result ' + (col === roulLanded ? 'win' : 'lose');
                             save();
                             renderUI();
-                            toast(col === landed ? `+${win} монет!` : 'Не повезло', col === landed ? 'gld' : 'err');
+                            toast(col === roulLanded ? `+${win} монет!` : 'Не повезло', col === roulLanded ? 'gld' :
+                                'err');
                         }
                     }
                     requestAnimationFrame(anim);
                 });
         }
 
-        // ---- Кубики ----
+        // ---- КУБИКИ (исправлены) ----
         const DICE_FACES = ['⚀', '⚁', '⚂', '⚃', '⚄', '⚅'];
 
         function updateDiceDisplay(vals) {
@@ -1408,7 +1436,7 @@
                     for (const el of diceEls) el.classList.remove('rolling');
                     callback();
                 }
-            }, 100);
+            }, 80);
         }
 
         function playDice(col) {
@@ -1418,14 +1446,13 @@
             G.diceRolling = true;
             const resultEl = document.getElementById('DC_res');
 
-            // Определяем результат заранее (честно)
+            // ЧЕСТНЫЙ результат
             const won = Math.random() < 0.33;
             const guessed = won ? Math.floor(Math.random() * 16) + 10 : Math.floor(Math.random() * 6);
             const winAmount = guessed * 5;
             const finalVals = Array.from({ length: 5 }, () => Math.floor(Math.random() * 6));
 
             animateDiceRoll(() => {
-                // Показываем финальные значения
                 updateDiceDisplay(finalVals);
                 G.coins += winAmount;
                 const profit = winAmount - 50;
@@ -1439,7 +1466,7 @@
             });
         }
 
-        // ---- Аукцион ----
+        // ---- АУКЦИОН ----
         function bid(a) {
             if (G.coins < a) { toast('Мало монет', 'err'); return; }
             G.coins -= a;
@@ -1515,14 +1542,14 @@
             } else {
                 if (G.coins < 250) { toast('Нужно 250 монет', 'err'); return; }
                 confirmAction(`Купить стиль «${NICK_STYLES[id].n}»?`, `Стоимость 250 монет. Стиль сразу станет активным.`,
-                () => {
-                    G.coins -= 250;
-                    G.nicks.p.push(id);
-                    G.nicks.a = id;
-                    save();
-                    renderUI();
-                    toast('Стиль куплен и активирован!', 'gld');
-                });
+                    () => {
+                        G.coins -= 250;
+                        G.nicks.p.push(id);
+                        G.nicks.a = id;
+                        save();
+                        renderUI();
+                        toast('Стиль куплен и активирован!', 'gld');
+                    });
             }
         }
 
@@ -1703,7 +1730,6 @@
             if (sc && sc.id === 'sc-top') renderTop('b');
         }, 600000);
 
-        // Установка картинки баннера (как на скриншоте)
         setBannerImage('https://i.ibb.co/hRSsFg5R/Chat-GPT-Image-19-2026-20-55-28.png');
     </script>
 </body>
