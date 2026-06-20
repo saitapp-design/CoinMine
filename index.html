@@ -35,157 +35,14 @@
         html,
         body {
             height: 100%;
-            background: #07070f;
+            background: var(--bg);
             color: var(--tx);
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             font-size: 14px;
             line-height: 1.4;
             overflow-x: hidden;
+            padding-bottom: 70px;
         }
-
-        /* ============================================
-           БОКОВЫЕ ИЗОБРАЖЕНИЯ ДЛЯ ПК — ИСПРАВЛЕНО
-           ============================================ */
-        body {
-            background: #07070f;
-            position: relative;
-            overflow-x: hidden;
-        }
-
-        body::before,
-        body::after {
-            content: '';
-            position: fixed;
-            top: 0;
-            bottom: 0;
-            width: calc((100% - 600px) / 2);
-            min-width: 40px;
-            max-width: 250px;
-            z-index: 0;
-            pointer-events: none;
-            background-image: url('https://i.ibb.co/B5CTFj4c/Chat-GPT-Image-20-2026-14-52-25.png');
-            background-size: contain;
-            background-position: center;
-            background-repeat: no-repeat;
-            opacity: 0.35;
-        }
-
-        body::before {
-            left: 0;
-        }
-
-        body::after {
-            right: 0;
-        }
-
-        /* Основное приложение */
-        .app {
-            max-width: 600px;
-            margin: 0 auto;
-            background: var(--bg);
-            position: relative;
-            z-index: 1;
-            min-height: 100vh;
-            box-shadow: 0 0 60px rgba(0, 0, 0, 0.8);
-            padding-bottom: 130px;
-            /* отступ для навигации и баннера */
-        }
-
-        @media (max-width: 600px) {
-            .app {
-                max-width: 430px;
-                padding-bottom: 120px;
-            }
-            body::before,
-            body::after {
-                display: none !important;
-            }
-        }
-
-        /* ============================================
-           НАВИГАЦИЯ
-           ============================================ */
-        .nav {
-            background: var(--bg2);
-            border-top: 1px solid var(--bd);
-            padding: 8px 0 max(8px, env(safe-area-inset-bottom));
-            display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            max-width: 600px;
-            margin: 0 auto;
-            z-index: 50;
-        }
-
-        @media (max-width: 600px) {
-            .nav {
-                max-width: 430px;
-            }
-        }
-
-        .nb {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 3px;
-            padding: 8px 2px;
-            background: none;
-            border: none;
-            color: var(--tx2);
-            font-size: 11px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: .15s;
-        }
-        .nb.on {
-            color: var(--gld);
-        }
-        .nb span {
-            font-size: 20px;
-        }
-
-        /* ============================================
-           БАННЕР — ПЕРЕНЕСЁН ВНУТРЬ APP
-           ============================================ */
-        .bnr {
-            display: block;
-            width: 100%;
-            height: 70px;
-            overflow: hidden;
-            position: relative;
-            z-index: 10;
-            cursor: pointer;
-            background: var(--bg2);
-            border-top: 1px solid var(--bd2);
-            border-bottom: 1px solid var(--bd2);
-            margin-top: 10px;
-        }
-
-        .bnr-img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            display: block;
-        }
-
-        .bnr-ph {
-            width: 100%;
-            height: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 16px;
-            font-weight: 700;
-            color: var(--gld);
-            background: var(--bg3);
-        }
-
-        /* ============================================
-           ОСТАЛЬНЫЕ СТИЛИ
-           ============================================ */
 
         /* AUTH */
         #authWrap {
@@ -331,6 +188,8 @@
         /* APP */
         #appWrap {
             display: none;
+            max-width: 430px;
+            margin: 0 auto;
             flex-direction: column;
             min-height: 100vh;
         }
@@ -373,6 +232,7 @@
             display: flex;
             flex-direction: column;
             gap: 10px;
+            padding-bottom: 70px;
         }
         .sc {
             display: none;
@@ -394,7 +254,40 @@
                 transform: translateY(0);
             }
         }
-
+        .nav {
+            background: var(--bg2);
+            border-top: 1px solid var(--bd);
+            padding: 8px 0 max(8px, env(safe-area-inset-bottom));
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            max-width: 430px;
+            margin: 0 auto;
+            z-index: 50;
+        }
+        .nb {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 3px;
+            padding: 8px 2px;
+            background: none;
+            border: none;
+            color: var(--tx2);
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: .15s;
+        }
+        .nb.on {
+            color: var(--gld);
+        }
+        .nb span {
+            font-size: 20px;
+        }
         .logout-btn {
             background: none;
             border: 1px solid var(--bd2);
@@ -541,6 +434,43 @@
             border-bottom: none;
         }
 
+        /* BNR */
+        .bnr {
+            display: block;
+            width: 100%;
+            height: 80px;
+            overflow: hidden;
+            position: fixed;
+            bottom: 55px;
+            left: 0;
+            right: 0;
+            max-width: 430px;
+            margin: 0 auto;
+            z-index: 45;
+            cursor: pointer;
+            background: var(--bg2);
+            border-top: 1px solid var(--bd2);
+            border-bottom: 1px solid var(--bd2);
+        }
+        .bnr-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+        .bnr-ph {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--gld);
+            background: var(--bg3);
+        }
+
+        /* Modals */
         .mod-bg {
             display: none;
             position: fixed;
@@ -616,6 +546,7 @@
             border: 1px solid #991b1b;
         }
 
+        /* Nicks */
         .nick-g {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -640,6 +571,7 @@
             box-shadow: 0 0 0 2px #f0b42930;
         }
 
+        /* Shop */
         .pkg-g {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -676,6 +608,12 @@
             margin-bottom: 3px;
         }
 
+        /* Boss */
+        .boss-wrap {
+            text-align: center;
+            padding: 8px 0;
+            position: relative;
+        }
         .boss-avatar {
             font-size: 80px;
             line-height: 1;
@@ -714,7 +652,18 @@
             border-radius: 10px;
             transition: width .6s ease;
         }
+        .hp-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(180deg, #ffffff25, transparent);
+            border-radius: 10px;
+        }
 
+        /* Roulette */
         .rl-wrap {
             position: relative;
             width: 100%;
@@ -742,6 +691,7 @@
             filter: drop-shadow(0 2px 8px #f0b429aa);
         }
 
+        /* Dice */
         .dice-scene {
             width: 100%;
             height: 220px;
@@ -799,6 +749,7 @@
             font-weight: 600;
         }
 
+        /* Auction podium */
         .podium {
             display: flex;
             flex-direction: column;
@@ -857,6 +808,7 @@
             font-size: 14px;
         }
 
+        /* Clan */
         .clan-icon {
             font-size: 60px;
             text-align: center;
@@ -872,6 +824,12 @@
             font-size: 28px;
             font-weight: 800;
             color: var(--gld);
+        }
+
+        .card-icon {
+            font-size: 32px;
+            margin-right: 6px;
+            vertical-align: middle;
         }
 
         #TOAST {
@@ -902,319 +860,315 @@
 </head>
 <body>
 
-    <!-- ══════════════════ APP ═══════════════════ -->
-    <div class="app" id="appRoot">
-
-        <!-- AUTH -->
-        <div id="authWrap">
-            <div class="auth-box">
-                <div class="auth-banner">
-                    <img src="https://i.ibb.co/hRSsFg5R/Chat-GPT-Image-19-2026-20-55-28.png" alt="CoinMine Banner">
-                </div>
-                <div class="auth-title">CoinMine</div>
-                <div class="auth-sub" id="authSub">Войдите или создайте аккаунт</div>
-                <div class="auth-tabs">
-                    <button class="auth-tab on" onclick="setAuthMode('login')" id="tabLogin">Войти</button>
-                    <button class="auth-tab" onclick="setAuthMode('register')" id="tabRegister">Регистрация</button>
-                </div>
-                <input class="inp" id="authUsername" type="text" placeholder="Логин (3-16 символов)" autocomplete="username">
-                <input class="inp" id="authPass" type="password" placeholder="Пароль (мин. 6 символов)" autocomplete="current-password">
-                <button class="btn bp" id="authBtn" onclick="handleAuth()">⚡ Войти</button>
-                <div class="astat" id="authStatus">Готово ко входу</div>
+    <!-- ══════════════════ AUTH ══════════════════ -->
+    <div id="authWrap">
+        <div class="auth-box">
+            <div class="auth-banner">
+                <img src="https://i.ibb.co/B2ZWmtHJ/image.png" alt="CoinMine Banner">
             </div>
+            <div class="auth-title">FarmerokGames</div>
+            <div class="auth-sub" id="authSub">Войдите или создайте аккаунт</div>
+            <div class="auth-tabs">
+                <button class="auth-tab on" onclick="setAuthMode('login')" id="tabLogin">Войти</button>
+                <button class="auth-tab" onclick="setAuthMode('register')" id="tabRegister">Регистрация</button>
+            </div>
+            <input class="inp" id="authUsername" type="text" placeholder="Логин (3-16 символов)" autocomplete="username">
+            <input class="inp" id="authPass" type="password" placeholder="Пароль (мин. 6 символов)" autocomplete="current-password">
+            <button class="btn bp" id="authBtn" onclick="handleAuth()">⚡ Войти</button>
+            <div class="astat" id="authStatus">Готово ко входу</div>
+        </div>
+    </div>
+
+    <!-- ══════════════════ APP ═══════════════════ -->
+    <div id="appWrap">
+        <div class="hdr">
+            <div class="hdr-logo">⛏ CoinMine</div>
+            <div class="hdr-bal">💰 <span id="H_c">0</span></div>
         </div>
 
-        <!-- APP -->
-        <div id="appWrap">
-            <div class="hdr">
-                <div class="hdr-logo">⛏ CoinMine</div>
-                <div class="hdr-bal">💰 <span id="H_c">0</span></div>
+        <div class="screens">
+
+            <!-- HOME -->
+            <div class="sc on" id="sc-home">
+                <div class="card">
+                    <div class="fl" style="margin-bottom:14px">
+                        <div id="AV" style="font-size:40px;width:52px;height:52px;border-radius:50%;background:#190a35;border:2px solid var(--acc);display:flex;align-items:center;justify-content:center;flex-shrink:0">⛏</div>
+                        <div class="f1">
+                            <div class="fl" style="flex-wrap:wrap;gap:6px;margin-bottom:3px">
+                                <strong id="PNAME" style="font-size:15px">Шахтёр</strong>
+                                <button class="logout-btn" onclick="logoutUser()">🚪 Выйти</button>
+                                <button onclick="openNickMod()" style="background:none;border:1px solid var(--bd2);border-radius:4px;padding:2px 7px;color:var(--tx2);font-size:10px;cursor:pointer">✏️ ник</button>
+                            </div>
+                            <div id="NICK_L" style="font-size:11px;color:var(--tx2)">Стиль не выбран</div>
+                        </div>
+                    </div>
+                    <div class="g2">
+                        <div class="st"><div class="sv" id="S_c">0</div><div class="sl">💰 монет</div></div>
+                        <div class="st"><div class="sv" id="S_f">0</div><div class="sl">⛏ фармов</div></div>
+                        <div class="st"><div class="sv" id="S_r">0</div><div class="sl">👥 рефералов</div></div>
+                        <div class="st"><div class="sv" id="S_k">0</div><div class="sl">🔑 ключей</div></div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="ct">⛏ шахта</div>
+                    <div style="background:var(--bg4);border-radius:var(--r2);padding:10px 12px;margin-bottom:10px;display:flex;align-items:center;gap:9px">
+                        <span style="font-size:20px">⛏</span>
+                        <div class="f1">
+                            <div style="font-size:12px;color:var(--tx2)" id="F_st">Готово к добыче!</div>
+                            <div class="pb mt8"><div class="pf pf-gld" id="F_pb" style="width:100%"></div></div>
+                        </div>
+                        <span style="font-size:11px;color:var(--tx2);min-width:42px;text-align:right" id="F_cd"></span>
+                    </div>
+                    <div style="font-size:11px;color:var(--tx2);margin-bottom:10px">Уровень: <b id="F_lv" style="color:var(--acc3)">1</b> · Множитель: <b id="F_mx" style="color:var(--gld)">×1.0</b> · Прокачка: <b id="F_uc" style="color:var(--tx)">50 монет</b></div>
+                    <div class="g2">
+                        <button class="btn bp" id="F_btn" onclick="conf('Добыть монеты?','Кулдаун 1 час. Монеты = (1–5) × уровень-множитель.',doFarm)">⛏ Добыть</button>
+                        <button class="btn bs" onclick="conf('Улучшить шахту?','Стоимость: ' + getFarmCost() + ' монет. +20% к добыче за уровень.',upFarm)">⬆ Прокачать</button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="ct">🎁 реферальная программа</div>
+                    <div class="irow mb8">
+                        <input class="inp" id="REF_I" placeholder="Введите реф-код друга...">
+                        <button class="btn bp" style="width:auto;padding:0 12px" onclick="useRefCode()">Активировать</button>
+                        <button class="btn bs" style="width:auto;padding:0 12px" onclick="changeRefCode()">🔄 Сменить код</button>
+                    </div>
+                    <div class="tm">Ваш реф-код: <b style="color:var(--gld)" id="MY_REF">—</b></div>
+                    <div class="tm">Активирован: <b id="ACT_REF" style="color:var(--gld)">—</b></div>
+                    <div class="tm mt8">За активацию вашего кода: <b style="color:var(--gld)">+25 монет</b> вам и другу</div>
+                </div>
+
+                <div class="card">
+                    <div class="ct">💎 осколки</div>
+                    <div id="SH_H" style="font-size:12px;color:var(--tx2)">Выпадают случайно при добыче</div>
+                </div>
             </div>
 
-            <div class="screens">
-
-                <!-- HOME -->
-                <div class="sc on" id="sc-home">
-                    <div class="card">
-                        <div class="fl" style="margin-bottom:14px">
-                            <div id="AV" style="font-size:40px;width:52px;height:52px;border-radius:50%;background:#190a35;border:2px solid var(--acc);display:flex;align-items:center;justify-content:center;flex-shrink:0">⛏</div>
-                            <div class="f1">
-                                <div class="fl" style="flex-wrap:wrap;gap:6px;margin-bottom:3px">
-                                    <strong id="PNAME" style="font-size:15px">Шахтёр</strong>
-                                    <button class="logout-btn" onclick="logoutUser()">🚪 Выйти</button>
-                                    <button onclick="openNickMod()" style="background:none;border:1px solid var(--bd2);border-radius:4px;padding:2px 7px;color:var(--tx2);font-size:10px;cursor:pointer">✏️ ник</button>
-                                </div>
-                                <div id="NICK_L" style="font-size:11px;color:var(--tx2)">Стиль не выбран</div>
-                            </div>
-                        </div>
-                        <div class="g2">
-                            <div class="st"><div class="sv" id="S_c">0</div><div class="sl">💰 монет</div></div>
-                            <div class="st"><div class="sv" id="S_f">0</div><div class="sl">⛏ фармов</div></div>
-                            <div class="st"><div class="sv" id="S_r">0</div><div class="sl">👥 рефералов</div></div>
-                            <div class="st"><div class="sv" id="S_k">0</div><div class="sl">🔑 ключей</div></div>
-                        </div>
-                    </div>
-
-                    <div class="card">
-                        <div class="ct">⛏ шахта</div>
-                        <div style="background:var(--bg4);border-radius:var(--r2);padding:10px 12px;margin-bottom:10px;display:flex;align-items:center;gap:9px">
-                            <span style="font-size:20px">⛏</span>
-                            <div class="f1">
-                                <div style="font-size:12px;color:var(--tx2)" id="F_st">Готово к добыче!</div>
-                                <div class="pb mt8"><div class="pf pf-gld" id="F_pb" style="width:100%"></div></div>
-                            </div>
-                            <span style="font-size:11px;color:var(--tx2);min-width:42px;text-align:right" id="F_cd"></span>
-                        </div>
-                        <div style="font-size:11px;color:var(--tx2);margin-bottom:10px">Уровень: <b id="F_lv" style="color:var(--acc3)">1</b> · Множитель: <b id="F_mx" style="color:var(--gld)">×1.0</b> · Прокачка: <b id="F_uc" style="color:var(--tx)">50 монет</b></div>
-                        <div class="g2">
-                            <button class="btn bp" id="F_btn" onclick="conf('Добыть монеты?','Кулдаун 1 час. Монеты = (1–5) × уровень-множитель.',doFarm)">⛏ Добыть</button>
-                            <button class="btn bs" onclick="conf('Улучшить шахту?','Стоимость: ' + getFarmCost() + ' монет. +20% к добыче за уровень.',upFarm)">⬆ Прокачать</button>
-                        </div>
-                    </div>
-
-                    <div class="card">
-                        <div class="ct">🎁 реферальная программа</div>
-                        <div class="irow mb8">
-                            <input class="inp" id="REF_I" placeholder="Введите реф-код друга...">
-                            <button class="btn bp" style="width:auto;padding:0 12px" onclick="useRefCode()">Активировать</button>
-                            <button class="btn bs" style="width:auto;padding:0 12px" onclick="changeRefCode()">🔄 Сменить код</button>
-                        </div>
-                        <div class="tm">Ваш реф-код: <b style="color:var(--gld)" id="MY_REF">—</b></div>
-                        <div class="tm">Активирован: <b id="ACT_REF" style="color:var(--gld)">—</b></div>
-                        <div class="tm mt8">За активацию вашего кода: <b style="color:var(--gld)">+25 монет</b> вам и другу</div>
-                    </div>
-
-                    <div class="card">
-                        <div class="ct">💎 осколки</div>
-                        <div id="SH_H" style="font-size:12px;color:var(--tx2)">Выпадают случайно при добыче</div>
-                    </div>
+            <!-- GAMES -->
+            <div class="sc" id="sc-games">
+                <div class="tab-r">
+                    <div class="tab on" id="GT_rl" onclick="gTab('rl',this)">🎰 Рулетка</div>
+                    <div class="tab" id="GT_dc" onclick="gTab('dc',this)">🎲 Кубик</div>
+                    <div class="tab" id="GT_au" onclick="gTab('au',this)">🏛 Аукцион</div>
                 </div>
 
-                <!-- GAMES -->
-                <div class="sc" id="sc-games">
-                    <div class="tab-r">
-                        <div class="tab on" id="GT_rl" onclick="gTab('rl',this)">🎰 Рулетка</div>
-                        <div class="tab" id="GT_dc" onclick="gTab('dc',this)">🎲 Кубик</div>
-                        <div class="tab" id="GT_au" onclick="gTab('au',this)">🏛 Аукцион</div>
-                    </div>
-
-                    <div id="G_rl">
-                        <div class="card">
-                            <div class="ct">🎰 рулетка — выберите ставку и цвет</div>
-                            <div class="rl-wrap" style="margin-bottom:10px">
-                                <canvas id="RC" height="200" style="width:100%;display:block"></canvas>
-                                <div class="rl-marker"></div>
+                <div id="G_rl">
+                    <div class="card">
+                        <div class="ct">🎰 рулетка — выберите ставку и цвет</div>
+                        <div class="rl-wrap" style="margin-bottom:10px">
+                            <canvas id="RC" height="200" style="width:100%;display:block"></canvas>
+                            <div class="rl-marker"></div>
+                        </div>
+                        <div id="RL_r" style="font-size:14px;text-align:center;min-height:24px;color:var(--tx2);margin-bottom:10px;font-weight:600">Выберите цвет чтобы начать</div>
+                        <div class="g2" style="margin-bottom:10px">
+                            <div>
+                                <div class="tm mb8">Ставка</div>
+                                <select id="RL_b" class="inp" style="padding:8px;margin:0">
+                                    <option value="10">10 монет</option>
+                                    <option value="25" selected>25 монет</option>
+                                    <option value="50">50 монет</option>
+                                    <option value="100">100 монет</option>
+                                </select>
                             </div>
-                            <div id="RL_r" style="font-size:14px;text-align:center;min-height:24px;color:var(--tx2);margin-bottom:10px;font-weight:600">Выберите цвет чтобы начать</div>
-                            <div class="g2" style="margin-bottom:10px">
-                                <div>
-                                    <div class="tm mb8">Ставка</div>
-                                    <select id="RL_b" class="inp" style="padding:8px;margin:0">
-                                        <option value="10">10 монет</option>
-                                        <option value="25" selected>25 монет</option>
-                                        <option value="50">50 монет</option>
-                                        <option value="100">100 монет</option>
-                                    </select>
+                            <div>
+                                <div class="tm mb8">Коэффициенты</div>
+                                <div style="background:var(--bg4);border-radius:var(--r2);padding:8px;font-size:12px;color:var(--tx2);text-align:center">
+                                    <div>🔴 ×1.75</div>
+                                    <div>⚫ ×1.75</div>
+                                    <div>🟩 ×5.0</div>
                                 </div>
-                                <div>
-                                    <div class="tm mb8">Коэффициенты</div>
-                                    <div style="background:var(--bg4);border-radius:var(--r2);padding:8px;font-size:12px;color:var(--tx2);text-align:center">
-                                        <div>🔴 ×1.75</div>
-                                        <div>⚫ ×1.75</div>
-                                        <div>🟩 ×5.0</div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="g3">
-                                <button class="btn" style="background:#7f1d1d;color:#fca5a5;border:1px solid #991b1b;font-size:14px;padding:14px 0" onclick="startRoul('red')">🔴 Красный</button>
-                                <button class="btn" style="background:#1c1c2e;color:#d1d5db;border:1px solid #374151;font-size:14px;padding:14px 0" onclick="startRoul('black')">⚫ Чёрный</button>
-                                <button class="btn" style="background:#052e16;color:#4ade80;border:1px solid #14532d;font-size:14px;padding:14px 0" onclick="startRoul('green')">🟩 Зелёный</button>
                             </div>
                         </div>
-                    </div>
-
-                    <div id="G_dc" style="display:none">
-                        <div class="card">
-                            <div class="ct">🎲 3d кубик — ставка 50 монет</div>
-                            <div class="dice-scene" id="diceScene">
-                                <div id="diceCube" class="dice-cube">
-                                    <div class="dice-face df-front" id="d-f" style="background:#2a1a35;">⚀</div>
-                                    <div class="dice-face df-back" id="d-b" style="background:#1a2a2a;">⚅</div>
-                                    <div class="dice-face df-right" id="d-r" style="background:#2a2a1a;">⚂</div>
-                                    <div class="dice-face df-left" id="d-l" style="background:#1a2a2a;">⚃</div>
-                                    <div class="dice-face df-top" id="d-t" style="background:#2a1a2a;">⚁</div>
-                                    <div class="dice-face df-bottom" id="d-bo" style="background:#1a1a2a;">⚄</div>
-                                </div>
-                            </div>
-                            <div class="tm tc dice-val" id="DC_r">Кидайте кубик!</div>
-                            <div class="tm tc" style="font-size:12px;margin-bottom:10px">Число × 10 + бонус за цвет (+10) — ставка 50</div>
-                            <div class="g2">
-                                <button class="btn" style="background:#7f1d1d;color:#fca5a5;border:1px solid #991b1b;font-size:14px;padding:14px 0" onclick="conf('Ставка 50 монет?','Вы выбираете красный. Число на кубике × 10 + 10 бонус если цвет совпал. Стоимость 50 монет.',()=>playDice('red'))">🔴 Красный (50)</button>
-                                <button class="btn" style="background:#1c1c2e;color:#d1d5db;border:1px solid #374151;font-size:14px;padding:14px 0" onclick="conf('Ставка 50 монет?','Вы выбираете чёрный. Число на кубике × 10 + 10 бонус если цвет совпал. Стоимость 50 монет.',()=>playDice('black'))">⚫ Чёрный (50)</button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div id="G_au" style="display:none">
-                        <div class="card">
-                            <div class="ct">🏛 аукцион</div>
-                            <div class="tc" style="padding:8px 0">
-                                <div class="tm">Текущая лидирующая ставка</div>
-                                <div style="font-size:42px;font-weight:800;color:var(--gld)" id="AU_a">0</div>
-                                <div class="tm" id="AU_l">Ставок пока нет</div>
-                                <div class="tm mt8">Ваша ставка: <b style="color:var(--gld)" id="MY_b">0</b> монет</div>
-                            </div>
-                            <div class="podium" id="podiumList">
-                                <div class="tm tc" style="padding:12px;">Пока нет ставок</div>
-                            </div>
-                            <div class="g3 mt8">
-                                <button class="btn bs" onclick="conf('+10 к ставке?','Ваши 10 монет зарезервируются. Если проиграете — вернутся.',()=>bid(10))">+10</button>
-                                <button class="btn bs" onclick="conf('+50 к ставке?','Ваши 50 монет зарезервируются. Победитель получает приз.',()=>bid(50))">+50</button>
-                                <button class="btn bs" onclick="conf('+100 к ставке?','Ваши 100 монет зарезервируются. Победитель определяется администратором.',()=>bid(100))">+100</button>
-                            </div>
+                        <div class="g3">
+                            <button class="btn" style="background:#7f1d1d;color:#fca5a5;border:1px solid #991b1b;font-size:14px;padding:14px 0" onclick="startRoul('red')">🔴 Красный</button>
+                            <button class="btn" style="background:#1c1c2e;color:#d1d5db;border:1px solid #374151;font-size:14px;padding:14px 0" onclick="startRoul('black')">⚫ Чёрный</button>
+                            <button class="btn" style="background:#052e16;color:#4ade80;border:1px solid #14532d;font-size:14px;padding:14px 0" onclick="startRoul('green')">🟩 Зелёный</button>
                         </div>
                     </div>
                 </div>
 
-                <!-- ARENA -->
-                <div class="sc" id="sc-arena">
-                    <div class="card tc">
+                <div id="G_dc" style="display:none">
+                    <div class="card">
+                        <div class="ct">🎲 3d кубик — ставка 50 монет</div>
+                        <div class="dice-scene" id="diceScene">
+                            <div id="diceCube" class="dice-cube">
+                                <div class="dice-face df-front" id="d-f" style="background:#2a1a35;">⚀</div>
+                                <div class="dice-face df-back" id="d-b" style="background:#1a2a2a;">⚅</div>
+                                <div class="dice-face df-right" id="d-r" style="background:#2a2a1a;">⚂</div>
+                                <div class="dice-face df-left" id="d-l" style="background:#1a2a2a;">⚃</div>
+                                <div class="dice-face df-top" id="d-t" style="background:#2a1a2a;">⚁</div>
+                                <div class="dice-face df-bottom" id="d-bo" style="background:#1a1a2a;">⚄</div>
+                            </div>
+                        </div>
+                        <div class="tm tc dice-val" id="DC_r">Кидайте кубик!</div>
+                        <div class="tm tc" style="font-size:12px;margin-bottom:10px">Число × 10 + бонус за цвет (+10) — ставка 50</div>
+                        <div class="g2">
+                            <button class="btn" style="background:#7f1d1d;color:#fca5a5;border:1px solid #991b1b;font-size:14px;padding:14px 0" onclick="conf('Ставка 50 монет?','Вы выбираете красный. Число на кубике × 10 + 10 бонус если цвет совпал. Стоимость 50 монет.',()=>playDice('red'))">🔴 Красный (50)</button>
+                            <button class="btn" style="background:#1c1c2e;color:#d1d5db;border:1px solid #374151;font-size:14px;padding:14px 0" onclick="conf('Ставка 50 монет?','Вы выбираете чёрный. Число на кубике × 10 + 10 бонус если цвет совпал. Стоимость 50 монет.',()=>playDice('black'))">⚫ Чёрный (50)</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="G_au" style="display:none">
+                    <div class="card">
+                        <div class="ct">🏛 аукцион</div>
+                        <div class="tc" style="padding:8px 0">
+                            <div class="tm">Текущая лидирующая ставка</div>
+                            <div style="font-size:42px;font-weight:800;color:var(--gld)" id="AU_a">0</div>
+                            <div class="tm" id="AU_l">Ставок пока нет</div>
+                            <div class="tm mt8">Ваша ставка: <b style="color:var(--gld)" id="MY_b">0</b> монет</div>
+                        </div>
+                        <div class="podium" id="podiumList">
+                            <div class="tm tc" style="padding:12px;">Пока нет ставок</div>
+                        </div>
+                        <div class="g3 mt8">
+                            <button class="btn bs" onclick="conf('+10 к ставке?','Ваши 10 монет зарезервируются. Если проиграете — вернутся.',()=>bid(10))">+10</button>
+                            <button class="btn bs" onclick="conf('+50 к ставке?','Ваши 50 монет зарезервируются. Победитель получает приз.',()=>bid(50))">+50</button>
+                            <button class="btn bs" onclick="conf('+100 к ставке?','Ваши 100 монет зарезервируются. Победитель определяется администратором.',()=>bid(100))">+100</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ARENA -->
+            <div class="sc" id="sc-arena">
+                <div class="card tc">
+                    <div class="boss-wrap">
                         <div class="boss-avatar" id="BS_i">👹</div>
                         <div class="boss-name" id="BS_n">Рябчик</div>
                         <div class="boss-status" id="BS_s">Появляется в 16:00 МСК</div>
-                        <div class="hp-bar"><div class="hp-fill" id="BS_h" style="width:0%"></div></div>
-                        <div class="fl" style="justify-content:space-between;font-size:12px;color:var(--tx2)">
-                            <span id="BS_ht">0 / 1000 ХП</span>
-                            <span id="BS_rs"></span>
-                        </div>
-                        <div class="g2 mt8">
-                            <button class="btn bp" id="ATK_btn" onclick="conf('Атаковать Рябчика?','Стоимость: 20 монет. Урон 10–50. Шанс 20% получить сундук.',atkBoss)">⚔ Атаковать (20)</button>
-                            <button class="btn bs" id="CH_btn" onclick="conf('Открыть сундук?','Случайная награда: монеты, ключи или редкий осколок.',openChest)">📦 Сундук (<span id="CH_c">0</span>)</button>
-                        </div>
-                        <div style="font-size:13px;color:var(--grn);margin-top:8px;min-height:20px;font-weight:600" id="ATK_l"></div>
                     </div>
-
-                    <div class="card">
-                        <div class="ct">📋 миссии дня</div>
-                        <div id="MS_l"></div>
-                        <div class="fl" style="justify-content:space-between;margin-top:10px">
-                            <span class="tm">Всего ключей</span>
-                            <span style="font-size:16px;font-weight:700;color:var(--gld)" id="K_b">0 🔑</span>
-                        </div>
+                    <div class="hp-bar"><div class="hp-fill" id="BS_h" style="width:0%"></div></div>
+                    <div class="fl" style="justify-content:space-between;font-size:12px;color:var(--tx2)">
+                        <span id="BS_ht">0 / 1000 ХП</span>
+                        <span id="BS_rs"></span>
                     </div>
+                    <div class="g2 mt8">
+                        <button class="btn bp" id="ATK_btn" onclick="conf('Атаковать Рябчика?','Стоимость: 20 монет. Урон 10–50. Шанс 20% получить сундук.',atkBoss)">⚔ Атаковать (20)</button>
+                        <button class="btn bs" id="CH_btn" onclick="conf('Открыть сундук?','Случайная награда: монеты, ключи или редкий осколок.',openChest)">📦 Сундук (<span id="CH_c">0</span>)</button>
+                    </div>
+                    <div style="font-size:13px;color:var(--grn);margin-top:8px;min-height:20px;font-weight:600" id="ATK_l"></div>
                 </div>
 
-                <!-- CLAN -->
-                <div class="sc" id="sc-clan">
-                    <div id="CL_no">
-                        <div class="card tc" style="padding:20px">
-                            <div class="clan-icon">🏰</div>
-                            <div style="font-size:16px;font-weight:700;margin-bottom:6px">Вы не в клане</div>
-                            <div class="tm mb8">Создайте клан за 1500 монет и добывайте алмазы командой</div>
-                            <button class="btn bp" onclick="conf('Создать клан за 1500 монет?','Вы получите случайное название. Можно пригласить до 4 участников и вместе добывать алмазы каждые 6 часов.',createClan)">➕ Создать клан</button>
-                        </div>
-                    </div>
-                    <div id="CL_yes" style="display:none">
-                        <div style="background:#0a0620;border:1px solid #4c1d95;border-radius:var(--r);padding:16px;text-align:center;margin-bottom:10px">
-                            <div class="clan-icon" id="CL_i">⚔️</div>
-                            <div class="clan-name" id="CL_n">—</div>
-                            <div class="clan-diamonds" id="CL_d">0 💎</div>
-                            <div class="tm" id="CL_cd">Фарм доступен!</div>
-                        </div>
-                        <div class="card">
-                            <div class="ct">участники (<span id="CL_m">1</span>/5)</div>
-                            <div id="CL_ml"></div>
-                        </div>
-                        <button class="btn bp mb8" onclick="conf('Добыть алмазы?','Клановый фарм раз в 6 часов. Алмазы идут в казну клана.',clanFarm)">⛏ Добыть алмазы</button>
-                        <button class="btn bs mb8" onclick="conf('Обменять 5 💎 → 25 монет?','5 алмазов из казны клана = 25 монет на ваш баланс.',()=>exDiam(5))">🔄 5 💎 → 25 монет</button>
-                        <button class="btn bred" onclick="conf('Распустить клан?','Клан удалится навсегда. Все алмазы сгорят.',disbandClan)">🗑 Распустить</button>
+                <div class="card">
+                    <div class="ct">📋 миссии дня</div>
+                    <div id="MS_l"></div>
+                    <div class="fl" style="justify-content:space-between;margin-top:10px">
+                        <span class="tm">Всего ключей</span>
+                        <span style="font-size:16px;font-weight:700;color:var(--gld)" id="K_b">0 🔑</span>
                     </div>
                 </div>
-
-                <!-- SHOP -->
-                <div class="sc" id="sc-shop">
-                    <div class="card">
-                        <div class="ct">💰 купить монеты</div>
-                        <div class="pkg-g">
-                            <div class="pkg" onclick="conf('Купить 500 монет за 30 ₽?','В демо-режиме монеты зачисляются бесплатно.',()=>buyCoins(500))">
-                                <div class="pkg-icon">🪙</div>
-                                <div style="font-size:18px;font-weight:700;color:var(--gld)">500</div>
-                                <div class="tm">30 ₽</div>
-                            </div>
-                            <div class="pkg hot" onclick="conf('Купить 1700 монет за 79 ₽?','1500 + 200 бонусных монет. Самый выгодный стартовый набор!',()=>buyCoins(1700))">
-                                <div class="pkg-icon">💰</div>
-                                <div style="font-size:18px;font-weight:700;color:var(--gld)">1500</div>
-                                <div class="tm">79 ₽</div>
-                                <div style="font-size:10px;color:var(--grn)">+200 бонус</div>
-                            </div>
-                            <div class="pkg" onclick="conf('Купить 4500 монет за 149 ₽?','4000 + 500 бонусных монет.',()=>buyCoins(4500))">
-                                <div class="pkg-icon">💎</div>
-                                <div style="font-size:18px;font-weight:700;color:var(--gld)">4000</div>
-                                <div class="tm">149 ₽</div>
-                                <div style="font-size:10px;color:var(--grn)">+500 бонус</div>
-                            </div>
-                            <div class="pkg" onclick="conf('Купить 12000 монет за 299 ₽?','10000 + 2000 мега-бонус монет!',()=>buyCoins(12000))">
-                                <div class="pkg-icon">👑</div>
-                                <div style="font-size:18px;font-weight:700;color:var(--gld)">10000</div>
-                                <div class="tm">299 ₽</div>
-                                <div style="font-size:10px;color:var(--grn)">+2000 мега</div>
-                            </div>
-                        </div>
-                        <div class="tm tc mt8">Демо-режим — монеты зачисляются бесплатно</div>
-                    </div>
-
-                    <div class="card">
-                        <div class="ct">🎨 стили ника (250 монет)</div>
-                        <div class="nick-g" id="NK_g"></div>
-                    </div>
-
-                    <div class="card">
-                        <div class="ct">🎁 промокоды</div>
-                        <div class="irow mb8">
-                            <input class="inp" id="PR_i" placeholder="Введите промокод..." style="margin:0">
-                            <button class="btn bp" style="width:auto;padding:0 14px" onclick="usePromo()">OK</button>
-                        </div>
-                        <div class="g2">
-                            <button class="btn bs" style="font-size:12px;padding:10px" onclick="activatePromo('free')">🎁 FREE — +15</button>
-                            <button class="btn bs" style="font-size:12px;padding:10px" onclick="activatePromo('denchak')">🎁 DENCHAK — +15</button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- TOP -->
-                <div class="sc" id="sc-top">
-                    <div class="tab-r">
-                        <div class="tab on" id="TT_b" onclick="topTab('b',this)">💰 Баланс</div>
-                        <div class="tab" id="TT_f" onclick="topTab('f',this)">⛏ Фармы</div>
-                        <div class="tab" id="TT_r" onclick="topTab('r',this)">👥 Рефералы</div>
-                    </div>
-                    <div class="card">
-                        <div class="fl" style="justify-content:space-between;margin-bottom:10px">
-                            <div class="ct" style="margin:0" id="TOP_t">Топ по балансу</div>
-                            <span style="font-size:10px;color:var(--tx2)" id="TOP_u">обновляется</span>
-                        </div>
-                        <div id="TOP_l"></div>
-                    </div>
-                </div>
-
             </div>
 
-            <!-- БАННЕР ВНУТРИ APP, ПЕРЕД НАВИГАЦИЕЙ -->
-            <div class="bnr" onclick="openTelegram()" id="BNR">
-                <img id="BNR_img" src="" alt="CoinMine" class="bnr-img" onerror="this.style.display='none';document.getElementById('BNR_ph').style.display='flex'">
-                <div id="BNR_ph" class="bnr-ph">⛏ CoinMine</div>
+            <!-- CLAN -->
+            <div class="sc" id="sc-clan">
+                <div id="CL_no">
+                    <div class="card tc" style="padding:20px">
+                        <div class="clan-icon">🏰</div>
+                        <div style="font-size:16px;font-weight:700;margin-bottom:6px">Вы не в клане</div>
+                        <div class="tm mb8">Создайте клан за 1500 монет и добывайте алмазы командой</div>
+                        <button class="btn bp" onclick="conf('Создать клан за 1500 монет?','Вы получите случайное название. Можно пригласить до 4 участников и вместе добывать алмазы каждые 6 часов.',createClan)">➕ Создать клан</button>
+                    </div>
+                </div>
+                <div id="CL_yes" style="display:none">
+                    <div style="background:#0a0620;border:1px solid #4c1d95;border-radius:var(--r);padding:16px;text-align:center;margin-bottom:10px">
+                        <div class="clan-icon" id="CL_i">⚔️</div>
+                        <div class="clan-name" id="CL_n">—</div>
+                        <div class="clan-diamonds" id="CL_d">0 💎</div>
+                        <div class="tm" id="CL_cd">Фарм доступен!</div>
+                    </div>
+                    <div class="card">
+                        <div class="ct">участники (<span id="CL_m">1</span>/5)</div>
+                        <div id="CL_ml"></div>
+                    </div>
+                    <button class="btn bp mb8" onclick="conf('Добыть алмазы?','Клановый фарм раз в 6 часов. Алмазы идут в казну клана.',clanFarm)">⛏ Добыть алмазы</button>
+                    <button class="btn bs mb8" onclick="conf('Обменять 5 💎 → 25 монет?','5 алмазов из казны клана = 25 монет на ваш баланс.',()=>exDiam(5))">🔄 5 💎 → 25 монет</button>
+                    <button class="btn bred" onclick="conf('Распустить клан?','Клан удалится навсегда. Все алмазы сгорят.',disbandClan)">🗑 Распустить</button>
+                </div>
             </div>
 
-            <nav class="nav">
-                <button class="nb on" onclick="goSc('home')" id="NB_home"><span>🏠</span>Главная</button>
-                <button class="nb" onclick="goSc('games')" id="NB_games"><span>🎲</span>Игры</button>
-                <button class="nb" onclick="goSc('arena')" id="NB_arena"><span>⚔️</span>Арена</button>
-                <button class="nb" onclick="goSc('clan')" id="NB_clan"><span>🛡️</span>Клан</button>
-                <button class="nb" onclick="goSc('shop')" id="NB_shop"><span>🛒</span>Магазин</button>
-            </nav>
+            <!-- SHOP -->
+            <div class="sc" id="sc-shop">
+                <div class="card">
+                    <div class="ct">💰 купить монеты</div>
+                    <div class="pkg-g">
+                        <div class="pkg" onclick="conf('Купить 500 монет за 30 ₽?','В демо-режиме монеты зачисляются бесплатно.',()=>buyCoins(500))">
+                            <div class="pkg-icon">🪙</div>
+                            <div style="font-size:18px;font-weight:700;color:var(--gld)">500</div>
+                            <div class="tm">30 ₽</div>
+                        </div>
+                        <div class="pkg hot" onclick="conf('Купить 1700 монет за 79 ₽?','1500 + 200 бонусных монет. Самый выгодный стартовый набор!',()=>buyCoins(1700))">
+                            <div class="pkg-icon">💰</div>
+                            <div style="font-size:18px;font-weight:700;color:var(--gld)">1500</div>
+                            <div class="tm">79 ₽</div>
+                            <div style="font-size:10px;color:var(--grn)">+200 бонус</div>
+                        </div>
+                        <div class="pkg" onclick="conf('Купить 4500 монет за 149 ₽?','4000 + 500 бонусных монет.',()=>buyCoins(4500))">
+                            <div class="pkg-icon">💎</div>
+                            <div style="font-size:18px;font-weight:700;color:var(--gld)">4000</div>
+                            <div class="tm">149 ₽</div>
+                            <div style="font-size:10px;color:var(--grn)">+500 бонус</div>
+                        </div>
+                        <div class="pkg" onclick="conf('Купить 12000 монет за 299 ₽?','10000 + 2000 мега-бонус монет!',()=>buyCoins(12000))">
+                            <div class="pkg-icon">👑</div>
+                            <div style="font-size:18px;font-weight:700;color:var(--gld)">10000</div>
+                            <div class="tm">299 ₽</div>
+                            <div style="font-size:10px;color:var(--grn)">+2000 мега</div>
+                        </div>
+                    </div>
+                    <div class="tm tc mt8">Демо-режим — монеты зачисляются бесплатно</div>
+                </div>
+
+                <div class="card">
+                    <div class="ct">🎨 стили ника (250 монет)</div>
+                    <div class="nick-g" id="NK_g"></div>
+                </div>
+
+                <div class="card">
+                    <div class="ct">🎁 промокоды</div>
+                    <div class="irow mb8">
+                        <input class="inp" id="PR_i" placeholder="Введите промокод..." style="margin:0">
+                        <button class="btn bp" style="width:auto;padding:0 14px" onclick="usePromo()">OK</button>
+                    </div>
+                    <div class="g2">
+                        <button class="btn bs" style="font-size:12px;padding:10px" onclick="activatePromo('free')">🎁 FREE — +15</button>
+                        <button class="btn bs" style="font-size:12px;padding:10px" onclick="activatePromo('denchak')">🎁 DENCHAK — +15</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TOP -->
+            <div class="sc" id="sc-top">
+                <div class="tab-r">
+                    <div class="tab on" id="TT_b" onclick="topTab('b',this)">💰 Баланс</div>
+                    <div class="tab" id="TT_f" onclick="topTab('f',this)">⛏ Фармы</div>
+                    <div class="tab" id="TT_r" onclick="topTab('r',this)">👥 Рефералы</div>
+                </div>
+                <div class="card">
+                    <div class="fl" style="justify-content:space-between;margin-bottom:10px">
+                        <div class="ct" style="margin:0" id="TOP_t">Топ по балансу</div>
+                        <span style="font-size:10px;color:var(--tx2)" id="TOP_u">обновляется</span>
+                    </div>
+                    <div id="TOP_l"></div>
+                </div>
+            </div>
 
         </div>
 
+        <nav class="nav">
+            <button class="nb on" onclick="goSc('home')" id="NB_home"><span>🏠</span>Главная</button>
+            <button class="nb" onclick="goSc('games')" id="NB_games"><span>🎲</span>Игры</button>
+            <button class="nb" onclick="goSc('arena')" id="NB_arena"><span>⚔️</span>Арена</button>
+            <button class="nb" onclick="goSc('clan')" id="NB_clan"><span>🛡️</span>Клан</button>
+            <button class="nb" onclick="goSc('shop')" id="NB_shop"><span>🛒</span>Магазин</button>
+        </nav>
+
+        <!-- БАННЕР ВНИЗУ -->
+        <div class="bnr" onclick="openTelegram()" id="BNR">
+            <img id="BNR_img" src="" alt="CoinMine" class="bnr-img" onerror="this.style.display='none';document.getElementById('BNR_ph').style.display='flex'">
+            <div id="BNR_ph" class="bnr-ph">⛏ CoinMine</div>
+        </div>
     </div>
 
     <!-- MODALS -->
@@ -1275,7 +1229,7 @@
             promos: {},
             missions: { active: null, lastReset: 0 },
             auctionBid: 0,
-            auctionBidders: [],
+            auctionBidders: [], // [{name, avatar, bid}]
             chests: 0,
             refCode: '',
             activatedRef: null
@@ -1568,6 +1522,7 @@
 
         async function logoutUser() {
             if (!confirm('Выйти из аккаунта?')) return;
+            // Сохраняем данные перед выходом
             await saveUserData();
             localStorage.removeItem('cm_tok');
             localStorage.removeItem('cm_uid');
@@ -2091,6 +2046,7 @@
             cube.style.transition = 'none';
             if (diceAnimFrame) cancelAnimationFrame(diceAnimFrame);
 
+            // Меняем цвета во время вращения
             const colorSets = [
                 ['#7f1d1d', '#991b1b', '#b91c1c', '#6b1a1a', '#8a1a1a', '#5a1515'],
                 ['#1c1c2e', '#1f2037', '#252540', '#15152a', '#1a1a35', '#12122a'],
@@ -2110,12 +2066,14 @@
                         ry = oy + el * 1.0 * spd;
                     cube.style.transform = `rotateX(${rx}deg) rotateY(${ry}deg)`;
 
+                    // Меняем цвета граней во время вращения
                     const cs = colorSets[Math.floor(Math.random() * colorSets.length)];
                     faceEls.forEach((f, i) => {
                         f.style.background = cs[i % cs.length] || '#1e1e35';
                         f.style.borderColor = '#ffffff30';
                     });
 
+                    // Меняем значения граней
                     document.getElementById('d-f').textContent = DICE_FACES_STR[Math.floor(Math.random() * 6)];
                     document.getElementById('d-b').textContent = DICE_FACES_STR[Math.floor(Math.random() * 6)];
                     document.getElementById('d-r').textContent = DICE_FACES_STR[Math.floor(Math.random() * 6)];
@@ -2159,6 +2117,7 @@
                 return;
             }
 
+            // Сортируем по убыванию ставки и берём топ-3
             const sorted = [...bidders].sort((a, b) => b.bid - a.bid);
             const top3 = sorted.slice(0, 3);
 
@@ -2182,6 +2141,7 @@
             G.coins -= a;
             G.auctionBid = (G.auctionBid || 0) + a;
 
+            // Добавляем или обновляем ставку игрока
             const existing = G.auctionBidders.find(b => b.name === G.name);
             if (existing) {
                 existing.bid += a;
@@ -2193,6 +2153,7 @@
                 });
             }
 
+            // Сортируем и оставляем топ-10
             G.auctionBidders.sort((a, b) => b.bid - a.bid);
             if (G.auctionBidders.length > 10) {
                 G.auctionBidders = G.auctionBidders.slice(0, 10);
