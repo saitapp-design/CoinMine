@@ -408,7 +408,6 @@
     const SUPABASE_URL = 'https://mazccbkzurbryzusajqc.supabase.co/rest/v1/';
 const SUPABASE_ANON_KEY = 'sb_publishable_GLQvPbCZrDYgd7FCSp861g_poX1-Hwy';
 
-
     // ============================================================
     // 2. ПРЯМОЙ РАБОТА ЧЕРЕЗ REST API (БЕЗ SDK)
     // ============================================================
@@ -473,7 +472,7 @@ const SUPABASE_ANON_KEY = 'sb_publishable_GLQvPbCZrDYgd7FCSp861g_poX1-Hwy';
     }
 
     // ============================================================
-    // 5. ОСНОВНЫЕ ФУНКЦИИ API
+    // 5. ОСНОВНЫЕ ФУНКЦИИ API (ПРАВИЛЬНЫЕ ЭНДПОИНТЫ)
     // ============================================================
     async function signUp(email, password) {
         const response = await fetch(`${SUPABASE_URL}/auth/v1/signup`, {
@@ -485,7 +484,7 @@ const SUPABASE_ANON_KEY = 'sb_publishable_GLQvPbCZrDYgd7FCSp861g_poX1-Hwy';
             body: JSON.stringify({ email, password })
         });
         const data = await response.json();
-        if (!response.ok) throw new Error(data.msg || 'Ошибка регистрации');
+        if (!response.ok) throw new Error(data.msg || data.message || 'Ошибка регистрации');
         return data;
     }
 
@@ -499,7 +498,7 @@ const SUPABASE_ANON_KEY = 'sb_publishable_GLQvPbCZrDYgd7FCSp861g_poX1-Hwy';
             body: JSON.stringify({ email, password })
         });
         const data = await response.json();
-        if (!response.ok) throw new Error(data.msg || 'Ошибка входа');
+        if (!response.ok) throw new Error(data.msg || data.message || 'Ошибка входа');
         return data;
     }
 
@@ -770,7 +769,6 @@ const SUPABASE_ANON_KEY = 'sb_publishable_GLQvPbCZrDYgd7FCSp861g_poX1-Hwy';
         if (G.activatedRef) { toast('Код уже активирован', 'err'); return; }
 
         try {
-            // Ищем пользователя с таким кодом через API
             const response = await fetch(`${SUPABASE_URL}/rest/v1/users?data->>refCode=eq.${code}`, {
                 headers: { 'apikey': SUPABASE_ANON_KEY }
             });
@@ -791,7 +789,7 @@ const SUPABASE_ANON_KEY = 'sb_publishable_GLQvPbCZrDYgd7FCSp861g_poX1-Hwy';
     }
 
     // ============================================================
-    // 12. РУЛЕТКА (БЕЗ ИЗМЕНЕНИЙ)
+    // 12. РУЛЕТКА
     // ============================================================
     let roulRunning = false;
 
