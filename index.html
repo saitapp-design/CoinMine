@@ -42,18 +42,13 @@
             overflow-x: hidden;
         }
 
-        /* ════════════════════════════════════════ */
-/* БОКОВЫЕ ИЗОБРАЖЕНИЯ ДЛЯ ПК — ИСПРАВЛЕНО */
-/* ════════════════════════════════════════ */
-
+       /* Боковые изображения на ПК (одинаковые, без зеркала) */
 body {
     background: #07070f;
     position: relative;
-    margin: 0;
-    min-height: 100vh;
+    overflow-x: hidden;
 }
 
-/* Левое и правое изображение — фон для ПК */
 body::before,
 body::after {
     content: '';
@@ -61,9 +56,10 @@ body::after {
     top: 0;
     bottom: 0;
     width: calc((100% - 430px) / 2);
-    min-width: 60px;
+    min-width: 50px;
     z-index: 0;
     pointer-events: none;
+    background-image: url('https://i.ibb.co/B5CTFj4c/Chat-GPT-Image-20-2026-14-52-25.png');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
@@ -71,16 +67,12 @@ body::after {
 
 body::before {
     left: 0;
-    background-image: url('https://i.ibb.co/B5CTFj4c/Chat-GPT-Image-20-2026-14-52-25.png');
-    transform: scaleX(-1);
 }
 
 body::after {
     right: 0;
-    background-image: url('https://i.ibb.co/B5CTFj4c/Chat-GPT-Image-20-2026-14-52-25.png');
 }
 
-/* Основное приложение — по центру, поверх фона */
 .app {
     max-width: 430px;
     margin: 0 auto;
@@ -88,30 +80,14 @@ body::after {
     position: relative;
     z-index: 1;
     min-height: 100vh;
-    box-shadow: 0 0 60px rgba(0, 0, 0, 0.9);
+    box-shadow: 0 0 60px rgba(0, 0, 0, 0.8);
 }
 
-/* На телефонах скрываем боковые изображения */
 @media (max-width: 430px) {
     body::before,
     body::after {
         display: none !important;
     }
-}
-
-/* Если картинка не загружается — показываем цветной фон */
-body::before {
-    background-color: #0a0a1a;
-    background-image: url('https://i.ibb.co/B5CTFj4c/Chat-GPT-Image-20-2026-14-52-25.png');
-    background-size: cover;
-    background-position: center;
-}
-
-body::after {
-    background-color: #0a0a1a;
-    background-image: url('https://i.ibb.co/B5CTFj4c/Chat-GPT-Image-20-2026-14-52-25.png');
-    background-size: cover;
-    background-position: center;
 }
 
         /* Основное приложение - по центру */
