@@ -36,7 +36,7 @@ html,body{height:100%;background:var(--bg);color:var(--tx);font-family:-apple-sy
 .bred{background:#7f1d1d;color:#fca5a5;border:1px solid #991b1b}
 .btn:disabled{opacity:.35;pointer-events:none}
 .astat{text-align:center;font-size:12px;margin-top:14px;min-height:20px;font-weight:500}
-.astat.ok{color:var(--grn)}.astat.err{color:var(--red)}.astat.ld{color:var(--gld)}
+.astat.ok{color:var(--grn)}.astat.err{color:var(--red)}.astat.ld{color:var(--gld)}.astat.warn{color:var(--gld2)}
 #appWrap{display:none;max-width:430px;margin:0 auto;flex-direction:column;min-height:100vh}
 #appWrap.on{display:flex}
 .hdr{background:var(--bg2);border-bottom:1px solid var(--bd);padding:10px 14px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:60}
@@ -127,7 +127,7 @@ html,body{height:100%;background:var(--bg);color:var(--tx);font-family:-apple-sy
 </head>
 <body>
 
-<!-- ══════════════════ AUTH ══════════════════ -->
+<!-- AUTH -->
 <div id="authWrap">
   <div class="auth-box">
     <div class="auth-logo">⛏</div>
@@ -140,11 +140,15 @@ html,body{height:100%;background:var(--bg);color:var(--tx);font-family:-apple-sy
     <input class="inp" id="aEmail" type="email" placeholder="Email" autocomplete="email">
     <input class="inp" id="aPass" type="password" placeholder="Пароль (мин. 6 символов)" autocomplete="current-password">
     <button class="btn bp" id="aBtn" onclick="handleAuth()">⚡ Войти</button>
+    
+    <!-- Дополнительная кнопка для повторной отправки подтверждения -->
+    <button class="btn bs" id="resendBtn" style="display:none;margin-top:6px;" onclick="resendConfirmation()">📧 Отправить письмо повторно</button>
+    
     <div class="astat" id="aStat">Готово ко входу</div>
   </div>
 </div>
 
-<!-- ══════════════════ APP ═══════════════════ -->
+<!-- APP -->
 <div id="appWrap">
   <div class="hdr">
     <div class="hdr-logo">⛏ CoinMine</div>
@@ -428,7 +432,7 @@ html,body{height:100%;background:var(--bg);color:var(--tx);font-family:-apple-sy
   </div>
 </div>
 
-<!-- ══════ MODALS ══════ -->
+<!-- MODALS -->
 <div class="mod-bg" id="M_conf">
   <div class="mod-box">
     <div class="mod-title" id="M_t">Подтверждение</div>
@@ -459,12 +463,14 @@ html,body{height:100%;background:var(--bg);color:var(--tx);font-family:-apple-sy
 // CONFIG — Supabase (ПРАВИЛЬНЫЙ ПУБЛИЧНЫЙ КЛЮЧ!)
 // ════════════════════════════════════════════════
 const SB_URL  = 'https://mazccbkzurbryzusajqc.supabase.co';
-const SB_KEY = 'sb_publishable_GLQvPbCZrDYgd7FCSp861g_poX1-Hwy';
+const SB_KEY  = 'sb_publishable_GLQvPbCZrDYgd7FCSp861g_poX1-Hwy';
+
 // ════════════════════════════════════════════════
 // STATE
 // ════════════════════════════════════════════════
 let TOKEN=null, UID=null, authMode='login', _pFn=null;
 let saveTimer=null, topTimer=null;
+let pendingEmail=null;
 
 const G={
   coins:150, farms:0, refs:0, keys:0,
@@ -495,7 +501,7 @@ function toast(m,t){const e=document.getElementById('TOAST');e.style.background=
 function getFarmCost(){return FARM_COSTS[Math.min(G.farmLv-1,4)];}
 
 // ════════════════════════════════════════════════
-// SUPABASE API — minimal fetch wrappers
+// SUPABASE API
 // ════════════════════════════════════════════════
 async function sbFetch(path,opts={}){
   const h={'apikey':SB_KEY,'Content-Type':'application/json',...(opts.headers||{})};
@@ -512,6 +518,9 @@ async function authSignUp(email,pass){
 async function authSignIn(email,pass){
   return sbFetch('/auth/v1/token?grant_type=password',{method:'POST',noAuth:true,body:JSON.stringify({email,password:pass})});
 }
+async function resendConfirm(email){
+  return sbFetch('/auth/v1/recover',{method:'POST',noAuth:true,body:JSON.stringify({email})});
+}
 async function getRow(){
   return sbFetch(`/rest/v1/users?id=eq.${UID}&select=gdata,boss`);
 }
@@ -527,6 +536,7 @@ function setAuthMode(m){
   authMode=m;
   document.querySelectorAll('.auth-tab').forEach((t,i)=>{t.classList.toggle('on',(i===0&&m==='login')||(i===1&&m==='register'));});
   document.getElementById('aBtn').textContent=m==='login'?'⚡ Войти':'🚀 Зарегистрироваться';
+  document.getElementById('resendBtn').style.display='none';
   aStat(m==='login'?'Войдите в аккаунт':'Создайте аккаунт');
 }
 
@@ -537,6 +547,8 @@ async function handleAuth(){
   if(pass.length<6){aStat('Пароль минимум 6 символов','err');return;}
   aStat('⏳ Загрузка...','ld');
   document.getElementById('aBtn').disabled=true;
+  document.getElementById('resendBtn').style.display='none';
+  
   try{
     if(authMode==='register'){
       const {ok,data}=await authSignUp(email,pass);
@@ -544,17 +556,39 @@ async function handleAuth(){
         const msg=data?.msg||data?.message||data?.error_description||'Ошибка';
         if(msg.toLowerCase().includes('already')||msg.toLowerCase().includes('registered')){
           aStat('Аккаунт уже существует. Войдите.','err');
-        } else {
-          aStat('❌ '+msg,'err');
+          document.getElementById('aBtn').disabled=false;
+          return;
         }
+        aStat('❌ '+msg,'err');
         document.getElementById('aBtn').disabled=false;
         return;
       }
-      aStat('✅ Аккаунт создан! Вход...','ok');
+      // Регистрация успешна, но нужно подтверждение
+      pendingEmail=email;
+      aStat('📧 Письмо с подтверждением отправлено!','warn');
+      document.getElementById('resendBtn').style.display='block';
+      document.getElementById('aBtn').disabled=false;
+      toast('Проверьте почту и подтвердите аккаунт','gld');
+      return;
     }
+    
     // Вход
     const {ok,data}=await authSignIn(email,pass);
-    if(!ok){aStat('❌ '+(data?.error_description||data?.msg||'Неверный email или пароль'),'err');document.getElementById('aBtn').disabled=false;return;}
+    if(!ok){
+      const msg=data?.error_description||data?.msg||'Неверный email или пароль';
+      if(msg.includes('Email not confirmed')){
+        pendingEmail=email;
+        aStat('📧 Подтвердите email! Письмо отправлено.','warn');
+        document.getElementById('resendBtn').style.display='block';
+        document.getElementById('aBtn').disabled=false;
+        toast('Перейдите по ссылке из письма','gld');
+        return;
+      }
+      aStat('❌ '+msg,'err');
+      document.getElementById('aBtn').disabled=false;
+      return;
+    }
+    
     TOKEN=data.access_token;
     UID=data.user.id;
     localStorage.setItem('cm_tok',TOKEN);
@@ -562,8 +596,25 @@ async function handleAuth(){
     await loadData();
     showApp();
   }catch(e){
-    aStat('❌ Ошибка соединения: '+e.message,'err');
+    aStat('❌ Ошибка: '+e.message,'err');
     document.getElementById('aBtn').disabled=false;
+  }
+}
+
+async function resendConfirmation(){
+  if(!pendingEmail){toast('Введите email сначала','err');return;}
+  aStat('⏳ Отправка...','ld');
+  try{
+    const {ok,data}=await resendConfirm(pendingEmail);
+    if(!ok){
+      const msg=data?.msg||data?.message||'Ошибка';
+      aStat('❌ '+msg,'err');
+      return;
+    }
+    aStat('✅ Письмо отправлено!','ok');
+    toast('Проверьте почту (и спам)','gld');
+  }catch(e){
+    aStat('❌ Ошибка: '+e.message,'err');
   }
 }
 
@@ -722,19 +773,15 @@ function renderMissions(){
 
 function renderBoss(){
   const now=Date.now();
-  const msk=new Date(now+3*3600000); // UTC+3
-  const h=msk.getUTCHours(),mn=msk.getUTCMinutes();
-  
-  // Босс активен с 16:00 до 22:00 МСК
+  const msk=new Date(now+3*3600000);
+  const h=msk.getUTCHours();
   const active=(h>=16&&h<22);
   
-  // Если время пришло и босс "мёртв" — возрождаем
   if(active&&BOSS_STATE.hp<=0){
     const today=msk.toISOString().slice(0,10);
     const killDay=new Date(BOSS_STATE.lastKill+3*3600000).toISOString().slice(0,10);
     if(today!==killDay){BOSS_STATE.hp=1000;}
   }
-  // После 22:00 сбрасываем
   if(!active&&h>=22)BOSS_STATE.hp=0;
 
   const pct=Math.max(0,Math.round(BOSS_STATE.hp/1000*100));
@@ -797,7 +844,7 @@ function renderTop(tp){
 }
 
 // ════════════════════════════════════════════════
-// ROULETTE — correct stop position
+// ROULETTE
 // ════════════════════════════════════════════════
 const SEG_COUNT=20;
 const SEGS=(()=>{
@@ -819,31 +866,23 @@ function drawRoulette(angle,result){
   cv.height=220;
   const ctx=cv.getContext('2d'),w=cv.width,h=220,cx=w/2,cy=h/2,R=Math.min(cx,cy)-14;
   ctx.clearRect(0,0,w,h);
-
   ctx.beginPath();ctx.arc(cx,cy,R+4,0,Math.PI*2);ctx.fillStyle='#1a1a2e';ctx.fill();
-
-  const n=SEG_COUNT;
-  const segAngle=Math.PI*2/n;
-  const a0=(angle||0)-Math.PI/2;
-
+  const n=SEG_COUNT,segAngle=Math.PI*2/n,a0=(angle||0)-Math.PI/2;
   SEGS.forEach((c,i)=>{
-    const a1=a0+i*segAngle, a2=a0+(i+1)*segAngle;
+    const a1=a0+i*segAngle,a2=a0+(i+1)*segAngle;
     ctx.beginPath();ctx.moveTo(cx,cy);ctx.arc(cx,cy,R,a1,a2);ctx.closePath();
     ctx.fillStyle=SEG_COLORS[c];ctx.fill();
     ctx.strokeStyle=SEG_BORDER[c];ctx.lineWidth=1.2;ctx.stroke();
   });
-
   SEGS.forEach((c,i)=>{
     const mid=a0+(i+0.5)*segAngle;
-    const lx=cx+Math.cos(mid)*(R*.65);const ly=cy+Math.sin(mid)*(R*.65);
+    const lx=cx+Math.cos(mid)*(R*.65),ly=cy+Math.sin(mid)*(R*.65);
     ctx.font=`bold ${R*.11}px sans-serif`;ctx.textAlign='center';ctx.textBaseline='middle';
     ctx.fillStyle=c==='red'?'#fca5a5':c==='black'?'#9ca3af':'#4ade80';
     ctx.fillText(c==='red'?'R':c==='black'?'B':'G',lx,ly);
   });
-
   ctx.beginPath();ctx.arc(cx,cy,R,0,Math.PI*2);ctx.strokeStyle='#ffffff25';ctx.lineWidth=3;ctx.stroke();
   ctx.beginPath();ctx.arc(cx,cy,R-3,0,Math.PI*2);ctx.strokeStyle='var(--gld)';ctx.lineWidth=1;ctx.stroke();
-
   ctx.beginPath();ctx.arc(cx,cy,R*.15,0,Math.PI*2);
   const cg=ctx.createRadialGradient(cx,cy,0,cx,cy,R*.15);
   cg.addColorStop(0,'#fff');cg.addColorStop(1,result?{red:'#ef4444',black:'#6b7280',green:'#10b981'}[result]:'#d0d0e0');
@@ -860,18 +899,14 @@ function startRoul(col){
   conf(`Ставка ${bet} монет на ${nm}?`,`Коэффициент: ${col==='green'?'×5.0':'×1.75'}. Зелёный — редкость 10%.`,()=>{
     G.coins-=bet;roulRunning=true;
     document.getElementById('RL_r').textContent='Крутим...';
-
     const r=Math.random();
     const landed=r<.4?'red':r<.8?'black':'green';
-
     const possibleIdx=SEGS.map((c,i)=>c===landed?i:-1).filter(x=>x>=0);
     const targetIdx=possibleIdx[Math.floor(Math.random()*possibleIdx.length)];
-
     const segAngle=Math.PI*2/SEG_COUNT;
     const targetAngle=-Math.PI/2-(targetIdx+0.5)*segAngle;
     const spins=5+Math.floor(Math.random()*4);
     const finalAngle=targetAngle+spins*Math.PI*2;
-
     const dur=3200,t0=Date.now();
     function anim(){
       const el=Date.now()-t0,prog=Math.min(1,el/dur);
@@ -934,29 +969,23 @@ function playDice(col){
   if(G.coins<50){toast('Нужно 50 монет','err');return;}
   G.coins-=50;diceRolling=true;
   document.getElementById('DC_r').textContent='Кидаем...';
-
   const cube=document.getElementById('diceCube');
   let ox=20,oy=30;
   cube.style.transition='none';
-
   if(diceAnimFrame)cancelAnimationFrame(diceAnimFrame);
   const dur=1800,t0=Date.now();
   function anim(){
     const el=Date.now()-t0;
     if(el<dur){
-      const prog=el/dur;
-      const spd=1-prog*0.7;
-      const rx=ox+el*0.7*spd;
-      const ry=oy+el*0.9*spd;
+      const prog=el/dur,spd=1-prog*0.7;
+      const rx=ox+el*0.7*spd,ry=oy+el*0.9*spd;
       cube.style.transform=`rotateX(${rx}deg) rotateY(${ry}deg)`;
       diceAnimFrame=requestAnimationFrame(anim);
     } else {
       const val=Math.floor(Math.random()*6)+1;
       const resultCol=val%2===1?'red':'black';
       setDiceFace(val,col);
-      const base=val*10;
-      const bonus=col===resultCol?10:0;
-      const total=base+bonus;
+      const base=val*10,bonus=col===resultCol?10:0,total=base+bonus;
       G.coins+=total;
       const profit=total-50;
       document.getElementById('DC_r').textContent=profit>0?`✅ Выпало ${val}! +${profit} монет`:`❌ Выпало ${val} — получено ${total}`;
