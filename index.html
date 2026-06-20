@@ -217,6 +217,7 @@
         .flex { display: flex; gap: 8px; align-items: center; }
         .flex-1 { flex: 1; }
         .wrap { flex-wrap: wrap; }
+        .dice-big { font-size: 60px; padding: 10px; text-align: center; }
     </style>
 </head>
 <body>
@@ -326,7 +327,7 @@
             <div class="card">
                 <div class="card-title">Кубик (ставка 50)</div>
                 <div id="DC_res" class="text-center text-muted">Кидайте кубик!</div>
-                <div class="text-center" style="font-size:60px;padding:10px;" id="diceMain">⚀</div>
+                <div class="dice-big" id="diceMain">⚀</div>
                 <div class="text-muted text-center">Число × 10 + бонус за цвет (+10)</div>
                 <div class="g2 mt-8">
                     <button class="btn" style="background:#7f1d1d;color:#fca5a5;border:1px solid #991b1b;" onclick="playDice('red')">🔴 Красный 50</button>
@@ -518,7 +519,6 @@
     // ============================================================
     const SUPABASE_URL = 'https://mazccbkzurbryzusajqc.supabase.co/rest/v1/';
 const SUPABASE_ANON_KEY = 'sb_publishable_GLQvPbCZrDYgd7FCSp861g_poX1-Hwy';
-
 
     // ============================================================
     // 2. ПЕРЕМЕННЫЕ
@@ -1031,6 +1031,13 @@ const SUPABASE_ANON_KEY = 'sb_publishable_GLQvPbCZrDYgd7FCSp861g_poX1-Hwy';
     const DICE_FACES = ['⚀', '⚁', '⚂', '⚃', '⚄', '⚅'];
     let diceRolling = false;
 
+    function updateDiceDisplay(val) {
+        const el = document.getElementById('diceMain');
+        if (el) {
+            el.textContent = DICE_FACES[val] || '⚀';
+        }
+    }
+
     function playDice(chosenColor) {
         if (diceRolling) return;
         if (G.coins < 50) { toast('Нужно 50 монет', 'err'); return; }
@@ -1290,14 +1297,18 @@ const SUPABASE_ANON_KEY = 'sb_publishable_GLQvPbCZrDYgd7FCSp861g_poX1-Hwy';
         ];
         ids.forEach((id, i) => {
             const el = document.getElementById(id);
-            if (el) el.textContent = fmt(vals[i]) || vals[i];
+            if (el) el.textContent = typeof vals[i] === 'number' ? fmt(vals[i]) : vals[i];
         });
 
         const an = G.nicks.a ? NICK_STYLES[G.nicks.a] : null;
-        document.getElementById('NICK_LBL').textContent = an ? 'Стиль: ${an.e} ${an.n}' : 'Стиль не выбран';
-        document.getElementById('AV').textContent = an ? an.e : '⛏';
-        document.getElementById('MY_REF_CODE').textContent = G.refCode || currentUserId?.substring(0, 8) || 'загрузка';
-        if (G.activatedRef) document.getElementById('ACTIVATED_REF').textContent = G.activatedRef;
+        const lbl = document.getElementById('NICK_LBL');
+        if (lbl) lbl.textContent = an ? 'Стиль: ${an.e} ${an.n}' : 'Стиль не выбран';
+        const av = document.getElementById('AV');
+        if (av) av.textContent = an ? an.e : '⛏';
+        const ref = document.getElementById('MY_REF_CODE');
+        if (ref) ref.textContent = G.refCode || currentUserId?.substring(0, 8) || 'загрузка';
+        const act = document.getElementById('ACTIVATED_REF');
+        if (act && G.activatedRef) act.textContent = G.activatedRef;
 
         renderFarmTimer();
         renderShards();
@@ -1305,7 +1316,8 @@ const SUPABASE_ANON_KEY = 'sb_publishable_GLQvPbCZrDYgd7FCSp861g_poX1-Hwy';
         renderMissions();
         renderBoss();
         renderClan();
-        document.getElementById('CH_btn').disabled = G.chests <= 0;
+        const ch = document.getElementById('CH_btn');
+        if (ch) ch.disabled = G.chests <= 0;
         renderTop('b');
     }
 
@@ -1316,16 +1328,18 @@ const SUPABASE_ANON_KEY = 'sb_publishable_GLQvPbCZrDYgd7FCSp861g_poX1-Hwy';
         const ready = el >= cd || !G.lastFarm;
         const btn = document.getElementById('F_btn');
         if (btn) btn.disabled = !ready;
+        const st = document.getElementById('F_st');
+        const pb = document.getElementById('F_pb');
+        const cdEl = document.getElementById('F_cd');
         if (ready) {
-            document.getElementById('F_st').textContent = 'Готово!';
-            document.getElementById('F_pb').style.width = '100%';
-            document.getElementById('F_cd').textContent = '';
+            if (st) st.textContent = 'Готово!';
+            if (pb) pb.style.width = '100%';
+            if (cdEl) cdEl.textContent = '';
         } else {
             const rem = cd - el;
-            document.getElementById('F_st').textContent = 'Перезарядка...';
-            document.getElementById('F_pb').style.width = Math.round(el / cd * 100) + '%';
-            document.getElementById('F_cd').textContent = Math.floor(rem / 60000) + 'м ' + Math.floor((rem % 60000) / 1000) +
-                'с';
+            if (st) st.textContent = 'Перезарядка...';
+            if (pb) pb.style.width = Math.round(el / cd * 100) + '%';
+            if (cdEl) cdEl.textContent = Math.floor(rem / 60000) + 'м ' + Math.floor((rem % 60000) / 1000) + 'с';
         }
     }
 
@@ -1390,33 +1404,45 @@ const SUPABASE_ANON_KEY = 'sb_publishable_GLQvPbCZrDYgd7FCSp861g_poX1-Hwy';
         const maxhp = hps[idx] || 1000;
         const pct = Math.max(0, Math.round(GLOBAL_BOSS.hp / maxhp * 100));
 
-        document.getElementById('BS_ico').textContent = icons[idx] || '👹';
-        document.getElementById('BS_nm').textContent = names[idx] || 'Босс';
-        document.getElementById('BS_hp').style.width = pct + '%';
-        document.getElementById('BS_hp_txt').textContent = fmt(GLOBAL_BOSS.hp) + ' / ' + fmt(maxhp);
-        document.getElementById('BS_st').textContent = GLOBAL_BOSS.hp > 0 ? 'Активен' : 'Повержен!';
+        const ico = document.getElementById('BS_ico');
+        const nm = document.getElementById('BS_nm');
+        const hp = document.getElementById('BS_hp');
+        const hpTxt = document.getElementById('BS_hp_txt');
+        const st = document.getElementById('BS_st');
+        const resp = document.getElementById('BS_respawn');
+        if (ico) ico.textContent = icons[idx] || '👹';
+        if (nm) nm.textContent = names[idx] || 'Босс';
+        if (hp) hp.style.width = pct + '%';
+        if (hpTxt) hpTxt.textContent = fmt(GLOBAL_BOSS.hp) + ' / ' + fmt(maxhp);
+        if (st) st.textContent = GLOBAL_BOSS.hp > 0 ? 'Активен' : 'Повержен!';
         const h = Math.floor(timeToSpawn / 3600000);
         const m = Math.floor((timeToSpawn % 3600000) / 60000);
-        document.getElementById('BS_respawn').textContent = GLOBAL_BOSS.hp > 0 ?
+        if (resp) resp.textContent = GLOBAL_BOSS.hp > 0 ?
             'Следующий в 16:00 МСК' :
             `Респавн через ${h}ч ${m}м`;
     }
 
     function renderClan() {
-        document.getElementById('CL_no').style.display = G.clan ? 'none' : 'block';
-        document.getElementById('CL_yes').style.display = G.clan ? 'block' : 'none';
+        const no = document.getElementById('CL_no');
+        const yes = document.getElementById('CL_yes');
+        if (no) no.style.display = G.clan ? 'none' : 'block';
+        if (yes) yes.style.display = G.clan ? 'block' : 'none';
         if (!G.clan) return;
-        document.getElementById('CL_nm').textContent = G.clan.nm;
-        document.getElementById('CL_dm').textContent = G.clan.d + ' 💎';
-        document.getElementById('CL_mc').textContent = G.clan.m.length;
-        document.getElementById('CL_mlist').innerHTML = G.clan.m.map(n =>
+        const nm = document.getElementById('CL_nm');
+        const dm = document.getElementById('CL_dm');
+        const mc = document.getElementById('CL_mc');
+        const list = document.getElementById('CL_mlist');
+        const cd = document.getElementById('CL_cd');
+        if (nm) nm.textContent = G.clan.nm;
+        if (dm) dm.textContent = G.clan.d + ' 💎';
+        if (mc) mc.textContent = G.clan.m.length;
+        if (list) list.innerHTML = G.clan.m.map(n =>
             `<div class="row"><span>👤</span><span>${n}</span></div>`
         ).join('');
         const now = Date.now(),
-            cd = 6 * 3600000,
+            cdTime = 6 * 3600000,
             el = now - G.clanLF;
-        document.getElementById('CL_cd').textContent = el >= cd ? 'Фарм доступен!' : 'Через ' + Math.ceil((cd - el) / 3600000) +
-            'ч';
+        if (cd) cd.textContent = el >= cdTime ? 'Фарм доступен!' : 'Через ' + Math.ceil((cdTime - el) / 3600000) + 'ч';
     }
 
     function renderTop(tp) {
@@ -1429,9 +1455,11 @@ const SUPABASE_ANON_KEY = 'sb_publishable_GLQvPbCZrDYgd7FCSp861g_poX1-Hwy';
         const all = [...DEMO, { n: G.name, c: G.coins, f: G.farms, r: G.refs }];
         const key = tp === 'b' ? 'c' : tp === 'f' ? 'f' : 'r';
         const titles = { b: 'Топ по балансу', f: 'Топ по фармам', r: 'Топ по рефералам' };
-        document.getElementById('TOP_ttl').textContent = titles[tp];
+        const ttl = document.getElementById('TOP_ttl');
+        const list = document.getElementById('TOP_list');
+        if (ttl) ttl.textContent = titles[tp];
         all.sort((a, b) => b[key] - a[key]);
-        document.getElementById('TOP_list').innerHTML = all.slice(0, 8).map((p, i) =>
+        if (list) list.innerHTML = all.slice(0, 8).map((p, i) =>
             `<div class="row">
                 <span style="font-weight:700;min-width:22px;color:${i===0?'#f0b429':i===1?'#c0c0d0':i===2?'#cd7f32':'#9090b8'};">${i+1}</span>
                 <span style="flex:1;">${p.n}</span>
@@ -1446,7 +1474,7 @@ const SUPABASE_ANON_KEY = 'sb_publishable_GLQvPbCZrDYgd7FCSp861g_poX1-Hwy';
     document.addEventListener('DOMContentLoaded', function() {
         console.log('📄 Страница загружена');
         drawRoulette(0, null);
-        updateDiceDisplay(0, null);
+        updateDiceDisplay(0);
     });
 
     console.log('✅ Скрипт загружен');
