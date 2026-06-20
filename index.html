@@ -43,30 +43,28 @@
             overflow-x: hidden;
         }
 
-        /* ════════════════════════════════════════ */
-        /* БОКОВЫЕ ИЗОБРАЖЕНИЯ ДЛЯ ПК — ИСПРАВЛЕНО */
-        /* ════════════════════════════════════════ */
-
+        /* ============================================
+           БОКОВЫЕ ИЗОБРАЖЕНИЯ ДЛЯ ПК — ИСПРАВЛЕНО
+           ============================================ */
         body {
             background: #07070f;
             position: relative;
             overflow-x: hidden;
         }
 
-        /* Боковые картинки — полностью видны */
         body::before,
         body::after {
             content: '';
             position: fixed;
             top: 0;
             bottom: 0;
-            width: calc((100% - 700px) / 2);
-            min-width: 50px;
-            max-width: 300px;
+            width: calc((100% - 600px) / 2);
+            min-width: 40px;
+            max-width: 250px;
             z-index: 0;
             pointer-events: none;
             background-image: url('https://i.ibb.co/B5CTFj4c/Chat-GPT-Image-20-2026-14-52-25.png');
-            background-size: contain;      /* ← Вместо cover — картинка полностью видна */
+            background-size: contain;
             background-position: center;
             background-repeat: no-repeat;
             opacity: 0.35;
@@ -74,29 +72,29 @@
 
         body::before {
             left: 0;
-            /* НЕ ЗЕРКАЛИМ! */
         }
 
         body::after {
             right: 0;
-            /* НЕ ЗЕРКАЛИМ! */
         }
 
-        /* Основное приложение — ШИРЕ НА ПК */
+        /* Основное приложение */
         .app {
-            max-width: 700px;              /* ← Было 430, стало 700 */
+            max-width: 600px;
             margin: 0 auto;
             background: var(--bg);
             position: relative;
             z-index: 1;
             min-height: 100vh;
             box-shadow: 0 0 60px rgba(0, 0, 0, 0.8);
+            padding-bottom: 130px;
+            /* отступ для навигации и баннера */
         }
 
-        /* На телефонах — стандартная ширина, картинки скрыты */
-        @media (max-width: 700px) {
+        @media (max-width: 600px) {
             .app {
                 max-width: 430px;
+                padding-bottom: 120px;
             }
             body::before,
             body::after {
@@ -104,9 +102,90 @@
             }
         }
 
-        /* ════════════════════════════════════════ */
-        /* ОСТАЛЬНЫЕ СТИЛИ */
-        /* ════════════════════════════════════════ */
+        /* ============================================
+           НАВИГАЦИЯ
+           ============================================ */
+        .nav {
+            background: var(--bg2);
+            border-top: 1px solid var(--bd);
+            padding: 8px 0 max(8px, env(safe-area-inset-bottom));
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            max-width: 600px;
+            margin: 0 auto;
+            z-index: 50;
+        }
+
+        @media (max-width: 600px) {
+            .nav {
+                max-width: 430px;
+            }
+        }
+
+        .nb {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 3px;
+            padding: 8px 2px;
+            background: none;
+            border: none;
+            color: var(--tx2);
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: .15s;
+        }
+        .nb.on {
+            color: var(--gld);
+        }
+        .nb span {
+            font-size: 20px;
+        }
+
+        /* ============================================
+           БАННЕР — ПЕРЕНЕСЁН ВНУТРЬ APP
+           ============================================ */
+        .bnr {
+            display: block;
+            width: 100%;
+            height: 70px;
+            overflow: hidden;
+            position: relative;
+            z-index: 10;
+            cursor: pointer;
+            background: var(--bg2);
+            border-top: 1px solid var(--bd2);
+            border-bottom: 1px solid var(--bd2);
+            margin-top: 10px;
+        }
+
+        .bnr-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .bnr-ph {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--gld);
+            background: var(--bg3);
+        }
+
+        /* ============================================
+           ОСТАЛЬНЫЕ СТИЛИ
+           ============================================ */
 
         /* AUTH */
         #authWrap {
@@ -294,7 +373,6 @@
             display: flex;
             flex-direction: column;
             gap: 10px;
-            padding-bottom: 70px;
         }
         .sc {
             display: none;
@@ -317,46 +395,6 @@
             }
         }
 
-        /* NAV */
-        .nav {
-            background: var(--bg2);
-            border-top: 1px solid var(--bd);
-            padding: 8px 0 max(8px, env(safe-area-inset-bottom));
-            display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            max-width: 700px;
-            margin: 0 auto;
-            z-index: 50;
-        }
-        @media (max-width: 700px) {
-            .nav {
-                max-width: 430px;
-            }
-        }
-        .nb {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 3px;
-            padding: 8px 2px;
-            background: none;
-            border: none;
-            color: var(--tx2);
-            font-size: 11px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: .15s;
-        }
-        .nb.on {
-            color: var(--gld);
-        }
-        .nb span {
-            font-size: 20px;
-        }
         .logout-btn {
             background: none;
             border: 1px solid var(--bd2);
@@ -501,46 +539,6 @@
         }
         .top-row:last-child {
             border-bottom: none;
-        }
-
-        .bnr {
-            display: block;
-            width: 100%;
-            height: 80px;
-            overflow: hidden;
-            position: fixed;
-            bottom: 55px;
-            left: 0;
-            right: 0;
-            max-width: 700px;
-            margin: 0 auto;
-            z-index: 45;
-            cursor: pointer;
-            background: var(--bg2);
-            border-top: 1px solid var(--bd2);
-            border-bottom: 1px solid var(--bd2);
-        }
-        @media (max-width: 700px) {
-            .bnr {
-                max-width: 430px;
-            }
-        }
-        .bnr-img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            display: block;
-        }
-        .bnr-ph {
-            width: 100%;
-            height: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 16px;
-            font-weight: 700;
-            color: var(--gld);
-            background: var(--bg3);
         }
 
         .mod-bg {
@@ -1201,6 +1199,12 @@
 
             </div>
 
+            <!-- БАННЕР ВНУТРИ APP, ПЕРЕД НАВИГАЦИЕЙ -->
+            <div class="bnr" onclick="openTelegram()" id="BNR">
+                <img id="BNR_img" src="" alt="CoinMine" class="bnr-img" onerror="this.style.display='none';document.getElementById('BNR_ph').style.display='flex'">
+                <div id="BNR_ph" class="bnr-ph">⛏ CoinMine</div>
+            </div>
+
             <nav class="nav">
                 <button class="nb on" onclick="goSc('home')" id="NB_home"><span>🏠</span>Главная</button>
                 <button class="nb" onclick="goSc('games')" id="NB_games"><span>🎲</span>Игры</button>
@@ -1209,10 +1213,6 @@
                 <button class="nb" onclick="goSc('shop')" id="NB_shop"><span>🛒</span>Магазин</button>
             </nav>
 
-            <div class="bnr" onclick="openTelegram()" id="BNR">
-                <img id="BNR_img" src="" alt="CoinMine" class="bnr-img" onerror="this.style.display='none';document.getElementById('BNR_ph').style.display='flex'">
-                <div id="BNR_ph" class="bnr-ph">⛏ CoinMine</div>
-            </div>
         </div>
 
     </div>
