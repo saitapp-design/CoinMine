@@ -32,7 +32,8 @@
             --silver: #c0c0c0;
             --bronze: #cd7f32;
         }
-        html, body {
+        html,
+        body {
             height: 100%;
             background: #07070f;
             color: var(--tx);
@@ -42,68 +43,71 @@
             overflow-x: hidden;
         }
 
-       /* Боковые изображения на ПК (одинаковые, без зеркала) */
-/* ============================================
-   БОКОВЫЕ ИЗОБРАЖЕНИЯ ДЛЯ ПК
-   ============================================ */
-body {
-    background: #07070f;
-    position: relative;
-    overflow-x: hidden;
-}
+        /* ════════════════════════════════════════ */
+        /* БОКОВЫЕ ИЗОБРАЖЕНИЯ ДЛЯ ПК — ИСПРАВЛЕНО */
+        /* ════════════════════════════════════════ */
 
-/* Боковые картинки — полупрозрачные и не отвлекают */
-body::before,
-body::after {
-    content: '';
-    position: fixed;
-    top: 0;
-    bottom: 0;
-    width: calc((100% - 600px) / 2);  /* ← ИГРА ШИРЕ: 600px вместо 430px */
-    min-width: 30px;
-    max-width: 200px;                 /* ← Картинки не шире 200px */
-    z-index: 0;
-    pointer-events: none;
-    background-image: url('https://i.ibb.co/B5CTFj4c/Chat-GPT-Image-20-2026-14-52-25.png');
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    opacity: 0.4;                     /* ← Полупрозрачные, не бросаются в глаза */
-}
+        body {
+            background: #07070f;
+            position: relative;
+            overflow-x: hidden;
+        }
 
-body::before {
-    left: 0;
-}
+        /* Боковые картинки — полностью видны */
+        body::before,
+        body::after {
+            content: '';
+            position: fixed;
+            top: 0;
+            bottom: 0;
+            width: calc((100% - 700px) / 2);
+            min-width: 50px;
+            max-width: 300px;
+            z-index: 0;
+            pointer-events: none;
+            background-image: url('https://i.ibb.co/B5CTFj4c/Chat-GPT-Image-20-2026-14-52-25.png');
+            background-size: contain;      /* ← Вместо cover — картинка полностью видна */
+            background-position: center;
+            background-repeat: no-repeat;
+            opacity: 0.35;
+        }
 
-body::after {
-    right: 0;
-}
+        body::before {
+            left: 0;
+            /* НЕ ЗЕРКАЛИМ! */
+        }
 
-/* Основное приложение — шире на ПК */
-.app {
-    max-width: 600px;                 /* ← БЫЛО 430px, СТАЛО 600px */
-    margin: 0 auto;
-    background: var(--bg);
-    position: relative;
-    z-index: 1;
-    min-height: 100vh;
-    box-shadow: 0 0 60px rgba(0, 0, 0, 0.8);
-}
+        body::after {
+            right: 0;
+            /* НЕ ЗЕРКАЛИМ! */
+        }
 
-/* На телефонах — стандартная ширина, картинки скрыты */
-@media (max-width: 600px) {
-    .app {
-        max-width: 430px;
-    }
-    body::before,
-    body::after {
-        display: none !important;
-    }
-}
+        /* Основное приложение — ШИРЕ НА ПК */
+        .app {
+            max-width: 700px;              /* ← Было 430, стало 700 */
+            margin: 0 auto;
+            background: var(--bg);
+            position: relative;
+            z-index: 1;
+            min-height: 100vh;
+            box-shadow: 0 0 60px rgba(0, 0, 0, 0.8);
+        }
+
+        /* На телефонах — стандартная ширина, картинки скрыты */
+        @media (max-width: 700px) {
+            .app {
+                max-width: 430px;
+            }
+            body::before,
+            body::after {
+                display: none !important;
+            }
+        }
 
         /* ════════════════════════════════════════ */
         /* ОСТАЛЬНЫЕ СТИЛИ */
         /* ════════════════════════════════════════ */
+
         /* AUTH */
         #authWrap {
             min-height: 100vh;
@@ -248,8 +252,6 @@ body::after {
         /* APP */
         #appWrap {
             display: none;
-            max-width: 430px;
-            margin: 0 auto;
             flex-direction: column;
             min-height: 100vh;
         }
@@ -305,8 +307,14 @@ body::after {
             animation: fu .22s ease;
         }
         @keyframes fu {
-            from { opacity: 0; transform: translateY(5px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(5px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         /* NAV */
@@ -320,9 +328,14 @@ body::after {
             bottom: 0;
             left: 0;
             right: 0;
-            max-width: 430px;
+            max-width: 700px;
             margin: 0 auto;
             z-index: 50;
+        }
+        @media (max-width: 700px) {
+            .nav {
+                max-width: 430px;
+            }
         }
         .nb {
             display: flex;
@@ -499,13 +512,18 @@ body::after {
             bottom: 55px;
             left: 0;
             right: 0;
-            max-width: 430px;
+            max-width: 700px;
             margin: 0 auto;
             z-index: 45;
             cursor: pointer;
             background: var(--bg2);
             border-top: 1px solid var(--bd2);
             border-bottom: 1px solid var(--bd2);
+        }
+        @media (max-width: 700px) {
+            .bnr {
+                max-width: 430px;
+            }
         }
         .bnr-img {
             width: 100%;
@@ -668,8 +686,13 @@ body::after {
             animation: bossPulse 2s ease-in-out infinite;
         }
         @keyframes bossPulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.06); }
+            0%,
+            100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.06);
+            }
         }
         .boss-name {
             font-size: 18px;
@@ -743,7 +766,7 @@ body::after {
             position: absolute;
             width: 100px;
             height: 100px;
-            border: 2px solid rgba(255,255,255,.15);
+            border: 2px solid rgba(255, 255, 255, .15);
             border-radius: 12px;
             display: flex;
             align-items: center;
@@ -752,12 +775,24 @@ body::after {
             font-weight: 900;
             backface-visibility: hidden;
         }
-        .df-front { transform: translateZ(50px); }
-        .df-back { transform: rotateY(180deg) translateZ(50px); }
-        .df-right { transform: rotateY(90deg) translateZ(50px); }
-        .df-left { transform: rotateY(-90deg) translateZ(50px); }
-        .df-top { transform: rotateX(90deg) translateZ(50px); }
-        .df-bottom { transform: rotateX(-90deg) translateZ(50px); }
+        .df-front {
+            transform: translateZ(50px);
+        }
+        .df-back {
+            transform: rotateY(180deg) translateZ(50px);
+        }
+        .df-right {
+            transform: rotateY(90deg) translateZ(50px);
+        }
+        .df-left {
+            transform: rotateY(-90deg) translateZ(50px);
+        }
+        .df-top {
+            transform: rotateX(90deg) translateZ(50px);
+        }
+        .df-bottom {
+            transform: rotateX(-90deg) translateZ(50px);
+        }
         .dice-val {
             font-size: 14px;
             text-align: center;
@@ -801,16 +836,45 @@ body::after {
             min-width: 30px;
             text-align: center;
         }
-        .podium-rank.gold { color: var(--gold); }
-        .podium-rank.silver { color: var(--silver); }
-        .podium-rank.bronze { color: var(--bronze); }
-        .podium-avatar { font-size: 28px; }
-        .podium-name { flex: 1; font-weight: 600; font-size: 14px; }
-        .podium-bid { font-weight: 700; color: var(--gld); font-size: 14px; }
+        .podium-rank.gold {
+            color: var(--gold);
+        }
+        .podium-rank.silver {
+            color: var(--silver);
+        }
+        .podium-rank.bronze {
+            color: var(--bronze);
+        }
+        .podium-avatar {
+            font-size: 28px;
+        }
+        .podium-name {
+            flex: 1;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        .podium-bid {
+            font-weight: 700;
+            color: var(--gld);
+            font-size: 14px;
+        }
 
-        .clan-icon { font-size: 60px; text-align: center; margin-bottom: 4px; filter: drop-shadow(0 0 20px #7c3aed66); }
-        .clan-name { font-size: 20px; font-weight: 700; color: var(--acc3); }
-        .clan-diamonds { font-size: 28px; font-weight: 800; color: var(--gld); }
+        .clan-icon {
+            font-size: 60px;
+            text-align: center;
+            margin-bottom: 4px;
+            filter: drop-shadow(0 0 20px #7c3aed66);
+        }
+        .clan-name {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--acc3);
+        }
+        .clan-diamonds {
+            font-size: 28px;
+            font-weight: 800;
+            color: var(--gld);
+        }
 
         #TOAST {
             position: fixed;
@@ -828,8 +892,14 @@ body::after {
             max-width: 88%;
             text-align: center;
         }
-        .hl { color: var(--gld); font-weight: 700; }
-        :root { --acc3: #c4a0ff; --r3: 4px; }
+        .hl {
+            color: var(--gld);
+            font-weight: 700;
+        }
+        :root {
+            --acc3: #c4a0ff;
+            --r3: 4px;
+        }
     </style>
 </head>
 <body>
