@@ -410,12 +410,12 @@ const SUPABASE_ANON_KEY = 'sb_publishable_GLQvPbCZrDYgd7FCSp861g_poX1-Hwy';
 
 
     // ============================================================
-    // 2. ПЕРЕМЕННЫЕ
+    // 2. ПРЯМОЙ РАБОТА ЧЕРЕЗ REST API (БЕЗ SDK)
     // ============================================================
-    let supabaseClient = null;
     let currentUser = null;
     let currentUserId = null;
     let isAuthMode = 'login';
+    let sessionToken = null;
     let _pendingFn = null;
 
     const G = {
@@ -473,69 +473,70 @@ const SUPABASE_ANON_KEY = 'sb_publishable_GLQvPbCZrDYgd7FCSp861g_poX1-Hwy';
     }
 
     // ============================================================
-    // 5. ИНИЦИАЛИЗАЦИЯ SUPABASE - ПРОСТО И НАДЁЖНО!
+    // 5. ОСНОВНЫЕ ФУНКЦИИ API
     // ============================================================
-    function initSupabase() {
-        try {
-            // Проверяем, что SDK загружен
-            if (typeof supabaseJs === 'undefined') {
-                console.log('⏳ Ожидание SDK...');
-                setTimeout(initSupabase, 300);
-                return;
-            }
-
-            // Проверяем, что createClient доступен
-            if (!supabaseJs.createClient) {
-                console.log('⏳ Ожидание createClient...');
-                setTimeout(initSupabase, 300);
-                return;
-            }
-
-            const { createClient } = supabaseJs;
-            supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-            console.log('✅ Supabase готов');
-            setStatus('Готово к входу', 'ok');
-            
-            // Проверяем авторизацию
-            checkAuth();
-            
-        } catch (e) {
-            console.error('❌ Ошибка:', e);
-            setStatus('Ошибка: ' + e.message, 'err');
-            setTimeout(initSupabase, 3000);
-        }
+    async function signUp(email, password) {
+        const response = await fetch(`${SUPABASE_URL}/auth/v1/signup`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'apikey': SUPABASE_ANON_KEY
+            },
+            body: JSON.stringify({ email, password })
+        });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.msg || 'Ошибка регистрации');
+        return data;
     }
 
-    // Загружаем SDK
-    const script = document.createElement('script');
-    script.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
-    script.onload = function() {
-        console.log('📦 SDK загружен');
-        // Запускаем инициализацию
-        initSupabase();
-    };
-    script.onerror = function() {
-        setStatus('❌ Ошибка загрузки SDK', 'err');
-    };
-    document.head.appendChild(script);
+    async function signIn(email, password) {
+        const response = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=password`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'apikey': SUPABASE_ANON_KEY
+            },
+            body: JSON.stringify({ email, password })
+        });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.msg || 'Ошибка входа');
+        return data;
+    }
 
-    // Пробуем инициализировать каждые 2 секунды на всякий случай
-    let retryCount = 0;
-    const retryInterval = setInterval(() => {
-        retryCount++;
-        if (supabaseClient) {
-            clearInterval(retryInterval);
-            return;
-        }
-        if (retryCount > 30) {
-            clearInterval(retryInterval);
-            setStatus('❌ Таймаут. Перезагрузите страницу', 'err');
-            return;
-        }
-        if (typeof supabaseJs !== 'undefined') {
-            initSupabase();
-        }
-    }, 2000);
+    async function getUserData(userId) {
+        const response = await fetch(`${SUPABASE_URL}/rest/v1/users?id=eq.${userId}`, {
+            method: 'GET',
+            headers: {
+                'apikey': SUPABASE_ANON_KEY,
+                'Authorization': `Bearer ${sessionToken}`
+            }
+        });
+        const data = await response.json();
+        if (!response.ok) throw new Error('Ошибка загрузки данных');
+        return data[0] || null;
+    }
+
+    async function upsertUserData(userId, data, boss) {
+        const response = await fetch(`${SUPABASE_URL}/rest/v1/users`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'apikey': SUPABASE_ANON_KEY,
+                'Authorization': `Bearer ${sessionToken}`,
+                'Prefer': 'resolution=merge-duplicates'
+            },
+            body: JSON.stringify({
+                id: userId,
+                email: currentUser?.email || '',
+                data: data,
+                boss: boss || GLOBAL_BOSS,
+                device_id: DEVICE_ID,
+                updated_at: new Date().toISOString()
+            })
+        });
+        if (!response.ok) throw new Error('Ошибка сохранения');
+        return await response.json();
+    }
 
     // ============================================================
     // 6. АВТОРИЗАЦИЯ
@@ -548,11 +549,6 @@ const SUPABASE_ANON_KEY = 'sb_publishable_GLQvPbCZrDYgd7FCSp861g_poX1-Hwy';
     }
 
     async function handleAuth() {
-        if (!supabaseClient) {
-            setStatus('⏳ Подождите, идёт подключение...', 'loading');
-            return;
-        }
-
         const email = document.getElementById('authEmail').value.trim();
         const pass = document.getElementById('authPass').value.trim();
 
@@ -565,85 +561,76 @@ const SUPABASE_ANON_KEY = 'sb_publishable_GLQvPbCZrDYgd7FCSp861g_poX1-Hwy';
             return;
         }
 
+        setStatus('⏳ Обработка...', 'loading');
+
         try {
             let result;
             if (isAuthMode === 'login') {
-                result = await supabaseClient.auth.signInWithPassword({ email, password: pass });
-            } else {
-                result = await supabaseClient.auth.signUp({ email, password: pass });
-            }
-
-            if (result.error) {
-                setStatus('Ошибка: ' + result.error.message, 'err');
-                return;
-            }
-
-            if (result.data.user) {
-                currentUser = result.data.user;
-                currentUserId = currentUser.id;
-                
-                if (isAuthMode === 'register') {
-                    await supabaseClient.from('users').upsert({
-                        id: currentUserId,
-                        email: currentUser.email,
-                        data: G,
-                        boss: GLOBAL_BOSS,
-                        device_id: DEVICE_ID
-                    });
+                result = await signIn(email, pass);
+                if (result.access_token) {
+                    sessionToken = result.access_token;
+                    currentUser = result.user;
+                    currentUserId = result.user.id;
+                    await loadUserData();
+                    showMainApp();
+                    setStatus('✅ Вход выполнен!', 'ok');
                 }
-                
-                await loadUserData();
-                showMainApp();
-                setStatus(isAuthMode === 'login' ? '✅ Вход выполнен!' : '✅ Регистрация успешна!', 'ok');
             } else {
-                setStatus('Проверьте почту для подтверждения', 'loading');
+                result = await signUp(email, pass);
+                if (result.user) {
+                    currentUser = result.user;
+                    currentUserId = result.user.id;
+                    // После регистрации нужно войти
+                    const loginResult = await signIn(email, pass);
+                    sessionToken = loginResult.access_token;
+                    await loadUserData();
+                    showMainApp();
+                    setStatus('✅ Регистрация успешна!', 'ok');
+                }
             }
         } catch (e) {
-            setStatus('Ошибка: ' + e.message, 'err');
+            setStatus('❌ ' + e.message, 'err');
+            console.error('Ошибка:', e);
         }
     }
 
+    // Проверяем сохранённую сессию
     async function checkAuth() {
-        if (!supabaseClient) return;
         try {
-            const { data } = await supabaseClient.auth.getSession();
-            if (data?.session?.user) {
-                currentUser = data.session.user;
-                currentUserId = currentUser.id;
+            const savedSession = localStorage.getItem('coinmine_session');
+            const savedUserId = localStorage.getItem('coinmine_user_id');
+            if (savedSession && savedUserId) {
+                sessionToken = savedSession;
+                currentUserId = savedUserId;
                 await loadUserData();
                 showMainApp();
+                return true;
             }
         } catch (e) {
-            console.log('Не авторизован');
+            console.log('Сессия не найдена');
         }
+        return false;
     }
 
     // ============================================================
     // 7. ЗАГРУЗКА ДАННЫХ
     // ============================================================
     async function loadUserData() {
-        if (!supabaseClient || !currentUserId) return;
         try {
-            const { data } = await supabaseClient
-                .from('users')
-                .select('*')
-                .eq('id', currentUserId)
-                .single();
-
-            if (data) {
-                const p = data.data || {};
+            let userData = await getUserData(currentUserId);
+            
+            if (userData) {
+                const p = userData.data || {};
                 Object.keys(G).forEach(k => { if (p[k] !== undefined) G[k] = p[k]; });
-                if (data.boss) GLOBAL_BOSS = data.boss;
+                if (userData.boss) GLOBAL_BOSS = userData.boss;
             } else {
                 G.refCode = currentUserId.substring(0, 8);
-                await supabaseClient.from('users').insert({
-                    id: currentUserId,
-                    email: currentUser.email,
-                    data: G,
-                    boss: GLOBAL_BOSS,
-                    device_id: DEVICE_ID
-                });
+                await upsertUserData(currentUserId, G, GLOBAL_BOSS);
             }
+
+            // Сохраняем сессию
+            localStorage.setItem('coinmine_session', sessionToken);
+            localStorage.setItem('coinmine_user_id', currentUserId);
 
             // Миссии
             const now = Date.now();
@@ -668,15 +655,9 @@ const SUPABASE_ANON_KEY = 'sb_publishable_GLQvPbCZrDYgd7FCSp861g_poX1-Hwy';
     }
 
     async function saveUserData() {
-        if (!supabaseClient || !currentUserId) return;
+        if (!currentUserId) return;
         try {
-            await supabaseClient.from('users').upsert({
-                id: currentUserId,
-                email: currentUser.email,
-                data: G,
-                boss: GLOBAL_BOSS,
-                updated_at: new Date().toISOString()
-            });
+            await upsertUserData(currentUserId, G, GLOBAL_BOSS);
         } catch (e) {
             console.error('Ошибка сохранения:', e);
         }
@@ -783,18 +764,17 @@ const SUPABASE_ANON_KEY = 'sb_publishable_GLQvPbCZrDYgd7FCSp861g_poX1-Hwy';
     // 11. РЕФЕРАЛЫ
     // ============================================================
     async function useRefCode() {
-        if (!supabaseClient) { toast('Подождите подключения', 'err'); return; }
         const code = document.getElementById('REF_INP').value.trim();
         if (!code) { toast('Введите код', 'err'); return; }
         if (code === G.refCode) { toast('Это ваш код', 'err'); return; }
         if (G.activatedRef) { toast('Код уже активирован', 'err'); return; }
 
         try {
-            const { data } = await supabaseClient
-                .from('users')
-                .select('id')
-                .eq('data->>refCode', code)
-                .limit(1);
+            // Ищем пользователя с таким кодом через API
+            const response = await fetch(`${SUPABASE_URL}/rest/v1/users?data->>refCode=eq.${code}`, {
+                headers: { 'apikey': SUPABASE_ANON_KEY }
+            });
+            const data = await response.json();
             if (!data || data.length === 0) { toast('Код не найден', 'err'); return; }
 
             G.activatedRef = code;
@@ -811,7 +791,7 @@ const SUPABASE_ANON_KEY = 'sb_publishable_GLQvPbCZrDYgd7FCSp861g_poX1-Hwy';
     }
 
     // ============================================================
-    // 12. РУЛЕТКА
+    // 12. РУЛЕТКА (БЕЗ ИЗМЕНЕНИЙ)
     // ============================================================
     let roulRunning = false;
 
@@ -1329,6 +1309,14 @@ const SUPABASE_ANON_KEY = 'sb_publishable_GLQvPbCZrDYgd7FCSp861g_poX1-Hwy';
         console.log('📄 Страница загружена');
         drawRoulette(0, null);
         updateDiceDisplay(0);
+        
+        // Проверяем сохранённую сессию
+        setStatus('⏳ Проверка сессии...', 'loading');
+        checkAuth().then(hasSession => {
+            if (!hasSession) {
+                setStatus('Готово к входу', 'ok');
+            }
+        });
     });
 
     console.log('✅ Скрипт загружен');
