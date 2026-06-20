@@ -16,8 +16,6 @@
   --r:12px;--r2:8px;--r3:6px;
 }
 html,body{height:100%;background:var(--bg);color:var(--tx);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;font-size:14px;line-height:1.4;overflow-x:hidden}
-
-/* ── AUTH ─────────────────────────────────────────── */
 #authWrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;background:var(--bg)}
 .auth-box{width:100%;max-width:380px;background:var(--bg2);border:1px solid var(--bd2);border-radius:20px;padding:28px 24px;position:relative;overflow:hidden}
 .auth-box::before{content:'';position:absolute;top:-60px;right:-60px;width:200px;height:200px;background:radial-gradient(circle,#7c3aed22,transparent 70%);pointer-events:none}
@@ -39,26 +37,19 @@ html,body{height:100%;background:var(--bg);color:var(--tx);font-family:-apple-sy
 .btn:disabled{opacity:.35;pointer-events:none}
 .astat{text-align:center;font-size:12px;margin-top:14px;min-height:20px;font-weight:500}
 .astat.ok{color:var(--grn)}.astat.err{color:var(--red)}.astat.ld{color:var(--gld)}
-
-/* ── APP ─────────────────────────────────────────── */
 #appWrap{display:none;max-width:430px;margin:0 auto;flex-direction:column;min-height:100vh}
 #appWrap.on{display:flex}
-
 .hdr{background:var(--bg2);border-bottom:1px solid var(--bd);padding:10px 14px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:60}
 .hdr-logo{font-size:16px;font-weight:800;background:linear-gradient(135deg,var(--gld),var(--gld2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
 .hdr-bal{display:flex;align-items:center;gap:5px;background:var(--bg3);border:1px solid #f0b42930;border-radius:20px;padding:5px 13px;font-size:13px;font-weight:700;color:var(--gld)}
-
 .screens{flex:1;padding:10px 10px 0;display:flex;flex-direction:column;gap:10px}
 .sc{display:none;flex-direction:column;gap:10px;padding-bottom:10px}
 .sc.on{display:flex;animation:fu .22s ease}
 @keyframes fu{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
-
 .nav{background:var(--bg2);border-top:1px solid var(--bd);padding:6px 0 max(6px,env(safe-area-inset-bottom));display:grid;grid-template-columns:repeat(5,1fr);position:sticky;bottom:60px;z-index:50}
 .nb{display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 2px;background:none;border:none;color:var(--tx2);font-size:9px;cursor:pointer;transition:.15s}
 .nb.on{color:var(--gld)}
 .nb i{font-size:21px}
-
-/* ── BANNER ─────────────────────────────────────── */
 .bnr{display:flex;align-items:stretch;border-top:1px solid var(--bd2);height:62px;overflow:hidden;position:sticky;bottom:0;z-index:49;background:var(--bg2)}
 .bnr-img{width:110px;height:62px;object-fit:cover;flex-shrink:0;display:block;border-right:1px solid var(--bd)}
 .bnr-ph{width:110px;height:62px;flex-shrink:0;background:linear-gradient(135deg,#1a0f35,#0f1a30);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--gld);border-right:1px solid var(--bd);letter-spacing:.4px}
@@ -66,8 +57,6 @@ html,body{height:100%;background:var(--bg);color:var(--tx);font-family:-apple-sy
 .bnr-t{font-size:11px;font-weight:700;color:var(--gld);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .bnr-s{font-size:10px;color:var(--tx2);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .bnr-btn{flex-shrink:0;padding:0 12px;background:var(--gld);color:#1a0800;font-size:11px;font-weight:800;border:none;cursor:pointer;letter-spacing:.3px}
-
-/* ── CARDS ─────────────────────────────────────── */
 .card{background:var(--bg3);border:1px solid var(--bd);border-radius:var(--r);padding:14px}
 .ct{font-size:10px;color:var(--tx2);text-transform:uppercase;letter-spacing:.7px;margin-bottom:10px;font-weight:600}
 .g2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
@@ -93,47 +82,34 @@ html,body{height:100%;background:var(--bg);color:var(--tx);font-family:-apple-sy
 .tab.on{background:var(--acc);color:#fff;border-color:var(--acc)}
 .top-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--bd)}
 .top-row:last-child{border-bottom:none}
-
-/* ── ROULETTE ───────────────────────────────────── */
 .rl-wrap{position:relative;width:100%;border-radius:var(--r);overflow:hidden;background:var(--bg4)}
 #RC{display:block;width:100%}
-.rl-ptr{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:18px;height:18px;border-radius:50%;background:#fff;border:3px solid var(--gld);z-index:5;box-shadow:0 0 8px var(--gld)}
-.rl-marker{position:absolute;top:0;left:50%;transform:translateX(-50%);width:0;height:0;border-left:9px solid transparent;border-right:9px solid transparent;border-top:18px solid var(--gld);z-index:6;filter:drop-shadow(0 2px 4px #f0b42980)}
-
-/* ── 3D DICE ─────────────────────────────────────── */
+.rl-marker{position:absolute;top:0;left:50%;transform:translateX(-50%);width:0;height:0;border-left:10px solid transparent;border-right:10px solid transparent;border-top:20px solid var(--gld);z-index:6;filter:drop-shadow(0 2px 6px #f0b42999)}
 .dice-scene{width:100%;height:180px;perspective:600px;display:flex;align-items:center;justify-content:center;background:var(--bg4);border-radius:var(--r);overflow:hidden}
 .dice-cube{width:80px;height:80px;position:relative;transform-style:preserve-3d;transition:none}
-.dice-face{position:absolute;width:80px;height:80px;border:2px solid rgba(255,255,255,.2);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:36px;font-weight:900;backface-visibility:hidden}
-.df-front {transform:translateZ(40px)}
-.df-back  {transform:rotateY(180deg) translateZ(40px)}
-.df-right {transform:rotateY(90deg) translateZ(40px)}
-.df-left  {transform:rotateY(-90deg) translateZ(40px)}
-.df-top   {transform:rotateX(90deg) translateZ(40px)}
+.dice-face{position:absolute;width:80px;height:80px;border:2px solid rgba(255,255,255,.15);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:36px;font-weight:900;backface-visibility:hidden}
+.df-front{transform:translateZ(40px)}
+.df-back{transform:rotateY(180deg) translateZ(40px)}
+.df-right{transform:rotateY(90deg) translateZ(40px)}
+.df-left{transform:rotateY(-90deg) translateZ(40px)}
+.df-top{transform:rotateX(90deg) translateZ(40px)}
 .df-bottom{transform:rotateX(-90deg) translateZ(40px)}
 .dice-val{font-size:13px;text-align:center;margin-top:8px;min-height:18px}
-
-/* ── BOSS ────────────────────────────────────────── */
 .boss-ico{font-size:64px;text-align:center;line-height:1;margin-bottom:6px;filter:drop-shadow(0 0 20px #ef444466);animation:bossPulse 2s ease-in-out infinite}
 @keyframes bossPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
 .hp-bar{height:14px;background:var(--bg4);border-radius:8px;overflow:hidden;margin:8px 0;position:relative}
 .hp-fill{height:100%;background:linear-gradient(90deg,#991b1b,var(--red),#ff6b6b);border-radius:8px;transition:width .6s ease;position:relative}
 .hp-fill::after{content:'';position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(180deg,#ffffff30,transparent);border-radius:8px}
-
-/* ── NICK GRID ───────────────────────────────────── */
 .nick-g{display:grid;grid-template-columns:1fr 1fr;gap:7px}
 .nc{background:var(--bg4);border:1.5px solid var(--bd);border-radius:var(--r2);padding:9px 6px;text-align:center;cursor:pointer;transition:.15s}
 .nc:active{transform:scale(.95)}
 .nc.own{border-color:#4c1d95;background:#190a35}
 .nc.act{border-color:var(--gld);background:#2a1b00;box-shadow:0 0 0 2px #f0b42930}
-
-/* ── COIN PACKAGES ───────────────────────────────── */
 .pkg-g{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .pkg{background:var(--bg4);border:1.5px solid var(--bd2);border-radius:var(--r);padding:13px;text-align:center;cursor:pointer;transition:.15s;position:relative}
 .pkg:active{transform:scale(.96)}
 .pkg.hot{border-color:var(--gld)}
 .pkg.hot::before{content:'ХИТ';position:absolute;top:-8px;left:50%;transform:translateX(-50%);background:var(--gld);color:#1a0800;font-size:9px;font-weight:800;padding:2px 8px;border-radius:8px}
-
-/* ── MODALS ─────────────────────────────────────── */
 .mod-bg{display:none;position:fixed;inset:0;background:#000000d0;z-index:200;align-items:center;justify-content:center;padding:16px}
 .mod-bg.on{display:flex;animation:fadeIn .15s ease}
 @keyframes fadeIn{from{opacity:0}to{opacity:1}}
@@ -142,17 +118,11 @@ html,body{height:100%;background:var(--bg);color:var(--tx);font-family:-apple-sy
 .mod-body{font-size:12px;color:var(--tx2);margin-bottom:16px;line-height:1.6}
 .mod-btns{display:flex;gap:8px}
 .mod-btns .btn{flex:1}
-
-/* ── TOAST ───────────────────────────────────────── */
 #TOAST{position:fixed;top:60px;left:50%;transform:translateX(-50%);padding:9px 18px;border-radius:20px;font-size:13px;font-weight:600;z-index:999;transition:opacity .25s;opacity:0;pointer-events:none;max-width:88%;text-align:center}
-
-/* ── UTIL ────────────────────────────────────────── */
 .fl{display:flex;align-items:center;gap:8px}.f1{flex:1}
 .tc{text-align:center}.tm{color:var(--tx2);font-size:12px}
 .mt8{margin-top:8px}.mb8{margin-bottom:8px}
 .hl{color:var(--gld);font-weight:700}
-
-@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
 <body>
@@ -486,10 +456,10 @@ html,body{height:100%;background:var(--bg);color:var(--tx);font-family:-apple-sy
 
 <script>
 // ════════════════════════════════════════════════
-// CONFIG — Supabase
+// CONFIG — Supabase (ПРАВИЛЬНЫЙ ПУБЛИЧНЫЙ КЛЮЧ!)
 // ════════════════════════════════════════════════
 const SB_URL  = 'https://mazccbkzurbryzusajqc.supabase.co';
-const SB_KEY = 'sb_publishable_GLQvPbCZrDYgd7FCSp861g_poX1-Hwy';
+const SB_KEY  = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1hemNjYmt6dXJicnladXphc2pxYyIsInJvbGUiOiJhbm9uIiwiaWF0IjoxNzQ3ODA4MTk3LCJleHAiOjIwNjMzODQxOTd9.N7QnNLnPYGt4kYwhprLvxG0T1G0Zl8hH_wM1N4IrL4I';
 
 // ════════════════════════════════════════════════
 // STATE
@@ -544,7 +514,7 @@ async function authSignIn(email,pass){
   return sbFetch('/auth/v1/token?grant_type=password',{method:'POST',noAuth:true,body:JSON.stringify({email,password:pass})});
 }
 async function getRow(){
-  return sbFetch(`/rest/v1/users?id=eq.${UID}&select=gdata,boss`,{headers:{Prefer:'return=representation'}});
+  return sbFetch(`/rest/v1/users?id=eq.${UID}&select=gdata,boss`);
 }
 async function upsertRow(){
   const body=JSON.stringify({id:UID,gdata:G,boss:BOSS_STATE,updated_at:new Date().toISOString()});
@@ -573,7 +543,6 @@ async function handleAuth(){
       const {ok,data}=await authSignUp(email,pass);
       if(!ok){
         const msg=data?.msg||data?.message||data?.error_description||'Ошибка';
-        // если уже существует — пробуем войти
         if(msg.toLowerCase().includes('already')||msg.toLowerCase().includes('registered')){
           aStat('Аккаунт уже существует. Войдите.','err');
         } else {
@@ -582,7 +551,6 @@ async function handleAuth(){
         document.getElementById('aBtn').disabled=false;
         return;
       }
-      // После регистрации сразу входим
       aStat('✅ Аккаунт создан! Вход...','ok');
     }
     // Вход
@@ -631,7 +599,6 @@ async function loadData(){
     }
     if(row.boss){Object.assign(BOSS_STATE,row.boss);}
   } else {
-    // Новый пользователь
     G.refCode=UID.slice(0,8);
     await upsertRow();
   }
@@ -666,7 +633,6 @@ function showApp(){
   setTimeout(()=>drawRoulette(0,null),100);
   setInterval(renderFarmTimer,1000);
   setInterval(renderBoss,30000);
-  // Top refresh every 10 min
   topTimer=setInterval(()=>{if(document.getElementById('sc-top').classList.contains('on'))renderTop('b');},600000);
 }
 
@@ -786,7 +752,6 @@ function renderBoss(){
     document.getElementById('BS_rs').textContent='Следующий в 16:00 МСК';
     if(atkBtn)atkBtn.disabled=true;
   } else {
-    // Вычисляем сколько до 16:00 МСК
     const next16=new Date(msk);
     next16.setUTCHours(16,0,0,0);
     if(h>=22)next16.setUTCDate(next16.getUTCDate()+1);
@@ -835,13 +800,7 @@ function renderTop(tp){
 // ════════════════════════════════════════════════
 // ROULETTE — correct stop position
 // ════════════════════════════════════════════════
-// Wheel layout (from top, clockwise):
-// 20 segments: R B R B … (9 pairs) + G at pos 18 (top) + G at pos 9 (bottom-ish = pos 9)
-// Index 0 = top of wheel (12 o'clock)
-
 const SEG_COUNT=20;
-// segs[i] = color at index i (index 0 = top)
-// We want green at 0 (top) and 10 (bottom = opposite)
 const SEGS=(()=>{
   const s=[];
   for(let i=0;i<SEG_COUNT;i++){
@@ -852,7 +811,6 @@ const SEGS=(()=>{
   return s;
 })();
 
-// Color of each segment
 const SEG_COLORS={red:'#7f1d1d',black:'#1a1a2e',green:'#052e16'};
 const SEG_BORDER={red:'#ef444460',black:'#6b728060',green:'#10b98160'};
 
@@ -863,12 +821,11 @@ function drawRoulette(angle,result){
   const ctx=cv.getContext('2d'),w=cv.width,h=220,cx=w/2,cy=h/2,R=Math.min(cx,cy)-14;
   ctx.clearRect(0,0,w,h);
 
-  // Draw background circle
   ctx.beginPath();ctx.arc(cx,cy,R+4,0,Math.PI*2);ctx.fillStyle='#1a1a2e';ctx.fill();
 
   const n=SEG_COUNT;
   const segAngle=Math.PI*2/n;
-  const a0=(angle||0)-Math.PI/2; // -π/2 so index 0 is at top
+  const a0=(angle||0)-Math.PI/2;
 
   SEGS.forEach((c,i)=>{
     const a1=a0+i*segAngle, a2=a0+(i+1)*segAngle;
@@ -877,7 +834,6 @@ function drawRoulette(angle,result){
     ctx.strokeStyle=SEG_BORDER[c];ctx.lineWidth=1.2;ctx.stroke();
   });
 
-  // Segment labels (letters)
   SEGS.forEach((c,i)=>{
     const mid=a0+(i+0.5)*segAngle;
     const lx=cx+Math.cos(mid)*(R*.65);const ly=cy+Math.sin(mid)*(R*.65);
@@ -886,11 +842,9 @@ function drawRoulette(angle,result){
     ctx.fillText(c==='red'?'R':c==='black'?'B':'G',lx,ly);
   });
 
-  // Outer ring decoration
   ctx.beginPath();ctx.arc(cx,cy,R,0,Math.PI*2);ctx.strokeStyle='#ffffff25';ctx.lineWidth=3;ctx.stroke();
   ctx.beginPath();ctx.arc(cx,cy,R-3,0,Math.PI*2);ctx.strokeStyle='var(--gld)';ctx.lineWidth=1;ctx.stroke();
 
-  // Center circle
   ctx.beginPath();ctx.arc(cx,cy,R*.15,0,Math.PI*2);
   const cg=ctx.createRadialGradient(cx,cy,0,cx,cy,R*.15);
   cg.addColorStop(0,'#fff');cg.addColorStop(1,result?{red:'#ef4444',black:'#6b7280',green:'#10b981'}[result]:'#d0d0e0');
@@ -908,29 +862,21 @@ function startRoul(col){
     G.coins-=bet;roulRunning=true;
     document.getElementById('RL_r').textContent='Крутим...';
 
-    // Determine result
     const r=Math.random();
     const landed=r<.4?'red':r<.8?'black':'green';
 
-    // Find segment index to land on — pick random segment of that color
     const possibleIdx=SEGS.map((c,i)=>c===landed?i:-1).filter(x=>x>=0);
     const targetIdx=possibleIdx[Math.floor(Math.random()*possibleIdx.length)];
 
-    // targetIdx segment should be at top (angle offset = 0)
-    // Each segment center is at index+0.5 in units of segAngle
-    // We need: a0 + (targetIdx+0.5)*segAngle = -π/2  (top)
-    // a0 = angle - π/2
-    // => angle = -π/2 - (targetIdx+0.5)*segAngle + k*2π
     const segAngle=Math.PI*2/SEG_COUNT;
     const targetAngle=-Math.PI/2-(targetIdx+0.5)*segAngle;
-    // Add random full spins (5-8 rotations for drama)
     const spins=5+Math.floor(Math.random()*4);
     const finalAngle=targetAngle+spins*Math.PI*2;
 
     const dur=3200,t0=Date.now();
     function anim(){
       const el=Date.now()-t0,prog=Math.min(1,el/dur);
-      const ease=1-Math.pow(1-prog,4); // quartic ease-out
+      const ease=1-Math.pow(1-prog,4);
       drawRoulette(ease*finalAngle,prog>=1?landed:null);
       if(prog<1){requestAnimationFrame(anim);}
       else{
@@ -951,29 +897,15 @@ function startRoul(col){
 // 3D DICE
 // ════════════════════════════════════════════════
 const DICE_FACES_STR=['⚀','⚁','⚂','⚃','⚄','⚅'];
-const DICE_ROT={
-  1:{x:0,y:0},    // front
-  2:{x:-90,y:0},  // top
-  3:{x:0,y:90},   // right
-  4:{x:0,y:-90},  // left
-  5:{x:90,y:0},   // bottom
-  6:{x:0,y:180},  // back
-};
+const DICE_ROT={1:{x:0,y:0},2:{x:-90,y:0},3:{x:0,y:90},4:{x:0,y:-90},5:{x:90,y:0},6:{x:0,y:180}};
 let diceRolling=false;
 let diceAnimFrame=null;
-let diceAngleX=0,diceAngleY=0;
-
-const DICE_COLORS={red:'#7f1d1d',black:'#1c1c2e',grey:'#1e1e35'};
 
 function setDiceFace(val,col){
   const cube=document.getElementById('diceCube');if(!cube)return;
-  const faces=['f','b','r','l','t','bo'];
   const colors={red:['#7f1d1d','#991b1b','#b91c1c'],black:['#1c1c2e','#1f2037','#252540']};
   const c=colors[col]||colors.black;
-  // Color faces differently for visual depth
-  const faceNames=['df-front','df-back','df-right','df-left','df-top','df-bottom'];
   cube.querySelectorAll('.dice-face').forEach((f,i)=>{f.style.background=c[i%3]||c[0];f.style.borderColor=col==='red'?'#ef444440':'#ffffff20';});
-  // Set the front face to the value
   document.getElementById('d-f').textContent=DICE_FACES_STR[val-1]||'⚀';
   document.getElementById('d-b').textContent=DICE_FACES_STR[6-val]||'⚅';
   document.getElementById('d-r').textContent=DICE_FACES_STR[2];
@@ -1005,37 +937,33 @@ function playDice(col){
   document.getElementById('DC_r').textContent='Кидаем...';
 
   const cube=document.getElementById('diceCube');
-  let t=0,ox=diceAngleX,oy=diceAngleY;
+  let ox=20,oy=30;
   cube.style.transition='none';
 
-  // Animate tumbling
   if(diceAnimFrame)cancelAnimationFrame(diceAnimFrame);
   const dur=1800,t0=Date.now();
   function anim(){
     const el=Date.now()-t0;
     if(el<dur){
       const prog=el/dur;
-      const spd=1-prog; // slow down
-      const rx=ox+el*0.6*(1-0.5*prog);
-      const ry=oy+el*0.8*(1-0.5*prog);
+      const spd=1-prog*0.7;
+      const rx=ox+el*0.7*spd;
+      const ry=oy+el*0.9*spd;
       cube.style.transform=`rotateX(${rx}deg) rotateY(${ry}deg)`;
       diceAnimFrame=requestAnimationFrame(anim);
     } else {
-      // Result
       const val=Math.floor(Math.random()*6)+1;
       const resultCol=val%2===1?'red':'black';
       setDiceFace(val,col);
-      diceAngleX=DICE_ROT[val]?.x||0;
-      diceAngleY=DICE_ROT[val]?.y||0;
       const base=val*10;
       const bonus=col===resultCol?10:0;
       const total=base+bonus;
       G.coins+=total;
       const profit=total-50;
-      document.getElementById('DC_r').textContent=profit>0?`✅ Выпало ${val}! +${profit} монет (итого ${total})`:`❌ Выпало ${val} — получено ${total} (потеря ${Math.abs(profit)})`;
+      document.getElementById('DC_r').textContent=profit>0?`✅ Выпало ${val}! +${profit} монет`:`❌ Выпало ${val} — получено ${total}`;
       diceRolling=false;
       scheduleSave();renderUI();
-      toast(profit>0?`+${profit} монет!`:total>0?`Получено ${total}`:'Не повезло',profit>0?'gld':'err');
+      toast(profit>0?`+${profit} монет!`:'Не повезло',profit>0?'gld':'err');
     }
   }
   requestAnimationFrame(anim);
@@ -1118,7 +1046,6 @@ async function useRefCode(){
   if(code===G.refCode){toast('Это ваш код','err');return;}
   if(G.activatedRef){toast('Код уже активирован','err');return;}
   try{
-    // Search for user with that refCode in gdata
     const {ok,data}=await sbFetch(`/rest/v1/users?select=id,gdata&gdata->>refCode=eq.${encodeURIComponent(code)}&limit=1`,{});
     if(!ok||!data||!data.length){toast('Код не найден','err');return;}
     G.activatedRef=code;G.coins+=25;G.refs++;
@@ -1135,7 +1062,6 @@ function buyCoins(amt){G.coins+=amt;scheduleSave();renderUI();toast(`+${fmt(amt)
 function usePromo(){const v=document.getElementById('PR_i').value.trim().toLowerCase();if(v)activatePromo(v);document.getElementById('PR_i').value='';}
 function activatePromo(c){if(!PROMOS[c]){toast('Промокод не найден','err');return;}if(G.promos[c]){toast('Уже использован','err');return;}G.coins+=PROMOS[c];G.promos[c]=true;scheduleSave();renderUI();toast(`+${PROMOS[c]} монет!`,'gld');}
 
-// Banner API
 function setBannerImage(url){const img=document.getElementById('BNR_img');img.src=url;img.style.display='block';document.getElementById('BNR_ph').style.display='none';}
 
 // ════════════════════════════════════════════════
