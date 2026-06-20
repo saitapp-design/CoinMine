@@ -38,8 +38,8 @@
             font-size: 14px;
             line-height: 1.4;
             overflow-x: hidden;
+            padding-bottom: 70px;
         }
-
         /* AUTH */
         #authWrap {
             min-height: 100vh;
@@ -59,20 +59,16 @@
             position: relative;
             overflow: hidden;
         }
-        .auth-box::before {
-            content: '';
-            position: absolute;
-            top: -60px;
-            right: -60px;
-            width: 200px;
-            height: 200px;
-            background: radial-gradient(circle, #7c3aed22, transparent 70%);
-            pointer-events: none;
-        }
         .auth-logo {
             text-align: center;
-            font-size: 52px;
             margin-bottom: 8px;
+        }
+        .auth-logo img {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--gld);
         }
         .auth-title {
             text-align: center;
@@ -256,7 +252,7 @@
         .nav {
             background: var(--bg2);
             border-top: 1px solid var(--bd);
-            padding: 6px 0 max(6px, env(safe-area-inset-bottom));
+            padding: 6px 0;
             display: grid;
             grid-template-columns: repeat(5, 1fr);
             position: fixed;
@@ -430,42 +426,6 @@
         }
         .top-row:last-child {
             border-bottom: none;
-        }
-
-        /* BNR */
-        .bnr {
-            display: block;
-            width: 100%;
-            height: 80px;
-            overflow: hidden;
-            position: fixed;
-            bottom: 55px;
-            left: 0;
-            right: 0;
-            max-width: 430px;
-            margin: 0 auto;
-            z-index: 45;
-            cursor: pointer;
-            background: var(--bg2);
-            border-top: 1px solid var(--bd2);
-            border-bottom: 1px solid var(--bd2);
-        }
-        .bnr-img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            display: block;
-        }
-        .bnr-ph {
-            width: 100%;
-            height: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 16px;
-            font-weight: 700;
-            color: var(--gld);
-            background: var(--bg3);
         }
 
         /* Modals */
@@ -746,7 +706,9 @@
     <!-- ══════════════════ AUTH ══════════════════ -->
     <div id="authWrap">
         <div class="auth-box">
-            <div class="auth-logo">⛏</div>
+            <div class="auth-logo">
+                <img src="https://i.ibb.co/hRSsFg5R/Chat-GPT-Image-19-2026-20-55-28.png" alt="CoinMine Logo">
+            </div>
             <div class="auth-title">CoinMine</div>
             <div class="auth-sub" id="authSub">Войдите или создайте аккаунт</div>
             <div class="auth-tabs">
@@ -813,6 +775,7 @@
                     <div class="irow mb8">
                         <input class="inp" id="REF_I" placeholder="Введите реф-код друга...">
                         <button class="btn bp" style="width:auto;padding:0 12px" onclick="useRefCode()">Активировать</button>
+                        <button class="btn bs" style="width:auto;padding:0 12px" onclick="changeRefCode()">🔄 Сменить код</button>
                     </div>
                     <div class="tm">Ваш реф-код: <b style="color:var(--gld)" id="MY_REF">—</b></div>
                     <div class="tm">Активирован: <b id="ACT_REF" style="color:var(--gld)">—</b></div>
@@ -1028,10 +991,6 @@
             <button class="nb" onclick="goSc('shop')" id="NB_shop">🛒<br><span>Магазин</span></button>
         </nav>
 
-        <div class="bnr" onclick="openTelegram()" id="BNR">
-            <img id="BNR_img" src="" alt="CoinMine" class="bnr-img" onerror="this.style.display='none';document.getElementById('BNR_ph').style.display='flex'">
-            <div id="BNR_ph" class="bnr-ph">⛏ CoinMine</div>
-        </div>
     </div>
 
     <!-- MODALS -->
@@ -1191,7 +1150,7 @@
         const FINGERPRINT = getFingerprint();
 
         // ════════════════════════════════════════════════
-        // 5. API (РАБОТАЕТ БЕЗ ОШИБКИ 401)
+        // 5. API
         // ════════════════════════════════════════════════
         async function sbFetch(path, opts = {}) {
             const headers = {
@@ -1199,7 +1158,6 @@
                 'Content-Type': 'application/json',
                 ...(opts.headers || {})
             };
-            // Добавляем токен ТОЛЬКО если он есть и это не регистрация
             if (TOKEN && !opts.noAuth) {
                 headers['Authorization'] = 'Bearer ' + TOKEN;
             }
@@ -1211,10 +1169,9 @@
         }
 
         // ════════════════════════════════════════════════
-        // 6. РЕГИСТРАЦИЯ И ВХОД
+        // 6. РЕГИСТРАЦИЯ, ВХОД И СМЕНА КОДА
         // ════════════════════════════════════════════════
         async function authRegister(username, password, fingerprint) {
-            // Проверяем, есть ли аккаунт с этим отпечатком
             const { data: existing } = await sbFetch(
                 `/rest/v1/users?fingerprint=eq.${encodeURIComponent(fingerprint)}&select=id`, { noAuth: true }
             );
@@ -1222,7 +1179,6 @@
                 throw new Error('На этом устройстве уже есть аккаунт');
             }
 
-            // Проверяем, свободен ли логин
             const { data: taken } = await sbFetch(
                 `/rest/v1/users?username=eq.${encodeURIComponent(username)}&select=id`, { noAuth: true }
             );
@@ -1230,7 +1186,6 @@
                 throw new Error('Этот логин уже занят');
             }
 
-            // Создаём пользователя
             const newUser = {
                 username: username,
                 password: password,
@@ -1253,7 +1208,6 @@
                 throw new Error(msg);
             }
 
-            // Автоматически входим
             return await authLogin(username, password);
         }
 
@@ -1268,12 +1222,10 @@
 
             const user = data[0];
 
-            // Проверяем fingerprint
             if (user.fingerprint && user.fingerprint !== FINGERPRINT) {
                 throw new Error('Этот аккаунт привязан к другому устройству');
             }
 
-            // Если нет fingerprint — привязываем
             if (!user.fingerprint) {
                 await sbFetch(`/rest/v1/users?id=eq.${user.id}`, {
                     method: 'PATCH',
@@ -1282,7 +1234,6 @@
                 });
             }
 
-            // Обновляем данные
             if (user.data) {
                 const p = user.data;
                 Object.keys(G).forEach(k => { if (p[k] !== undefined) G[k] = p[k]; });
@@ -1298,6 +1249,35 @@
             localStorage.setItem('cm_username', username);
 
             return user;
+        }
+
+        // Смена реферального кода
+        async function changeRefCode() {
+            if (!UID) { toast('Сначала войдите в аккаунт', 'err'); return; }
+            const newCode = prompt('Введите новый реферальный код (4-8 символов, только буквы и цифры):');
+            if (!newCode) return;
+            if (newCode.length < 4 || newCode.length > 8) {
+                toast('Код должен быть 4-8 символов', 'err');
+                return;
+            }
+            if (!/^[a-zA-Z0-9]+$/.test(newCode)) {
+                toast('Только буквы и цифры', 'err');
+                return;
+            }
+
+            // Проверяем, занят ли код
+            const { data: taken } = await sbFetch(
+                `/rest/v1/users?data->>refCode=eq.${encodeURIComponent(newCode)}&select=id`, { noAuth: true }
+            );
+            if (taken && taken.length > 0) {
+                toast('Этот код уже занят', 'err');
+                return;
+            }
+
+            G.refCode = newCode;
+            scheduleSave();
+            renderUI();
+            toast('Реферальный код изменён на: ' + newCode, 'ok');
         }
 
         // ════════════════════════════════════════════════
@@ -1340,7 +1320,7 @@
                     aStat('✅ Вход выполнен!', 'ok');
                     toast('С возвращением, ' + username + '!');
                 }
-                G.refCode = UID.slice(0, 8);
+                if (!G.refCode) G.refCode = UID.slice(0, 8);
                 showApp();
             } catch (e) {
                 aStat('❌ ' + e.message, 'err');
@@ -1381,7 +1361,7 @@
                         Object.keys(G).forEach(k => { if (p[k] !== undefined) G[k] = p[k]; });
                     }
                     if (user.boss) Object.assign(BOSS_STATE, user.boss);
-                    G.refCode = UID.slice(0, 8);
+                    if (!G.refCode) G.refCode = UID.slice(0, 8);
                     return true;
                 }
             } catch (e) { console.error('Restore error:', e); }
@@ -2106,26 +2086,12 @@
             toast(`+${PROMOS[c]} монет!`, 'gld');
         }
 
-        function setBannerImage(url) {
-            const img = document.getElementById('BNR_img');
-            if (!img) return;
-            img.src = url;
-            img.style.display = 'block';
-            const ph = document.getElementById('BNR_ph');
-            if (ph) ph.style.display = 'none';
-            img.onerror = function() {
-                this.style.display = 'none';
-                if (ph) ph.style.display = 'flex';
-            };
-        }
-
         // ════════════════════════════════════════════════
         // 16. ЗАПУСК
         // ════════════════════════════════════════════════
         document.addEventListener('DOMContentLoaded', async () => {
             aStat('⏳ Проверка сессии...', 'ld');
             renderDiceIdle();
-            setBannerImage('https://i.ibb.co/hRSsFg5R/Chat-GPT-Image-19-2026-20-55-28.png');
             const restored = await restoreSession();
             if (restored) {
                 showApp();
@@ -2142,6 +2108,5 @@
         console.log('🔑 Ключ:', SB_KEY ? 'установлен' : '❌ НЕ УСТАНОВЛЕН!');
         console.log('🔗 URL:', SB_URL ? 'установлен' : '❌ НЕ УСТАНОВЛЕН!');
     </script>
-
 </body>
 </html>
