@@ -76,14 +76,14 @@
             z-index: 1;
             min-height: 100vh;
             box-shadow: 0 0 60px rgba(0, 0, 0, 0.8);
-            padding-bottom: 160px; /* Увеличен отступ для баннера и навигации */
+            padding-bottom: 160px;
             padding-top: 10px;
         }
         @media (max-width: 700px) {
             .app { max-width: 100%; }
         }
 
-        /* ===== БАННЕР — ОТДЕЛЁН ОТ НАВИГАЦИИ ===== */
+        /* ===== БАННЕР ===== */
         .static-banner {
             position: fixed;
             bottom: 85px;
@@ -1206,7 +1206,7 @@
                     </div>
                 </div>
 
-                <!-- TOP — с 4 вкладками -->
+                <!-- TOP -->
                 <div class="sc" id="sc-top">
                     <div class="tab-r">
                         <div class="tab on" id="TT_b" onclick="topTab('b',this)">💰 Баланс</div>
@@ -1241,7 +1241,7 @@
 
     <!-- БАННЕР -->
     <div class="static-banner" onclick="window.open('https://t.me/minercoinsf', '_blank')">
-        <img id="staticBannerImg" src="https://i.ibb.co/hRSsFg5R/Chat-GPT-Image-19-2026-20-55-28.png" alt="CoinMine Баннер" onerror="this.style.display='none';this.parentElement.querySelector('.placeholder').style.display='flex'">
+        <img id="staticBannerImg" src="https://i.ibb.co/B5CTFj4c/Chat-GPT-Image-20-2026-14-52-25.png" alt="CoinMine Баннер" onerror="this.style.display='none';this.parentElement.querySelector('.placeholder').style.display='flex'">
         <div class="placeholder" style="display:none;">⛏ CoinMine</div>
     </div>
 
@@ -1279,7 +1279,7 @@
         const SB_KEY = 'sb_publishable_GLQvPbCZrDYgd7FCSp861g_poX1-Hwy';
 
         // ============================================================
-        // 2. СОСТОЯНИЕ
+        // 2. СОСТОЯНИЕ — НАЧАЛЬНЫЕ ДАННЫЕ (БУДУТ ПЕРЕЗАПИСАНЫ С СЕРВЕРА)
         // ============================================================
         let TOKEN = null;
         let UID = null;
@@ -1287,9 +1287,12 @@
         let _pFn = null;
         let saveTimer = null;
         let currentUsername = '';
+        let isSaving = false;
+        let saveQueue = [];
 
-        const G = {
-            coins: 150,
+        // Базовое состояние (будет заменено данными с сервера)
+        let G = {
+            coins: 0,
             farms: 0,
             refs: 0,
             keys: 0,
@@ -1309,7 +1312,7 @@
             activatedRef: null
         };
 
-        const BOSS_STATE = { hp: 0, lastKill: 0 };
+        let BOSS_STATE = { hp: 0, lastKill: 0 };
 
         const NICK_S = {
             gold: { e: '🌟', n: 'Золотой' },
@@ -1342,8 +1345,8 @@
             { id: 'r3', nm: '👥 Вербовщик', d: '3 реферала', t: 3, rw: 1 }
         ];
 
-        // Демо-данные для топа (10 игроков с разными осколками)
-        const DEMO_TOP = [
+        // Демо-данные для топа
+        let DEMO_TOP = [
             { n: 'ВасяКоин', c: 9420, f: 312, r: 18, s: 6 },
             { n: 'МегаМайнер', c: 5100, f: 201, r: 9, s: 5 },
             { n: 'КоролькоинС', c: 3890, f: 145, r: 6, s: 4 },
@@ -1382,6 +1385,10 @@
 
         function getFarmCost() { return FARM_COSTS[Math.min(G.farmLv - 1, 4)]; }
 
+        function getShardCount() {
+            return Object.keys(G.shards).filter(k => G.shards[k] > 0).length;
+        }
+
         // ============================================================
         // 4. ОТПЕЧАТОК УСТРОЙСТВА
         // ============================================================
@@ -1408,7 +1415,7 @@
         const FINGERPRINT = getFingerprint();
 
         // ============================================================
-        // 5. API
+        // 5. API — ИСПРАВЛЕННЫЙ
         // ============================================================
         async function sbFetch(path, opts = {}) {
             const headers = {
@@ -1427,9 +1434,10 @@
         }
 
         // ============================================================
-        // 6. РЕГИСТРАЦИЯ, ВХОД
+        // 6. РЕГИСТРАЦИЯ, ВХОД — С ПРАВИЛЬНЫМ СОХРАНЕНИЕМ
         // ============================================================
         async function authRegister(username, password, fingerprint) {
+            // Проверяем, есть ли уже аккаунт на этом устройстве
             const { data: existing } = await sbFetch(
                 `/rest/v1/users?fingerprint=eq.${encodeURIComponent(fingerprint)}&select=id`, { noAuth: true }
             );
@@ -1437,6 +1445,7 @@
                 throw new Error('На этом устройстве уже есть аккаунт');
             }
 
+            // Проверяем, занят ли логин
             const { data: taken } = await sbFetch(
                 `/rest/v1/users?username=eq.${encodeURIComponent(username)}&select=id`, { noAuth: true }
             );
@@ -1444,12 +1453,32 @@
                 throw new Error('Этот логин уже занят');
             }
 
+            // Создаём пользователя с начальными данными
             const newUser = {
                 username: username,
                 password: password,
                 fingerprint: fingerprint,
-                data: G,
-                boss: BOSS_STATE,
+                data: {
+                    coins: 150,
+                    farms: 0,
+                    refs: 0,
+                    keys: 0,
+                    lastFarm: 0,
+                    farmLv: 1,
+                    name: username,
+                    nicks: { p: [], a: null },
+                    shards: {},
+                    clan: null,
+                    clanLF: 0,
+                    promos: {},
+                    missions: { active: null, lastReset: 0 },
+                    auctionBid: 0,
+                    auctionBidders: [],
+                    chests: 0,
+                    refCode: '',
+                    activatedRef: null
+                },
+                boss: { hp: 0, lastKill: 0 },
                 created_at: new Date().toISOString(),
                 updated_at: new Date().toISOString()
             };
@@ -1480,10 +1509,12 @@
 
             const user = data[0];
 
+            // Проверка привязки к устройству
             if (user.fingerprint && user.fingerprint !== FINGERPRINT) {
                 throw new Error('Этот аккаунт привязан к другому устройству');
             }
 
+            // Если устройство не привязано — привязываем
             if (!user.fingerprint) {
                 await sbFetch(`/rest/v1/users?id=eq.${user.id}`, {
                     method: 'PATCH',
@@ -1492,11 +1523,15 @@
                 });
             }
 
+            // ЗАГРУЖАЕМ ДАННЫЕ С СЕРВЕРА В ОПЕРАТИВНУЮ ПАМЯТЬ
             if (user.data) {
                 const p = user.data;
                 Object.keys(G).forEach(k => { if (p[k] !== undefined) G[k] = p[k]; });
             }
             if (user.boss) Object.assign(BOSS_STATE, user.boss);
+
+            // Устанавливаем реф-код, если его нет
+            if (!G.refCode) G.refCode = user.id.slice(0, 8);
 
             TOKEN = 'temp_' + Date.now() + '_' + user.id;
             UID = user.id;
@@ -1509,35 +1544,84 @@
             return user;
         }
 
-        async function changeRefCode() {
-            if (!UID) { toast('Сначала войдите в аккаунт', 'err'); return; }
-            const newCode = prompt('Введите новый реферальный код (4-8 символов, только буквы и цифры):');
-            if (!newCode) return;
-            if (newCode.length < 4 || newCode.length > 8) {
-                toast('Код должен быть 4-8 символов', 'err');
-                return;
-            }
-            if (!/^[a-zA-Z0-9]+$/.test(newCode)) {
-                toast('Только буквы и цифры', 'err');
-                return;
+        // ============================================================
+        // 7. СОХРАНЕНИЕ ДАННЫХ — С ПРОВЕРКОЙ УСПЕШНОСТИ
+        // ============================================================
+        async function saveUserData() {
+            if (!UID) {
+                console.warn('❌ Нет UID, сохранение невозможно');
+                return false;
             }
 
-            const { data: taken } = await sbFetch(
-                `/rest/v1/users?data->>refCode=eq.${encodeURIComponent(newCode)}&select=id`, { noAuth: true }
-            );
-            if (taken && taken.length > 0) {
-                toast('Этот код уже занят', 'err');
-                return;
+            if (isSaving) {
+                // Если уже идёт сохранение, ставим в очередь
+                saveQueue.push(Date.now());
+                return false;
             }
 
-            G.refCode = newCode;
-            scheduleSave();
-            renderUI();
-            toast('Реферальный код изменён на: ' + newCode, 'ok');
+            isSaving = true;
+
+            try {
+                const payload = {
+                    data: G,
+                    boss: BOSS_STATE,
+                    updated_at: new Date().toISOString()
+                };
+
+                console.log('💾 Сохранение данных:', {
+                    coins: G.coins,
+                    farms: G.farms,
+                    refs: G.refs,
+                    keys: G.keys,
+                    farmLv: G.farmLv,
+                    shards: Object.keys(G.shards).length
+                });
+
+                const { ok, status, data } = await sbFetch(`/rest/v1/users?id=eq.${UID}`, {
+                    method: 'PATCH',
+                    body: JSON.stringify(payload)
+                });
+
+                if (!ok) {
+                    console.error('❌ Ошибка сохранения:', status, data);
+                    toast('Ошибка сохранения данных!', 'err');
+                    return false;
+                }
+
+                console.log('✅ Данные сохранены успешно');
+                toast('💾 Данные сохранены', 'ok');
+                return true;
+
+            } catch (e) {
+                console.error('❌ Критическая ошибка сохранения:', e);
+                toast('Ошибка соединения с сервером!', 'err');
+                return false;
+            } finally {
+                isSaving = false;
+                // Если есть очередь — запускаем следующее сохранение
+                if (saveQueue.length > 0) {
+                    saveQueue.pop();
+                    setTimeout(() => saveUserData(), 1000);
+                }
+            }
+        }
+
+        // Отложенное сохранение (собирает изменения)
+        function scheduleSave() {
+            clearTimeout(saveTimer);
+            saveTimer = setTimeout(() => {
+                saveUserData();
+            }, 3000);
+        }
+
+        // Мгновенное сохранение (для критичных действий)
+        async function forceSave() {
+            clearTimeout(saveTimer);
+            return await saveUserData();
         }
 
         // ============================================================
-        // 7. АВТОРИЗАЦИЯ UI
+        // 8. АВТОРИЗАЦИЯ UI
         // ============================================================
         function setAuthMode(m) {
             authMode = m;
@@ -1576,7 +1660,6 @@
                     aStat('✅ Вход выполнен!', 'ok');
                     toast('С возвращением, ' + username + '!');
                 }
-                if (!G.refCode) G.refCode = UID.slice(0, 8);
                 showApp();
             } catch (e) {
                 aStat('❌ ' + e.message, 'err');
@@ -1587,12 +1670,16 @@
 
         async function logoutUser() {
             if (!confirm('Выйти из аккаунта?')) return;
-            await saveUserData();
+
+            // Сохраняем данные перед выходом
+            await forceSave();
+
             localStorage.removeItem('cm_tok');
             localStorage.removeItem('cm_uid');
             localStorage.removeItem('cm_username');
             TOKEN = null;
             UID = null;
+
             document.getElementById('appWrap').classList.remove('on');
             document.getElementById('authWrap').style.display = 'flex';
             aStat('Вы вышли', 'ok');
@@ -1604,13 +1691,16 @@
             const u = localStorage.getItem('cm_uid');
             const username = localStorage.getItem('cm_username');
             if (!t || !u || !username) return false;
+
             TOKEN = t;
             UID = u;
             currentUsername = username;
+
             try {
                 const { data } = await sbFetch(
                     `/rest/v1/users?id=eq.${UID}&select=id,username,data,boss,fingerprint`, { noAuth: true }
                 );
+
                 if (data && data.length > 0) {
                     const user = data[0];
                     if (user.data) {
@@ -1619,32 +1709,17 @@
                     }
                     if (user.boss) Object.assign(BOSS_STATE, user.boss);
                     if (!G.refCode) G.refCode = UID.slice(0, 8);
+                    console.log('✅ Данные загружены с сервера:', {
+                        coins: G.coins,
+                        farms: G.farms,
+                        shards: Object.keys(G.shards).length
+                    });
                     return true;
                 }
-            } catch (e) { console.error('Restore error:', e); }
+            } catch (e) {
+                console.error('❌ Ошибка восстановления сессии:', e);
+            }
             return false;
-        }
-
-        // ============================================================
-        // 8. СОХРАНЕНИЕ ДАННЫХ
-        // ============================================================
-        async function saveUserData() {
-            if (!UID) return;
-            try {
-                await sbFetch(`/rest/v1/users?id=eq.${UID}`, {
-                    method: 'PATCH',
-                    body: JSON.stringify({
-                        data: G,
-                        boss: BOSS_STATE,
-                        updated_at: new Date().toISOString()
-                    })
-                });
-            } catch (e) { console.error('Save error:', e); }
-        }
-
-        function scheduleSave() {
-            clearTimeout(saveTimer);
-            saveTimer = setTimeout(() => saveUserData(), 2000);
         }
 
         // ============================================================
@@ -1653,13 +1728,27 @@
         function showApp() {
             document.getElementById('authWrap').style.display = 'none';
             document.getElementById('appWrap').classList.add('on');
-            if (!G.refCode) G.refCode = UID.slice(0, 8);
             initMissions();
             renderUI();
             setTimeout(() => drawRoulette(0, null), 100);
             setInterval(renderFarmTimer, 1000);
             setInterval(renderBoss, 30000);
-            setInterval(() => { if (document.getElementById('sc-top').classList.contains('on')) renderTop('b'); }, 600000);
+
+            // Автосохранение каждые 30 секунд
+            setInterval(() => {
+                if (UID) {
+                    saveUserData();
+                }
+            }, 30000);
+
+            // Сохраняем при закрытии вкладки
+            window.addEventListener('beforeunload', () => {
+                if (UID) {
+                    saveUserData();
+                }
+            });
+
+            toast('💾 Данные автоматически сохраняются', 'info');
         }
 
         function initMissions() {
@@ -1918,7 +2007,7 @@
             document.getElementById('TOP_u').textContent = rem > 30 ? `обновление через ${Math.round(rem/60)}м` : 'только что';
 
             // Добавляем текущего игрока в топ
-            const shardCount = Object.keys(G.shards).length;
+            const shardCount = getShardCount();
             const all = [...DEMO_TOP, { n: G.name, c: G.coins, f: G.farms, r: G.refs, s: shardCount }];
 
             const key = tp === 'b' ? 'c' : tp === 'f' ? 'f' : tp === 'r' ? 'r' : 's';
@@ -1938,7 +2027,6 @@
             document.getElementById('TOP_t').textContent = titles[tp];
             all.sort((a, b) => b[key] - a[key]);
 
-            // Берём топ-10 (или сколько есть)
             const top10 = all.slice(0, 10);
             const clrs = ['var(--gld)', '#c0c0d0', '#cd7f32'];
 
@@ -2454,11 +2542,22 @@
         document.addEventListener('DOMContentLoaded', async () => {
             aStat('⏳ Проверка сессии...', 'ld');
             renderDiceIdle();
+
             const restored = await restoreSession();
+
             if (restored) {
                 showApp();
                 aStat('✅ Сессия восстановлена', 'ok');
                 toast('Добро пожаловать, ' + currentUsername + '!', 'ok');
+                console.log('📊 Текущие данные:', {
+                    coins: G.coins,
+                    farms: G.farms,
+                    refs: G.refs,
+                    keys: G.keys,
+                    farmLv: G.farmLv,
+                    shards: Object.keys(G.shards).length,
+                    chests: G.chests
+                });
             } else {
                 aStat('Готово ко входу');
             }
