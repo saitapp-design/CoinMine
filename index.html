@@ -43,7 +43,7 @@
             overflow-x: hidden;
         }
 
-        /* ===== БОКОВЫЕ КАРТИНКИ — ТЕПЕРЬ ВЕСЬ ТЕКСТ ВИДЕН ===== */
+        /* ===== БОКОВЫЕ КАРТИНКИ ===== */
         body::before,
         body::after {
             content: '';
@@ -76,18 +76,17 @@
             z-index: 1;
             min-height: 100vh;
             box-shadow: 0 0 60px rgba(0, 0, 0, 0.8);
-            padding-bottom: 70px;
-            /* Добавлен отступ для прокрутки */
+            padding-bottom: 120px; /* Увеличен отступ для баннера и навигации */
             padding-top: 10px;
         }
         @media (max-width: 700px) {
             .app { max-width: 100%; }
         }
 
-        /* ===== СТАТИЧНЫЙ БАННЕР — ВЫШЕ И В ЦЕНТРЕ ===== */
+        /* ===== БАННЕР — ОТДЕЛЁН ОТ НАВИГАЦИИ ===== */
         .static-banner {
             position: fixed;
-            bottom: 62px;
+            bottom: 80px; /* Отступ от навигации */
             left: 50%;
             transform: translateX(-50%);
             z-index: 55;
@@ -128,7 +127,7 @@
             .static-banner {
                 max-width: 95%;
                 height: 75px;
-                bottom: 62px;
+                bottom: 75px;
             }
         }
 
@@ -297,8 +296,6 @@
             display: none;
             flex-direction: column;
             min-height: 100vh;
-            /* Добавлен отступ, чтобы контент не перекрывался баннером */
-            padding-bottom: 100px;
         }
         #appWrap.on { display: flex; }
 
@@ -558,54 +555,6 @@
             margin: 0 -6px;
         }
         .top-row:last-child { border-bottom: none; }
-
-        /* ===== BOSS ===== */
-        .boss-wrap {
-            text-align: center;
-            padding: 8px 0;
-            position: relative;
-        }
-        .boss-avatar {
-            font-size: 80px;
-            line-height: 1;
-            margin-bottom: 4px;
-            filter: drop-shadow(0 0 30px #ef444466);
-            animation: float 3s ease-in-out infinite;
-            display: inline-block;
-        }
-        .boss-name {
-            font-size: 18px;
-            font-weight: 700;
-        }
-        .boss-status {
-            font-size: 12px;
-            color: var(--tx2);
-        }
-        .hp-bar {
-            height: 16px;
-            background: var(--bg4);
-            border-radius: 10px;
-            overflow: hidden;
-            margin: 8px 0;
-            position: relative;
-        }
-        .hp-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #991b1b, var(--red), #ff6b6b);
-            border-radius: 10px;
-            transition: width .6s ease;
-            position: relative;
-        }
-        .hp-fill::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(180deg, #ffffff25, transparent);
-            border-radius: 10px;
-        }
 
         /* ===== ROULETTE ===== */
         .rl-wrap {
@@ -974,7 +923,7 @@
                             <div class="st"><div class="sv" id="S_c">0</div><div class="sl">💰 монет</div></div>
                             <div class="st"><div class="sv" id="S_f">0</div><div class="sl">⛏ фармов</div></div>
                             <div class="st"><div class="sv" id="S_r">0</div><div class="sl">👥 рефералов</div></div>
-                            <div class="st"><div class="sv" id="S_k">0</div><div class="sl">🔑 ключей</div></div>
+                            <div class="st"><div class="sv" id="S_t">0</div><div class="sl">⏱️ минут в игре</div></div>
                         </div>
                     </div>
 
@@ -1008,17 +957,17 @@
                     </div>
 
                     <div class="card">
-                        <div class="ct">💎 осколки</div>
-                        <div id="SH_H" style="font-size:12px;color:var(--tx2)">Выпадают случайно при добыче</div>
+                        <div class="ct">⏱️ время в игре</div>
+                        <div style="font-size:28px;font-weight:700;color:var(--gld);text-align:center" id="TIME_DISPLAY">0 мин</div>
+                        <div class="tm tc mt8">За каждые 10 минут в игре вы получаете бонус: <span class="hl">+1 монету</span></div>
                     </div>
                 </div>
 
-                <!-- GAMES -->
+                <!-- GAMES (только рулетка и кубик) -->
                 <div class="sc" id="sc-games">
                     <div class="tab-r">
                         <div class="tab on" id="GT_rl" onclick="gTab('rl',this)">🎰 Рулетка</div>
                         <div class="tab" id="GT_dc" onclick="gTab('dc',this)">🎲 Кубик</div>
-                        <div class="tab" id="GT_au" onclick="gTab('au',this)">🏛 Аукцион</div>
                     </div>
 
                     <div id="G_rl">
@@ -1077,133 +1026,6 @@
                             </div>
                         </div>
                     </div>
-
-                    <div id="G_au" style="display:none">
-                        <div class="card">
-                            <div class="ct">🏛 аукцион</div>
-                            <div class="tc" style="padding:8px 0">
-                                <div class="tm">Текущая лидирующая ставка</div>
-                                <div style="font-size:42px;font-weight:800;color:var(--gld)" id="AU_a">0</div>
-                                <div class="tm" id="AU_l">Ставок пока нет</div>
-                                <div class="tm mt8">Ваша ставка: <b style="color:var(--gld)" id="MY_b">0</b> монет</div>
-                            </div>
-                            <div class="podium" id="podiumList">
-                                <div class="tm tc" style="padding:12px;">Пока нет ставок</div>
-                            </div>
-                            <div class="g3 mt8">
-                                <button class="btn bs" onclick="conf('+10 к ставке?','Ваши 10 монет зарезервируются.',()=>bid(10))">+10</button>
-                                <button class="btn bs" onclick="conf('+50 к ставке?','Ваши 50 монет зарезервируются. Победитель получает приз.',()=>bid(50))">+50</button>
-                                <button class="btn bs" onclick="conf('+100 к ставке?','Ваши 100 монет зарезервируются. Победитель определяется администратором.',()=>bid(100))">+100</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- ARENA -->
-                <div class="sc" id="sc-arena">
-                    <div class="card tc glow">
-                        <div class="boss-wrap">
-                            <div class="boss-avatar" id="BS_i">👹</div>
-                            <div class="boss-name" id="BS_n">Рябчик</div>
-                            <div class="boss-status" id="BS_s">Появляется в 16:00 МСК</div>
-                        </div>
-                        <div class="hp-bar"><div class="hp-fill" id="BS_h" style="width:0%"></div></div>
-                        <div class="fl" style="justify-content:space-between;font-size:12px;color:var(--tx2)">
-                            <span id="BS_ht">0 / 1000 ХП</span>
-                            <span id="BS_rs"></span>
-                        </div>
-                        <div class="g2 mt8">
-                            <button class="btn bp" id="ATK_btn" onclick="conf('Атаковать Рябчика?','Стоимость: 20 монет. Урон 10–50. Шанс 20% получить сундук.',atkBoss)">⚔ Атаковать (20)</button>
-                            <button class="btn bs" id="CH_btn" onclick="conf('Открыть сундук?','Случайная награда: монеты, ключи или редкий осколок.',openChest)">📦 Сундук (<span id="CH_c">0</span>)</button>
-                        </div>
-                        <div style="font-size:13px;color:var(--grn);margin-top:8px;min-height:20px;font-weight:600" id="ATK_l"></div>
-                    </div>
-
-                    <div class="card">
-                        <div class="ct">📋 миссии дня</div>
-                        <div id="MS_l"></div>
-                        <div class="fl" style="justify-content:space-between;margin-top:10px">
-                            <span class="tm">Всего ключей</span>
-                            <span style="font-size:16px;font-weight:700;color:var(--gld)" id="K_b">0 🔑</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- CLAN -->
-                <div class="sc" id="sc-clan">
-                    <div id="CL_no">
-                        <div class="card tc" style="padding:20px;animation:float 3s ease-in-out infinite;">
-                            <div class="clan-icon">🏰</div>
-                            <div style="font-size:16px;font-weight:700;margin-bottom:6px">Вы не в клане</div>
-                            <div class="tm mb8">Создайте клан за 1500 монет и добывайте алмазы командой</div>
-                            <button class="btn bp" onclick="conf('Создать клан за 1500 монет?','Вы получите случайное название. Можно пригласить до 4 участников и вместе добывать алмазы каждые 6 часов.',createClan)">➕ Создать клан</button>
-                        </div>
-                    </div>
-                    <div id="CL_yes" style="display:none">
-                        <div style="background:#0a0620;border:1px solid #4c1d95;border-radius:var(--r);padding:16px;text-align:center;margin-bottom:10px">
-                            <div class="clan-icon" id="CL_i">⚔️</div>
-                            <div class="clan-name" id="CL_n">—</div>
-                            <div class="clan-diamonds" id="CL_d">0 💎</div>
-                            <div class="tm" id="CL_cd">Фарм доступен!</div>
-                        </div>
-                        <div class="card">
-                            <div class="ct">участники (<span id="CL_m">1</span>/5)</div>
-                            <div id="CL_ml"></div>
-                        </div>
-                        <button class="btn bp mb8" onclick="conf('Добыть алмазы?','Клановый фарм раз в 6 часов. Алмазы идут в казну клана.',clanFarm)">⛏ Добыть алмазы</button>
-                        <button class="btn bs mb8" onclick="conf('Обменять 5 💎 → 25 монет?','5 алмазов из казны клана = 25 монет на ваш баланс.',()=>exDiam(5))">🔄 5 💎 → 25 монет</button>
-                        <button class="btn bred" onclick="conf('Распустить клан?','Клан удалится навсегда. Все алмазы сгорят.',disbandClan)">🗑 Распустить</button>
-                    </div>
-                </div>
-
-                <!-- SHOP -->
-                <div class="sc" id="sc-shop">
-                    <div class="card">
-                        <div class="ct">💰 купить монеты</div>
-                        <div class="pkg-g">
-                            <div class="pkg" onclick="conf('Купить 500 монет за 30 ₽?','В демо-режиме монеты зачисляются бесплатно.',()=>buyCoins(500))">
-                                <div class="pkg-icon">🪙</div>
-                                <div style="font-size:18px;font-weight:700;color:var(--gld)">500</div>
-                                <div class="tm">30 ₽</div>
-                            </div>
-                            <div class="pkg hot" onclick="conf('Купить 1700 монет за 79 ₽?','1500 + 200 бонусных монет. Самый выгодный стартовый набор!',()=>buyCoins(1700))">
-                                <div class="pkg-icon">💰</div>
-                                <div style="font-size:18px;font-weight:700;color:var(--gld)">1500</div>
-                                <div class="tm">79 ₽</div>
-                                <div style="font-size:10px;color:var(--grn)">+200 бонус</div>
-                            </div>
-                            <div class="pkg" onclick="conf('Купить 4500 монет за 149 ₽?','4000 + 500 бонусных монет.',()=>buyCoins(4500))">
-                                <div class="pkg-icon">💎</div>
-                                <div style="font-size:18px;font-weight:700;color:var(--gld)">4000</div>
-                                <div class="tm">149 ₽</div>
-                                <div style="font-size:10px;color:var(--grn)">+500 бонус</div>
-                            </div>
-                            <div class="pkg" onclick="conf('Купить 12000 монет за 299 ₽?','10000 + 2000 мега-бонус монет!',()=>buyCoins(12000))">
-                                <div class="pkg-icon">👑</div>
-                                <div style="font-size:18px;font-weight:700;color:var(--gld)">10000</div>
-                                <div class="tm">299 ₽</div>
-                                <div style="font-size:10px;color:var(--grn)">+2000 мега</div>
-                            </div>
-                        </div>
-                        <div class="tm tc mt8">Демо-режим — монеты зачисляются бесплатно</div>
-                    </div>
-
-                    <div class="card">
-                        <div class="ct">🎨 стили ника (250 монет)</div>
-                        <div class="nick-g" id="NK_g"></div>
-                    </div>
-
-                    <div class="card">
-                        <div class="ct">🎁 промокоды</div>
-                        <div class="irow mb8">
-                            <input class="inp" id="PR_i" placeholder="Введите промокод..." style="margin:0">
-                            <button class="btn bp" style="width:auto;padding:0 14px" onclick="usePromo()">OK</button>
-                        </div>
-                        <div class="g2">
-                            <button class="btn bs" style="font-size:12px;padding:10px" onclick="activatePromo('free')">🎁 FREE — +15</button>
-                            <button class="btn bs" style="font-size:12px;padding:10px" onclick="activatePromo('denchak')">🎁 DENCHAK — +15</button>
-                        </div>
-                    </div>
                 </div>
 
                 <!-- TOP -->
@@ -1212,6 +1034,7 @@
                         <div class="tab on" id="TT_b" onclick="topTab('b',this)">💰 Баланс</div>
                         <div class="tab" id="TT_f" onclick="topTab('f',this)">⛏ Фармы</div>
                         <div class="tab" id="TT_r" onclick="topTab('r',this)">👥 Рефералы</div>
+                        <div class="tab" id="TT_t" onclick="topTab('t',this)">⏱️ Время</div>
                     </div>
                     <div class="card">
                         <div class="fl" style="justify-content:space-between;margin-bottom:10px">
@@ -1227,9 +1050,10 @@
             <nav class="nav">
                 <button class="nb on" onclick="goSc('home')" id="NB_home"><span>🏠</span>Главная</button>
                 <button class="nb" onclick="goSc('games')" id="NB_games"><span>🎲</span>Игры</button>
-                <button class="nb" onclick="goSc('arena')" id="NB_arena"><span>⚔️</span>Арена</button>
-                <button class="nb" onclick="goSc('clan')" id="NB_clan"><span>🛡️</span>Клан</button>
-                <button class="nb" onclick="goSc('shop')" id="NB_shop"><span>🛒</span>Магазин</button>
+                <button class="nb" onclick="goSc('top')" id="NB_top"><span>🏆</span>Топ</button>
+                <!-- Убраны кнопки Арена, Клан, Магазин -->
+                <button class="nb" onclick="openTelegram()" style="color:var(--acc2)"><span>📢</span>Канал</button>
+                <button class="nb" onclick="openNickMod()" style="color:var(--tx2)"><span>✏️</span>Ник</button>
             </nav>
 
         </div>
@@ -1237,10 +1061,10 @@
     </div>
 
     <!-- ════════════════════════════════════════ -->
-    <!-- СТАТИЧНЫЙ БАННЕР — ВЫШЕ И В ЦЕНТРЕ -->
+    <!-- БАННЕР — ОТДЕЛЁН ОТ НАВИГАЦИИ -->
     <!-- ════════════════════════════════════════ -->
     <div class="static-banner" onclick="window.open('https://t.me/minercoinsf', '_blank')">
-        <img id="staticBannerImg" src="https://i.ibb.co/hRSsFg5R/Chat-GPT-Image-19-2026-20-55-28.png" alt="CoinMine Баннер" onerror="this.style.display='none';this.parentElement.querySelector('.placeholder').style.display='flex'">
+        <img id="staticBannerImg" src="https://i.ibb.co/B5CTFj4c/Chat-GPT-Image-20-2026-14-52-25.png" alt="CoinMine Баннер" onerror="this.style.display='none';this.parentElement.querySelector('.placeholder').style.display='flex'">
         <div class="placeholder" style="display:none;">⛏ CoinMine</div>
     </div>
 
@@ -1286,29 +1110,21 @@
         let _pFn = null;
         let saveTimer = null;
         let currentUsername = '';
+        let timeCounter = 0; // секунды в игре
 
         const G = {
             coins: 150,
             farms: 0,
             refs: 0,
-            keys: 0,
+            time: 0, // минуты в игре
             lastFarm: 0,
             farmLv: 1,
             name: 'Шахтёр',
             nicks: { p: [], a: null },
-            shards: {},
-            clan: null,
-            clanLF: 0,
-            promos: {},
-            missions: { active: null, lastReset: 0 },
-            auctionBid: 0,
-            auctionBidders: [],
-            chests: 0,
             refCode: '',
-            activatedRef: null
+            activatedRef: null,
+            promos: {}
         };
-
-        const BOSS_STATE = { hp: 0, lastKill: 0 };
 
         const NICK_S = {
             gold: { e: '🌟', n: 'Золотой' },
@@ -1318,37 +1134,18 @@
             star: { e: '⭐', n: 'Звёздный' },
             ice: { e: '❄️', n: 'Ледяной' },
             shadow: { e: '🌑', n: 'Теневой' },
-            ninja: { e: '🥷', n: 'Ниндзя' },
-            galaxy: { e: '🌌', n: 'Галактический' },
-            mystic: { e: '🔮', n: 'Мистический' }
+            ninja: { e: '🥷', n: 'Ниндзя' }
         };
-
-        const SHARDS_C = {
-            'Осколок Вечности': { l: 1, c: .001 },
-            'Кристалл Света': { l: 1, c: .001 },
-            'Обсидиановая Слеза': { l: 2, c: .003 },
-            'Ледяное Сердце': { l: 3, c: .006 },
-            'Свет Луны': { l: 5, c: .015 },
-            'Ткань Реальности': { l: 5, c: .015 }
-        };
-        const SHARDS_LIST = Object.keys(SHARDS_C);
-        const PROMOS = { free: 15, denchak: 15 };
-
-        const MISSIONS_DEF = [
-            { id: 'f8', nm: '🌾 Шахтёр', d: 'Добыть 8 раз', t: 8, rw: 1 },
-            { id: 's1', nm: '💎 Коллекционер', d: 'Найти осколок', t: 1, rw: 2 },
-            { id: 'w5', nm: '⚒️ Трудоголик', d: '5 профессий', t: 5, rw: 2 },
-            { id: 'r3', nm: '👥 Вербовщик', d: '3 реферала', t: 3, rw: 1 }
-        ];
 
         const DEMO_TOP = [
-            { n: 'ВасяКоин', c: 9420, f: 312, r: 18 },
-            { n: 'МегаМайнер', c: 5100, f: 201, r: 9 },
-            { n: 'КоролькоинС', c: 3890, f: 145, r: 6 },
-            { n: 'АлмазДобытчик', c: 2100, f: 98, r: 3 }
+            { n: 'ВасяКоин', c: 9420, f: 312, r: 18, t: 1420 },
+            { n: 'МегаМайнер', c: 5100, f: 201, r: 9, t: 890 },
+            { n: 'КоролькоинС', c: 3890, f: 145, r: 6, t: 540 },
+            { n: 'АлмазДобытчик', c: 2100, f: 98, r: 3, t: 320 }
         ];
 
         const FARM_COSTS = [50, 100, 250, 500, 1000];
+        const PROMOS = { free: 15, denchak: 15 };
 
         // ════════════════════════════════════════════════
         // 3. ВСПОМОГАТЕЛЬНЫЕ
@@ -1443,7 +1240,6 @@
                 password: password,
                 fingerprint: fingerprint,
                 data: G,
-                boss: BOSS_STATE,
                 created_at: new Date().toISOString(),
                 updated_at: new Date().toISOString()
             };
@@ -1465,7 +1261,7 @@
 
         async function authLogin(username, password) {
             const { data, ok } = await sbFetch(
-                `/rest/v1/users?username=eq.${encodeURIComponent(username)}&password=eq.${encodeURIComponent(password)}&select=id,username,data,boss,fingerprint`, { noAuth: true }
+                `/rest/v1/users?username=eq.${encodeURIComponent(username)}&password=eq.${encodeURIComponent(password)}&select=id,username,data,fingerprint`, { noAuth: true }
             );
 
             if (!ok || !data || data.length === 0) {
@@ -1490,7 +1286,6 @@
                 const p = user.data;
                 Object.keys(G).forEach(k => { if (p[k] !== undefined) G[k] = p[k]; });
             }
-            if (user.boss) Object.assign(BOSS_STATE, user.boss);
 
             TOKEN = 'temp_' + Date.now() + '_' + user.id;
             UID = user.id;
@@ -1503,7 +1298,6 @@
             return user;
         }
 
-        // Смена реферального кода
         async function changeRefCode() {
             if (!UID) { toast('Сначала войдите в аккаунт', 'err'); return; }
             const newCode = prompt('Введите новый реферальный код (4-8 символов, только буквы и цифры):');
@@ -1604,7 +1398,7 @@
             currentUsername = username;
             try {
                 const { data } = await sbFetch(
-                    `/rest/v1/users?id=eq.${UID}&select=id,username,data,boss,fingerprint`, { noAuth: true }
+                    `/rest/v1/users?id=eq.${UID}&select=id,username,data,fingerprint`, { noAuth: true }
                 );
                 if (data && data.length > 0) {
                     const user = data[0];
@@ -1612,7 +1406,6 @@
                         const p = user.data;
                         Object.keys(G).forEach(k => { if (p[k] !== undefined) G[k] = p[k]; });
                     }
-                    if (user.boss) Object.assign(BOSS_STATE, user.boss);
                     if (!G.refCode) G.refCode = UID.slice(0, 8);
                     return true;
                 }
@@ -1630,7 +1423,6 @@
                     method: 'PATCH',
                     body: JSON.stringify({
                         data: G,
-                        boss: BOSS_STATE,
                         updated_at: new Date().toISOString()
                     })
                 });
@@ -1643,28 +1435,41 @@
         }
 
         // ════════════════════════════════════════════════
-        // 9. ПОКАЗ ПРИЛОЖЕНИЯ
+        // 9. ПОКАЗ ПРИЛОЖЕНИЯ И ТАЙМЕР
         // ════════════════════════════════════════════════
         function showApp() {
             document.getElementById('authWrap').style.display = 'none';
             document.getElementById('appWrap').classList.add('on');
             if (!G.refCode) G.refCode = UID.slice(0, 8);
-            initMissions();
             renderUI();
             setTimeout(() => drawRoulette(0, null), 100);
             setInterval(renderFarmTimer, 1000);
-            setInterval(renderBoss, 30000);
-            setInterval(() => { if (document.getElementById('sc-top').classList.contains('on')) renderTop('b'); }, 600000);
+            startTimeCounter();
         }
 
-        function initMissions() {
-            const now = Date.now();
-            if (now - G.missions.lastReset > 86400000 || !G.missions.active) {
-                G.missions.active = {};
-                const picked = [...MISSIONS_DEF].sort(() => Math.random() - .5).slice(0, 3);
-                picked.forEach(m => { G.missions.active[m.id] = { ...m, prog: 0, claimed: false }; });
-                G.missions.lastReset = now;
-            }
+        function startTimeCounter() {
+            timeCounter = G.time * 60; // минуты → секунды
+            setInterval(() => {
+                timeCounter++;
+                const newMinutes = Math.floor(timeCounter / 60);
+                if (newMinutes > G.time) {
+                    G.time = newMinutes;
+                    // Бонус за каждые 10 минут
+                    if (G.time % 10 === 0) {
+                        G.coins += 1;
+                        toast('⏱️ +1 монета за 10 минут в игре!', 'gld');
+                    }
+                    scheduleSave();
+                    renderUI();
+                }
+                updateTimeDisplay();
+            }, 1000);
+        }
+
+        function updateTimeDisplay() {
+            const mins = Math.floor(timeCounter / 60);
+            const secs = timeCounter % 60;
+            document.getElementById('TIME_DISPLAY').textContent = `${mins} мин ${secs} с`;
         }
 
         // ════════════════════════════════════════════════
@@ -1678,14 +1483,13 @@
             if (nb) nb.classList.add('on');
             if (nm === 'games') {
                 setTimeout(() => drawRoulette(0, null), 60);
-                renderPodium();
             }
             if (nm === 'top') renderTop('b');
             renderUI();
         }
 
         function gTab(t, el) {
-            ['rl', 'dc', 'au'].forEach(x => {
+            ['rl', 'dc'].forEach(x => {
                 const d = document.getElementById('G_' + x);
                 if (d) d.style.display = x === t ? 'block' : 'none';
                 const tb = document.getElementById('GT_' + x);
@@ -1693,7 +1497,6 @@
             });
             if (t === 'rl') setTimeout(() => drawRoulette(0, null), 40);
             if (t === 'dc') renderDiceIdle();
-            if (t === 'au') renderPodium();
         }
 
         function topTab(t, el) {
@@ -1740,13 +1543,11 @@
                 S_c: G.coins,
                 S_f: G.farms,
                 S_r: G.refs,
-                S_k: G.keys,
+                S_t: G.time,
                 PNAME: G.name,
                 F_lv: G.farmLv,
                 F_mx: '×' + (1 + (G.farmLv - 1) * .2).toFixed(1),
                 F_uc: G.farmLv >= 5 ? 'макс' : getFarmCost() + ' монет',
-                K_b: G.keys + ' 🔑',
-                CH_c: G.chests,
                 MY_REF: G.refCode || UID?.slice(0, 8) || '—',
                 ACT_REF: G.activatedRef || '—'
             };
@@ -1759,17 +1560,10 @@
             document.getElementById('NICK_L').textContent = an ? `${an.e} ${an.n}` : 'Стиль не выбран';
             document.getElementById('AV').textContent = an ? an.e : '⛏';
 
-            const cb = document.getElementById('CH_btn');
-            if (cb) cb.disabled = G.chests <= 0;
-
             renderFarmTimer();
-            renderShards();
             renderNicks();
-            renderMissions();
-            renderBoss();
-            renderClan();
             renderTop('b');
-            renderPodium();
+            updateTimeDisplay();
         }
 
         function renderFarmTimer() {
@@ -1795,17 +1589,6 @@
             }
         }
 
-        function renderShards() {
-            const e = document.getElementById('SH_H');
-            if (!e) return;
-            const has = Object.entries(G.shards).filter(([, v]) => v > 0);
-            if (!has.length) { e.textContent = 'Выпадают случайно при добыче'; return; }
-            e.innerHTML = has.map(([nm, cnt]) => {
-                const l = SHARDS_C[nm]?.l || 1;
-                return `<div class="row"><span style="font-size:11px;color:var(--gld)">${'⭐'.repeat(l)}</span><span style="flex:1;font-size:12px">${nm}</span><span style="color:var(--acc2);font-weight:700">×${cnt}</span></div>`;
-            }).join('');
-        }
-
         function renderNicks() {
             const g = document.getElementById('NK_g');
             if (!g) return;
@@ -1820,79 +1603,6 @@
             }).join('');
         }
 
-        function renderMissions() {
-            const e = document.getElementById('MS_l');
-            if (!e || !G.missions.active) return;
-            e.innerHTML = Object.values(G.missions.active).map(m => {
-                const done = m.prog >= m.t,
-                    pct = Math.min(100, Math.round(m.prog / m.t * 100));
-                return `<div style="margin-bottom:10px">
-                    <div class="fl" style="justify-content:space-between;margin-bottom:3px">
-                        <span style="font-size:12px;font-weight:600">${m.nm}</span>
-                        ${done&&!m.claimed?`<button class="btn bgld" style="width:auto;padding:3px 9px;font-size:10px" onclick="claimM('${m.id}')">Забрать +${m.rw}🔑</button>`:m.claimed?`<span class="bdg bdg-grn">✓</span>`:`<span class="bdg bdg-pur">+${m.rw}🔑</span>`}
-                    </div>
-                    <div class="tm" style="margin-bottom:4px">${m.d} — ${m.prog}/${m.t}</div>
-                    <div class="pb"><div class="pf ${done?'pf-grn':'pf-acc'}" style="width:${pct}%"></div></div>
-                </div>`;
-            }).join('');
-        }
-
-        function renderBoss() {
-            const now = Date.now();
-            const msk = new Date(now + 3 * 3600000);
-            const h = msk.getUTCHours();
-            const active = (h >= 16 && h < 22);
-
-            if (active && BOSS_STATE.hp <= 0) {
-                const today = msk.toISOString().slice(0, 10);
-                const killDay = new Date(BOSS_STATE.lastKill + 3 * 3600000).toISOString().slice(0, 10);
-                if (today !== killDay) { BOSS_STATE.hp = 1000; }
-            }
-            if (!active && h >= 22) BOSS_STATE.hp = 0;
-
-            const pct = Math.max(0, Math.round(BOSS_STATE.hp / 1000 * 100));
-            document.getElementById('BS_h').style.width = pct + '%';
-            document.getElementById('BS_ht').textContent = fmt(BOSS_STATE.hp) + ' / 1000 ХП';
-
-            const atkBtn = document.getElementById('ATK_btn');
-            if (active && BOSS_STATE.hp > 0) {
-                document.getElementById('BS_s').textContent = '⚔️ Активен! Атакуйте!';
-                document.getElementById('BS_rs').textContent = 'Исчезнет в 22:00 МСК';
-                if (atkBtn) atkBtn.disabled = false;
-            } else if (active && BOSS_STATE.hp <= 0) {
-                document.getElementById('BS_s').textContent = '💀 Повержён! Ждите завтра.';
-                document.getElementById('BS_rs').textContent = 'Следующий в 16:00 МСК';
-                if (atkBtn) atkBtn.disabled = true;
-            } else {
-                const next16 = new Date(msk);
-                next16.setUTCHours(16, 0, 0, 0);
-                if (h >= 22) next16.setUTCDate(next16.getUTCDate() + 1);
-                const rem = next16 - msk;
-                const rh = Math.floor(rem / 3600000),
-                    rm = Math.floor((rem % 3600000) / 60000);
-                document.getElementById('BS_s').textContent = `Появится в 16:00 МСК`;
-                document.getElementById('BS_rs').textContent = `Через ${rh}ч ${rm}м`;
-                if (atkBtn) atkBtn.disabled = true;
-            }
-        }
-
-        function renderClan() {
-            document.getElementById('CL_no').style.display = G.clan ? 'none' : 'block';
-            document.getElementById('CL_yes').style.display = G.clan ? 'block' : 'none';
-            if (!G.clan) return;
-            document.getElementById('CL_n').textContent = G.clan.nm;
-            document.getElementById('CL_d').textContent = G.clan.d + ' 💎';
-            document.getElementById('CL_m').textContent = G.clan.m.length;
-            document.getElementById('CL_ml').innerHTML = G.clan.m.map(n =>
-                `<div class="row">👤 <span>${n}</span></div>`
-            ).join('');
-            const el = Date.now() - G.clanLF,
-                cd = 6 * 3600000;
-            document.getElementById('CL_cd').textContent = el >= cd ? 'Фарм доступен!' : 'Фарм через ' + Math.ceil((cd - el) /
-                3600000) + 'ч';
-            document.getElementById('CL_i').textContent = ['⚔️', '🛡️', '🏹', '🗡️', '🔮'][Math.floor(Math.random() * 5)];
-        }
-
         let topLastType = 'b',
             topUpdated = 0;
 
@@ -1900,20 +1610,24 @@
             topLastType = tp;
             const now = Date.now();
             if (now - topUpdated > 600000) {
-                DEMO_TOP.forEach(p => { p.c = Math.max(0, p.c + Math.floor(Math.random() * 400 - 100));
-                    p.f += Math.floor(Math.random() * 6); });
+                DEMO_TOP.forEach(p => {
+                    p.c = Math.max(0, p.c + Math.floor(Math.random() * 400 - 100));
+                    p.f += Math.floor(Math.random() * 6);
+                    p.t += Math.floor(Math.random() * 5);
+                });
                 topUpdated = now;
             }
             const rem = Math.max(0, Math.ceil((topUpdated + 600000 - now) / 1000));
             document.getElementById('TOP_u').textContent = rem > 30 ? `обновление через ${Math.round(rem/60)}м` : 'только что';
-            const all = [...DEMO_TOP, { n: G.name, c: G.coins, f: G.farms, r: G.refs }];
-            const key = tp === 'b' ? 'c' : tp === 'f' ? 'f' : 'r';
-            const titles = { b: 'Топ по балансу', f: 'Топ по фармам', r: 'Топ по рефералам' };
+            const all = [...DEMO_TOP, { n: G.name, c: G.coins, f: G.farms, r: G.refs, t: G.time }];
+            const key = tp === 'b' ? 'c' : tp === 'f' ? 'f' : tp === 'r' ? 'r' : 't';
+            const titles = { b: 'Топ по балансу', f: 'Топ по фармам', r: 'Топ по рефералам', t: 'Топ по времени' };
             document.getElementById('TOP_t').textContent = titles[tp];
             all.sort((a, b) => b[key] - a[key]);
             const clrs = ['var(--gld)', '#c0c0d0', '#cd7f32'];
             document.getElementById('TOP_l').innerHTML = all.slice(0, 8).map((p, i) => {
-                const val = tp === 'b' ? fmt(p.c) + ' 💰' : tp === 'f' ? p.f + ' ⛏' : p.r + ' 👥';
+                const val = tp === 'b' ? fmt(p.c) + ' 💰' : tp === 'f' ? p.f + ' ⛏' : tp === 'r' ? p.r + ' 👥' : p.t +
+                    ' ⏱️';
                 return `<div class="top-row">
                     <div style="font-size:15px;font-weight:700;min-width:22px;color:${clrs[i]||'var(--tx2)'}">${i+1}</div>
                     <div style="flex:1;font-size:13px">${p.n}</div>
@@ -2166,70 +1880,7 @@
         }
 
         // ════════════════════════════════════════════════
-        // 15. АУКЦИОН
-        // ════════════════════════════════════════════════
-        function renderPodium() {
-            const podiumEl = document.getElementById('podiumList');
-            if (!podiumEl) return;
-
-            const bidders = G.auctionBidders || [];
-
-            if (bidders.length === 0) {
-                podiumEl.innerHTML = `<div class="tm tc" style="padding:12px;">Пока нет ставок</div>`;
-                return;
-            }
-
-            const sorted = [...bidders].sort((a, b) => b.bid - a.bid);
-            const top3 = sorted.slice(0, 3);
-
-            const medals = ['🥇', '🥈', '🥉'];
-            const ranks = ['gold', 'silver', 'bronze'];
-
-            podiumEl.innerHTML = top3.map((bidder, index) => {
-                const rank = index + 1;
-                const isTop1 = rank === 1;
-                return `<div class="podium-item ${isTop1 ? 'top1' : rank === 2 ? 'top2' : 'top3'}">
-                    <div class="podium-rank ${ranks[index]}">${medals[index]}</div>
-                    <div class="podium-avatar">${bidder.avatar || '👤'}</div>
-                    <div class="podium-name">${bidder.name || 'Игрок'}</div>
-                    <div class="podium-bid">${fmt(bidder.bid)} 💰</div>
-                </div>`;
-            }).join('');
-        }
-
-        function bid(a) {
-            if (G.coins < a) { toast('Мало монет', 'err'); return; }
-            G.coins -= a;
-            G.auctionBid = (G.auctionBid || 0) + a;
-
-            const existing = G.auctionBidders.find(b => b.name === G.name);
-            if (existing) {
-                existing.bid += a;
-            } else {
-                G.auctionBidders.push({
-                    name: G.name,
-                    avatar: G.nicks.a ? NICK_S[G.nicks.a]?.e || '👤' : '👤',
-                    bid: G.auctionBid
-                });
-            }
-
-            G.auctionBidders.sort((a, b) => b.bid - a.bid);
-            if (G.auctionBidders.length > 10) {
-                G.auctionBidders = G.auctionBidders.slice(0, 10);
-            }
-
-            document.getElementById('AU_a').textContent = G.auctionBid;
-            document.getElementById('MY_b').textContent = G.auctionBid;
-            document.getElementById('AU_l').textContent = 'Вы лидируете!';
-
-            renderPodium();
-            scheduleSave();
-            renderUI();
-            toast('Ставка: ' + G.auctionBid, 'gld');
-        }
-
-        // ════════════════════════════════════════════════
-        // 16. ИГРОВЫЕ ДЕЙСТВИЯ
+        // 15. ИГРОВЫЕ ДЕЙСТВИЯ
         // ════════════════════════════════════════════════
         function doFarm() {
             const now = Date.now();
@@ -2239,20 +1890,9 @@
             G.coins += earned;
             G.farms++;
             G.lastFarm = now;
-            const m = G.missions.active;
-            if (m?.f8) m.f8.prog = Math.min(m.f8.t, (m.f8.prog || 0) + 1);
-            let sm = '';
-            for (const [nm, info] of Object.entries(SHARDS_C)) {
-                if (Math.random() < info.c) {
-                    G.shards[nm] = (G.shards[nm] || 0) + 1;
-                    sm = `\n✨ ${nm}`;
-                    if (m?.s1) m.s1.prog = 1;
-                    break;
-                }
-            }
             scheduleSave();
             renderUI();
-            toast(`+${earned} монет!${sm}`, 'gld');
+            toast(`+${earned} монет!`, 'gld');
         }
 
         function upFarm() {
@@ -2264,97 +1904,6 @@
             scheduleSave();
             renderUI();
             toast('Шахта ур. ' + G.farmLv + '!', 'ok');
-        }
-
-        function atkBoss() {
-            if (G.coins < 20) { toast('Нужно 20 монет', 'err'); return; }
-            if (BOSS_STATE.hp <= 0) { toast('Босс мёртв, ждите 16:00', 'err'); return; }
-            G.coins -= 20;
-            const dmg = Math.floor(Math.random() * 41) + 10;
-            BOSS_STATE.hp = Math.max(0, BOSS_STATE.hp - dmg);
-            let msg = '⚔️ Урон: ' + dmg;
-            if (Math.random() < .2) { G.chests++;
-                msg += ' 🎁 Сундук!'; }
-            if (BOSS_STATE.hp <= 0) {
-                msg += ' 🎉 Рябчик повержён!';
-                G.chests += 3;
-                BOSS_STATE.lastKill = Date.now();
-            }
-            document.getElementById('ATK_l').textContent = msg;
-            scheduleSave();
-            renderUI();
-            toast(msg, 'gld');
-        }
-
-        function openChest() {
-            if (G.chests <= 0) return;
-            G.chests--;
-            const r = Math.random();
-            let rw;
-            if (r < .5) {
-                const a = Math.floor(Math.random() * 40) + 10;
-                G.coins += a;
-                rw = `+${a} монет`;
-            } else if (r < .8) {
-                const k = Math.floor(Math.random() * 3) + 1;
-                G.keys += k;
-                rw = `+${k} ключей`;
-            } else {
-                const sn = SHARDS_LIST[Math.floor(Math.random() * SHARDS_LIST.length)];
-                G.shards[sn] = (G.shards[sn] || 0) + 1;
-                rw = '✨ ' + sn;
-            }
-            scheduleSave();
-            renderUI();
-            toast('🎁 Сундук: ' + rw, 'gld');
-        }
-
-        function claimM(id) {
-            const m = G.missions.active?.[id];
-            if (!m || m.claimed || m.prog < m.t) return;
-            m.claimed = true;
-            G.keys += m.rw;
-            scheduleSave();
-            renderUI();
-            toast(`+${m.rw} ключ!`, 'gld');
-        }
-
-        function createClan() {
-            if (G.coins < 1500) { toast('Нужно 1500 монет', 'err'); return; }
-            const names = ['Kingdom Squad', 'Empire Crew', 'Dragon Force', 'Shadow Order', 'Titan Clan', 'Neon Warriors',
-                'Phoenix Legion', 'Frost Giants'
-            ];
-            G.coins -= 1500;
-            G.clan = { nm: names[Math.floor(Math.random() * names.length)], d: 0, m: [G.name] };
-            G.clanLF = 0;
-            scheduleSave();
-            renderUI();
-            toast('🏰 Клан создан!', 'ok');
-        }
-
-        function disbandClan() { G.clan = null;
-            scheduleSave();
-            renderUI();
-            toast('Клан распущен', 'info'); }
-
-        function clanFarm() {
-            if (!G.clan) return;
-            if (Date.now() - G.clanLF < 6 * 3600000) { toast('6 часов кулдаун', 'err'); return; }
-            const m = Math.floor(Math.random() * 3) + 1;
-            G.clan.d += m;
-            G.clanLF = Date.now();
-            scheduleSave();
-            renderUI();
-            toast(`+${m} алмазов!`, 'gld');
-        }
-
-        function exDiam(n) {
-            if (!G.clan || G.clan.d < n) { toast('Нет алмазов', 'err'); return; }
-            G.clan.d -= n;
-            G.coins += n * 5;
-            scheduleSave();
-            renderUI();
-            toast(`+${n*5} монет!`, 'gld');
         }
 
         async function useRefCode() {
@@ -2396,29 +1945,8 @@
             }
         }
 
-        function buyCoins(amt) { G.coins += amt;
-            scheduleSave();
-            renderUI();
-            toast(`+${fmt(amt)} монет!`, 'gld'); }
-
-        function usePromo() {
-            const v = document.getElementById('PR_i').value.trim().toLowerCase();
-            if (v) activatePromo(v);
-            document.getElementById('PR_i').value = '';
-        }
-
-        function activatePromo(c) {
-            if (!PROMOS[c]) { toast('Промокод не найден', 'err'); return; }
-            if (G.promos[c]) { toast('Уже использован', 'err'); return; }
-            G.coins += PROMOS[c];
-            G.promos[c] = true;
-            scheduleSave();
-            renderUI();
-            toast(`+${PROMOS[c]} монет!`, 'gld');
-        }
-
         // ════════════════════════════════════════════════
-        // 17. ЗАПУСК
+        // 16. ЗАПУСК
         // ════════════════════════════════════════════════
         document.addEventListener('DOMContentLoaded', async () => {
             aStat('⏳ Проверка сессии...', 'ld');
@@ -2432,7 +1960,6 @@
                 aStat('Готово ко входу');
             }
             document.getElementById('authBtn').disabled = false;
-            renderPodium();
         });
 
         console.log('✅ Скрипт загружен');
