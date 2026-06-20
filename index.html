@@ -403,10 +403,10 @@
 
 <script>
     // ============================================================
-    // 1. КОНФИГУРАЦИЯ - ВСТАВЬТЕ СВОИ ДАННЫЕ!
+    // 1. КОНФИГУРАЦИЯ - ВАШИ ДАННЫЕ
     // ============================================================
-    const SUPABASE_URL = 'https://mazccbkzurbryzusajqc.supabase.co/rest/v1/';
-const SUPABASE_ANON_KEY = 'sb_publishable_GLQvPbCZrDYgd7FCSp861g_poX1-Hwy';
+    const SUPABASE_URL = 'https://mazccbkzurbryzusajqc.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1hemNjYmt6dXJicnladXphc2pxYyIsInJvbGUiOiJhbm9uIiwiaWF0IjoxNzQ3ODA4MTk3LCJleHAiOjIwNjMzODQxOTd9.N7QnNLnPYGt4kYwhprLvxG0T1G0Zl8hH_wM1N4IrL4I';
 
     // ============================================================
     // 2. ПРЯМОЙ РАБОТА ЧЕРЕЗ REST API (БЕЗ SDK)
@@ -472,7 +472,7 @@ const SUPABASE_ANON_KEY = 'sb_publishable_GLQvPbCZrDYgd7FCSp861g_poX1-Hwy';
     }
 
     // ============================================================
-    // 5. ОСНОВНЫЕ ФУНКЦИИ API (ПРАВИЛЬНЫЕ ЭНДПОИНТЫ)
+    // 5. ОСНОВНЫЕ ФУНКЦИИ API (ПРАВИЛЬНЫЕ ЭНДПОИНТЫ!)
     // ============================================================
     async function signUp(email, password) {
         const response = await fetch(`${SUPABASE_URL}/auth/v1/signup`, {
@@ -484,7 +484,13 @@ const SUPABASE_ANON_KEY = 'sb_publishable_GLQvPbCZrDYgd7FCSp861g_poX1-Hwy';
             body: JSON.stringify({ email, password })
         });
         const data = await response.json();
-        if (!response.ok) throw new Error(data.msg || data.message || 'Ошибка регистрации');
+        if (!response.ok) {
+            // Если пользователь уже существует, пробуем войти
+            if (data.msg && data.msg.includes('already registered')) {
+                throw new Error('Пользователь уже существует. Попробуйте войти.');
+            }
+            throw new Error(data.msg || data.message || 'Ошибка регистрации');
+        }
         return data;
     }
 
@@ -503,20 +509,23 @@ const SUPABASE_ANON_KEY = 'sb_publishable_GLQvPbCZrDYgd7FCSp861g_poX1-Hwy';
     }
 
     async function getUserData(userId) {
-        const response = await fetch(`${SUPABASE_URL}/auth/v1/users?id=eq.${userId}`, {
+        const response = await fetch(`${SUPABASE_URL}/rest/v1/users?id=eq.${userId}`, {
             method: 'GET',
             headers: {
                 'apikey': SUPABASE_ANON_KEY,
                 'Authorization': `Bearer ${sessionToken}`
             }
         });
+        if (response.status === 404) {
+            return null; // Пользователь не найден в таблице
+        }
         const data = await response.json();
         if (!response.ok) throw new Error('Ошибка загрузки данных');
         return data[0] || null;
     }
 
     async function upsertUserData(userId, data, boss) {
-        const response = await fetch(`${SUPABASE_URL}/auth/v1/users`, {
+        const response = await fetch(`${SUPABASE_URL}/rest/v1/users`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -565,6 +574,7 @@ const SUPABASE_ANON_KEY = 'sb_publishable_GLQvPbCZrDYgd7FCSp861g_poX1-Hwy';
         try {
             let result;
             if (isAuthMode === 'login') {
+                // Вход
                 result = await signIn(email, pass);
                 if (result.access_token) {
                     sessionToken = result.access_token;
@@ -575,13 +585,16 @@ const SUPABASE_ANON_KEY = 'sb_publishable_GLQvPbCZrDYgd7FCSp861g_poX1-Hwy';
                     setStatus('✅ Вход выполнен!', 'ok');
                 }
             } else {
+                // Регистрация
                 result = await signUp(email, pass);
                 if (result.user) {
                     currentUser = result.user;
                     currentUserId = result.user.id;
-                    // После регистрации нужно войти
+                    
+                    // Автоматически входим после регистрации
                     const loginResult = await signIn(email, pass);
                     sessionToken = loginResult.access_token;
+                    
                     await loadUserData();
                     showMainApp();
                     setStatus('✅ Регистрация успешна!', 'ok');
@@ -769,7 +782,7 @@ const SUPABASE_ANON_KEY = 'sb_publishable_GLQvPbCZrDYgd7FCSp861g_poX1-Hwy';
         if (G.activatedRef) { toast('Код уже активирован', 'err'); return; }
 
         try {
-            const response = await fetch(`${SUPABASE_URL}/auth/v1/users?data->>refCode=eq.${code}`, {
+            const response = await fetch(`${SUPABASE_URL}/rest/v1/users?data->>refCode=eq.${code}`, {
                 headers: { 'apikey': SUPABASE_ANON_KEY }
             });
             const data = await response.json();
