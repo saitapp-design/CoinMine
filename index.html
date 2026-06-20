@@ -43,26 +43,32 @@
         }
 
        /* Боковые изображения на ПК (одинаковые, без зеркала) */
+/* ============================================
+   БОКОВЫЕ ИЗОБРАЖЕНИЯ ДЛЯ ПК
+   ============================================ */
 body {
     background: #07070f;
     position: relative;
     overflow-x: hidden;
 }
 
+/* Боковые картинки — полупрозрачные и не отвлекают */
 body::before,
 body::after {
     content: '';
     position: fixed;
     top: 0;
     bottom: 0;
-    width: calc((100% - 430px) / 2);
-    min-width: 50px;
+    width: calc((100% - 600px) / 2);  /* ← ИГРА ШИРЕ: 600px вместо 430px */
+    min-width: 30px;
+    max-width: 200px;                 /* ← Картинки не шире 200px */
     z-index: 0;
     pointer-events: none;
     background-image: url('https://i.ibb.co/B5CTFj4c/Chat-GPT-Image-20-2026-14-52-25.png');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
+    opacity: 0.4;                     /* ← Полупрозрачные, не бросаются в глаза */
 }
 
 body::before {
@@ -73,8 +79,9 @@ body::after {
     right: 0;
 }
 
+/* Основное приложение — шире на ПК */
 .app {
-    max-width: 430px;
+    max-width: 600px;                 /* ← БЫЛО 430px, СТАЛО 600px */
     margin: 0 auto;
     background: var(--bg);
     position: relative;
@@ -83,31 +90,16 @@ body::after {
     box-shadow: 0 0 60px rgba(0, 0, 0, 0.8);
 }
 
-@media (max-width: 430px) {
+/* На телефонах — стандартная ширина, картинки скрыты */
+@media (max-width: 600px) {
+    .app {
+        max-width: 430px;
+    }
     body::before,
     body::after {
         display: none !important;
     }
 }
-
-        /* Основное приложение - по центру */
-        .app {
-            max-width: 430px;
-            margin: 0 auto;
-            background: var(--bg);
-            position: relative;
-            z-index: 1;
-            min-height: 100vh;
-            box-shadow: 0 0 80px rgba(0, 0, 0, 0.9);
-        }
-
-        /* На телефонах скрываем боковые изображения */
-        @media (max-width: 430px) {
-            body::before,
-            body::after {
-                display: none;
-            }
-        }
 
         /* ════════════════════════════════════════ */
         /* ОСТАЛЬНЫЕ СТИЛИ */
