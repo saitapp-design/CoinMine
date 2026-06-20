@@ -117,7 +117,6 @@
             font-size: 10px;
         }
 
-        /* Баннер - только картинка на всю ширину */
         .bnr {
             border-top: 1px solid var(--bd2);
             border-bottom: 1px solid var(--bd2);
@@ -550,7 +549,6 @@
             opacity: 1;
         }
 
-        /* Кубик */
         .dice-container {
             display: flex;
             justify-content: center;
@@ -670,20 +668,6 @@
                 </div>
 
                 <div class="card">
-                    <div class="ct">хранилище (защита монет)</div>
-                    <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:5px">
-                        <span style="color:var(--tx2)">Хранится</span>
-                        <span><b id="V_s">0</b> / <b id="V_l">50</b> монет</span>
-                    </div>
-                    <div class="pb" style="margin-bottom:9px"><div class="pf pf-acc" id="V_pb" style="width:0%"></div></div>
-                    <div style="font-size:11px;color:var(--tx2);margin-bottom:9px">Монеты в хранилище защищены от краж и не тратятся случайно</div>
-                    <div class="g2">
-                        <button class="btn bs" onclick="confirmAction('Положить 50 монет?','50 монет перейдут из баланса в хранилище. Защита от потерь.',()=>vaultAct('d',50))">⬇ +50 в хранилище</button>
-                        <button class="btn bs" onclick="confirmAction('Снять 50 монет?','50 монет вернутся из хранилища на ваш баланс.',()=>vaultAct('w',50))">⬆ -50 из хранилища</button>
-                    </div>
-                </div>
-
-                <div class="card">
                     <div class="ct">осколки (выпадают при добыче)</div>
                     <div id="SH_home" style="font-size:12px;color:var(--tx2)">Осколки выпадают случайно при добыче монет</div>
                 </div>
@@ -714,7 +698,7 @@
                             </div>
                             <div>
                                 <div style="font-size:10px;color:var(--tx2);margin-bottom:4px">Коэффициенты</div>
-                                <div style="background:var(--bg4);border-radius:var(--r2);padding:7px;font-size:11px;color:var(--tx2);text-align:center">🔴×2 ⚫×2 🟩×6</div>
+                                <div style="background:var(--bg4);border-radius:var(--r2);padding:7px;font-size:11px;color:var(--tx2);text-align:center">🔴×1.75 ⚫×1.75 🟩×5</div>
                             </div>
                         </div>
                         <div class="roulette-buttons">
@@ -727,7 +711,7 @@
 
                 <div id="G_dc" style="display:none">
                     <div class="card">
-                        <div class="ct">кубик — ставка 25 монет</div>
+                        <div class="ct">кубик — ставка 50 монет, шанс 33%</div>
                         <div id="DC_res" class="game-result">Кидайте кубик и выигрывайте!</div>
                         <div class="dice-container">
                             <div class="dice" id="diceMain">⚀</div>
@@ -737,11 +721,11 @@
                             <span id="dcBlack" class="active-black">⚫ Чёрный</span>
                         </div>
                         <div style="font-size:11px;color:var(--tx2);text-align:center;margin:8px 0">
-                            Выпавшее число × 2 монет + бонус за угаданный цвет (+5 монет)
+                            Выпавшее число × 5 монет + бонус за угаданный цвет (+10 монет)
                         </div>
                         <div class="dice-buttons">
-                            <button class="btn" style="background:#7f1d1d;color:#fca5a5;border:1px solid #991b1b" onclick="confirmAction('Ставка 25 монет?','Кубик выпадет случайно. Выигрыш = число × 2 + бонус за цвет.',()=>playDice('red'))">🔴 Красный 25</button>
-                            <button class="btn" style="background:#1c1c2e;color:#d1d5db;border:1px solid #374151" onclick="confirmAction('Ставка 25 монет?','Кубик выпадет случайно. Выигрыш = число × 2 + бонус за цвет.',()=>playDice('black'))">⚫ Чёрный 25</button>
+                            <button class="btn" style="background:#7f1d1d;color:#fca5a5;border:1px solid #991b1b" onclick="confirmAction('Ставка 50 монет?','Кубик выпадет случайно. Выигрыш = число × 5 + бонус за цвет.',()=>playDice('red'))">🔴 Красный 50</button>
+                            <button class="btn" style="background:#1c1c2e;color:#d1d5db;border:1px solid #374151" onclick="confirmAction('Ставка 50 монет?','Кубик выпадет случайно. Выигрыш = число × 5 + бонус за цвет.',()=>playDice('black'))">⚫ Чёрный 50</button>
                         </div>
                     </div>
                 </div>
@@ -775,10 +759,10 @@
                     <div class="hp-bar"><div class="hp-fill" id="BS_hp" style="width:100%"></div></div>
                     <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--tx2);margin-bottom:10px">
                         <span id="BS_hp_txt">1000 / 1000 ХП</span>
-                        <span id="BS_drop">Шанс сундука: 15%</span>
+                        <span id="BS_drop">Шанс сундука: 20%</span>
                     </div>
                     <div class="g2">
-                        <button class="btn bp" onclick="confirmAction('Атаковать босса?','Стоимость: 15 монет. Нанесёте 10–40 урона. 15% шанс получить сундук.',atkBoss)">⚔ Атаковать (15 мон.)</button>
+                        <button class="btn bp" onclick="confirmAction('Атаковать босса?','Стоимость: 20 монет. Нанесёте 10–50 урона. 20% шанс получить сундук.',atkBoss)">⚔ Атаковать (20 мон.)</button>
                         <button class="btn bs" id="CH_btn" onclick="confirmAction('Открыть сундук?','Случайная награда: монеты, ключи или редкий осколок.',openChest)">📦 Сундук (<span id="CH_cnt">0</span>)</button>
                     </div>
                     <div style="font-size:12px;color:var(--grn);margin-top:8px;min-height:16px" id="ATK_log"></div>
@@ -900,7 +884,7 @@
 
         </div>
 
-        <!-- Баннер - только картинка на всю ширину -->
+        <!-- Баннер -->
         <div class="bnr" id="BNR" onclick="openTelegram()">
             <img id="BNR_img" src="" alt="CoinMine" class="bnr-img" onerror="this.style.display='none';document.getElementById('BNR_ph').style.display='flex'" style="display:none">
             <div id="BNR_ph" class="bnr-img-placeholder">⛏ CoinMine</div>
@@ -956,19 +940,18 @@
             mystic: { e: '🔮', n: 'Мистический' }
         };
         const SHARDS = {
-            'Осколок Вечности': { l: 1, c: .002 },
-            'Кристалл Света': { l: 1, c: .002 },
-            'Обсидиановая Слеза': { l: 2, c: .005 },
-            'Ледяное Сердце': { l: 3, c: .01 },
-            'Свет Луны': { l: 5, c: .02 },
-            'Ткань Реальности': { l: 5, c: .02 }
+            'Осколок Вечности': { l: 1, c: .001 },
+            'Кристалл Света': { l: 1, c: .001 },
+            'Обсидиановая Слеза': { l: 2, c: .003 },
+            'Ледяное Сердце': { l: 3, c: .006 },
+            'Свет Луны': { l: 5, c: .015 },
+            'Ткань Реальности': { l: 5, c: .015 }
         };
-        const VAULT_CAPS = { 0: 50, 1: 100, 2: 200, 3: 350, 4: 500 };
-        const FARM_COSTS = [40, 80, 200, 400, 800];
+        const FARM_COSTS = [50, 100, 250, 500, 1000];
         const BOSSES = [
-            { nm: '👹 Рябчик', hp: 800, ico: '👹' },
-            { nm: '🐉 Дракон', hp: 2000, ico: '🐉' },
-            { nm: '💀 Лич', hp: 4000, ico: '💀' }
+            { nm: '👹 Рябчик', hp: 1000, ico: '👹' },
+            { nm: '🐉 Дракон', hp: 3000, ico: '🐉' },
+            { nm: '💀 Лич', hp: 6000, ico: '💀' }
         ];
         const MISSIONS_DEF = [
             { id: 'f8', nm: '🌾 Шахтёр', d: 'Добыть 8 раз', t: 8, tp: 'farm', rw: 1 },
@@ -977,28 +960,27 @@
             { id: 'r3', nm: '👥 Вербовщик', d: '3 реферала', t: 3, tp: 'ref', rw: 1 }
         ];
         const PROFS_DEF = [
-            { id: 'farm', nm: '👨‍🌾 Крестьянин', inc: 40, cd: 4 },
-            { id: 'hunt', nm: '🏹 Охотник', inc: 60, cd: 6 },
-            { id: 'heal', nm: '💊 Лекарь', inc: 80, cd: 8 },
-            { id: 'smit', nm: '⚔️ Оружейник', inc: 120, cd: 12 }
+            { id: 'farm', nm: '👨‍🌾 Крестьянин', inc: 60, cd: 4 },
+            { id: 'hunt', nm: '🏹 Охотник', inc: 90, cd: 6 },
+            { id: 'heal', nm: '💊 Лекарь', inc: 120, cd: 8 },
+            { id: 'smit', nm: '⚔️ Оружейник', inc: 180, cd: 12 }
         ];
         const PROMOS_DEF = { free: 15, denchak: 15 };
         const TOP_DEMO = [
-            { n: 'ВасяКоин', c: 5000, f: 200, r: 12 },
-            { n: 'МегаМайнер', c: 3200, f: 140, r: 7 },
-            { n: 'КоролькоинС', c: 2400, f: 100, r: 4 },
-            { n: 'АлмазДобытчик', c: 1500, f: 70, r: 2 }
+            { n: 'ВасяКоин', c: 9420, f: 312, r: 18 },
+            { n: 'МегаМайнер', c: 5100, f: 201, r: 9 },
+            { n: 'КоролькоинС', c: 3890, f: 145, r: 6 },
+            { n: 'АлмазДобытчик', c: 2100, f: 98, r: 3 }
         ];
 
         // ===== СОСТОЯНИЕ =====
         let G = {
-            coins: 120,
+            coins: 150,
             farms: 0,
             refs: 0,
             keys: 0,
             lastFarm: 0,
             farmLv: 1,
-            vault: { s: 0, lv: 0 },
             name: 'Шахтёр',
             nicks: { p: [], a: null },
             shards: {},
@@ -1010,7 +992,7 @@
             lastWork: {},
             auctionBid: 0,
             chests: 0,
-            boss: { idx: 0, hp: 800 },
+            boss: { idx: 0, hp: 1000 },
             topUpdated: 0,
             diceRolling: false
         };
@@ -1022,7 +1004,7 @@
             const raw = localStorage.getItem('cm3');
             if (raw) {
                 const p = JSON.parse(raw);
-                ['coins', 'farms', 'refs', 'keys', 'lastFarm', 'farmLv', 'vault', 'name', 'nicks', 'shards', 'clan', 'clanLF',
+                ['coins', 'farms', 'refs', 'keys', 'lastFarm', 'farmLv', 'name', 'nicks', 'shards', 'clan', 'clanLF',
                     'promos', 'missions', 'profs', 'lastWork', 'auctionBid', 'chests', 'boss', 'topUpdated'
                 ].forEach(k => {
                     if (p[k] !== undefined) G[k] = p[k];
@@ -1119,10 +1101,6 @@
             const an = G.nicks.a ? NICK_STYLES[G.nicks.a] : null;
             document.getElementById('NICK_LBL').textContent = an ? `Стиль: ${an.e} ${an.n}` : 'Стиль не выбран';
             document.getElementById('AV').textContent = an ? an.e : '⛏';
-            const vcap = VAULT_CAPS[G.vault.lv] || 50;
-            document.getElementById('V_s').textContent = G.vault.s;
-            document.getElementById('V_l').textContent = vcap;
-            document.getElementById('V_pb').style.width = Math.round(G.vault.s / vcap * 100) + '%';
             renderFarmTimer();
             renderShards();
             renderNicks();
@@ -1253,8 +1231,8 @@
             const now = Date.now();
             const upd = document.getElementById('TOP_upd');
             if (now - G.topUpdated > 600000) {
-                TOP_DEMO.forEach(p => { p.c += Math.floor(Math.random() * 200 - 30);
-                    p.f += Math.floor(Math.random() * 6);
+                TOP_DEMO.forEach(p => { p.c += Math.floor(Math.random() * 300 - 50);
+                    p.f += Math.floor(Math.random() * 8);
                     p.c = Math.max(0, p.c); });
                 G.topUpdated = now;
                 save();
@@ -1293,7 +1271,7 @@
 
         // ===== ИГРОВЫЕ ФУНКЦИИ =====
 
-        // ---- РУЛЕТКА (ИСПРАВЛЕНА) ----
+        // ---- РУЛЕТКА ----
         let roulRunning = false;
 
         function drawRoulette(angle, result) {
@@ -1309,7 +1287,6 @@
                 R = 78;
             ctx.clearRect(0, 0, w, 200);
 
-            // 20 сегментов: 18 цветных + 2 зеленых
             const segs = [];
             for (let i = 0; i < 9; i++) { segs.push('red');
                 segs.push('black'); }
@@ -1350,7 +1327,7 @@
             if (G.coins < bet) { toast('Мало монет', 'err'); return; }
 
             confirmAction(`Ставка ${bet} монет на ${col==='red'?'красный':col==='black'?'чёрный':'зелёный'}?`,
-                `Коэффициент: ${col==='green'?'×6':'×2'}. Шанс зелёного — 10%.`,
+                `Коэффициент: ${col==='green'?'×5':'×1.75'}. Шанс зелёного — 10%.`,
                 () => {
                     G.coins -= bet;
                     roulRunning = true;
@@ -1382,8 +1359,8 @@
                             requestAnimationFrame(anim);
                         } else {
                             roulRunning = false;
-                            const multiplier = landed === 'green' ? 6 : 2;
-                            const win = col === landed ? bet * multiplier : 0;
+                            const multiplier = landed === 'green' ? 5 : 1.75;
+                            const win = col === landed ? Math.floor(bet * multiplier) : 0;
                             if (win) G.coins += win;
                             const lbl = landed === 'red' ? 'красное' : landed === 'black' ? 'чёрное' : 'зелёное';
                             const resEl = document.getElementById('RL_res');
@@ -1400,16 +1377,14 @@
                 });
         }
 
-        // ---- КУБИК (ОДИН КУБИК С ЦВЕТОМ) ----
+        // ---- КУБИК ----
         const DICE_FACES = ['⚀', '⚁', '⚂', '⚃', '⚄', '⚅'];
-        let currentDiceColor = null;
 
         function updateDiceDisplay(val, color) {
             const el = document.getElementById('diceMain');
             if (el) {
                 el.textContent = DICE_FACES[val] || '⚀';
                 el.classList.remove('rolling');
-                // Меняем цвет рамки
                 if (color === 'red') {
                     el.style.borderColor = '#ef4444';
                     el.style.boxShadow = '0 0 20px rgba(239,68,68,0.3)';
@@ -1421,7 +1396,6 @@
                     el.style.boxShadow = 'none';
                 }
             }
-            // Обновляем индикатор цвета
             document.getElementById('dcRed').className = color === 'red' ? 'active-red' : '';
             document.getElementById('dcBlack').className = color === 'black' ? 'active-black' : '';
         }
@@ -1445,25 +1419,22 @@
 
         function playDice(chosenColor) {
             if (G.diceRolling) return;
-            if (G.coins < 25) { toast('Нужно 25 монет', 'err'); return; }
-            G.coins -= 25;
+            if (G.coins < 50) { toast('Нужно 50 монет', 'err'); return; }
+            G.coins -= 50;
             G.diceRolling = true;
             const resultEl = document.getElementById('DC_res');
 
-            // ЧЕСТНЫЙ результат
-            const diceValue = Math.floor(Math.random() * 6) + 1; // 1-6
-            // Цвет кубика: красный для нечётных, чёрный для чётных
+            const diceValue = Math.floor(Math.random() * 6) + 1;
             const landedColor = diceValue % 2 === 1 ? 'red' : 'black';
-            currentDiceColor = landedColor;
 
-            const baseWin = diceValue * 2;
-            const bonusWin = chosenColor === landedColor ? 5 : 0;
+            const baseWin = diceValue * 5;
+            const bonusWin = chosenColor === landedColor ? 10 : 0;
             const totalWin = baseWin + bonusWin;
 
             animateDiceRoll(() => {
                 updateDiceDisplay(diceValue - 1, landedColor);
                 G.coins += totalWin;
-                const profit = totalWin - 25;
+                const profit = totalWin - 50;
                 const colorName = landedColor === 'red' ? 'красный' : 'чёрный';
                 const bonusText = bonusWin > 0 ? ` + бонус ${bonusWin} за цвет!` : ' (цвет не угадан)';
                 resultEl.textContent = profit > 0 ?
@@ -1496,7 +1467,7 @@
             const now = Date.now();
             if (now - G.lastFarm < 3600000 && G.lastFarm) { toast('Кулдаун ещё не прошёл!', 'err'); return; }
             const mult = 1 + (G.farmLv - 1) * .2;
-            const earned = Math.round((Math.floor(Math.random() * 5) + 2) * mult);
+            const earned = Math.round((Math.floor(Math.random() * 5) + 1) * mult);
             G.coins += earned;
             G.farms++;
             G.lastFarm = now;
@@ -1525,23 +1496,6 @@
             save();
             renderUI();
             toast('Шахта улучшена до ур. ' + G.farmLv + '!', 'ok');
-        }
-
-        function vaultAct(t, a) {
-            const cap = VAULT_CAPS[G.vault.lv] || 50;
-            if (t === 'd') {
-                if (G.coins < a) { toast('Мало монет', 'err'); return; }
-                if (G.vault.s + a > cap) { toast('Хранилище переполнено', 'err'); return; }
-                G.coins -= a;
-                G.vault.s += a;
-            } else {
-                if (G.vault.s < a) { toast('В хранилище мало монет', 'err'); return; }
-                G.vault.s -= a;
-                G.coins += a;
-            }
-            save();
-            renderUI();
-            toast(t === 'd' ? `+${a} в хранилище` : `+${a} на баланс`, 'ok');
         }
 
         function nickAct(id, owned) {
@@ -1673,17 +1627,17 @@
         }
 
         function atkBoss() {
-            if (G.coins < 15) { toast('Нужно 15 монет', 'err'); return; }
+            if (G.coins < 20) { toast('Нужно 20 монет', 'err'); return; }
             if (G.boss.hp <= 0) { toast('Босс уже повержен', 'err'); return; }
-            G.coins -= 15;
-            const dmg = Math.floor(Math.random() * 31) + 10;
+            G.coins -= 20;
+            const dmg = Math.floor(Math.random() * 41) + 10;
             G.boss.hp = Math.max(0, G.boss.hp - dmg);
             let msg = 'Урон: ' + dmg;
-            if (Math.random() < .15) { G.chests++;
+            if (Math.random() < .2) { G.chests++;
                 msg += ' · 🎁 Сундук!'; }
             if (G.boss.hp <= 0) {
                 msg += ' · Босс повержён!';
-                G.chests += 2;
+                G.chests += 3;
                 setTimeout(() => {
                     G.boss.idx = (G.boss.idx + 1) % BOSSES.length;
                     G.boss.hp = BOSSES[G.boss.idx].hp;
@@ -1703,11 +1657,11 @@
             const r = Math.random();
             let rw;
             if (r < .5) {
-                const a = Math.floor(Math.random() * 30) + 8;
+                const a = Math.floor(Math.random() * 40) + 10;
                 G.coins += a;
                 rw = `+${a} монет`;
             } else if (r < .8) {
-                const k = Math.floor(Math.random() * 2) + 1;
+                const k = Math.floor(Math.random() * 3) + 1;
                 G.keys += k;
                 rw = `+${k} ключей`;
             } else {
