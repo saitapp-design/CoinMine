@@ -1,866 +1,828 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
+
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
---bg:#0a0a12;--bg2:#12121e;--bg3:#1a1a2e;--bg4:#22223a;
---accent:#7c5cbf;--accent2:#9d7fe0;--accent3:#b8a0f0;
---gold:#f0b429;--gold2:#ffd166;
---green:#2dd4a0;--red:#f05252;--blue:#4facfe;
---text:#e8e8ff;--text2:#9898c0;--text3:#6060a0;
---border:#2a2a45;--card:#161628;
---r:12px;--r2:8px;
+--bg:#08080f;--bg2:#0d0d1a;--bg3:#131325;--bg4:#1a1a30;--bg5:#22223a;
+--acc:#7c3aed;--acc2:#9d5cf0;--acc3:#c4a0ff;
+--gld:#f0b429;--gld2:#ffd166;
+--grn:#10b981;--red:#ef4444;
+--tx:#f0f0ff;--tx2:#9090b8;--tx3:#50508080;
+--bd:#ffffff15;--bd2:#ffffff22;
+--r:10px;--r2:6px;
 }
-body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;min-height:100vh;overflow-x:hidden}
-
-.app{display:flex;flex-direction:column;min-height:100vh;max-width:480px;margin:0 auto}
-
-.header{background:var(--bg2);border-bottom:1px solid var(--border);padding:12px 16px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
-.header-title{font-size:18px;font-weight:700;background:linear-gradient(135deg,var(--accent2),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-.header-coins{display:flex;align-items:center;gap:6px;background:var(--bg3);border:1px solid var(--border);border-radius:20px;padding:6px 12px;font-size:14px;font-weight:600;color:var(--gold)}
-
-.nav{background:var(--bg2);border-top:1px solid var(--border);padding:8px 0 max(8px,env(safe-area-inset-bottom));display:grid;grid-template-columns:repeat(5,1fr);position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;z-index:100}
-.nav-btn{display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 4px;background:none;border:none;color:var(--text3);font-size:10px;cursor:pointer;transition:color 0.2s}
-.nav-btn.active{color:var(--accent2)}
-.nav-btn i{font-size:22px}
-
-.screen{display:none;padding:16px 16px 100px;flex-direction:column;gap:16px;animation:fadeIn 0.3s ease}
-.screen.active{display:flex}
-@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
-
-.card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:16px}
-.card-title{font-size:13px;color:var(--text2);margin-bottom:12px;text-transform:uppercase;letter-spacing:.5px}
-
-.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.stat{background:var(--bg3);border-radius:var(--r2);padding:12px;text-align:center}
-.stat-val{font-size:22px;font-weight:700;color:var(--gold)}
-.stat-lbl{font-size:11px;color:var(--text2);margin-top:2px}
-
-.btn{width:100%;padding:14px;border:none;border-radius:var(--r2);font-size:15px;font-weight:600;cursor:pointer;transition:all 0.15s;display:flex;align-items:center;justify-content:center;gap:8px}
-.btn-primary{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff}
-.btn-primary:active{transform:scale(0.97)}
-.btn-primary:disabled{opacity:0.5;cursor:not-allowed;transform:none}
-.btn-secondary{background:var(--bg3);color:var(--text);border:1px solid var(--border)}
-.btn-gold{background:linear-gradient(135deg,#e0920f,var(--gold));color:#fff}
-
-.progress-bar{background:var(--bg3);border-radius:20px;height:8px;overflow:hidden;margin-top:8px}
-.progress-fill{height:100%;border-radius:20px;transition:width 0.5s ease;background:linear-gradient(90deg,var(--accent),var(--accent2))}
-.progress-fill.gold{background:linear-gradient(90deg,#e0920f,var(--gold2))}
-.progress-fill.green{background:linear-gradient(90deg,#1d9e75,var(--green))}
-
-.toast{position:fixed;top:70px;left:50%;transform:translateX(-50%) translateY(-20px);background:var(--accent);color:#fff;padding:10px 20px;border-radius:20px;font-size:14px;font-weight:600;opacity:0;transition:all 0.3s;z-index:999;pointer-events:none;max-width:90%;text-align:center}
-.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
-.toast.success{background:var(--green);color:#0a2a20}
-.toast.error{background:var(--red)}
-.toast.gold{background:var(--gold);color:#3a2000}
-
-.badge{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:20px;font-size:12px;font-weight:600}
-.badge-gold{background:#3a2a00;color:var(--gold);border:1px solid #5a4000}
-.badge-green{background:#003a2a;color:var(--green);border:1px solid #005a40}
-.badge-purple{background:#2a1a5a;color:var(--accent2);border:1px solid #4a2a8a}
-.badge-red{background:#3a0000;color:var(--red);border:1px solid #5a0000}
-
-.divider{height:1px;background:var(--border);margin:4px 0}
-
-.top-item{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border)}
-.top-item:last-child{border-bottom:none}
-.top-rank{font-size:18px;font-weight:700;min-width:28px;color:var(--text2)}
-.top-rank.r1{color:var(--gold)}
-.top-rank.r2{color:#c0c0d0}
-.top-rank.r3{color:#cd7f32}
-.top-name{flex:1;font-size:14px;font-weight:500}
-.top-val{font-size:14px;font-weight:700;color:var(--gold)}
-
-.nick-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.nick-card{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r2);padding:10px;display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;transition:all 0.2s}
-.nick-card.owned{border-color:var(--accent);background:#1a0f35}
-.nick-card.active{border-color:var(--gold);background:#2a1f00;box-shadow:0 0 0 2px rgba(240,180,41,0.3)}
-.nick-emoji{font-size:24px}
-.nick-name{font-size:12px;color:var(--text2)}
-.nick-price{font-size:11px;color:var(--gold)}
-
-.shard-item{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)}
-.shard-item:last-child{border-bottom:none}
-.shard-stars{color:var(--gold);font-size:12px;min-width:60px}
-.shard-name{flex:1;font-size:13px}
-.shard-count{font-size:14px;font-weight:700;color:var(--accent2)}
-
-.game-area{background:var(--bg3);border-radius:var(--r);padding:20px;text-align:center}
-.roulette-ball{width:80px;height:80px;border-radius:50%;margin:0 auto 16px;display:flex;align-items:center;justify-content:center;font-size:32px;transition:all 0.5s;border:3px solid var(--border)}
-.roulette-ball.red{background:rgba(240,82,82,0.2);border-color:var(--red)}
-.roulette-ball.black{background:rgba(44,44,60,0.5);border-color:#666}
-.roulette-ball.green{background:rgba(45,212,160,0.2);border-color:var(--green)}
-
-.bet-btns{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:12px}
-.bet-btn{padding:10px;border:1px solid var(--border);border-radius:var(--r2);background:var(--bg3);color:var(--text);font-size:13px;font-weight:600;cursor:pointer;transition:all 0.15s}
-.bet-btn:active{transform:scale(0.95)}
-.bet-btn.red-btn{border-color:var(--red);color:var(--red)}
-.bet-btn.black-btn{border-color:#888;color:#ccc}
-.bet-btn.green-btn{border-color:var(--green);color:var(--green)}
-
-.clan-header{background:linear-gradient(135deg,#1a0f35,#0f1a35);border:1px solid var(--accent);border-radius:var(--r);padding:20px;text-align:center}
-.clan-name{font-size:20px;font-weight:700;color:var(--accent2)}
-.clan-diamonds{font-size:32px;font-weight:700;color:var(--gold)}
-
-.prof-card{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r2);padding:14px;margin-bottom:10px}
-.prof-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
-.prof-name{font-size:15px;font-weight:600}
-.prof-income{font-size:12px;color:var(--green)}
-
-.mission-item{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r2);padding:14px;margin-bottom:10px}
-.mission-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
-.mission-done{background:var(--bg3);border-color:var(--green)}
-
-.input-row{display:flex;gap:8px}
-.input-row input{flex:1;background:var(--bg3);border:1px solid var(--border);border-radius:var(--r2);padding:12px;color:var(--text);font-size:14px;outline:none}
-.input-row input:focus{border-color:var(--accent)}
-
-.key-display{font-size:40px;text-align:center;margin:10px 0}
-
-.farm-status{display:flex;align-items:center;justify-content:center;gap:8px;padding:12px;background:var(--bg3);border-radius:var(--r2);margin-bottom:12px}
-
-.spin-container{position:relative;height:120px;overflow:hidden;border-radius:var(--r2);background:var(--bg3);margin:12px 0}
-.spin-items{display:flex;transition:transform 0.5s cubic-bezier(0.17,0.67,0.28,1)}
-.spin-item{min-width:80px;height:80px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:28px;border-right:1px solid var(--border)}
-
-.tab-row{display:flex;gap:4px;margin-bottom:12px}
-.tab{flex:1;padding:8px;text-align:center;border:1px solid var(--border);border-radius:var(--r2);font-size:12px;cursor:pointer;color:var(--text2);transition:all 0.2s}
-.tab.active{background:var(--accent);color:#fff;border-color:var(--accent)}
-
-.shop-item{display:flex;align-items:center;gap:10px;padding:12px 0;border-bottom:1px solid var(--border)}
-.shop-item:last-child{border-bottom:none}
-.shop-emoji{font-size:24px;min-width:36px;text-align:center}
-.shop-info{flex:1}
-.shop-name{font-size:14px;font-weight:500}
-.shop-desc{font-size:12px;color:var(--text2);margin-top:2px}
-.shop-price{font-size:14px;font-weight:700;color:var(--gold)}
-
-.vault-visual{display:flex;align-items:center;justify-content:center;gap:4px;flex-wrap:wrap;padding:12px 0}
-.vault-coin{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;transition:all 0.3s}
-.vault-coin.filled{background:var(--gold);color:#3a2000}
-.vault-coin.empty{background:var(--bg4);border:1px solid var(--border)}
-
-.recruit-code{background:var(--bg3);border:1px solid var(--accent);border-radius:var(--r2);padding:12px;font-size:13px;word-break:break-all;color:var(--accent2);text-align:center;margin:8px 0}
-
-.auction-bid-display{text-align:center;padding:20px 0}
-.auction-amount{font-size:48px;font-weight:700;color:var(--gold)}
-.auction-leader{font-size:13px;color:var(--text2);margin-top:4px}
-
-@media(max-width:380px){.nick-grid{grid-template-columns:1fr 1fr}.stat-grid{grid-template-columns:1fr 1fr}}
+body{background:var(--bg);color:var(--tx);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:14px;overflow-x:hidden}
+.app{max-width:430px;margin:0 auto;display:flex;flex-direction:column;min-height:100vh}
+.hdr{background:var(--bg2);border-bottom:1px solid var(--bd);padding:9px 13px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:60}
+.logo{font-size:15px;font-weight:700;color:var(--gld);letter-spacing:.4px}
+.bal{display:flex;align-items:center;gap:5px;background:var(--bg3);border:1px solid var(--bd2);border-radius:18px;padding:5px 11px;font-size:13px;font-weight:600;color:var(--gld)}
+.body{flex:1;padding:10px 10px 0;display:flex;flex-direction:column;gap:10px}
+.nav{background:var(--bg2);border-top:1px solid var(--bd);padding:6px 0;display:grid;grid-template-columns:repeat(5,1fr)}
+.nb{display:flex;flex-direction:column;align-items:center;gap:2px;padding:5px 2px;background:none;border:none;color:var(--tx2);font-size:9px;cursor:pointer;transition:.15s;-webkit-tap-highlight-color:transparent}
+.nb.on,.nb:hover{color:var(--gld)}
+.nb i{font-size:19px}
+.bnr{border-top:1px solid var(--bd2);padding:0;display:flex;align-items:stretch;overflow:hidden;height:62px}
+.bnr-img{flex-shrink:0;width:110px;object-fit:cover;display:block}
+.bnr-img-placeholder{flex-shrink:0;width:110px;height:62px;background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--tx2);border-right:1px solid var(--bd)}
+.bnr-txt{flex:1;padding:8px 10px;display:flex;flex-direction:column;justify-content:center;background:var(--bg2)}
+.bnr-title{font-size:11px;font-weight:600;color:var(--gld);margin-bottom:2px}
+.bnr-sub{font-size:10px;color:var(--tx2)}
+.bnr-btn{align-self:stretch;padding:0 12px;background:var(--gld);color:#1a0800;border:none;font-size:11px;font-weight:700;cursor:pointer;flex-shrink:0;white-space:nowrap}
+.sc{display:none;flex-direction:column;gap:10px;padding-bottom:10px}
+.sc.on{display:flex;animation:fu .22s ease}
+@keyframes fu{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+.card{background:var(--bg3);border:1px solid var(--bd);border-radius:var(--r);padding:13px}
+.ct{font-size:10px;color:var(--tx2);text-transform:uppercase;letter-spacing:.6px;margin-bottom:10px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.st{background:var(--bg4);border-radius:var(--r2);padding:9px;text-align:center}
+.sv{font-size:19px;font-weight:700;color:var(--gld)}
+.sl{font-size:10px;color:var(--tx2);margin-top:2px}
+.btn{width:100%;padding:11px;border:none;border-radius:var(--r2);font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px;transition:.12s;-webkit-tap-highlight-color:transparent}
+.btn:active{transform:scale(.97)}
+.bp{background:var(--acc);color:#fff}
+.bs{background:var(--bg4);color:var(--tx);border:1px solid var(--bd2)}
+.bgld{background:#92620a;color:#fff}
+.bred{background:#7f1d1d;color:#fca5a5;border:1px solid #991b1b}
+.btn:disabled{opacity:.38;pointer-events:none}
+.pb{background:var(--bg4);border-radius:20px;height:6px;overflow:hidden}
+.pf{height:100%;border-radius:20px;transition:width .45s ease}
+.pf-acc{background:var(--acc2)}
+.pf-gld{background:var(--gld)}
+.pf-grn{background:var(--grn)}
+.pf-red{background:var(--red)}
+.inp{background:var(--bg4);border:1px solid var(--bd2);border-radius:var(--r2);padding:9px 11px;color:var(--tx);font-size:13px;width:100%;outline:none}
+.inp:focus{border-color:var(--acc2)}
+.irow{display:flex;gap:6px}
+.irow .inp{flex:1}
+.irow .btn{width:auto;padding:0 13px}
+.bdg{display:inline-flex;align-items:center;gap:3px;padding:3px 7px;border-radius:10px;font-size:10px;font-weight:600}
+.bdg-gld{background:#3d2800;color:var(--gld);border:1px solid #5a3c00}
+.bdg-grn{background:#052e16;color:#4ade80;border:1px solid #14532d}
+.bdg-pur{background:#2e1065;color:var(--acc3);border:1px solid #4c1d95}
+.bdg-red{background:#2d0000;color:#fca5a5;border:1px solid #7f1d1d}
+.row{display:flex;align-items:center;gap:9px;padding:8px 0;border-bottom:1px solid var(--bd)}
+.row:last-child{border-bottom:none}
+.nick-g{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.nc{background:var(--bg4);border:1px solid var(--bd);border-radius:var(--r2);padding:8px 6px;text-align:center;cursor:pointer;transition:.12s}
+.nc:active{transform:scale(.95)}
+.nc.own{border-color:#4c1d95;background:#180a35}
+.nc.act{border-color:var(--gld);background:#2a1b00}
+.pkg-g{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.pkg{background:var(--bg4);border:1px solid var(--bd2);border-radius:var(--r);padding:12px;text-align:center;cursor:pointer;transition:.12s;position:relative}
+.pkg:active{transform:scale(.96)}
+.pkg.hot::before{content:'хит';position:absolute;top:-7px;left:50%;transform:translateX(-50%);background:var(--gld);color:#1a0800;font-size:9px;font-weight:700;padding:1px 7px;border-radius:7px}
+.sep{height:1px;background:var(--bd);margin:2px 0}
+canvas{display:block;border-radius:var(--r2)}
+.boss-wrap{text-align:center;padding:10px 0}
+.boss-ico{font-size:52px;line-height:1;margin-bottom:6px}
+.hp-bar{height:14px;background:var(--bg4);border-radius:7px;overflow:hidden;margin:6px 0}
+.hp-fill{height:100%;background:var(--red);border-radius:7px;transition:width .5s}
+.tab-row{display:flex;gap:4px;margin-bottom:8px}
+.tab{flex:1;padding:7px;text-align:center;border:1px solid var(--bd2);border-radius:var(--r2);font-size:11px;cursor:pointer;color:var(--tx2);transition:.12s;background:none}
+.tab.on{background:var(--acc);color:#fff;border-color:var(--acc)}
 </style>
-</head>
-<body>
-<div class="app">
-<div class="header">
-  <div class="header-title">💎 MinerCoins</div>
-  <div class="header-coins" id="header-coins">
-    <i class="ti ti-coin" aria-hidden="true"></i>
-    <span id="coins-display">0</span>
-  </div>
+
+<div class="app" id="APP">
+
+<div class="hdr">
+  <div class="logo">⛏ CoinMine</div>
+  <div class="bal">💰 <span id="H_coins">0</span></div>
 </div>
 
-<div id="screen-home" class="screen active">
+<div class="body" id="BODY">
+
+<div class="sc on" id="sc-home">
   <div class="card">
-    <div class="card-title">Профиль игрока</div>
-    <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
-      <div id="profile-avatar" style="width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:22px">👤</div>
-      <div>
-        <div id="profile-name" style="font-size:16px;font-weight:700">Путешественник</div>
-        <div id="profile-nick" style="font-size:12px;color:var(--text2);margin-top:2px">Стиль ника: нет</div>
+    <div style="display:flex;align-items:center;gap:11px;margin-bottom:13px">
+      <div id="AV" style="width:46px;height:46px;border-radius:50%;background:#2e1065;border:2px solid var(--acc);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0">⛏</div>
+      <div style="flex:1;min-width:0">
+        <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+          <span id="PNAME" style="font-size:14px;font-weight:700;color:var(--tx)">Шахтёр</span>
+          <button onclick="openNickModal()" style="background:none;border:1px solid var(--bd2);border-radius:4px;padding:2px 6px;color:var(--tx2);font-size:10px;cursor:pointer">✏️ ник</button>
+        </div>
+        <div id="NICK_LBL" style="font-size:11px;color:var(--tx2);margin-top:2px">Стиль не выбран</div>
       </div>
     </div>
-    <div class="stat-grid">
-      <div class="stat"><div class="stat-val" id="stat-coins">0</div><div class="stat-lbl">Монет</div></div>
-      <div class="stat"><div class="stat-val" id="stat-farms">0</div><div class="stat-lbl">Фармов</div></div>
-      <div class="stat"><div class="stat-val" id="stat-refs">0</div><div class="stat-lbl">Рефералов</div></div>
-      <div class="stat"><div class="stat-val" id="stat-keys">0</div><div class="stat-lbl">Ключей</div></div>
+    <div class="g2">
+      <div class="st"><div class="sv" id="S_c">0</div><div class="sl">💰 монет</div></div>
+      <div class="st"><div class="sv" id="S_f">0</div><div class="sl">⛏ фармов</div></div>
+      <div class="st"><div class="sv" id="S_r">0</div><div class="sl">👥 рефералов</div></div>
+      <div class="st"><div class="sv" id="S_k">0</div><div class="sl">🔑 ключей</div></div>
     </div>
   </div>
 
   <div class="card">
-    <div class="card-title">Ферма</div>
-    <div class="farm-status" id="farm-status-text">
-      <i class="ti ti-plant" style="font-size:18px;color:var(--green)" aria-hidden="true"></i>
-      <span style="font-size:13px;color:var(--text2)">Нажмите для фарма</span>
+    <div class="ct">шахта — добыча монет</div>
+    <div style="background:var(--bg4);border-radius:var(--r2);padding:9px 11px;margin-bottom:9px;display:flex;align-items:center;gap:8px">
+      <i class="ti ti-pickaxe" style="font-size:17px;color:var(--acc2)" aria-hidden="true"></i>
+      <div style="flex:1">
+        <div style="font-size:12px;color:var(--tx2)" id="F_st">Готово к добыче!</div>
+        <div class="pb" style="margin-top:4px"><div class="pf pf-gld" id="F_pb" style="width:100%"></div></div>
+      </div>
+      <span id="F_cd" style="font-size:11px;color:var(--tx2);min-width:38px;text-align:right"></span>
     </div>
-    <div class="progress-bar" id="farm-cooldown-bar"><div class="progress-fill" id="farm-progress" style="width:100%"></div></div>
-    <div style="margin-top:8px;display:flex;gap:4px;align-items:center;justify-content:space-between">
-      <span style="font-size:12px;color:var(--text2)">Уровень фермы: <span id="farm-level-txt" style="color:var(--accent2);font-weight:700">1</span></span>
-      <span id="farm-cooldown-txt" style="font-size:12px;color:var(--text3)"></span>
-    </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px">
-      <button class="btn btn-primary" id="farm-btn" onclick="doFarm()"><i class="ti ti-pickaxe" aria-hidden="true"></i> Фармить</button>
-      <button class="btn btn-secondary" onclick="upgradeFarm()"><i class="ti ti-arrow-up" aria-hidden="true"></i> Прокачать</button>
-    </div>
-  </div>
-
-  <div class="card">
-    <div class="card-title">Хранилище</div>
-    <div id="vault-visual" class="vault-visual"></div>
-    <div style="display:flex;justify-content:space-between;font-size:13px;color:var(--text2);margin-bottom:12px">
-      <span>Хранится: <b id="vault-stored" style="color:var(--text)">0</b></span>
-      <span>Лимит: <b id="vault-limit" style="color:var(--text)">50</b></span>
-    </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-      <button class="btn btn-secondary" onclick="vaultAction('deposit',10)"><i class="ti ti-plus" aria-hidden="true"></i> +10</button>
-      <button class="btn btn-secondary" onclick="vaultAction('withdraw',10)"><i class="ti ti-minus" aria-hidden="true"></i> -10</button>
+    <div style="font-size:11px;color:var(--tx2);margin-bottom:9px">Уровень: <b id="F_lv" style="color:var(--acc3)">1</b> · Множитель: <b id="F_mx" style="color:var(--gld)">×1.0</b> · Стоимость улучшения: <b id="F_up_cost" style="color:var(--tx)">50 монет</b></div>
+    <div class="g2">
+      <button class="btn bp" id="F_btn" onclick="confirm_('Добыть монеты?','Кулдаун 1 час. Монеты зависят от уровня шахты и множителя.',doFarm)"><i class="ti ti-pickaxe" aria-hidden="true"></i> Добыть</button>
+      <button class="btn bs" onclick="confirm_('Улучшить шахту?','Стоимость: ' + getFarmCost() + ' монет. Каждый уровень +20% к добыче.',upgradeFarm)"><i class="ti ti-arrow-up" aria-hidden="true"></i> Прокачать</button>
     </div>
   </div>
 
   <div class="card">
-    <div class="card-title">Осколки</div>
-    <div id="shards-preview" style="font-size:13px;color:var(--text2)">Осколки появятся после фарма</div>
+    <div class="ct">хранилище (защита монет)</div>
+    <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:5px">
+      <span style="color:var(--tx2)">Хранится</span>
+      <span><b id="V_s">0</b> / <b id="V_l">50</b> монет</span>
+    </div>
+    <div class="pb" style="margin-bottom:9px"><div class="pf pf-acc" id="V_pb" style="width:0%"></div></div>
+    <div style="font-size:11px;color:var(--tx2);margin-bottom:9px">Монеты в хранилище защищены от краж и не тратятся случайно</div>
+    <div class="g2">
+      <button class="btn bs" onclick="confirm_('Положить 50 монет?','50 монет перейдут из баланса в хранилище. Защита от потерь.',()=>vaultAct('d',50))"><i class="ti ti-download" aria-hidden="true"></i> +50 в хранилище</button>
+      <button class="btn bs" onclick="confirm_('Снять 50 монет?','50 монет вернутся из хранилища на ваш баланс.',()=>vaultAct('w',50))"><i class="ti ti-upload" aria-hidden="true"></i> -50 из хранилища</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="ct">осколки (выпадают при добыче)</div>
+    <div id="SH_home" style="font-size:12px;color:var(--tx2)">Осколки выпадают случайно при добыче монет</div>
   </div>
 </div>
 
-<div id="screen-game" class="screen">
+<div class="sc" id="sc-games">
   <div class="tab-row">
-    <div class="tab active" onclick="switchGameTab('roulette',this)">Рулетка</div>
-    <div class="tab" onclick="switchGameTab('dice',this)">Кубики</div>
-    <div class="tab" onclick="switchGameTab('auction',this)">Аукцион</div>
+    <div class="tab on" id="GT_rl" onclick="gTab('rl',this)">🎰 Рулетка</div>
+    <div class="tab" id="GT_dc" onclick="gTab('dc',this)">🎲 Кубики</div>
+    <div class="tab" id="GT_au" onclick="gTab('au',this)">🏛 Аукцион</div>
   </div>
 
-  <div id="game-roulette">
+  <div id="G_rl">
     <div class="card">
-      <div class="card-title">Рулетка</div>
-      <div class="roulette-ball" id="roulette-ball">🎰</div>
-      <div style="text-align:center;font-size:14px;color:var(--text2);margin-bottom:12px" id="roulette-result">Сделайте ставку</div>
-      <div class="bet-btns">
-        <button class="bet-btn red-btn" onclick="openBet('red')">🔴 Красный</button>
-        <button class="bet-btn black-btn" onclick="openBet('black')">⚫ Чёрный</button>
-        <button class="bet-btn green-btn" onclick="openBet('green')">🟩 Зелёный</button>
+      <div class="ct">рулетка — выберите ставку и цвет</div>
+      <canvas id="RC" height="200" style="width:100%;margin-bottom:10px"></canvas>
+      <div id="RL_res" style="font-size:13px;text-align:center;min-height:20px;margin-bottom:10px;color:var(--tx2)">Выберите цвет чтобы начать</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:9px">
+        <div>
+          <div style="font-size:10px;color:var(--tx2);margin-bottom:4px">Ставка</div>
+          <select id="RL_bet" class="inp" style="padding:7px">
+            <option value="10">10 монет</option>
+            <option value="50" selected>50 монет</option>
+            <option value="100">100 монет</option>
+            <option value="250">250 монет</option>
+          </select>
+        </div>
+        <div>
+          <div style="font-size:10px;color:var(--tx2);margin-bottom:4px">Коэффициенты</div>
+          <div style="background:var(--bg4);border-radius:var(--r2);padding:7px;font-size:11px;color:var(--tx2)">🔴×1.75 ⚫×1.75 🟩×5</div>
+        </div>
       </div>
-    </div>
-    <div class="card" id="bet-panel" style="display:none">
-      <div class="card-title">Ставка: <span id="bet-color-label"></span></div>
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px">
-        <button class="bet-btn" onclick="setBet(10)">10</button>
-        <button class="bet-btn" onclick="setBet(50)">50</button>
-        <button class="bet-btn" onclick="setBet(100)">100</button>
-      </div>
-      <div style="font-size:13px;color:var(--text2);margin-bottom:12px;text-align:center">Ставка: <b id="current-bet-display" style="color:var(--gold)">0</b> монет</div>
-      <button class="btn btn-gold" id="spin-btn" onclick="spinRoulette()"><i class="ti ti-player-play" aria-hidden="true"></i> Крутить!</button>
-    </div>
-  </div>
-
-  <div id="game-dice" style="display:none">
-    <div class="card">
-      <div class="card-title">Кубики (ставка 50 монет)</div>
-      <div class="game-area">
-        <div style="font-size:60px;margin-bottom:12px" id="dice-display">🎲</div>
-        <div style="font-size:14px;color:var(--text2)" id="dice-result">Нажмите для игры</div>
-      </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px">
-        <button class="btn btn-secondary" onclick="playDice('red')">🔴 Красный</button>
-        <button class="btn btn-secondary" onclick="playDice('black')">⚫ Чёрный</button>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px">
+        <button class="btn" style="background:#7f1d1d;color:#fca5a5;border:1px solid #991b1b;font-size:12px" onclick="startRoul('red')">🔴 Красный</button>
+        <button class="btn" style="background:#1c1c2e;color:#d1d5db;border:1px solid #374151;font-size:12px" onclick="startRoul('black')">⚫ Чёрный</button>
+        <button class="btn" style="background:#052e16;color:#4ade80;border:1px solid #14532d;font-size:12px" onclick="startRoul('green')">🟩 Зелёный</button>
       </div>
     </div>
   </div>
 
-  <div id="game-auction" style="display:none">
+  <div id="G_dc" style="display:none">
     <div class="card">
-      <div class="card-title">Аукцион</div>
-      <div class="auction-bid-display">
-        <div style="font-size:13px;color:var(--text2);margin-bottom:4px">Текущая ставка</div>
-        <div class="auction-amount" id="auction-amount">0</div>
-        <div class="auction-leader" id="auction-leader">Ставок пока нет</div>
+      <div class="ct">кубики — ставка 50 монет, шанс 33%</div>
+      <canvas id="DC" height="160" style="width:100%;margin-bottom:10px"></canvas>
+      <div id="DC_res" style="font-size:13px;text-align:center;min-height:20px;margin-bottom:10px;color:var(--tx2)">Кидайте кубики и выигрывайте!</div>
+      <div style="font-size:11px;color:var(--tx2);text-align:center;margin-bottom:10px">Выигрыш = угаданные кубики × 5 монет (из 25)</div>
+      <div class="g2">
+        <button class="btn" style="background:#7f1d1d;color:#fca5a5;border:1px solid #991b1b" onclick="confirm_('Ставка 50 монет?','Вы выберете красный. Шанс выигрыша 33%. Выигрыш — кубики × 5 монет.',()=>playDice('red'))">🔴 Красный 50 монет</button>
+        <button class="btn" style="background:#1c1c2e;color:#d1d5db;border:1px solid #374151" onclick="confirm_('Ставка 50 монет?','Вы выберете чёрный. Шанс выигрыша 33%. Выигрыш — кубики × 5 монет.',()=>playDice('black'))">⚫ Чёрный 50 монет</button>
       </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px">
-        <button class="btn btn-secondary" onclick="placeBid(10)">+10</button>
-        <button class="btn btn-secondary" onclick="placeBid(50)">+50</button>
-        <button class="btn btn-secondary" onclick="placeBid(100)">+100</button>
+    </div>
+  </div>
+
+  <div id="G_au" style="display:none">
+    <div class="card">
+      <div class="ct">аукцион — побеждает наибольшая ставка</div>
+      <div style="text-align:center;padding:14px 0">
+        <div style="font-size:11px;color:var(--tx2)">Текущий лидер</div>
+        <div style="font-size:38px;font-weight:700;color:var(--gld)" id="AU_amt">0</div>
+        <div style="font-size:12px;color:var(--tx2);margin-bottom:4px" id="AU_lead">Ставок пока нет</div>
+        <div style="font-size:11px;color:var(--tx2)">Ваша ставка: <b id="MY_bid" style="color:var(--gld)">0</b> монет</div>
       </div>
-      <div style="font-size:12px;color:var(--text2);text-align:center">Ваша ставка: <b id="my-bid" style="color:var(--gold)">0</b> монет</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:8px">
+        <button class="btn bs" onclick="confirm_('+10 к ставке?','Ваши 10 монет зарезервируются. Лидер победит когда аукцион завершится.',()=>bid(10))">+10</button>
+        <button class="btn bs" onclick="confirm_('+50 к ставке?','Ваши 50 монет зарезервируются. При проигрыше — вернутся.',()=>bid(50))">+50</button>
+        <button class="btn bs" onclick="confirm_('+100 к ставке?','Ваши 100 монет зарезервируются. Победитель получает приз от администратора.',()=>bid(100))">+100</button>
+      </div>
     </div>
   </div>
 </div>
 
-<div id="screen-clan" class="screen">
-  <div id="clan-no" style="display:none">
-    <div class="card" style="text-align:center">
-      <div style="font-size:48px;margin-bottom:12px">🏰</div>
-      <div style="font-size:18px;font-weight:700;margin-bottom:8px">Нет клана</div>
-      <div style="font-size:13px;color:var(--text2);margin-bottom:16px">Создайте клан за 1500 монет и начните добывать алмазы</div>
-      <button class="btn btn-primary" onclick="createClan()"><i class="ti ti-plus" aria-hidden="true"></i> Создать клан (1500 монет)</button>
+<div class="sc" id="sc-arena">
+  <div class="card">
+    <div class="boss-wrap">
+      <div class="boss-ico" id="BS_ico">👹</div>
+      <div style="font-size:15px;font-weight:700" id="BS_nm">Босс Рябчик</div>
+      <div style="font-size:11px;color:var(--tx2);margin-top:3px" id="BS_st">Активен — атакуйте!</div>
+    </div>
+    <div class="hp-bar"><div class="hp-fill" id="BS_hp" style="width:100%"></div></div>
+    <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--tx2);margin-bottom:10px">
+      <span id="BS_hp_txt">1000 / 1000 ХП</span>
+      <span id="BS_drop">Шанс сундука: 20%</span>
+    </div>
+    <div class="g2">
+      <button class="btn bp" onclick="confirm_('Атаковать босса?','Стоимость: 20 монет. Нанесёте 10–50 урона. 20% шанс получить сундук.',atkBoss)"><i class="ti ti-sword" aria-hidden="true"></i> Атаковать (20 мон.)</button>
+      <button class="btn bs" id="CH_btn" onclick="confirm_('Открыть сундук?','Случайная награда: монеты, ключи или редкий осколок.',openChest)"><i class="ti ti-box" aria-hidden="true"></i> Сундук (<span id="CH_cnt">0</span>)</button>
+    </div>
+    <div style="font-size:12px;color:var(--grn);margin-top:8px;min-height:16px" id="ATK_log"></div>
+  </div>
+
+  <div class="card">
+    <div class="ct">миссии дня</div>
+    <div id="MS_list"></div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-top:9px">
+      <span style="font-size:12px;color:var(--tx2)">Всего ключей</span>
+      <span style="font-size:15px;font-weight:700;color:var(--gld)" id="K_big">0 🔑</span>
     </div>
   </div>
-  <div id="clan-yes" style="display:none">
-    <div class="clan-header">
-      <div class="clan-name" id="clan-name-display">—</div>
-      <div style="font-size:13px;color:var(--text2);margin:4px 0">Алмазы</div>
-      <div class="clan-diamonds" id="clan-diamonds-display">0 💎</div>
+
+  <div class="card">
+    <div class="ct">профессии — пассивный доход</div>
+    <div id="PR_list"></div>
+  </div>
+</div>
+
+<div class="sc" id="sc-clan">
+  <div id="CL_no">
+    <div class="card" style="text-align:center;padding:20px">
+      <div style="font-size:40px;margin-bottom:8px">🏰</div>
+      <div style="font-size:14px;font-weight:700;margin-bottom:5px">Вы не в клане</div>
+      <div style="font-size:12px;color:var(--tx2);margin-bottom:14px">Создайте клан за 1500 монет и добывайте алмазы командой до 5 человек</div>
+      <button class="btn bp" onclick="confirm_('Создать клан за 1500 монет?','Вы получите случайное название. Можно пригласить до 4 участников и вместе добывать алмазы.',createClan)"><i class="ti ti-plus" aria-hidden="true"></i> Создать клан (1500 монет)</button>
+    </div>
+  </div>
+  <div id="CL_yes" style="display:none">
+    <div style="background:#0a0620;border:1px solid #4c1d95;border-radius:var(--r);padding:15px;text-align:center;margin-bottom:10px">
+      <div style="font-size:17px;font-weight:700;color:var(--acc3)" id="CL_nm">—</div>
+      <div style="font-size:26px;font-weight:700;color:var(--gld);margin:5px 0" id="CL_dm">0 💎</div>
+      <div style="font-size:11px;color:var(--tx2)" id="CL_cd">Фарм доступен!</div>
     </div>
     <div class="card">
-      <div class="card-title">Участники (<span id="clan-member-count">1</span>/5)</div>
-      <div id="clan-members-list"></div>
+      <div class="ct">участники (<span id="CL_mc">1</span>/5)</div>
+      <div id="CL_mlist"></div>
     </div>
-    <button class="btn btn-primary" onclick="clanFarm()"><i class="ti ti-pickaxe" aria-hidden="true"></i> Добыть алмазы</button>
-    <button class="btn btn-secondary" onclick="exchangeDiamonds(1)"><i class="ti ti-exchange" aria-hidden="true"></i> Обменять 1💎 → 5 монет</button>
-    <button class="btn btn-secondary" style="margin-top:8px;border-color:var(--red);color:var(--red)" onclick="disbandClan()"><i class="ti ti-trash" aria-hidden="true"></i> Распустить клан</button>
+    <button class="btn bp" style="margin-bottom:7px" onclick="confirm_('Добыть алмазы?','Клановый фарм раз в 6 часов. Алмазы идут в казну клана.',clanFarm)"><i class="ti ti-pickaxe" aria-hidden="true"></i> Добыть алмазы (кд 6ч)</button>
+    <button class="btn bs" style="margin-bottom:7px" onclick="confirm_('Обменять 5 💎 → 25 монет?','5 алмазов из казны клана станут 25 монетами на вашем балансе.',()=>exDiam(5))"><i class="ti ti-exchange" aria-hidden="true"></i> Обменять 5 💎 → 25 монет</button>
+    <button class="btn bred" onclick="confirm_('Распустить клан?','Клан удалится навсегда. Алмазы сгорят.',disbandClan)"><i class="ti ti-trash" aria-hidden="true"></i> Распустить клан</button>
   </div>
 </div>
 
-<div id="screen-shop" class="screen">
+<div class="sc" id="sc-shop">
   <div class="card">
-    <div class="card-title">Стили ника</div>
-    <div class="nick-grid" id="nick-grid"></div>
+    <div class="ct">купить монеты</div>
+    <div class="pkg-g">
+      <div class="pkg" onclick="confirm_('Купить 500 монет за 30₽?','Монеты зачислятся мгновенно после оплаты. В демо — бесплатно.',()=>buyCoins(500,30))">
+        <div style="font-size:26px;margin-bottom:3px">💰</div>
+        <div style="font-size:16px;font-weight:700;color:var(--gld)">500</div>
+        <div style="font-size:11px;color:var(--tx2)">30 ₽</div>
+      </div>
+      <div class="pkg hot" onclick="confirm_('Купить 1700 монет за 79₽?','1500 + 200 бонусных монет. Самый выгодный стартовый набор!',()=>buyCoins(1700,79))">
+        <div style="font-size:26px;margin-bottom:3px">💰💰</div>
+        <div style="font-size:16px;font-weight:700;color:var(--gld)">1500</div>
+        <div style="font-size:11px;color:var(--tx2)">79 ₽</div>
+        <div style="font-size:10px;color:var(--grn)">+200 бонус</div>
+      </div>
+      <div class="pkg" onclick="confirm_('Купить 4500 монет за 149₽?','4000 + 500 бонусных монет.',()=>buyCoins(4500,149))">
+        <div style="font-size:26px;margin-bottom:3px">💰💰💰</div>
+        <div style="font-size:16px;font-weight:700;color:var(--gld)">4000</div>
+        <div style="font-size:11px;color:var(--tx2)">149 ₽</div>
+        <div style="font-size:10px;color:var(--grn)">+500 бонус</div>
+      </div>
+      <div class="pkg" onclick="confirm_('Купить 12000 монет за 299₽?','10000 + 2000 мега-бонус монет.',()=>buyCoins(12000,299))">
+        <div style="font-size:26px;margin-bottom:3px">💎</div>
+        <div style="font-size:16px;font-weight:700;color:var(--gld)">10000</div>
+        <div style="font-size:11px;color:var(--tx2)">299 ₽</div>
+        <div style="font-size:10px;color:var(--grn)">+2000 мега</div>
+      </div>
+    </div>
+    <div style="font-size:10px;color:var(--tx2);text-align:center;margin-top:7px">В демо-режиме монеты начисляются бесплатно</div>
   </div>
 
   <div class="card">
-    <div class="card-title">Промокоды</div>
-    <div class="input-row" style="margin-bottom:8px">
-      <input id="promo-input" placeholder="Введите код..." maxlength="30">
-      <button class="btn btn-primary" style="width:auto;padding:0 16px" onclick="usePromo()">OK</button>
+    <div class="ct">стили ника (250 монет за стиль)</div>
+    <div class="nick-g" id="NK_grid"></div>
+  </div>
+
+  <div class="card">
+    <div class="ct">промокоды</div>
+    <div class="irow" style="margin-bottom:8px">
+      <input class="inp" id="PR_inp" placeholder="Введите промокод...">
+      <button class="btn bp" style="width:auto;padding:0 12px" onclick="usePromo()">OK</button>
     </div>
-    <div style="display:flex;flex-direction:column;gap:8px" id="promo-list">
-      <button class="btn btn-secondary" onclick="activatePromo('free')">🎁 FREE — 15 монет</button>
-      <button class="btn btn-secondary" onclick="activatePromo('denchak')">🎁 DENCHAK — 15 монет</button>
+    <div class="g2">
+      <button class="btn bs" style="font-size:11px" onclick="activatePromo('free')">🎁 FREE → +15 монет</button>
+      <button class="btn bs" style="font-size:11px" onclick="activatePromo('denchak')">🎁 DENCHAK → +15</button>
     </div>
   </div>
 
   <div class="card">
-    <div class="card-title">Реферальная программа</div>
-    <div class="recruit-code" id="recruit-link">Кликните чтобы скопировать: ref_demo_1234</div>
-    <div style="font-size:13px;color:var(--text2);margin-top:8px">За каждого приглашённого: <b style="color:var(--gold)">+25 монет</b></div>
-    <button class="btn btn-secondary" style="margin-top:10px" onclick="addReferral()"><i class="ti ti-user-plus" aria-hidden="true"></i> Добавить реферала (демо)</button>
-  </div>
-
-  <div class="card">
-    <div class="card-title">Осколки — магазин</div>
-    <div id="shards-shop-list">
-      <div style="font-size:13px;color:var(--text2)">Накопите осколки через фарм и продавайте их</div>
-    </div>
-    <button class="btn btn-secondary" style="margin-top:12px" onclick="goToScreen('home')"><i class="ti ti-pickaxe" aria-hidden="true"></i> Идти фармить</button>
+    <div class="ct">реферальная программа</div>
+    <div onclick="copyRef()" style="background:var(--bg4);border:1px solid #4c1d95;border-radius:var(--r2);padding:9px;font-size:12px;color:var(--acc3);text-align:center;cursor:pointer;margin-bottom:7px">🔗 coinmine.app/ref/demo_1234 (нажмите — скопировать)</div>
+    <div style="font-size:12px;color:var(--tx2);margin-bottom:9px">За каждого приглашённого друга: <b style="color:var(--gld)">+25 монет</b></div>
+    <button class="btn bs" onclick="addRef()"><i class="ti ti-user-plus" aria-hidden="true"></i> Добавить реферала (демо)</button>
   </div>
 </div>
 
-<div id="screen-top" class="screen">
+<div class="sc" id="sc-top">
   <div class="tab-row">
-    <div class="tab active" onclick="switchTopTab('balance',this)">Баланс</div>
-    <div class="tab" onclick="switchTopTab('farms',this)">Фармы</div>
-    <div class="tab" onclick="switchTopTab('refs',this)">Рефералы</div>
+    <div class="tab on" id="TT_b" onclick="topTab('b',this)">💰 Баланс</div>
+    <div class="tab" id="TT_f" onclick="topTab('f',this)">⛏ Фармы</div>
+    <div class="tab" id="TT_r" onclick="topTab('r',this)">👥 Рефералы</div>
   </div>
   <div class="card">
-    <div class="card-title" id="top-title">Топ по балансу</div>
-    <div id="top-list"></div>
-  </div>
-
-  <div class="card">
-    <div class="card-title">Миссии дня</div>
-    <div id="missions-list"></div>
-    <div style="margin-top:12px;text-align:center">
-      <span style="font-size:13px;color:var(--text2)">Ключи: </span>
-      <span id="keys-display" style="font-size:18px;font-weight:700;color:var(--gold)">0 🔑</span>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+      <div class="ct" style="margin:0" id="TOP_ttl">Топ по балансу</div>
+      <span style="font-size:10px;color:var(--tx2)" id="TOP_upd">Обновляется каждые 10 мин</span>
     </div>
+    <div id="TOP_list"></div>
   </div>
+</div>
 
-  <div class="card">
-    <div class="card-title">Профессии</div>
-    <div id="prof-list"></div>
-  </div>
 </div>
 
 <nav class="nav">
-  <button class="nav-btn active" onclick="goToScreen('home')" id="nav-home">
-    <i class="ti ti-home" aria-hidden="true"></i>
-    <span>Главная</span>
-  </button>
-  <button class="nav-btn" onclick="goToScreen('game')" id="nav-game">
-    <i class="ti ti-dice-5" aria-hidden="true"></i>
-    <span>Игры</span>
-  </button>
-  <button class="nav-btn" onclick="goToScreen('clan')" id="nav-clan">
-    <i class="ti ti-shield" aria-hidden="true"></i>
-    <span>Клан</span>
-  </button>
-  <button class="nav-btn" onclick="goToScreen('shop')" id="nav-shop">
-    <i class="ti ti-shopping-bag" aria-hidden="true"></i>
-    <span>Магазин</span>
-  </button>
-  <button class="nav-btn" onclick="goToScreen('top')" id="nav-top">
-    <i class="ti ti-trophy" aria-hidden="true"></i>
-    <span>Рейтинг</span>
-  </button>
+  <button class="nb on" onclick="goSc('home')" id="NB_home"><i class="ti ti-home" aria-hidden="true"></i><span>Главная</span></button>
+  <button class="nb" onclick="goSc('games')" id="NB_games"><i class="ti ti-dice-5" aria-hidden="true"></i><span>Игры</span></button>
+  <button class="nb" onclick="goSc('arena')" id="NB_arena"><i class="ti ti-sword" aria-hidden="true"></i><span>Арена</span></button>
+  <button class="nb" onclick="goSc('clan')" id="NB_clan"><i class="ti ti-shield" aria-hidden="true"></i><span>Клан</span></button>
+  <button class="nb" onclick="goSc('shop')" id="NB_shop"><i class="ti ti-shopping-bag" aria-hidden="true"></i><span>Магазин</span></button>
 </nav>
+
+<div class="bnr" id="BNR">
+  <img id="BNR_img" src="" alt="CoinMine баннер" class="bnr-img" onerror="this.style.display='none';document.getElementById('BNR_ph').style.display='flex'" style="display:none">
+  <div id="BNR_ph" class="bnr-img-placeholder">⛏ CM</div>
+  <div class="bnr-txt">
+    <div class="bnr-title">CoinMine · Mining Today, Value Tomorrow</div>
+    <div class="bnr-sub">Добывай монеты, побеждай боссов, строй клан</div>
+  </div>
+  <button class="bnr-btn" onclick="goSc('shop')">Играть</button>
 </div>
 
-<div class="toast" id="toast"></div>
+<div id="MOD_wrap" style="display:none;position:relative;z-index:200">
+  <div style="position:absolute;inset:0;background:#000000cc;display:flex;align-items:center;justify-content:center;padding:16px;min-height:200px">
+    <div style="background:var(--bg3);border:1px solid var(--bd2);border-radius:14px;padding:18px;width:100%;max-width:320px">
+      <div style="font-size:15px;font-weight:700;color:var(--gld);margin-bottom:8px" id="M_title"></div>
+      <div style="font-size:12px;color:var(--tx2);margin-bottom:14px;line-height:1.5" id="M_body"></div>
+      <div style="display:flex;gap:7px">
+        <button class="btn bs" style="flex:1" onclick="closeMod()">Отмена</button>
+        <button class="btn bp" style="flex:1" id="M_ok">Подтвердить</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="MOD_nick" style="display:none;position:relative;z-index:200">
+  <div style="position:absolute;inset:0;background:#000000cc;display:flex;align-items:center;justify-content:center;padding:16px;min-height:180px">
+    <div style="background:var(--bg3);border:1px solid var(--bd2);border-radius:14px;padding:18px;width:100%;max-width:320px">
+      <div style="font-size:15px;font-weight:700;color:var(--gld);margin-bottom:8px">Изменить никнейм</div>
+      <div style="font-size:12px;color:var(--tx2);margin-bottom:10px">От 3 до 16 символов</div>
+      <input class="inp" id="NK_inp" maxlength="16" placeholder="Ваш никнейм..." style="margin-bottom:12px">
+      <div style="display:flex;gap:7px">
+        <button class="btn bs" style="flex:1" onclick="closeNickMod()">Отмена</button>
+        <button class="btn bp" style="flex:1" onclick="saveNick()">Сохранить</button>
+      </div>
+    </div>
+  </div>
+</div>
 
 <script>
-const NICK_STYLES={gold:{e:'🌟',n:'Золотой'},diamond:{e:'💎',n:'Алмазный'},fire:{e:'🔥',n:'Огненный'},vip:{e:'👑',n:'VIP'},star:{e:'⭐',n:'Звёздный'},ice:{e:'❄️',n:'Ледяной'},shadow:{e:'🌑',n:'Теневой'},angel:{e:'😇',n:'Ангельский'},devil:{e:'😈',n:'Дьявольский'},toxic:{e:'☣️',n:'Токсичный'},neon:{e:'🌈',n:'Неоновый'},cyber:{e:'🤖',n:'Кибер'},ninja:{e:'🥷',n:'Ниндзя'},heart:{e:'💖',n:'Сердечный'},galaxy:{e:'🌌',n:'Галактический'},pumpkin:{e:'🎃',n:'Тыквенный'},mystic:{e:'🔮',n:'Мистический'},leaf:{e:'🍃',n:'Лесной'},pirate:{e:'🏴‍☠️',n:'Пиратский'},crown:{e:'💠',n:'Королевский'}};
+const NICK_STYLES={gold:{e:'🌟',n:'Золотой'},diamond:{e:'💎',n:'Алмазный'},fire:{e:'🔥',n:'Огненный'},vip:{e:'👑',n:'VIP'},star:{e:'⭐',n:'Звёздный'},ice:{e:'❄️',n:'Ледяной'},shadow:{e:'🌑',n:'Теневой'},ninja:{e:'🥷',n:'Ниндзя'},galaxy:{e:'🌌',n:'Галактический'},mystic:{e:'🔮',n:'Мистический'}};
+const SHARDS={'Осколок Вечности':{l:1,c:.001},'Кристалл Света':{l:1,c:.001},'Обсидиановая Слеза':{l:2,c:.003},'Ледяное Сердце':{l:3,c:.006},'Свет Луны':{l:5,c:.015},'Ткань Реальности':{l:5,c:.015}};
+const VAULT_CAPS={0:50,1:100,2:250,3:400,4:500};
+const FARM_COSTS=[50,100,250,500,1000];
+const BOSSES=[{nm:'👹 Рябчик',hp:1000,ico:'👹'},{nm:'🐉 Дракон',hp:3000,ico:'🐉'},{nm:'💀 Лич',hp:6000,ico:'💀'}];
+const MISSIONS_DEF=[{id:'f8',nm:'🌾 Шахтёр',d:'Добыть 8 раз',t:8,tp:'farm',rw:1},{id:'s1',nm:'💎 Коллекционер',d:'Найти осколок',t:1,tp:'shard',rw:2},{id:'w5',nm:'⚒️ Трудоголик',d:'5 работ',t:5,tp:'work',rw:2},{id:'r3',nm:'👥 Вербовщик',d:'3 реферала',t:3,tp:'ref',rw:1}];
+const PROFS_DEF=[{id:'farm',nm:'👨‍🌾 Крестьянин',inc:60,cd:4},{id:'hunt',nm:'🏹 Охотник',inc:90,cd:6},{id:'heal',nm:'💊 Лекарь',inc:120,cd:8},{id:'smit',nm:'⚔️ Оружейник',inc:180,cd:12}];
+const PROMOS_DEF={free:15,denchak:15};
+const TOP_DEMO=[{n:'ВасяКоин',c:9420,f:312,r:18},{n:'МегаМайнер',c:5100,f:201,r:9},{n:'КоролькоинС',c:3890,f:145,r:6},{n:'АлмазДобытчик',c:2100,f:98,r:3}];
 
-const SHARDS={
-  'Осколок Вечности':{lvl:1,chance:0.0005},
-  'Кристалл Призрачного Света':{lvl:1,chance:0.0005},
-  'Обсидиановая Слеза':{lvl:2,chance:0.001},
-  'Фрагмент Древнего Пламени':{lvl:2,chance:0.001},
-  'Ледяное Сердце':{lvl:3,chance:0.002},
-  'Осколок Забытой Тени':{lvl:3,chance:0.002},
-  'Ядро Грозового Шторма':{lvl:4,chance:0.004},
-  'Песчинка Времени':{lvl:4,chance:0.004},
-  'Свет Луны':{lvl:5,chance:0.008},
-  'Ткань Реальности':{lvl:5,chance:0.008}
-};
+let G={coins:150,farms:0,refs:0,keys:0,lastFarm:0,farmLv:1,vault:{s:0,lv:0},name:'Шахтёр',nicks:{p:[],a:null},shards:{},clan:null,clanLF:0,promos:{},missions:{active:null,lastReset:0},profs:{},lastWork:{},auctionBid:0,chests:0,boss:{idx:0,hp:1000},topUpdated:0};
+let _pendingFn=null;
 
-const PROMOS={free:{reward:15,used:false},denchak:{reward:15,used:false}};
+try{const raw=localStorage.getItem('cm3');if(raw){const p=JSON.parse(raw);['coins','farms','refs','keys','lastFarm','farmLv','vault','name','nicks','shards','clan','clanLF','promos','missions','profs','lastWork','auctionBid','chests','boss','topUpdated'].forEach(k=>{if(p[k]!==undefined)G[k]=p[k];});}}catch(e){}
 
-const MISSIONS_DEF=[
-  {id:'farm8',name:'🌾 Фермерский труд',desc:'Сделать 8 фармов',target:8,type:'farm',reward:1},
-  {id:'refs10',name:'👥 Вербовщик',desc:'Пригласить 10 друзей',target:10,type:'refs',reward:2},
-  {id:'shards1',name:'💎 Коллекционер',desc:'Получить осколок',target:1,type:'shards',reward:2},
-  {id:'work5',name:'⏰ Трудоголик',desc:'5 работ за день',target:5,type:'work',reward:2},
-];
+function save(){try{localStorage.setItem('cm3',JSON.stringify(G));}catch(e){}}
+function fmt(n){return Math.round(n).toLocaleString('ru');}
 
-const PROFS=[
-  {id:'farmer',name:'👨‍🌾 Крестьянин',income:60,cd:4,desc:'Собирает растения'},
-  {id:'hunter',name:'🏹 Охотник',income:90,cd:6,desc:'Добывает мясо'},
-  {id:'healer',name:'💊 Лекарь',income:120,cd:8,desc:'Создаёт зелья'},
-  {id:'smith',name:'⚔️ Оружейник',income:180,cd:12,desc:'Кует оружие'},
-];
-
-const VAULT_LEVELS={0:50,1:100,2:250,3:400,4:500};
-const VAULT_COSTS={0:100,1:150,2:200,3:250};
-
-let G={
-  coins:100,farms:0,refs:0,keys:0,
-  lastFarm:0,farmLevel:1,
-  vault:{stored:0,level:0},
-  nicks:{purchased:[],active:null},
-  shards:{},
-  clan:null,
-  clanLastFarm:0,
-  promos:{free:false,denchak:false},
-  missions:{daily:{},lastReset:0,keys:0},
-  professions:{},
-  lastWork:{},
-  auctionBid:0,
-  topPlayers:[
-    {name:'ВасяПупкин',coins:5420,farms:234,refs:12},
-    {name:'КоролькоинС',coins:3890,farms:189,refs:8},
-    {name:'МегаФармер',coins:2100,farms:145,refs:5},
-    {name:'Ты',coins:100,farms:0,refs:0},
-  ],
-  currentBet:0,
-  currentBetColor:'',
-};
-
-let toastT=null;
-function showToast(msg,type=''){
-  const t=document.getElementById('toast');
-  t.textContent=msg;t.className='toast '+(type||'');
-  if(toastT)clearTimeout(toastT);
-  requestAnimationFrame(()=>t.classList.add('show'));
-  toastT=setTimeout(()=>t.classList.remove('show'),2500);
+function toast(msg,tp){
+  let t=document.getElementById('_t');
+  if(!t){t=document.createElement('div');t.id='_t';t.style.cssText='position:fixed;top:54px;left:50%;transform:translateX(-50%);padding:7px 16px;border-radius:16px;font-size:12px;font-weight:600;z-index:999;transition:opacity .25s;opacity:0;pointer-events:none;max-width:88%;text-align:center;white-space:nowrap';document.body.appendChild(t);}
+  t.style.background=tp==='ok'?'#065f46':tp==='gld'?'#92620a':tp==='err'?'#7f1d1d':'#2e1065';
+  t.style.color='#fff';t.textContent=msg;t.style.opacity='1';
+  clearTimeout(t._x);t._x=setTimeout(()=>t.style.opacity='0',2200);
 }
 
-function save(){try{localStorage.setItem('mcg',JSON.stringify(G));}catch(e){}}
-function load(){try{const d=localStorage.getItem('mcg');if(d){const p=JSON.parse(d);Object.assign(G,p);}}catch(e){}}
+function confirm_(title,body,fn){
+  document.getElementById('M_title').textContent=title;
+  document.getElementById('M_body').textContent=body;
+  _pendingFn=fn;
+  const w=document.getElementById('MOD_wrap');
+  w.style.display='block';
+  w.style.minHeight='200px';
+  document.getElementById('M_ok').onclick=()=>{closeMod();if(_pendingFn){_pendingFn();_pendingFn=null;}};
+}
+function closeMod(){document.getElementById('MOD_wrap').style.display='none';}
+function openNickModal(){document.getElementById('NK_inp').value=G.name;const w=document.getElementById('MOD_nick');w.style.display='block';w.style.minHeight='180px';}
+function closeNickMod(){document.getElementById('MOD_nick').style.display='none';}
+function saveNick(){const v=document.getElementById('NK_inp').value.trim();if(v.length<3||v.length>16){toast('3–16 символов','err');return;}G.name=v;save();renderUI();closeNickMod();toast('Ник изменён!','ok');}
 
-function updateUI(){
-  const c=Math.floor(G.coins);
-  document.getElementById('coins-display').textContent=c.toLocaleString('ru');
-  document.getElementById('stat-coins').textContent=c.toLocaleString('ru');
-  document.getElementById('stat-farms').textContent=G.farms;
-  document.getElementById('stat-refs').textContent=G.refs;
-  document.getElementById('stat-keys').textContent=G.keys;
-  document.getElementById('farm-level-txt').textContent=G.farmLevel;
-
-  const activeNick=G.nicks.active?NICK_STYLES[G.nicks.active]:null;
-  document.getElementById('profile-nick').textContent=activeNick?`Стиль: ${activeNick.e} ${activeNick.n}`:'Стиль ника: нет';
-  if(activeNick)document.getElementById('profile-avatar').textContent=activeNick.e;
-  else document.getElementById('profile-avatar').textContent='👤';
-
-  updateFarmUI();
-  updateVaultUI();
-  updateShardsPreview();
-  updateClanUI();
-  updateNickGrid();
-  updateMissions();
-  updateProfsUI();
+function goSc(nm){
+  document.querySelectorAll('.sc').forEach(s=>s.classList.remove('on'));
+  document.querySelectorAll('.nb').forEach(b=>b.classList.remove('on'));
+  document.getElementById('sc-'+nm).classList.add('on');
+  const nb=document.getElementById('NB_'+nm);if(nb)nb.classList.add('on');
+  if(nm==='games'){setTimeout(()=>drawRoulette(),60);}
+  if(nm==='top'){renderTop('b');}
+  renderUI();
 }
 
-function updateFarmUI(){
-  const now=Date.now();
-  const cd=3600000;
-  const elapsed=now-G.lastFarm;
-  const ready=elapsed>=cd||G.lastFarm===0;
-  const btn=document.getElementById('farm-btn');
+function getFarmCost(){return FARM_COSTS[Math.min(G.farmLv-1,4)];}
+
+function renderUI(){
+  document.getElementById('H_coins').textContent=fmt(G.coins);
+  document.getElementById('S_c').textContent=fmt(G.coins);
+  document.getElementById('S_f').textContent=G.farms;
+  document.getElementById('S_r').textContent=G.refs;
+  document.getElementById('S_k').textContent=G.keys;
+  document.getElementById('PNAME').textContent=G.name;
+  document.getElementById('F_lv').textContent=G.farmLv;
+  document.getElementById('F_mx').textContent='×'+(1+(G.farmLv-1)*.2).toFixed(1);
+  document.getElementById('F_up_cost').textContent=G.farmLv>=5?'макс. уровень':getFarmCost()+' монет';
+  const an=G.nicks.a?NICK_STYLES[G.nicks.a]:null;
+  document.getElementById('NICK_LBL').textContent=an?`Стиль: ${an.e} ${an.n}`:'Стиль не выбран';
+  document.getElementById('AV').textContent=an?an.e:'⛏';
+  const vcap=VAULT_CAPS[G.vault.lv]||50;
+  document.getElementById('V_s').textContent=G.vault.s;
+  document.getElementById('V_l').textContent=vcap;
+  document.getElementById('V_pb').style.width=Math.round(G.vault.s/vcap*100)+'%';
+  renderFarmTimer();
+  renderShards();
+  renderNicks();
+  renderMissions();
+  renderProfs();
+  renderBoss();
+  renderClan();
+  document.getElementById('K_big').textContent=G.keys+' 🔑';
+  document.getElementById('CH_btn').disabled=G.chests<=0;
+  document.getElementById('CH_cnt').textContent=G.chests;
+}
+
+function renderFarmTimer(){
+  const now=Date.now(),cd=3600000,el=now-G.lastFarm;
+  const ready=el>=cd||!G.lastFarm;
+  const btn=document.getElementById('F_btn');
   btn.disabled=!ready;
-
   if(ready){
-    document.getElementById('farm-status-text').innerHTML='<i class="ti ti-plant" style="font-size:18px;color:var(--green)" aria-hidden="true"></i><span style="font-size:13px;color:var(--green)">Готово к фарму!</span>';
-    document.getElementById('farm-progress').style.width='100%';
-    document.getElementById('farm-cooldown-txt').textContent='';
+    document.getElementById('F_st').textContent='Готово к добыче!';
+    document.getElementById('F_pb').style.width='100%';
+    document.getElementById('F_cd').textContent='';
   } else {
-    const rem=cd-elapsed;
-    const m=Math.floor(rem/60000);
-    const s=Math.floor((rem%60000)/1000);
-    document.getElementById('farm-status-text').innerHTML=`<i class="ti ti-clock" style="font-size:18px;color:var(--text2)" aria-hidden="true"></i><span style="font-size:13px;color:var(--text2)">Перезарядка...</span>`;
-    document.getElementById('farm-progress').style.width=(elapsed/cd*100)+'%';
-    document.getElementById('farm-cooldown-txt').textContent=`${m}м ${s}с`;
+    const rem=cd-el;
+    const m=Math.floor(rem/60000),s=Math.floor((rem%60000)/1000);
+    document.getElementById('F_st').textContent='Перезарядка...';
+    document.getElementById('F_pb').style.width=Math.round(el/cd*100)+'%';
+    document.getElementById('F_cd').textContent=m+'м '+s+'с';
   }
 }
 
-function updateVaultUI(){
-  const limit=VAULT_LEVELS[G.vault.level];
-  document.getElementById('vault-stored').textContent=G.vault.stored;
-  document.getElementById('vault-limit').textContent=limit;
-  const vv=document.getElementById('vault-visual');
-  const max=10;const filled=Math.round(G.vault.stored/limit*max);
-  vv.innerHTML='';
-  for(let i=0;i<max;i++){
-    const d=document.createElement('div');
-    d.className='vault-coin '+(i<filled?'filled':'empty');
-    d.textContent=i<filled?'💰':'·';
-    vv.appendChild(d);
-  }
+function renderShards(){
+  const el=document.getElementById('SH_home');
+  const has=Object.entries(G.shards).filter(([,v])=>v>0);
+  if(!has.length){el.textContent='Осколки выпадают случайно при добыче монет';return;}
+  el.innerHTML=has.map(([nm,cnt])=>{const l=SHARDS[nm]?.l||1;return`<div class="row"><span style="font-size:11px;color:var(--gld)">${'⭐'.repeat(l)}</span><span style="flex:1;font-size:12px">${nm}</span><span style="font-size:13px;font-weight:700;color:var(--acc2)">×${cnt}</span></div>`;}).join('');
 }
 
-function updateShardsPreview(){
-  const el=document.getElementById('shards-preview');
-  const hasShards=Object.keys(G.shards).length>0;
-  if(!hasShards){el.textContent='Осколки появятся после фарма';return;}
-  let html='';
-  for(const[name,cnt] of Object.entries(G.shards)){
-    if(cnt>0){
-      const lvl=SHARDS[name]?.lvl||1;
-      html+=`<div class="shard-item"><div class="shard-stars">${'⭐'.repeat(lvl)}</div><div class="shard-name">${name}</div><div class="shard-count">×${cnt}</div></div>`;
-    }
-  }
-  el.innerHTML=html;
+function renderNicks(){
+  document.getElementById('NK_grid').innerHTML=Object.entries(NICK_STYLES).map(([id,s])=>{
+    const own=G.nicks.p.includes(id),act=G.nicks.a===id;
+    return`<div class="nc${own?' own':''}${act?' act':''}" onclick="nickAct('${id}',${own})">
+      <div style="font-size:20px">${s.e}</div>
+      <div style="font-size:11px;color:var(--tx2);margin-top:2px">${s.n}</div>
+      <div style="font-size:10px;color:var(--gld);margin-top:2px">${own?(act?'✓ Активен':'Выбрать'):'250 💰'}</div>
+    </div>`;
+  }).join('');
 }
 
-function updateClanUI(){
-  document.getElementById('clan-no').style.display=G.clan?'none':'block';
-  document.getElementById('clan-yes').style.display=G.clan?'block':'none';
-  if(G.clan){
-    document.getElementById('clan-name-display').textContent=G.clan.name;
-    document.getElementById('clan-diamonds-display').textContent=G.clan.diamonds+' 💎';
-    document.getElementById('clan-member-count').textContent=G.clan.members.length;
-    document.getElementById('clan-members-list').innerHTML=G.clan.members.map(m=>`<div class="top-item"><i class="ti ti-user" style="color:var(--accent2)" aria-hidden="true"></i><span class="top-name">${m}</span></div>`).join('');
-  }
-}
-
-function updateNickGrid(){
-  const grid=document.getElementById('nick-grid');
-  grid.innerHTML='';
-  Object.entries(NICK_STYLES).forEach(([id,s])=>{
-    const owned=G.nicks.purchased.includes(id);
-    const active=G.nicks.active===id;
-    const d=document.createElement('div');
-    d.className='nick-card'+(owned?' owned':'')+(active?' active':'');
-    d.innerHTML=`<div class="nick-emoji">${s.e}</div><div class="nick-name">${s.n}</div><div class="nick-price">${owned?'✓ Куплен':'250 💰'}</div>`;
-    d.onclick=()=>nickAction(id,owned);
-    grid.appendChild(d);
-  });
-}
-
-function updateMissions(){
-  document.getElementById('keys-display').textContent=G.keys+' 🔑';
+function renderMissions(){
   const now=Date.now();
-  if(now-G.missions.lastReset>86400000||!G.missions.daily||Object.keys(G.missions.daily).length===0){
-    G.missions.daily={};
-    const picked=MISSIONS_DEF.slice().sort(()=>Math.random()-0.5).slice(0,3);
-    picked.forEach(m=>{G.missions.daily[m.id]={...m,progress:0,claimed:false};});
-    G.missions.lastReset=now;
+  if(now-G.missions.lastReset>86400000||!G.missions.active){
+    const picked=[...MISSIONS_DEF].sort(()=>Math.random()-.5).slice(0,3);
+    G.missions={active:{},lastReset:now};
+    picked.forEach(m=>{G.missions.active[m.id]={...m,prog:0,claimed:false};});
     save();
   }
-  const el=document.getElementById('missions-list');
-  el.innerHTML='';
-  Object.values(G.missions.daily).forEach(m=>{
-    const done=m.progress>=m.target;
-    const pct=Math.min(100,Math.round(m.progress/m.target*100));
-    el.innerHTML+=`<div class="mission-item${done?' mission-done':''}">
-      <div class="mission-header">
-        <span style="font-size:13px;font-weight:600">${m.name}</span>
-        ${done&&!m.claimed?`<button class="btn btn-gold" style="width:auto;padding:4px 10px;font-size:12px" onclick="claimMission('${m.id}')">Забрать</button>`:m.claimed?`<span class="badge badge-green">✓</span>`:`<span class="badge badge-purple">${m.reward}🔑</span>`}
+  const el=document.getElementById('MS_list');
+  el.innerHTML=Object.values(G.missions.active).map(m=>{
+    const done=m.prog>=m.t;
+    const pct=Math.min(100,Math.round(m.prog/m.t*100));
+    return`<div style="margin-bottom:9px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:3px">
+        <span style="font-size:12px;font-weight:600">${m.nm}</span>
+        ${done&&!m.claimed?`<button class="btn bgld" style="width:auto;padding:3px 8px;font-size:10px" onclick="claimM('${m.id}')">Забрать +${m.rw}🔑</button>`:m.claimed?`<span class="bdg bdg-grn">✓ получено</span>`:`<span class="bdg bdg-pur">+${m.rw}🔑</span>`}
       </div>
-      <div style="font-size:12px;color:var(--text2);margin-bottom:6px">${m.desc} — ${m.progress}/${m.target}</div>
-      <div class="progress-bar"><div class="progress-fill${done?' green':''}" style="width:${pct}%"></div></div>
+      <div style="font-size:11px;color:var(--tx2);margin-bottom:3px">${m.d} — ${m.prog}/${m.t}</div>
+      <div class="pb"><div class="pf${done?' pf-grn':' pf-acc'}" style="width:${pct}%"></div></div>
     </div>`;
-  });
-}
-
-function updateProfsUI(){
-  const el=document.getElementById('prof-list');
-  el.innerHTML='';
-  PROFS.forEach(p=>{
-    const unlocked=G.professions[p.id]||false;
-    const lastW=G.lastWork[p.id]||0;
-    const cdMs=p.cd*3600000;
-    const canWork=unlocked&&(Date.now()-lastW>=cdMs);
-    el.innerHTML+=`<div class="prof-card">
-      <div class="prof-header">
-        <span class="prof-name">${p.name}</span>
-        <span class="prof-income">+${p.income} монет</span>
-      </div>
-      <div style="font-size:12px;color:var(--text2);margin-bottom:8px">${p.desc} | КД: ${p.cd}ч</div>
-      ${unlocked?`<button class="btn btn-${canWork?'primary':'secondary'}" ${canWork?'':'disabled'} onclick="workProf('${p.id}')" style="padding:8px">${canWork?'Работать':'На перезарядке'}</button>`:`<button class="btn btn-secondary" style="padding:8px" onclick="learnProf('${p.id}')">Обучиться (${p.income*2} монет)</button>`}
-    </div>`;
-  });
-}
-
-function goToScreen(name){
-  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
-  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
-  document.getElementById('screen-'+name).classList.add('active');
-  document.getElementById('nav-'+name).classList.add('active');
-  updateUI();
-}
-
-function switchGameTab(tab,el){
-  document.querySelectorAll('#screen-game .tab').forEach(t=>t.classList.remove('active'));
-  el.classList.add('active');
-  document.getElementById('game-roulette').style.display=tab==='roulette'?'block':'none';
-  document.getElementById('game-dice').style.display=tab==='dice'?'block':'none';
-  document.getElementById('game-auction').style.display=tab==='auction'?'block':'none';
-}
-
-function switchTopTab(tab,el){
-  document.querySelectorAll('#screen-top .tab').forEach(t=>t.classList.remove('active'));
-  el.classList.add('active');
-  const titles={balance:'Топ по балансу',farms:'Топ по фармам',refs:'Топ по рефералам'};
-  document.getElementById('top-title').textContent=titles[tab];
-  G.topPlayers[3].coins=G.coins;G.topPlayers[3].farms=G.farms;G.topPlayers[3].refs=G.refs;
-  G.topPlayers.sort((a,b)=>b[tab==='balance'?'coins':tab==='farms'?'farms':'refs']-(a[tab==='balance'?'coins':tab==='farms'?'farms':'refs']));
-  const el2=document.getElementById('top-list');
-  el2.innerHTML=G.topPlayers.map((p,i)=>{
-    const rankC=['r1','r2','r3',''][Math.min(i,3)];
-    const val=tab==='balance'?p.coins.toLocaleString('ru')+' 💰':tab==='farms'?p.farms+' фармов':p.refs+' реф.';
-    return `<div class="top-item"><div class="top-rank ${rankC}">${i+1}</div><div class="top-name">${p.name}</div><div class="top-val">${val}</div></div>`;
   }).join('');
+}
+
+function renderProfs(){
+  document.getElementById('PR_list').innerHTML=PROFS_DEF.map(p=>{
+    const ul=!!G.profs[p.id];
+    const lw=G.lastWork[p.id]||0;
+    const cdms=p.cd*3600000;
+    const canW=ul&&(Date.now()-lw>=cdms);
+    const remH=ul&&!canW?Math.ceil((lw+cdms-Date.now())/3600000):0;
+    return`<div class="row">
+      <div style="font-size:20px;width:28px;text-align:center">${p.nm.split(' ')[0]}</div>
+      <div style="flex:1">
+        <div style="font-size:12px;font-weight:500">${p.nm.split(' ').slice(1).join(' ')}</div>
+        <div style="font-size:10px;color:var(--tx2)">+${p.inc} монет · кд ${p.cd}ч</div>
+      </div>
+      ${ul?`<button class="btn ${canW?'bp':'bs'}" style="width:auto;padding:5px 9px;font-size:11px" ${canW?'':'disabled'} onclick="confirm_('Работать профессией?','Вы получите ${p.inc} монет. Кулдаун ${p.cd} ч.',()=>workProf('${p.id}'))">${canW?'Работать':remH+'ч'}</button>`:
+      `<button class="btn bs" style="width:auto;padding:5px 9px;font-size:11px" onclick="confirm_('Изучить ${p.nm.split(' ').slice(1).join(' ')}?','Стоимость ${p.inc*2} монет. После изучения можно работать каждые ${p.cd} ч и зарабатывать ${p.inc} монет.',()=>learnProf('${p.id}'))">${p.inc*2}💰</button>`}
+    </div>`;
+  }).join('');
+}
+
+function renderBoss(){
+  const b=BOSSES[G.boss.idx]||BOSSES[0];
+  const maxhp=b.hp;
+  const pct=Math.max(0,Math.round(G.boss.hp/maxhp*100));
+  document.getElementById('BS_ico').textContent=b.ico;
+  document.getElementById('BS_nm').textContent=b.nm;
+  document.getElementById('BS_hp').style.width=pct+'%';
+  document.getElementById('BS_hp_txt').textContent=fmt(G.boss.hp)+' / '+fmt(maxhp)+' ХП';
+  document.getElementById('BS_st').textContent=G.boss.hp>0?'Активен — атакуйте!':'Повержен! Следующий скоро...';
+}
+
+function renderClan(){
+  document.getElementById('CL_no').style.display=G.clan?'none':'block';
+  document.getElementById('CL_yes').style.display=G.clan?'block':'none';
+  if(!G.clan)return;
+  document.getElementById('CL_nm').textContent=G.clan.nm;
+  document.getElementById('CL_dm').textContent=G.clan.d+' 💎';
+  document.getElementById('CL_mc').textContent=G.clan.m.length;
+  document.getElementById('CL_mlist').innerHTML=G.clan.m.map(n=>`<div class="row"><i class="ti ti-user" style="color:var(--acc2);font-size:15px" aria-hidden="true"></i><span style="font-size:13px">${n}</span></div>`).join('');
+  const now=Date.now(),cd=6*3600000,el=now-G.clanLF;
+  document.getElementById('CL_cd').textContent=el>=cd?'Фарм доступен!':'Фарм через '+Math.ceil((cd-el)/3600000)+'ч';
+}
+
+function renderTop(tp){
+  const now=Date.now();
+  const upd=document.getElementById('TOP_upd');
+  if(now-G.topUpdated>600000){
+    TOP_DEMO.forEach(p=>{p.c+=Math.floor(Math.random()*300-50);p.f+=Math.floor(Math.random()*8);p.c=Math.max(0,p.c);});
+    G.topUpdated=now;
+  }
+  const rem=Math.max(0,Math.ceil((G.topUpdated+600000-now)/1000));
+  upd.textContent=rem>30?`Обновление через ${Math.round(rem/60)}м`:'Только что обновлено';
+  const all=[...TOP_DEMO,{n:G.name,c:G.coins,f:G.farms,r:G.refs}];
+  const key=tp==='b'?'c':tp==='f'?'f':'r';
+  const titles={b:'Топ по балансу',f:'Топ по фармам',r:'Топ по рефералам'};
+  document.getElementById('TOP_ttl').textContent=titles[tp];
+  all.sort((a,b2)=>b2[key]-a[key]);
+  const rk=['r1','r2','r3'];
+  document.getElementById('TOP_list').innerHTML=all.slice(0,8).map((p,i)=>{
+    const val=tp==='b'?fmt(p.c)+' 💰':tp==='f'?p.f+' ⛏':p.r+' 👥';
+    const rc=rk[i]||'';
+    const clr=i===0?'var(--gld)':i===1?'#c0c0d0':i===2?'#cd7f32':'var(--tx2)';
+    return`<div class="row"><div style="font-size:15px;font-weight:700;min-width:22px;color:${clr}">${i+1}</div><div style="flex:1;font-size:13px">${p.n}</div><div style="font-size:13px;font-weight:700;color:var(--gld)">${val}</div></div>`;
+  }).join('');
+}
+
+function gTab(t,el){
+  ['rl','dc','au'].forEach(x=>{const d=document.getElementById('G_'+x);if(d)d.style.display=x===t?'block':'none';const tb=document.getElementById('GT_'+x);if(tb)tb.classList.remove('on');});
+  if(el)el.classList.add('on');
+  if(t==='rl')setTimeout(()=>drawRoulette(),40);
+  if(t==='dc')setTimeout(()=>drawDice([]),40);
+}
+
+function topTab(t,el){
+  document.querySelectorAll('.sc#sc-top .tab').forEach(e=>e.classList.remove('on'));
+  if(el)el.classList.add('on');
+  renderTop(t);
 }
 
 function doFarm(){
   const now=Date.now();
-  if(now-G.lastFarm<3600000&&G.lastFarm!==0){showToast('Слишком рано!','error');return;}
-  const mult=Math.min(2,1+(G.farmLevel-1)*0.2);
-  const base=Math.floor(Math.random()*5)+1;
-  const earned=Math.floor(base*mult);
+  if(now-G.lastFarm<3600000&&G.lastFarm){toast('Кулдаун ещё не прошёл!','err');return;}
+  const mult=1+(G.farmLv-1)*.2;
+  const earned=Math.round((Math.floor(Math.random()*5)+1)*mult);
   G.coins+=earned;G.farms++;G.lastFarm=now;
-  G.topPlayers[3].coins=G.coins;G.topPlayers[3].farms=G.farms;
-
-  let shardMsg='';
-  for(const[name,info] of Object.entries(SHARDS)){
-    if(Math.random()<info.chance){
-      G.shards[name]=(G.shards[name]||0)+1;
-      shardMsg=`\n✨ ${name}`;
-      const m=G.missions.daily;
-      if(m.shards1)m.shards1.progress=Math.min(m.shards1.target,(m.shards1.progress||0)+1);
-      break;
-    }
+  const m=G.missions.active;
+  if(m?.f8)m.f8.prog=Math.min(m.f8.t,(m.f8.prog||0)+1);
+  let sm='';
+  for(const[nm,info] of Object.entries(SHARDS)){
+    if(Math.random()<info.c){G.shards[nm]=(G.shards[nm]||0)+1;sm=`\n✨ ${nm}`;if(m?.s1)m.s1.prog=1;break;}
   }
-  const m=G.missions.daily;
-  if(m.farm8)m.farm8.progress=Math.min(m.farm8.target,(m.farm8.progress||0)+1);
-
-  save();updateUI();
-  showToast(`+${earned} монет!${shardMsg}`,'success');
+  save();renderUI();toast(`+${earned} монет!${sm}`,'gld');
 }
 
 function upgradeFarm(){
-  const costs=[50,100,250,500];
-  if(G.farmLevel>=5){showToast('Максимальный уровень!');return;}
-  const cost=costs[G.farmLevel-1];
-  if(G.coins<cost){showToast(`Нужно ${cost} монет`,'error');return;}
-  G.coins-=cost;G.farmLevel++;save();updateUI();
-  showToast(`Ферма улучшена до ур.${G.farmLevel}!`,'gold');
+  if(G.farmLv>=5){toast('Максимальный уровень!','err');return;}
+  const cost=getFarmCost();
+  if(G.coins<cost){toast('Недостаточно монет: нужно '+cost,'err');return;}
+  G.coins-=cost;G.farmLv++;save();renderUI();toast('Шахта улучшена до ур. '+G.farmLv+'!','ok');
 }
 
-function vaultAction(type,amount){
-  const limit=VAULT_LEVELS[G.vault.level];
-  if(type==='deposit'){
-    if(G.coins<amount){showToast('Мало монет','error');return;}
-    if(G.vault.stored+amount>limit){showToast('Хранилище полно','error');return;}
-    G.coins-=amount;G.vault.stored+=amount;
-  } else {
-    if(G.vault.stored<amount){showToast('В хранилище мало','error');return;}
-    G.vault.stored-=amount;G.coins+=amount;
-  }
-  save();updateUI();showToast(type==='deposit'?`Положено ${amount} монет`:`Снято ${amount} монет`,'success');
+function vaultAct(t,a){
+  const cap=VAULT_CAPS[G.vault.lv]||50;
+  if(t==='d'){if(G.coins<a){toast('Мало монет','err');return;}if(G.vault.s+a>cap){toast('Хранилище переполнено','err');return;}G.coins-=a;G.vault.s+=a;}
+  else{if(G.vault.s<a){toast('В хранилище мало монет','err');return;}G.vault.s-=a;G.coins+=a;}
+  save();renderUI();toast(t==='d'?`+${a} в хранилище`:`+${a} на баланс`,'ok');
 }
 
-function nickAction(id,owned){
-  if(owned){
-    G.nicks.active=G.nicks.active===id?null:id;
-    save();updateUI();showToast(G.nicks.active===id?`Активирован стиль ${NICK_STYLES[id].n}`:'Стиль снят');
-  } else {
-    if(G.coins<250){showToast('Нужно 250 монет','error');return;}
-    G.coins-=250;G.nicks.purchased.push(id);G.nicks.active=id;
-    save();updateUI();showToast(`Куплен стиль ${NICK_STYLES[id].n}!`,'gold');
-  }
+function nickAct(id,owned){
+  if(owned){G.nicks.a=G.nicks.a===id?null:id;save();renderUI();toast('Стиль изменён!','ok');}
+  else{if(G.coins<250){toast('Нужно 250 монет','err');return;}confirm_(`Купить стиль «${NICK_STYLES[id].n}»?`,`Стоимость 250 монет. Стиль сразу станет активным.`,()=>{G.coins-=250;G.nicks.p.push(id);G.nicks.a=id;save();renderUI();toast('Стиль куплен и активирован!','gld');});}
 }
 
-function activatePromo(code){
-  const p=PROMOS[code.toLowerCase()];
-  if(!p){showToast('Промокод не найден','error');return;}
-  if(G.promos[code]){showToast('Уже использован','error');return;}
-  G.coins+=p.reward;G.promos[code]=true;save();updateUI();
-  showToast(`+${p.reward} монет по коду ${code.toUpperCase()}!`,'gold');
+function usePromo(){const v=document.getElementById('PR_inp').value.trim().toLowerCase();if(v)activatePromo(v);document.getElementById('PR_inp').value='';}
+function activatePromo(c){
+  if(!PROMOS_DEF[c]){toast('Промокод не найден','err');return;}
+  if(G.promos[c]){toast('Уже использован ранее','err');return;}
+  G.coins+=PROMOS_DEF[c];G.promos[c]=true;save();renderUI();toast(`+${PROMOS_DEF[c]} монет!`,'gld');
 }
 
-function usePromo(){
-  const v=document.getElementById('promo-input').value.trim().toLowerCase();
-  if(!v){showToast('Введите код','error');return;}
-  activatePromo(v);
-  document.getElementById('promo-input').value='';
-}
-
-function addReferral(){
+function addRef(){
   G.refs++;G.coins+=25;
-  if(G.missions.daily.refs10)G.missions.daily.refs10.progress=Math.min(10,(G.missions.daily.refs10.progress||0)+1);
-  save();updateUI();showToast('+25 монет за реферала!','gold');
+  const m=G.missions.active;if(m?.r3)m.r3.prog=Math.min(3,(m.r3.prog||0)+1);
+  save();renderUI();toast('+25 монет за реферала!','gld');
 }
+function copyRef(){toast('Ссылка скопирована!','ok');}
+
+function buyCoins(amt,price){G.coins+=amt;save();renderUI();toast(`+${fmt(amt)} монет зачислено!`,'gld');}
 
 function createClan(){
-  if(G.coins<1500){showToast('Нужно 1500 монет','error');return;}
-  const names=['Kingdom Squad','Empire Crew','Titan Force','Guardian Order','Dragon Clan'];
-  const name=names[Math.floor(Math.random()*names.length)];
-  G.coins-=1500;
-  G.clan={name,diamonds:0,members:['Ты'],lastFarm:0};
-  save();updateUI();showToast(`Клан ${name} создан!`,'success');
+  if(G.coins<1500){toast('Нужно 1500 монет','err');return;}
+  const names=['Kingdom Squad','Empire Crew','Dragon Force','Shadow Order','Titan Clan','Neon Warriors'];
+  G.coins-=1500;G.clan={nm:names[Math.floor(Math.random()*names.length)],d:0,m:[G.name]};G.clanLF=0;
+  save();renderUI();toast('Клан создан!','ok');
 }
-
-function disbandClan(){
-  G.clan=null;save();updateUI();showToast('Клан распущен');
-}
-
+function disbandClan(){G.clan=null;save();renderUI();toast('Клан распущен');}
 function clanFarm(){
-  if(!G.clan){return;}
-  const now=Date.now();
-  if(now-G.clan.lastFarm<6*3600000){
-    const rem=Math.ceil((6*3600000-(now-G.clan.lastFarm))/3600000);
-    showToast(`Фарм через ${rem}ч`,'error');return;
-  }
-  const mined=Math.floor(Math.random()*3)+1;
-  G.clan.diamonds+=mined;G.clan.lastFarm=now;
-  save();updateUI();showToast(`+${mined} алмазов!`,'gold');
+  if(!G.clan)return;
+  if(Date.now()-G.clanLF<6*3600000){toast('Ещё не прошло 6 часов','err');return;}
+  const m=Math.floor(Math.random()*3)+1;G.clan.d+=m;G.clanLF=Date.now();
+  save();renderUI();toast(`+${m} алмазов!`,'gld');
+}
+function exDiam(n){
+  if(!G.clan||G.clan.d<n){toast('Нет алмазов','err');return;}
+  G.clan.d-=n;G.coins+=n*5;save();renderUI();toast(`+${n*5} монет!`,'gld');
 }
 
-function exchangeDiamonds(n){
-  if(!G.clan||G.clan.diamonds<n){showToast('Нет алмазов','error');return;}
-  G.clan.diamonds-=n;G.coins+=n*5;
-  save();updateUI();showToast(`+${n*5} монет!`,'gold');
-}
-
-function claimMission(id){
-  const m=G.missions.daily[id];
-  if(!m||m.claimed||m.progress<m.target){return;}
-  m.claimed=true;G.keys+=m.reward;G.missions.keys=(G.missions.keys||0)+m.reward;
-  save();updateUI();showToast(`+${m.reward} ключ(ей)!`,'gold');
+function claimM(id){
+  const m=G.missions.active?.[id];
+  if(!m||m.claimed||m.prog<m.t)return;
+  m.claimed=true;G.keys+=m.rw;save();renderUI();toast(`+${m.rw} ключ!`,'gld');
 }
 
 function workProf(id){
-  const p=PROFS.find(x=>x.id===id);
-  if(!p||!G.professions[id]){return;}
-  const cdMs=p.cd*3600000;
-  if(Date.now()-(G.lastWork[id]||0)<cdMs){showToast('Ещё на перезарядке','error');return;}
-  G.coins+=p.income;G.lastWork[id]=Date.now();
-  if(G.missions.daily.work5)G.missions.daily.work5.progress=Math.min(5,(G.missions.daily.work5.progress||0)+1);
-  save();updateUI();showToast(`+${p.income} монет от работы!`,'success');
+  const p=PROFS_DEF.find(x=>x.id===id);
+  if(!p||!G.profs[id])return;
+  if(Date.now()-(G.lastWork[id]||0)<p.cd*3600000){toast('Ещё кулдаун','err');return;}
+  G.coins+=p.inc;G.lastWork[id]=Date.now();
+  const m=G.missions.active;if(m?.w5)m.w5.prog=Math.min(5,(m.w5.prog||0)+1);
+  save();renderUI();toast(`+${p.inc} монет!`,'gld');
 }
-
 function learnProf(id){
-  const p=PROFS.find(x=>x.id===id);
-  if(!p)return;
-  const cost=p.income*2;
-  if(G.coins<cost){showToast(`Нужно ${cost} монет`,'error');return;}
-  G.coins-=cost;G.professions[id]=true;
-  save();updateUI();showToast(`Профессия ${p.name} изучена!`,'success');
+  const p=PROFS_DEF.find(x=>x.id===id);if(!p)return;
+  const cost=p.inc*2;
+  if(G.coins<cost){toast(`Нужно ${cost} монет`,'err');return;}
+  G.coins-=cost;G.profs[id]=true;save();renderUI();toast('Профессия изучена!','ok');
 }
 
-let rouletteRunning=false;
-function openBet(color){
-  G.currentBetColor=color;G.currentBet=0;
-  const labels={red:'🔴 Красный',black:'⚫ Чёрный',green:'🟩 Зелёный'};
-  document.getElementById('bet-color-label').textContent=labels[color];
-  document.getElementById('current-bet-display').textContent='0';
-  document.getElementById('bet-panel').style.display='block';
+function atkBoss(){
+  if(G.coins<20){toast('Нужно 20 монет','err');return;}
+  if(G.boss.hp<=0){toast('Босс уже повержен','err');return;}
+  G.coins-=20;
+  const dmg=Math.floor(Math.random()*41)+10;
+  G.boss.hp=Math.max(0,G.boss.hp-dmg);
+  let msg='Урон: '+dmg;
+  if(Math.random()<.2){G.chests++;msg+=' · 🎁 Сундук!';}
+  if(G.boss.hp<=0){msg+=' · Босс повержён!';G.chests+=3;setTimeout(()=>{G.boss.idx=(G.boss.idx+1)%BOSSES.length;G.boss.hp=BOSSES[G.boss.idx].hp;save();renderUI();},3000);}
+  document.getElementById('ATK_log').textContent=msg;
+  save();renderUI();toast(msg,'gld');
 }
 
-function setBet(amount){
-  if(G.coins<amount){showToast('Мало монет','error');return;}
-  G.currentBet=amount;
-  document.getElementById('current-bet-display').textContent=amount;
+function openChest(){
+  if(G.chests<=0)return;
+  G.chests--;
+  const r=Math.random();
+  let rw;
+  if(r<.5){const a=Math.floor(Math.random()*40)+10;G.coins+=a;rw=`+${a} монет`;}
+  else if(r<.8){G.keys+=Math.floor(Math.random()*3)+1;rw=`+${G.keys} ключей`;}
+  else{const sn=Object.keys(SHARDS)[Math.floor(Math.random()*Object.keys(SHARDS).length)];G.shards[sn]=(G.shards[sn]||0)+1;rw=`✨ ${sn}`;}
+  save();renderUI();toast('Сундук: '+rw,'gld');
 }
 
-function spinRoulette(){
-  if(rouletteRunning){return;}
-  if(G.currentBet<=0){showToast('Выберите ставку','error');return;}
-  if(G.coins<G.currentBet){showToast('Мало монет','error');return;}
-  rouletteRunning=true;
-  G.coins-=G.currentBet;
-  const ball=document.getElementById('roulette-ball');
-  const res=document.getElementById('roulette-result');
-  ball.className='roulette-ball';ball.textContent='🎰';
-  res.textContent='Крутим...';
-  let ticks=0;const colors=['red','black','green'];
-  const interval=setInterval(()=>{
-    const c=colors[ticks%3];
-    ball.className='roulette-ball '+c;
-    ball.textContent={red:'🔴',black:'⚫',green:'🟩'}[c];
-    ticks++;
-  },80);
-  setTimeout(()=>{
-    clearInterval(interval);
+function bid(a){
+  if(G.coins<a){toast('Мало монет','err');return;}
+  G.auctionBid+=a;
+  document.getElementById('AU_amt').textContent=G.auctionBid;
+  document.getElementById('MY_bid').textContent=G.auctionBid;
+  document.getElementById('AU_lead').textContent='Вы лидируете!';
+  toast('Ставка: '+G.auctionBid+' монет','gld');
+}
+
+let roulRunning=false;
+function drawRoulette(angle,result){
+  const cv=document.getElementById('RC');if(!cv)return;
+  cv.width=cv.parentElement?.offsetWidth||360;cv.height=200;
+  const ctx=cv.getContext('2d'),w=cv.width,h=200,cx=w/2,cy=h/2,R=78;
+  ctx.clearRect(0,0,w,h);
+  const segs=[...Array(18)].map((_,i)=>i%2===0?'red':'black');
+  segs.push('green','green');
+  const n=segs.length;
+  const a0=angle||0;
+  segs.forEach((c,i)=>{
+    const a1=a0+i/n*Math.PI*2,a2=a0+(i+1)/n*Math.PI*2;
+    ctx.beginPath();ctx.moveTo(cx,cy);ctx.arc(cx,cy,R,a1,a2);ctx.closePath();
+    ctx.fillStyle=c==='red'?'#7f1d1d':c==='black'?'#1a1a2e':'#052e16';
+    ctx.fill();ctx.strokeStyle='#ffffff18';ctx.lineWidth=.8;ctx.stroke();
+  });
+  ctx.beginPath();ctx.arc(cx,cy,18,0,Math.PI*2);
+  ctx.fillStyle=result?{red:'#ef4444',black:'#6b7280',green:'#10b981'}[result]:'#d0d0e0';ctx.fill();
+  ctx.beginPath();ctx.moveTo(cx,cy-R-12);ctx.lineTo(cx-7,cy-R+6);ctx.lineTo(cx+7,cy-R+6);ctx.closePath();
+  ctx.fillStyle='#f0b429';ctx.fill();
+}
+function startRoul(col){
+  if(roulRunning){toast('Уже крутится!','err');return;}
+  const bet=parseInt(document.getElementById('RL_bet').value);
+  if(G.coins<bet){toast('Мало монет','err');return;}
+  confirm_(`Ставка ${bet} монет на ${col==='red'?'красный':col==='black'?'чёрный':'зелёный'}?`,`Коэффициент: ${col==='green'?'×5':'×1.75'}. Шанс зелёного — 10%.`,()=>{
+    G.coins-=bet;roulRunning=true;
     const r=Math.random();
-    let landed=r<0.40?'red':r<0.80?'black':'green';
-    ball.className='roulette-ball '+landed;
-    ball.textContent={red:'🔴',black:'⚫',green:'🟩'}[landed];
-    let win=0;
-    if(G.currentBetColor===landed){
-      win=landed==='green'?G.currentBet*5:Math.floor(G.currentBet*1.75);
-      G.coins+=win;
-      res.textContent=`Выигрыш! +${win} монет`;
-      showToast(`+${win} монет!`,'gold');
-    } else {
-      res.textContent=`Проигрыш — ${G.currentBet} монет`;
-      showToast(`-${G.currentBet} монет`,'error');
+    const landed=r<.4?'red':r<.8?'black':'green';
+    const total=Math.PI*2*6+Math.random()*Math.PI*2;
+    const dur=2800;const t0=Date.now();
+    function anim(){
+      const el=Date.now()-t0,prog=Math.min(1,el/dur);
+      const ease=1-Math.pow(1-prog,3.5);
+      drawRoulette(ease*total,prog>=1?landed:null);
+      if(prog<1){requestAnimationFrame(anim);}
+      else{
+        roulRunning=false;
+        const win=col===landed?landed==='green'?bet*5:Math.floor(bet*1.75):0;
+        if(win){G.coins+=win;}
+        const lbl=landed==='red'?'красное':landed==='black'?'чёрное':'зелёное';
+        document.getElementById('RL_res').textContent=col===landed?`✅ ${lbl.charAt(0).toUpperCase()+lbl.slice(1)}! +${win} монет`:`❌ ${lbl.charAt(0).toUpperCase()+lbl.slice(1)} — проигрыш`;
+        save();renderUI();toast(col===landed?`+${win} монет!`:'Не повезло',col===landed?'gld':'err');
+      }
     }
-    rouletteRunning=false;G.currentBet=0;
-    document.getElementById('current-bet-display').textContent='0';
-    save();updateUI();
-  },1500);
+    requestAnimationFrame(anim);
+  });
 }
 
-function playDice(color){
-  if(G.coins<50){showToast('Нужно 50 монет','error');return;}
-  G.coins-=50;
-  const guessed=Math.random()<0.33?Math.floor(Math.random()*16)+10:Math.floor(Math.random()*6);
-  const win=guessed*5;
-  G.coins+=win;
-  const emojis=['1️⃣','2️⃣','3️⃣','4️⃣','5️⃣','6️⃣'];
-  document.getElementById('dice-display').textContent=emojis[Math.floor(Math.random()*6)];
-  document.getElementById('dice-result').textContent=`Угадано ${guessed}/25 — ${win>50?'Выигрыш +':'Проигрыш'} ${win} монет`;
-  save();updateUI();
-  showToast(win>50?`+${win-50} монет!`:`Не повезло`,'');
-}
-
-function placeBid(amount){
-  if(G.coins<amount){showToast('Мало монет','error');return;}
-  G.auctionBid=(G.auctionBid||0)+amount;
-  document.getElementById('auction-amount').textContent=G.auctionBid;
-  document.getElementById('my-bid').textContent=G.auctionBid;
-  document.getElementById('auction-leader').textContent='Вы лидируете!';
-  showToast(`Ставка ${G.auctionBid} монет`,'gold');
-}
-
-document.getElementById('recruit-link').onclick=function(){
-  showToast('Ссылка скопирована!','success');
-};
-
-load();
-updateUI();
-switchTopTab('balance',document.querySelector('#screen-top .tab'));
-
-setInterval(()=>{
-  if(document.getElementById('screen-home').classList.contains('active')){
-    updateFarmUI();
+let diceInterval=null;
+function drawDice(vals){
+  const cv=document.getElementById('DC');if(!cv)return;
+  cv.width=cv.parentElement?.offsetWidth||360;cv.height=160;
+  const ctx=cv.getContext('2d'),w=cv.width;
+  ctx.clearRect(0,0,w,160);
+  const faces=['⚀','⚁','⚂','⚃','⚄','⚅'];
+  const dw=48,gap=8,cnt=5;
+  const startX=(w-(cnt*dw+(cnt-1)*gap))/2;
+  for(let i=0;i<cnt;i++){
+    const v=vals[i]!==undefined?vals[i]:Math.floor(Math.random()*6);
+    const x=startX+i*(dw+gap),y=52;
+    ctx.fillStyle='#1a1a30';ctx.strokeStyle='#534AB7';ctx.lineWidth=2;
+    if(ctx.roundRect){ctx.beginPath();ctx.roundRect(x,y,dw,50,8);ctx.fill();ctx.stroke();}
+    else{ctx.fillRect(x,y,dw,50);ctx.strokeRect(x,y,dw,50);}
+    ctx.font='30px serif';ctx.textAlign='center';ctx.fillStyle='#f0f0ff';
+    ctx.fillText(faces[v],x+dw/2,y+36);
   }
-},1000);
+}
+function playDice(col){
+  if(G.coins<50){toast('Нужно 50 монет','err');return;}
+  G.coins-=50;
+  if(diceInterval)clearInterval(diceInterval);
+  let ticks=0;
+  diceInterval=setInterval(()=>{
+    drawDice([]);ticks++;
+    if(ticks>18){
+      clearInterval(diceInterval);diceInterval=null;
+      const won=Math.random()<.33;
+      const guessed=won?Math.floor(Math.random()*16)+10:Math.floor(Math.random()*6);
+      const win=guessed*5;G.coins+=win;
+      const finalVals=Array.from({length:5},()=>Math.floor(Math.random()*6));
+      drawDice(finalVals);
+      document.getElementById('DC_res').textContent=win>50?`✅ Угадано ${guessed}/25 — выигрыш +${win-50} монет`:`❌ Угадано ${guessed}/25 — получено ${win} монет`;
+      save();renderUI();toast(win>50?`+${win-50} монет!`:'Не повезло',win>50?'gld':'err');
+    }
+  },100);
+}
+
+function setBannerImage(url){const img=document.getElementById('BNR_img');img.src=url;img.style.display='block';document.getElementById('BNR_ph').style.display='none';}
+
+renderUI();
+setTimeout(()=>drawRoulette(),150);
+setInterval(()=>renderFarmTimer(),1000);
+setInterval(()=>{const sc=document.querySelector('.sc.on');if(sc&&sc.id==='sc-top')renderTop('b');},600000);
 </script>
-</body>
-</html>
