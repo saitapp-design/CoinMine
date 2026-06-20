@@ -115,6 +115,7 @@
 </head>
 <body>
 
+<!-- СТРАНИЦА АВТОРИЗАЦИИ -->
 <div class="container" id="authPage">
     <div class="logo">⛏</div>
     <div class="title">CoinMine</div>
@@ -129,6 +130,7 @@
     <div class="status" id="authStatus">⏳ Подключение...</div>
 </div>
 
+<!-- ГЛАВНОЕ ПРИЛОЖЕНИЕ -->
 <div id="mainApp" class="hidden">
     <div class="hdr">
         <div class="hdr-logo">⛏ CoinMine</div>
@@ -374,6 +376,7 @@
     </div>
 </div>
 
+<!-- МОДАЛКИ -->
 <div id="MOD_wrap" class="hidden" style="position:fixed;inset:0;background:#000000cc;display:flex;align-items:center;justify-content:center;padding:16px;z-index:100;">
     <div style="background:#131325;border:1px solid #ffffff22;border-radius:14px;padding:20px;width:100%;max-width:320px;">
         <div style="font-weight:700;font-size:15px;color:#f0b429;margin-bottom:8px;" id="M_title"></div>
@@ -400,10 +403,11 @@
 
 <script>
     // ============================================================
-    // 1. КОНФИГУРАЦИЯ
+    // 1. КОНФИГУРАЦИЯ - ВСТАВЬТЕ СВОИ ДАННЫЕ!
     // ============================================================
     const SUPABASE_URL = 'https://mazccbkzurbryzusajqc.supabase.co/rest/v1/';
-const SUPABASE_ANON_KEY = 'sb_publishable_GLQvPbCZrDYgd7FCSp861g_poX1-Hwy';
+    const SUPABASE_ANON_KEY = 'sb_publishable_GLQvPbCZrDYgd7FCSp861g_poX1-Hwy';
+
 
     // ============================================================
     // 2. ПЕРЕМЕННЫЕ
@@ -413,7 +417,7 @@ const SUPABASE_ANON_KEY = 'sb_publishable_GLQvPbCZrDYgd7FCSp861g_poX1-Hwy';
     let currentUserId = null;
     let isAuthMode = 'login';
     let _pendingFn = null;
-    let supabaseReady = false;
+    let isReady = false;
 
     const G = {
         coins: 150, farms: 0, refs: 0, keys: 0,
@@ -432,7 +436,6 @@ const SUPABASE_ANON_KEY = 'sb_publishable_GLQvPbCZrDYgd7FCSp861g_poX1-Hwy';
     };
 
     let GLOBAL_BOSS = { idx: 0, hp: 1000, lastRespawn: 0 };
-    let USER_DEVICES = [];
     let saveTimeout = null;
 
     // ============================================================
@@ -486,35 +489,49 @@ const SUPABASE_ANON_KEY = 'sb_publishable_GLQvPbCZrDYgd7FCSp861g_poX1-Hwy';
     }
 
     // ============================================================
-    // 5. ИНИЦИАЛИЗАЦИЯ SUPABASE
+    // 5. ИНИЦИАЛИЗАЦИЯ SUPABASE (ПРОСТАЯ И НАДЁЖНАЯ)
     // ============================================================
     function initSupabase() {
-        if (supabaseReady) return;
+        if (isReady) return;
         
         try {
-            if (typeof supabaseJs !== 'undefined' && supabaseJs.createClient) {
-                const { createClient } = supabaseJs;
-                supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-                supabaseReady = true;
-                console.log('✅ Supabase готов');
-                setStatus('Готово к входу', 'ok');
-                checkAuth();
-            } else {
+            // Проверяем, загрузился ли SDK
+            if (typeof supabaseJs === 'undefined') {
                 console.log('⏳ Ожидание SDK...');
-                setTimeout(initSupabase, 300);
+                setTimeout(initSupabase, 500);
+                return;
             }
+
+            // Проверяем, есть ли createClient
+            if (!supabaseJs.createClient) {
+                console.log('⏳ Ожидание createClient...');
+                setTimeout(initSupabase, 500);
+                return;
+            }
+
+            const { createClient } = supabaseJs;
+            supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            isReady = true;
+            console.log('✅ Supabase готов');
+            setStatus('Готово к входу', 'ok');
+            
+            // Проверяем авторизацию
+            checkAuth();
+            
         } catch (e) {
             console.error('❌ Ошибка:', e);
-            setStatus('Ошибка подключения: ' + e.message, 'err');
+            setStatus('Ошибка: ' + e.message, 'err');
+            // Пробуем перезапустить через 3 секунды
+            setTimeout(initSupabase, 3000);
         }
     }
 
-    // Загрузка SDK
+    // Загружаем SDK
     const s = document.createElement('script');
     s.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
     s.onload = function() {
         console.log('📦 SDK загружен');
-        // Пытаемся инициализировать сразу
+        // Запускаем инициализацию
         initSupabase();
     };
     s.onerror = function() {
@@ -522,23 +539,23 @@ const SUPABASE_ANON_KEY = 'sb_publishable_GLQvPbCZrDYgd7FCSp861g_poX1-Hwy';
     };
     document.head.appendChild(s);
 
-    // Запасной вариант - пробуем инициализировать каждую секунду
+    // Запасной вариант - пробуем инициализировать каждые 2 секунды
     let retryCount = 0;
     const retryInterval = setInterval(() => {
         retryCount++;
-        if (supabaseReady) {
+        if (isReady) {
             clearInterval(retryInterval);
             return;
         }
-        if (retryCount > 30) { // 30 секунд
+        if (retryCount > 30) { // 60 секунд
             clearInterval(retryInterval);
-            setStatus('❌ Таймаут подключения', 'err');
+            setStatus('❌ Таймаут подключения. Перезагрузите страницу', 'err');
             return;
         }
         if (typeof supabaseJs !== 'undefined') {
             initSupabase();
         }
-    }, 1000);
+    }, 2000);
 
     // ============================================================
     // 6. АВТОРИЗАЦИЯ
@@ -626,7 +643,7 @@ const SUPABASE_ANON_KEY = 'sb_publishable_GLQvPbCZrDYgd7FCSp861g_poX1-Hwy';
     }
 
     // ============================================================
-    // 7. ЗАГРУЗКА ДАННЫХ (упрощённо)
+    // 7. ЗАГРУЗКА ДАННЫХ
     // ============================================================
     async function loadUserData() {
         if (!supabaseClient || !currentUserId) return;
@@ -641,16 +658,14 @@ const SUPABASE_ANON_KEY = 'sb_publishable_GLQvPbCZrDYgd7FCSp861g_poX1-Hwy';
                 const p = data.data || {};
                 Object.keys(G).forEach(k => { if (p[k] !== undefined) G[k] = p[k]; });
                 if (data.boss) GLOBAL_BOSS = data.boss;
-                if (data.devices) USER_DEVICES = data.devices;
             } else {
                 G.refCode = currentUserId.substring(0, 8);
-                USER_DEVICES = [{ id: DEVICE_ID, name: DEVICE_NAME, last_active: new Date().toISOString(), current: true }];
                 await supabaseClient.from('users').insert({
                     id: currentUserId,
                     email: currentUser.email,
                     data: G,
                     boss: GLOBAL_BOSS,
-                    devices: USER_DEVICES
+                    devices: [{ id: DEVICE_ID, name: DEVICE_NAME, last_active: new Date().toISOString(), current: true }]
                 });
             }
 
@@ -684,7 +699,6 @@ const SUPABASE_ANON_KEY = 'sb_publishable_GLQvPbCZrDYgd7FCSp861g_poX1-Hwy';
                 email: currentUser.email,
                 data: G,
                 boss: GLOBAL_BOSS,
-                devices: USER_DEVICES,
                 updated_at: new Date().toISOString()
             });
         } catch (e) {
@@ -1391,6 +1405,8 @@ const SUPABASE_ANON_KEY = 'sb_publishable_GLQvPbCZrDYgd7FCSp861g_poX1-Hwy';
 
     console.log('✅ Скрипт загружен');
     console.log('🆔 Устройство:', DEVICE_ID);
+    console.log('🔑 Ключ:', SUPABASE_ANON_KEY ? 'установлен' : '❌ НЕ УСТАНОВЛЕН!');
+    console.log('🔗 URL:', SUPABASE_URL ? 'установлен' : '❌ НЕ УСТАНОВЛЕН!');
 </script>
 </body>
 </html>
