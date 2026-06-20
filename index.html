@@ -40,6 +40,7 @@
             overflow-x: hidden;
             padding-bottom: 70px;
         }
+
         /* AUTH */
         #authWrap {
             min-height: 100vh;
@@ -59,16 +60,17 @@
             position: relative;
             overflow: hidden;
         }
-        .auth-logo {
-            text-align: center;
-            margin-bottom: 8px;
+        .auth-banner {
+            width: 100%;
+            border-radius: var(--r);
+            margin-bottom: 12px;
+            overflow: hidden;
         }
-        .auth-logo img {
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
+        .auth-banner img {
+            width: 100%;
+            height: 100%;
             object-fit: cover;
-            border: 2px solid var(--gld);
+            display: block;
         }
         .auth-title {
             text-align: center;
@@ -252,7 +254,7 @@
         .nav {
             background: var(--bg2);
             border-top: 1px solid var(--bd);
-            padding: 6px 0;
+            padding: 6px 0 max(6px, env(safe-area-inset-bottom));
             display: grid;
             grid-template-columns: repeat(5, 1fr);
             position: fixed;
@@ -426,6 +428,42 @@
         }
         .top-row:last-child {
             border-bottom: none;
+        }
+
+        /* BNR */
+        .bnr {
+            display: block;
+            width: 100%;
+            height: 80px;
+            overflow: hidden;
+            position: fixed;
+            bottom: 55px;
+            left: 0;
+            right: 0;
+            max-width: 430px;
+            margin: 0 auto;
+            z-index: 45;
+            cursor: pointer;
+            background: var(--bg2);
+            border-top: 1px solid var(--bd2);
+            border-bottom: 1px solid var(--bd2);
+        }
+        .bnr-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+        .bnr-ph {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--gld);
+            background: var(--bg3);
         }
 
         /* Modals */
@@ -706,8 +744,8 @@
     <!-- ══════════════════ AUTH ══════════════════ -->
     <div id="authWrap">
         <div class="auth-box">
-            <div class="auth-logo">
-                <img src="https://i.ibb.co/hRSsFg5R/Chat-GPT-Image-19-2026-20-55-28.png" alt="CoinMine Logo">
+            <div class="auth-banner">
+                <img src="https://i.ibb.co/hRSsFg5R/Chat-GPT-Image-19-2026-20-55-28.png" alt="CoinMine Banner">
             </div>
             <div class="auth-title">CoinMine</div>
             <div class="auth-sub" id="authSub">Войдите или создайте аккаунт</div>
@@ -991,6 +1029,11 @@
             <button class="nb" onclick="goSc('shop')" id="NB_shop">🛒<br><span>Магазин</span></button>
         </nav>
 
+        <!-- БАННЕР ВНИЗУ -->
+        <div class="bnr" onclick="openTelegram()" id="BNR">
+            <img id="BNR_img" src="" alt="CoinMine" class="bnr-img" onerror="this.style.display='none';document.getElementById('BNR_ph').style.display='flex'">
+            <div id="BNR_ph" class="bnr-ph">⛏ CoinMine</div>
+        </div>
     </div>
 
     <!-- MODALS -->
@@ -1123,6 +1166,19 @@
         function getFarmCost() { return FARM_COSTS[Math.min(G.farmLv - 1, 4)]; }
 
         function openTelegram() { window.open('https://t.me/minercoinsf', '_blank'); }
+
+        function setBannerImage(url) {
+            const img = document.getElementById('BNR_img');
+            if (!img) return;
+            img.src = url;
+            img.style.display = 'block';
+            const ph = document.getElementById('BNR_ph');
+            if (ph) ph.style.display = 'none';
+            img.onerror = function() {
+                this.style.display = 'none';
+                if (ph) ph.style.display = 'flex';
+            };
+        }
 
         // ════════════════════════════════════════════════
         // 4. ОТПЕЧАТОК УСТРОЙСТВА (FINGERPRINT)
@@ -2092,6 +2148,7 @@
         document.addEventListener('DOMContentLoaded', async () => {
             aStat('⏳ Проверка сессии...', 'ld');
             renderDiceIdle();
+            setBannerImage('https://i.ibb.co/hRSsFg5R/Chat-GPT-Image-19-2026-20-55-28.png');
             const restored = await restoreSession();
             if (restored) {
                 showApp();
