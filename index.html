@@ -616,298 +616,345 @@
                 font-size: 36px;
             }
         }
+
+        /* АВТОРИЗАЦИЯ */
+        .auth-page {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 80vh;
+            padding: 20px;
+            gap: 16px;
+        }
+        .auth-page .logo-big {
+            font-size: 48px;
+            margin-bottom: 8px;
+        }
+        .auth-page .title {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--gld);
+        }
+        .auth-page .sub {
+            font-size: 13px;
+            color: var(--tx2);
+            text-align: center;
+            margin-bottom: 8px;
+        }
+        .auth-page .inp {
+            max-width: 280px;
+        }
+        .auth-page .btn {
+            max-width: 280px;
+        }
+        .auth-toggle {
+            color: var(--acc2);
+            cursor: pointer;
+            font-size: 13px;
+        }
+        .auth-toggle:hover {
+            text-decoration: underline;
+        }
     </style>
 </head>
 <body>
 
     <div class="app" id="APP">
 
-        <div class="hdr">
-            <div class="logo">⛏ CoinMine</div>
-            <div class="bal">💰 <span id="H_coins">0</span></div>
+        <!-- СТРАНИЦА АВТОРИЗАЦИИ -->
+        <div id="authPage" style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:20px;gap:12px;">
+            <div class="logo-big">⛏</div>
+            <div class="title">CoinMine</div>
+            <div class="sub" id="authSub">Войдите в свой аккаунт</div>
+            <input class="inp" id="authEmail" placeholder="Email" style="max-width:280px;" type="email">
+            <input class="inp" id="authPass" placeholder="Пароль (мин. 6 символов)" style="max-width:280px;" type="password">
+            <button class="btn bp" id="authBtn" style="max-width:280px;" onclick="handleAuth()">Войти</button>
+            <div>
+                <span class="auth-toggle" onclick="toggleAuthMode()" id="authToggle">Нет аккаунта? Зарегистрироваться</span>
+            </div>
+            <div style="font-size:11px;color:var(--tx2);margin-top:8px;text-align:center;" id="authStatus"></div>
         </div>
 
-        <div class="body" id="BODY">
+        <!-- ОСНОВНОЕ ПРИЛОЖЕНИЕ -->
+        <div id="mainApp" style="display:none;">
 
-            <!-- HOME -->
-            <div class="sc on" id="sc-home">
-                <div class="card">
-                    <div style="display:flex;align-items:center;gap:11px;margin-bottom:13px">
-                        <div id="AV" style="width:46px;height:46px;border-radius:50%;background:#2e1065;border:2px solid var(--acc);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0">⛏</div>
-                        <div style="flex:1;min-width:0">
-                            <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
-                                <span id="PNAME" style="font-size:14px;font-weight:700;color:var(--tx)">Шахтёр</span>
-                                <button onclick="openNickModal()" style="background:none;border:1px solid var(--bd2);border-radius:4px;padding:2px 6px;color:var(--tx2);font-size:10px;cursor:pointer">✏️ ник</button>
-                            </div>
-                            <div id="NICK_LBL" style="font-size:11px;color:var(--tx2);margin-top:2px">Стиль не выбран</div>
-                        </div>
-                    </div>
-                    <div class="g2">
-                        <div class="st"><div class="sv" id="S_c">0</div><div class="sl">💰 монет</div></div>
-                        <div class="st"><div class="sv" id="S_f">0</div><div class="sl">⛏ фармов</div></div>
-                        <div class="st"><div class="sv" id="S_r">0</div><div class="sl">👥 рефералов</div></div>
-                        <div class="st"><div class="sv" id="S_k">0</div><div class="sl">🔑 ключей</div></div>
-                    </div>
-                </div>
-
-                <div class="card">
-                    <div class="ct">шахта — добыча монет</div>
-                    <div style="background:var(--bg4);border-radius:var(--r2);padding:9px 11px;margin-bottom:9px;display:flex;align-items:center;gap:8px">
-                        <span style="font-size:17px;color:var(--acc2)">⛏</span>
-                        <div style="flex:1">
-                            <div style="font-size:12px;color:var(--tx2)" id="F_st">Готово к добыче!</div>
-                            <div class="pb" style="margin-top:4px"><div class="pf pf-gld" id="F_pb" style="width:100%"></div></div>
-                        </div>
-                        <span id="F_cd" style="font-size:11px;color:var(--tx2);min-width:38px;text-align:right"></span>
-                    </div>
-                    <div style="font-size:11px;color:var(--tx2);margin-bottom:9px">Уровень: <b id="F_lv" style="color:var(--acc3)">1</b> · Множитель: <b id="F_mx" style="color:var(--gld)">×1.0</b> · Стоимость улучшения: <b id="F_up_cost" style="color:var(--tx)">50 монет</b></div>
-                    <div class="g2">
-                        <button class="btn bp" id="F_btn" onclick="confirmAction('Добыть монеты?','Кулдаун 1 час. Монеты зависят от уровня шахты и множителя.',doFarm)">⛏ Добыть</button>
-                        <button class="btn bs" onclick="confirmAction('Улучшить шахту?','Стоимость: ' + getFarmCost() + ' монет. Каждый уровень +20% к добыче.',upgradeFarm)">⬆ Прокачать</button>
-                    </div>
-                </div>
-
-                <div class="card">
-                    <div class="ct">осколки (выпадают при добыче)</div>
-                    <div id="SH_home" style="font-size:12px;color:var(--tx2)">Осколки выпадают случайно при добыче монет</div>
-                </div>
-
-                <div class="card">
-                    <div class="ct">реферальная программа</div>
-                    <div style="display:flex;gap:6px;margin-bottom:6px">
-                        <input class="inp" id="REF_INP" placeholder="Введите реферальный код..." style="flex:1">
-                        <button class="btn bp" style="width:auto;padding:0 12px" onclick="useRefCode()">Активировать</button>
-                    </div>
-                    <div style="font-size:11px;color:var(--tx2);margin-bottom:4px">Ваш реферальный код: <b style="color:var(--gld)" id="MY_REF_CODE">demo_1234</b></div>
-                    <div style="font-size:11px;color:var(--tx2)">За каждого активированного друга: <b style="color:var(--gld)">+25 монет</b> основателю</div>
-                </div>
+            <div class="hdr">
+                <div class="logo">⛏ CoinMine</div>
+                <div class="bal">💰 <span id="H_coins">0</span></div>
             </div>
 
-            <!-- GAMES -->
-            <div class="sc" id="sc-games">
-                <div class="tab-row">
-                    <div class="tab on" id="GT_rl" onclick="gTab('rl',this)">🎰 Рулетка</div>
-                    <div class="tab" id="GT_dc" onclick="gTab('dc',this)">🎲 Кубик</div>
-                    <div class="tab" id="GT_au" onclick="gTab('au',this)">🏛 Аукцион</div>
-                </div>
+            <div class="body" id="BODY">
 
-                <div id="G_rl">
+                <!-- HOME -->
+                <div class="sc on" id="sc-home">
                     <div class="card">
-                        <div class="ct">рулетка — выберите ставку и цвет</div>
-                        <canvas id="RC" height="200"></canvas>
-                        <div id="RL_res" class="game-result">Выберите цвет чтобы начать</div>
-                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:9px">
-                            <div>
-                                <div style="font-size:10px;color:var(--tx2);margin-bottom:4px">Ставка</div>
-                                <select id="RL_bet" class="inp" style="padding:7px">
-                                    <option value="10">10 монет</option>
-                                    <option value="25" selected>25 монет</option>
-                                    <option value="50">50 монет</option>
-                                    <option value="100">100 монет</option>
-                                </select>
-                            </div>
-                            <div>
-                                <div style="font-size:10px;color:var(--tx2);margin-bottom:4px">Коэффициенты</div>
-                                <div style="background:var(--bg4);border-radius:var(--r2);padding:7px;font-size:11px;color:var(--tx2);text-align:center">🔴×1.75 ⚫×1.75 🟩×5</div>
+                        <div style="display:flex;align-items:center;gap:11px;margin-bottom:13px">
+                            <div id="AV" style="width:46px;height:46px;border-radius:50%;background:#2e1065;border:2px solid var(--acc);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0">⛏</div>
+                            <div style="flex:1;min-width:0">
+                                <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+                                    <span id="PNAME" style="font-size:14px;font-weight:700;color:var(--tx)">Шахтёр</span>
+                                    <button onclick="openNickModal()" style="background:none;border:1px solid var(--bd2);border-radius:4px;padding:2px 6px;color:var(--tx2);font-size:10px;cursor:pointer">✏️ ник</button>
+                                </div>
+                                <div id="NICK_LBL" style="font-size:11px;color:var(--tx2);margin-top:2px">Стиль не выбран</div>
                             </div>
                         </div>
-                        <div class="roulette-buttons">
-                            <button class="btn" style="background:#7f1d1d;color:#fca5a5;border:1px solid #991b1b;" onclick="startRoul('red')">🔴 Красный</button>
-                            <button class="btn" style="background:#1c1c2e;color:#d1d5db;border:1px solid #374151;" onclick="startRoul('black')">⚫ Чёрный</button>
-                            <button class="btn" style="background:#052e16;color:#4ade80;border:1px solid #14532d;" onclick="startRoul('green')">🟩 Зелёный</button>
+                        <div class="g2">
+                            <div class="st"><div class="sv" id="S_c">0</div><div class="sl">💰 монет</div></div>
+                            <div class="st"><div class="sv" id="S_f">0</div><div class="sl">⛏ фармов</div></div>
+                            <div class="st"><div class="sv" id="S_r">0</div><div class="sl">👥 рефералов</div></div>
+                            <div class="st"><div class="sv" id="S_k">0</div><div class="sl">🔑 ключей</div></div>
                         </div>
                     </div>
-                </div>
 
-                <div id="G_dc" style="display:none">
                     <div class="card">
-                        <div class="ct">кубик — ставка 50 монет</div>
-                        <div id="DC_res" class="game-result">Кидайте кубик и выигрывайте!</div>
-                        <div class="dice-container">
-                            <div class="dice" id="diceMain">⚀</div>
+                        <div class="ct">шахта — добыча монет</div>
+                        <div style="background:var(--bg4);border-radius:var(--r2);padding:9px 11px;margin-bottom:9px;display:flex;align-items:center;gap:8px">
+                            <span style="font-size:17px;color:var(--acc2)">⛏</span>
+                            <div style="flex:1">
+                                <div style="font-size:12px;color:var(--tx2)" id="F_st">Готово к добыче!</div>
+                                <div class="pb" style="margin-top:4px"><div class="pf pf-gld" id="F_pb" style="width:100%"></div></div>
+                            </div>
+                            <span id="F_cd" style="font-size:11px;color:var(--tx2);min-width:38px;text-align:right"></span>
                         </div>
-                        <div class="dice-color-indicator">
-                            <span id="dcRed" class="active-red">🔴 Красный</span>
-                            <span id="dcBlack" class="active-black">⚫ Чёрный</span>
-                        </div>
-                        <div style="font-size:11px;color:var(--tx2);text-align:center;margin:8px 0">
-                            Выпавшее число × 10 монет + бонус за угаданный цвет (+10 монет)
-                        </div>
-                        <div class="dice-buttons">
-                            <button class="btn" style="background:#7f1d1d;color:#fca5a5;border:1px solid #991b1b" onclick="confirmAction('Ставка 50 монет?','Кубик выпадет случайно. Выигрыш = число × 10 + бонус за цвет.',()=>playDice('red'))">🔴 Красный 50</button>
-                            <button class="btn" style="background:#1c1c2e;color:#d1d5db;border:1px solid #374151" onclick="confirmAction('Ставка 50 монет?','Кубик выпадет случайно. Выигрыш = число × 10 + бонус за цвет.',()=>playDice('black'))">⚫ Чёрный 50</button>
+                        <div style="font-size:11px;color:var(--tx2);margin-bottom:9px">Уровень: <b id="F_lv" style="color:var(--acc3)">1</b> · Множитель: <b id="F_mx" style="color:var(--gld)">×1.0</b> · Стоимость улучшения: <b id="F_up_cost" style="color:var(--tx)">50 монет</b></div>
+                        <div class="g2">
+                            <button class="btn bp" id="F_btn" onclick="confirmAction('Добыть монеты?','Кулдаун 1 час. Монеты зависят от уровня шахты и множителя.',doFarm)">⛏ Добыть</button>
+                            <button class="btn bs" onclick="confirmAction('Улучшить шахту?','Стоимость: ' + getFarmCost() + ' монет. Каждый уровень +20% к добыче.',upgradeFarm)">⬆ Прокачать</button>
                         </div>
                     </div>
-                </div>
 
-                <div id="G_au" style="display:none">
                     <div class="card">
-                        <div class="ct">аукцион — побеждает наибольшая ставка</div>
-                        <div style="text-align:center;padding:14px 0">
-                            <div style="font-size:11px;color:var(--tx2)">Текущий лидер</div>
-                            <div style="font-size:38px;font-weight:700;color:var(--gld)" id="AU_amt">0</div>
-                            <div style="font-size:12px;color:var(--tx2);margin-bottom:4px" id="AU_lead">Ставок пока нет</div>
-                            <div style="font-size:11px;color:var(--tx2)">Ваша ставка: <b id="MY_bid" style="color:var(--gld)">0</b> монет</div>
+                        <div class="ct">осколки (выпадают при добыче)</div>
+                        <div id="SH_home" style="font-size:12px;color:var(--tx2)">Осколки выпадают случайно при добыче монет</div>
+                    </div>
+
+                    <div class="card">
+                        <div class="ct">реферальная программа (по кодам)</div>
+                        <div style="display:flex;gap:6px;margin-bottom:6px">
+                            <input class="inp" id="REF_INP" placeholder="Введите реферальный код..." style="flex:1">
+                            <button class="btn bp" style="width:auto;padding:0 12px" onclick="useRefCode()">Активировать</button>
                         </div>
-                        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:8px">
-                            <button class="btn bs" onclick="confirmAction('+10 к ставке?','Ваши 10 монет зарезервируются. Лидер победит когда аукцион завершится.',()=>bid(10))">+10</button>
-                            <button class="btn bs" onclick="confirmAction('+25 к ставке?','Ваши 25 монет зарезервируются. При проигрыше — вернутся.',()=>bid(25))">+25</button>
-                            <button class="btn bs" onclick="confirmAction('+50 к ставке?','Ваши 50 монет зарезервируются. Победитель получает приз от администратора.',()=>bid(50))">+50</button>
+                        <div style="font-size:11px;color:var(--tx2);margin-bottom:4px">Ваш реферальный код: <b style="color:var(--gld)" id="MY_REF_CODE">загрузка...</b></div>
+                        <div style="font-size:11px;color:var(--tx2)">За каждого активированного друга: <b style="color:var(--gld)">+25 монет</b></div>
+                        <div style="font-size:11px;color:var(--tx2);margin-top:4px">Активированный код: <b id="ACTIVATED_REF" style="color:var(--acc3)">нет</b></div>
+                    </div>
+                </div>
+
+                <!-- GAMES -->
+                <div class="sc" id="sc-games">
+                    <div class="tab-row">
+                        <div class="tab on" id="GT_rl" onclick="gTab('rl',this)">🎰 Рулетка</div>
+                        <div class="tab" id="GT_dc" onclick="gTab('dc',this)">🎲 Кубик</div>
+                        <div class="tab" id="GT_au" onclick="gTab('au',this)">🏛 Аукцион</div>
+                    </div>
+
+                    <div id="G_rl">
+                        <div class="card">
+                            <div class="ct">рулетка — выберите ставку и цвет</div>
+                            <canvas id="RC" height="200"></canvas>
+                            <div id="RL_res" class="game-result">Выберите цвет чтобы начать</div>
+                            <div style="display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:9px">
+                                <div>
+                                    <div style="font-size:10px;color:var(--tx2);margin-bottom:4px">Ставка</div>
+                                    <select id="RL_bet" class="inp" style="padding:7px">
+                                        <option value="10">10 монет</option>
+                                        <option value="25" selected>25 монет</option>
+                                        <option value="50">50 монет</option>
+                                        <option value="100">100 монет</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <div style="font-size:10px;color:var(--tx2);margin-bottom:4px">Коэффициенты</div>
+                                    <div style="background:var(--bg4);border-radius:var(--r2);padding:7px;font-size:11px;color:var(--tx2);text-align:center">🔴×1.75 ⚫×1.75 🟩×5</div>
+                                </div>
+                            </div>
+                            <div class="roulette-buttons">
+                                <button class="btn" style="background:#7f1d1d;color:#fca5a5;border:1px solid #991b1b;" onclick="startRoul('red')">🔴 Красный</button>
+                                <button class="btn" style="background:#1c1c2e;color:#d1d5db;border:1px solid #374151;" onclick="startRoul('black')">⚫ Чёрный</button>
+                                <button class="btn" style="background:#052e16;color:#4ade80;border:1px solid #14532d;" onclick="startRoul('green')">🟩 Зелёный</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="G_dc" style="display:none">
+                        <div class="card">
+                            <div class="ct">кубик — ставка 50 монет</div>
+                            <div id="DC_res" class="game-result">Кидайте кубик и выигрывайте!</div>
+                            <div class="dice-container">
+                                <div class="dice" id="diceMain">⚀</div>
+                            </div>
+                            <div class="dice-color-indicator">
+                                <span id="dcRed" class="active-red">🔴 Красный</span>
+                                <span id="dcBlack" class="active-black">⚫ Чёрный</span>
+                            </div>
+                            <div style="font-size:11px;color:var(--tx2);text-align:center;margin:8px 0">
+                                Выпавшее число × 10 монет + бонус за угаданный цвет (+10 монет)
+                            </div>
+                            <div class="dice-buttons">
+                                <button class="btn" style="background:#7f1d1d;color:#fca5a5;border:1px solid #991b1b" onclick="confirmAction('Ставка 50 монет?','Кубик выпадет случайно. Выигрыш = число × 10 + бонус за цвет.',()=>playDice('red'))">🔴 Красный 50</button>
+                                <button class="btn" style="background:#1c1c2e;color:#d1d5db;border:1px solid #374151" onclick="confirmAction('Ставка 50 монет?','Кубик выпадет случайно. Выигрыш = число × 10 + бонус за цвет.',()=>playDice('black'))">⚫ Чёрный 50</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="G_au" style="display:none">
+                        <div class="card">
+                            <div class="ct">аукцион — побеждает наибольшая ставка</div>
+                            <div style="text-align:center;padding:14px 0">
+                                <div style="font-size:11px;color:var(--tx2)">Текущий лидер</div>
+                                <div style="font-size:38px;font-weight:700;color:var(--gld)" id="AU_amt">0</div>
+                                <div style="font-size:12px;color:var(--tx2);margin-bottom:4px" id="AU_lead">Ставок пока нет</div>
+                                <div style="font-size:11px;color:var(--tx2)">Ваша ставка: <b id="MY_bid" style="color:var(--gld)">0</b> монет</div>
+                            </div>
+                            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:8px">
+                                <button class="btn bs" onclick="confirmAction('+10 к ставке?','Ваши 10 монет зарезервируются. Лидер победит когда аукцион завершится.',()=>bid(10))">+10</button>
+                                <button class="btn bs" onclick="confirmAction('+25 к ставке?','Ваши 25 монет зарезервируются. При проигрыше — вернутся.',()=>bid(25))">+25</button>
+                                <button class="btn bs" onclick="confirmAction('+50 к ставке?','Ваши 50 монет зарезервируются. Победитель получает приз от администратора.',()=>bid(50))">+50</button>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- ARENA -->
-            <div class="sc" id="sc-arena">
-                <div class="card">
-                    <div class="boss-wrap">
-                        <div class="boss-ico" id="BS_ico">👹</div>
-                        <div style="font-size:15px;font-weight:700" id="BS_nm">Босс Рябчик</div>
-                        <div style="font-size:11px;color:var(--tx2);margin-top:3px" id="BS_st">Активен — атакуйте!</div>
-                        <div style="font-size:10px;color:var(--tx2);margin-top:2px" id="BS_respawn">Следующий босс в 16:00 МСК</div>
+                <!-- ARENA -->
+                <div class="sc" id="sc-arena">
+                    <div class="card">
+                        <div class="boss-wrap">
+                            <div class="boss-ico" id="BS_ico">👹</div>
+                            <div style="font-size:15px;font-weight:700" id="BS_nm">Босс Рябчик</div>
+                            <div style="font-size:11px;color:var(--tx2);margin-top:3px" id="BS_st">Активен — атакуйте!</div>
+                            <div style="font-size:10px;color:var(--tx2);margin-top:2px" id="BS_respawn">Следующий босс в 16:00 МСК</div>
+                        </div>
+                        <div class="hp-bar"><div class="hp-fill" id="BS_hp" style="width:100%"></div></div>
+                        <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--tx2);margin-bottom:10px">
+                            <span id="BS_hp_txt">1000 / 1000 ХП</span>
+                            <span id="BS_drop">Шанс сундука: 20%</span>
+                        </div>
+                        <div class="g2">
+                            <button class="btn bp" onclick="confirmAction('Атаковать босса?','Стоимость: 20 монет. Нанесёте 10–50 урона. 20% шанс получить сундук.',atkBoss)">⚔ Атаковать (20 мон.)</button>
+                            <button class="btn bs" id="CH_btn" onclick="confirmAction('Открыть сундук?','Случайная награда: монеты, ключи или редкий осколок.',openChest)">📦 Сундук (<span id="CH_cnt">0</span>)</button>
+                        </div>
+                        <div style="font-size:12px;color:var(--grn);margin-top:8px;min-height:16px" id="ATK_log"></div>
                     </div>
-                    <div class="hp-bar"><div class="hp-fill" id="BS_hp" style="width:100%"></div></div>
-                    <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--tx2);margin-bottom:10px">
-                        <span id="BS_hp_txt">1000 / 1000 ХП</span>
-                        <span id="BS_drop">Шанс сундука: 20%</span>
+
+                    <div class="card">
+                        <div class="ct">миссии дня</div>
+                        <div id="MS_list"></div>
+                        <div style="display:flex;align-items:center;justify-content:space-between;margin-top:9px">
+                            <span style="font-size:12px;color:var(--tx2)">Всего ключей</span>
+                            <span style="font-size:15px;font-weight:700;color:var(--gld)" id="K_big">0 🔑</span>
+                        </div>
                     </div>
-                    <div class="g2">
-                        <button class="btn bp" onclick="confirmAction('Атаковать босса?','Стоимость: 20 монет. Нанесёте 10–50 урона. 20% шанс получить сундук.',atkBoss)">⚔ Атаковать (20 мон.)</button>
-                        <button class="btn bs" id="CH_btn" onclick="confirmAction('Открыть сундук?','Случайная награда: монеты, ключи или редкий осколок.',openChest)">📦 Сундук (<span id="CH_cnt">0</span>)</button>
-                    </div>
-                    <div style="font-size:12px;color:var(--grn);margin-top:8px;min-height:16px" id="ATK_log"></div>
                 </div>
 
-                <div class="card">
-                    <div class="ct">миссии дня</div>
-                    <div id="MS_list"></div>
-                    <div style="display:flex;align-items:center;justify-content:space-between;margin-top:9px">
-                        <span style="font-size:12px;color:var(--tx2)">Всего ключей</span>
-                        <span style="font-size:15px;font-weight:700;color:var(--gld)" id="K_big">0 🔑</span>
+                <!-- CLAN -->
+                <div class="sc" id="sc-clan">
+                    <div id="CL_no">
+                        <div class="card" style="text-align:center;padding:20px">
+                            <div style="font-size:40px;margin-bottom:8px">🏰</div>
+                            <div style="font-size:14px;font-weight:700;margin-bottom:5px">Вы не в клане</div>
+                            <div style="font-size:12px;color:var(--tx2);margin-bottom:14px">Создайте клан за 1500 монет и добывайте алмазы командой до 5 человек</div>
+                            <button class="btn bp" onclick="confirmAction('Создать клан за 1500 монет?','Вы получите случайное название. Можно пригласить до 4 участников и вместе добывать алмазы.',createClan)">➕ Создать клан (1500 монет)</button>
+                        </div>
+                    </div>
+                    <div id="CL_yes" style="display:none">
+                        <div style="background:#0a0620;border:1px solid #4c1d95;border-radius:var(--r);padding:15px;text-align:center;margin-bottom:10px">
+                            <div style="font-size:17px;font-weight:700;color:var(--acc3)" id="CL_nm">—</div>
+                            <div style="font-size:26px;font-weight:700;color:var(--gld);margin:5px 0" id="CL_dm">0 💎</div>
+                            <div style="font-size:11px;color:var(--tx2)" id="CL_cd">Фарм доступен!</div>
+                        </div>
+                        <div class="card">
+                            <div class="ct">участники (<span id="CL_mc">1</span>/5)</div>
+                            <div id="CL_mlist"></div>
+                        </div>
+                        <button class="btn bp" style="margin-bottom:7px" onclick="confirmAction('Добыть алмазы?','Клановый фарм раз в 6 часов. Алмазы идут в казну клана.',clanFarm)">⛏ Добыть алмазы (кд 6ч)</button>
+                        <button class="btn bs" style="margin-bottom:7px" onclick="confirmAction('Обменять 5 💎 → 25 монет?','5 алмазов из казны клана станут 25 монетами на вашем балансе.',()=>exDiam(5))">🔄 Обменять 5 💎 → 25 монет</button>
+                        <button class="btn bred" onclick="confirmAction('Распустить клан?','Клан удалится навсегда. Алмазы сгорят.',disbandClan)">🗑 Распустить клан</button>
                     </div>
                 </div>
 
-                <div class="card">
-                    <div class="ct">профессии — пассивный доход</div>
-                    <div id="PR_list"></div>
-                </div>
-            </div>
+                <!-- SHOP -->
+                <div class="sc" id="sc-shop">
+                    <div class="card">
+                        <div class="ct">купить монеты</div>
+                        <div class="pkg-g">
+                            <div class="pkg" onclick="confirmAction('Купить 500 монет за 30₽?','Монеты зачислятся мгновенно после оплаты. В демо — бесплатно.',()=>buyCoins(500,30))">
+                                <div style="font-size:26px;margin-bottom:3px">💰</div>
+                                <div style="font-size:16px;font-weight:700;color:var(--gld)">500</div>
+                                <div style="font-size:11px;color:var(--tx2)">30 ₽</div>
+                            </div>
+                            <div class="pkg hot" onclick="confirmAction('Купить 1700 монет за 79₽?','1500 + 200 бонусных монет. Самый выгодный стартовый набор!',()=>buyCoins(1700,79))">
+                                <div style="font-size:26px;margin-bottom:3px">💰💰</div>
+                                <div style="font-size:16px;font-weight:700;color:var(--gld)">1500</div>
+                                <div style="font-size:11px;color:var(--tx2)">79 ₽</div>
+                                <div style="font-size:10px;color:var(--grn)">+200 бонус</div>
+                            </div>
+                            <div class="pkg" onclick="confirmAction('Купить 4500 монет за 149₽?','4000 + 500 бонусных монет.',()=>buyCoins(4500,149))">
+                                <div style="font-size:26px;margin-bottom:3px">💰💰💰</div>
+                                <div style="font-size:16px;font-weight:700;color:var(--gld)">4000</div>
+                                <div style="font-size:11px;color:var(--tx2)">149 ₽</div>
+                                <div style="font-size:10px;color:var(--grn)">+500 бонус</div>
+                            </div>
+                            <div class="pkg" onclick="confirmAction('Купить 12000 монет за 299₽?','10000 + 2000 мега-бонус монет.',()=>buyCoins(12000,299))">
+                                <div style="font-size:26px;margin-bottom:3px">💎</div>
+                                <div style="font-size:16px;font-weight:700;color:var(--gld)">10000</div>
+                                <div style="font-size:11px;color:var(--tx2)">299 ₽</div>
+                                <div style="font-size:10px;color:var(--grn)">+2000 мега</div>
+                            </div>
+                        </div>
+                        <div style="font-size:10px;color:var(--tx2);text-align:center;margin-top:7px">В демо-режиме монеты начисляются бесплатно</div>
+                    </div>
 
-            <!-- CLAN -->
-            <div class="sc" id="sc-clan">
-                <div id="CL_no">
-                    <div class="card" style="text-align:center;padding:20px">
-                        <div style="font-size:40px;margin-bottom:8px">🏰</div>
-                        <div style="font-size:14px;font-weight:700;margin-bottom:5px">Вы не в клане</div>
-                        <div style="font-size:12px;color:var(--tx2);margin-bottom:14px">Создайте клан за 1500 монет и добывайте алмазы командой до 5 человек</div>
-                        <button class="btn bp" onclick="confirmAction('Создать клан за 1500 монет?','Вы получите случайное название. Можно пригласить до 4 участников и вместе добывать алмазы.',createClan)">➕ Создать клан (1500 монет)</button>
+                    <div class="card">
+                        <div class="ct">стили ника (250 монет за стиль)</div>
+                        <div class="nick-g" id="NK_grid"></div>
+                    </div>
+
+                    <div class="card">
+                        <div class="ct">промокоды</div>
+                        <div class="irow" style="margin-bottom:8px">
+                            <input class="inp" id="PR_inp" placeholder="Введите промокод...">
+                            <button class="btn bp" style="width:auto;padding:0 12px" onclick="usePromo()">OK</button>
+                        </div>
+                        <div class="g2">
+                            <button class="btn bs" style="font-size:12px" onclick="activatePromo('free')">🎁 FREE → +15 монет</button>
+                            <button class="btn bs" style="font-size:12px" onclick="activatePromo('denchak')">🎁 DENCHAK → +15</button>
+                        </div>
                     </div>
                 </div>
-                <div id="CL_yes" style="display:none">
-                    <div style="background:#0a0620;border:1px solid #4c1d95;border-radius:var(--r);padding:15px;text-align:center;margin-bottom:10px">
-                        <div style="font-size:17px;font-weight:700;color:var(--acc3)" id="CL_nm">—</div>
-                        <div style="font-size:26px;font-weight:700;color:var(--gld);margin:5px 0" id="CL_dm">0 💎</div>
-                        <div style="font-size:11px;color:var(--tx2)" id="CL_cd">Фарм доступен!</div>
+
+                <!-- TOP -->
+                <div class="sc" id="sc-top">
+                    <div class="tab-row">
+                        <div class="tab on" id="TT_b" onclick="topTab('b',this)">💰 Баланс</div>
+                        <div class="tab" id="TT_f" onclick="topTab('f',this)">⛏ Фармы</div>
+                        <div class="tab" id="TT_r" onclick="topTab('r',this)">👥 Рефералы</div>
                     </div>
                     <div class="card">
-                        <div class="ct">участники (<span id="CL_mc">1</span>/5)</div>
-                        <div id="CL_mlist"></div>
+                        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+                            <div class="ct" style="margin:0" id="TOP_ttl">Топ по балансу</div>
+                            <span style="font-size:10px;color:var(--tx2)" id="TOP_upd">Обновляется каждые 10 мин</span>
+                        </div>
+                        <div id="TOP_list"></div>
                     </div>
-                    <button class="btn bp" style="margin-bottom:7px" onclick="confirmAction('Добыть алмазы?','Клановый фарм раз в 6 часов. Алмазы идут в казну клана.',clanFarm)">⛏ Добыть алмазы (кд 6ч)</button>
-                    <button class="btn bs" style="margin-bottom:7px" onclick="confirmAction('Обменять 5 💎 → 25 монет?','5 алмазов из казны клана станут 25 монетами на вашем балансе.',()=>exDiam(5))">🔄 Обменять 5 💎 → 25 монет</button>
-                    <button class="btn bred" onclick="confirmAction('Распустить клан?','Клан удалится навсегда. Алмазы сгорят.',disbandClan)">🗑 Распустить клан</button>
                 </div>
+
             </div>
 
-            <!-- SHOP -->
-            <div class="sc" id="sc-shop">
-                <div class="card">
-                    <div class="ct">купить монеты</div>
-                    <div class="pkg-g">
-                        <div class="pkg" onclick="confirmAction('Купить 500 монет за 30₽?','Монеты зачислятся мгновенно после оплаты. В демо — бесплатно.',()=>buyCoins(500,30))">
-                            <div style="font-size:26px;margin-bottom:3px">💰</div>
-                            <div style="font-size:16px;font-weight:700;color:var(--gld)">500</div>
-                            <div style="font-size:11px;color:var(--tx2)">30 ₽</div>
-                        </div>
-                        <div class="pkg hot" onclick="confirmAction('Купить 1700 монет за 79₽?','1500 + 200 бонусных монет. Самый выгодный стартовый набор!',()=>buyCoins(1700,79))">
-                            <div style="font-size:26px;margin-bottom:3px">💰💰</div>
-                            <div style="font-size:16px;font-weight:700;color:var(--gld)">1500</div>
-                            <div style="font-size:11px;color:var(--tx2)">79 ₽</div>
-                            <div style="font-size:10px;color:var(--grn)">+200 бонус</div>
-                        </div>
-                        <div class="pkg" onclick="confirmAction('Купить 4500 монет за 149₽?','4000 + 500 бонусных монет.',()=>buyCoins(4500,149))">
-                            <div style="font-size:26px;margin-bottom:3px">💰💰💰</div>
-                            <div style="font-size:16px;font-weight:700;color:var(--gld)">4000</div>
-                            <div style="font-size:11px;color:var(--tx2)">149 ₽</div>
-                            <div style="font-size:10px;color:var(--grn)">+500 бонус</div>
-                        </div>
-                        <div class="pkg" onclick="confirmAction('Купить 12000 монет за 299₽?','10000 + 2000 мега-бонус монет.',()=>buyCoins(12000,299))">
-                            <div style="font-size:26px;margin-bottom:3px">💎</div>
-                            <div style="font-size:16px;font-weight:700;color:var(--gld)">10000</div>
-                            <div style="font-size:11px;color:var(--tx2)">299 ₽</div>
-                            <div style="font-size:10px;color:var(--grn)">+2000 мега</div>
-                        </div>
-                    </div>
-                    <div style="font-size:10px;color:var(--tx2);text-align:center;margin-top:7px">В демо-режиме монеты начисляются бесплатно</div>
-                </div>
-
-                <div class="card">
-                    <div class="ct">стили ника (250 монет за стиль)</div>
-                    <div class="nick-g" id="NK_grid"></div>
-                </div>
-
-                <div class="card">
-                    <div class="ct">промокоды</div>
-                    <div class="irow" style="margin-bottom:8px">
-                        <input class="inp" id="PR_inp" placeholder="Введите промокод...">
-                        <button class="btn bp" style="width:auto;padding:0 12px" onclick="usePromo()">OK</button>
-                    </div>
-                    <div class="g2">
-                        <button class="btn bs" style="font-size:12px" onclick="activatePromo('free')">🎁 FREE → +15 монет</button>
-                        <button class="btn bs" style="font-size:12px" onclick="activatePromo('denchak')">🎁 DENCHAK → +15</button>
-                    </div>
-                </div>
-
-                <div class="card">
-                    <div class="ct">реферальная программа</div>
-                    <div onclick="copyRef()" style="background:var(--bg4);border:1px solid #4c1d95;border-radius:var(--r2);padding:9px;font-size:12px;color:var(--acc3);text-align:center;cursor:pointer;margin-bottom:7px">🔗 coinmine.app/ref/demo_1234 (нажмите — скопировать)</div>
-                    <div style="font-size:12px;color:var(--tx2);margin-bottom:9px">За каждого приглашённого друга: <b style="color:var(--gld)">+25 монет</b></div>
-                    <button class="btn bs" onclick="addRef()">👤 Добавить реферала (демо)</button>
-                </div>
+            <!-- Баннер -->
+            <div class="bnr" id="BNR" onclick="openTelegram()">
+                <img id="BNR_img" src="" alt="CoinMine" class="bnr-img" onerror="this.style.display='none';document.getElementById('BNR_ph').style.display='flex'" style="display:none">
+                <div id="BNR_ph" class="bnr-img-placeholder">⛏ CoinMine</div>
             </div>
 
-            <!-- TOP -->
-            <div class="sc" id="sc-top">
-                <div class="tab-row">
-                    <div class="tab on" id="TT_b" onclick="topTab('b',this)">💰 Баланс</div>
-                    <div class="tab" id="TT_f" onclick="topTab('f',this)">⛏ Фармы</div>
-                    <div class="tab" id="TT_r" onclick="topTab('r',this)">👥 Рефералы</div>
-                </div>
-                <div class="card">
-                    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
-                        <div class="ct" style="margin:0" id="TOP_ttl">Топ по балансу</div>
-                        <span style="font-size:10px;color:var(--tx2)" id="TOP_upd">Обновляется каждые 10 мин</span>
-                    </div>
-                    <div id="TOP_list"></div>
-                </div>
-            </div>
-
+            <nav class="nav">
+                <button class="nb on" onclick="goSc('home')" id="NB_home"><span>🏠</span><span>Главная</span></button>
+                <button class="nb" onclick="goSc('games')" id="NB_games"><span>🎲</span><span>Игры</span></button>
+                <button class="nb" onclick="goSc('arena')" id="NB_arena"><span>⚔️</span><span>Арена</span></button>
+                <button class="nb" onclick="goSc('clan')" id="NB_clan"><span>🛡️</span><span>Клан</span></button>
+                <button class="nb" onclick="goSc('shop')" id="NB_shop"><span>🛒</span><span>Магазин</span></button>
+            </nav>
         </div>
-
-        <!-- Баннер -->
-        <div class="bnr" id="BNR" onclick="openTelegram()">
-            <img id="BNR_img" src="" alt="CoinMine" class="bnr-img" onerror="this.style.display='none';document.getElementById('BNR_ph').style.display='flex'" style="display:none">
-            <div id="BNR_ph" class="bnr-img-placeholder">⛏ CoinMine</div>
-        </div>
-
-        <nav class="nav">
-            <button class="nb on" onclick="goSc('home')" id="NB_home"><span>🏠</span><span>Главная</span></button>
-            <button class="nb" onclick="goSc('games')" id="NB_games"><span>🎲</span><span>Игры</span></button>
-            <button class="nb" onclick="goSc('arena')" id="NB_arena"><span>⚔️</span><span>Арена</span></button>
-            <button class="nb" onclick="goSc('clan')" id="NB_clan"><span>🛡️</span><span>Клан</span></button>
-            <button class="nb" onclick="goSc('shop')" id="NB_shop"><span>🛒</span><span>Магазин</span></button>
-        </nav>
 
         <!-- Модальные окна -->
         <div class="modal-wrap" id="MOD_wrap">
@@ -937,19 +984,247 @@
     </div>
 
     <script>
-        // ===== ДАННЫЕ =====
-        const NICK_STYLES = {
-            gold: { e: '🌟', n: 'Золотой' },
-            diamond: { e: '💎', n: 'Алмазный' },
-            fire: { e: '🔥', n: 'Огненный' },
-            vip: { e: '👑', n: 'VIP' },
-            star: { e: '⭐', n: 'Звёздный' },
-            ice: { e: '❄️', n: 'Ледяной' },
-            shadow: { e: '🌑', n: 'Теневой' },
-            ninja: { e: '🥷', n: 'Ниндзя' },
-            galaxy: { e: '🌌', n: 'Галактический' },
-            mystic: { e: '🔮', n: 'Мистический' }
+        // ============================================================
+        // 1. КОНФИГУРАЦИЯ SUPABASE
+        // ============================================================
+        // ЗАРЕГИСТРИРУЙТЕСЬ НА https://supabase.com
+        // СОЗДАЙТЕ ПРОЕКТ И ВСТАВЬТЕ СВОИ ДАННЫЕ:
+        const SUPABASE_URL = 'https://mazccbkzurbryzusajqc.supabase.co/rest/v1/';
+        const SUPABASE_ANON_KEY = 'sb_secret_wQrOAToLvLz__LpQ64jiVg_SsgTBCtD';
+
+        // ============================================================
+        // 2. ПОДКЛЮЧЕНИЕ К БАЗЕ ДАННЫХ
+        // ============================================================
+        let supabase = null;
+        let currentUser = null;
+        let currentUserId = null;
+        let isAuthMode = 'login'; // 'login' или 'register'
+
+        // Загружаем Supabase SDK
+        const script = document.createElement('script');
+        script.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
+        script.onload = function() {
+            const { createClient } = supabaseJs;
+            supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            checkAuth();
         };
+        document.head.appendChild(script);
+
+        // ============================================================
+        // 3. АВТОРИЗАЦИЯ
+        // ============================================================
+        function toggleAuthMode() {
+            isAuthMode = isAuthMode === 'login' ? 'register' : 'login';
+            const sub = document.getElementById('authSub');
+            const btn = document.getElementById('authBtn');
+            const toggle = document.getElementById('authToggle');
+            if (isAuthMode === 'login') {
+                sub.textContent = 'Войдите в свой аккаунт';
+                btn.textContent = 'Войти';
+                toggle.textContent = 'Нет аккаунта? Зарегистрироваться';
+            } else {
+                sub.textContent = 'Создайте новый аккаунт';
+                btn.textContent = 'Зарегистрироваться';
+                toggle.textContent = 'Уже есть аккаунт? Войти';
+            }
+        }
+
+        async function handleAuth() {
+            const email = document.getElementById('authEmail').value.trim();
+            const pass = document.getElementById('authPass').value.trim();
+            const status = document.getElementById('authStatus');
+
+            if (!email || !pass) {
+                status.textContent = 'Заполните все поля';
+                status.style.color = 'var(--red)';
+                return;
+            }
+            if (pass.length < 6) {
+                status.textContent = 'Пароль должен быть минимум 6 символов';
+                status.style.color = 'var(--red)';
+                return;
+            }
+
+            try {
+                let result;
+                if (isAuthMode === 'login') {
+                    result = await supabase.auth.signInWithPassword({ email, password: pass });
+                } else {
+                    result = await supabase.auth.signUp({ email, password: pass });
+                }
+
+                if (result.error) {
+                    status.textContent = 'Ошибка: ' + result.error.message;
+                    status.style.color = 'var(--red)';
+                    return;
+                }
+
+                if (result.data.user) {
+                    status.textContent = isAuthMode === 'login' ? 'Вход выполнен!' : 'Регистрация успешна!';
+                    status.style.color = 'var(--grn)';
+                    currentUser = result.data.user;
+                    currentUserId = currentUser.id;
+                    await loadUserData();
+                    showMainApp();
+                } else {
+                    status.textContent = 'Проверьте почту для подтверждения';
+                    status.style.color = 'var(--gld)';
+                }
+            } catch (e) {
+                status.textContent = 'Ошибка: ' + e.message;
+                status.style.color = 'var(--red)';
+            }
+        }
+
+        async function checkAuth() {
+            try {
+                const { data } = await supabase.auth.getSession();
+                if (data?.session?.user) {
+                    currentUser = data.session.user;
+                    currentUserId = currentUser.id;
+                    await loadUserData();
+                    showMainApp();
+                }
+            } catch (e) {
+                console.log('Не авторизован');
+            }
+        }
+
+        // ============================================================
+        // 4. РАБОТА С ДАННЫМИ ПОЛЬЗОВАТЕЛЯ
+        // ============================================================
+        const G = {
+            coins: 150,
+            farms: 0,
+            refs: 0,
+            keys: 0,
+            lastFarm: 0,
+            farmLv: 1,
+            name: 'Шахтёр',
+            nicks: { p: [], a: null },
+            shards: {},
+            clan: null,
+            clanLF: 0,
+            promos: {},
+            missions: { active: null, lastReset: 0 },
+            auctionBid: 0,
+            chests: 0,
+            refCode: '',
+            activatedRef: null,
+            refEarnings: 0
+        };
+
+        let GLOBAL_BOSS = { idx: 0, hp: 1000, lastRespawn: 0 };
+
+        async function loadUserData() {
+            try {
+                const { data, error } = await supabase
+                    .from('users')
+                    .select('*')
+                    .eq('id', currentUserId)
+                    .single();
+
+                if (error && error.code !== 'PGRST116') {
+                    console.error('Ошибка загрузки:', error);
+                    return;
+                }
+
+                if (data) {
+                    // Загружаем данные пользователя
+                    const p = data.data || {};
+                    Object.keys(G).forEach(k => {
+                        if (p[k] !== undefined) G[k] = p[k];
+                    });
+                    // Загружаем босса
+                    if (data.boss) GLOBAL_BOSS = data.boss;
+                } else {
+                    // Создаём нового пользователя
+                    G.refCode = currentUserId.substring(0, 8);
+                    await saveUserData();
+                }
+
+                // Проверяем и сбрасываем миссии
+                const now = Date.now();
+                if (now - G.missions.lastReset > 86400000 || !G.missions.active) {
+                    const MISSIONS_DEF = [
+                        { id: 'f8', nm: '🌾 Шахтёр', d: 'Добыть 8 раз', t: 8, tp: 'farm', rw: 1 },
+                        { id: 's1', nm: '💎 Коллекционер', d: 'Найти осколок', t: 1, tp: 'shard', rw: 2 },
+                        { id: 'w5', nm: '⚒️ Трудоголик', d: '5 работ', t: 5, tp: 'work', rw: 2 },
+                        { id: 'r3', nm: '👥 Вербовщик', d: '3 реферала', t: 3, tp: 'ref', rw: 1 }
+                    ];
+                    G.missions.active = {};
+                    const picked = [...MISSIONS_DEF].sort(() => Math.random() - .5).slice(0, 3);
+                    picked.forEach(m => { G.missions.active[m.id] = { ...m, prog: 0, claimed: false }; });
+                    G.missions.lastReset = now;
+                    await saveUserData();
+                }
+
+                // Проверяем босса
+                const mskTime = new Date(Date.now() + 3 * 3600000);
+                const nextSpawn = new Date(mskTime);
+                nextSpawn.setHours(16, 0, 0, 0);
+                if (mskTime > nextSpawn) nextSpawn.setDate(nextSpawn.getDate() + 1);
+                if (GLOBAL_BOSS.hp <= 0 && Date.now() - GLOBAL_BOSS.lastRespawn > 24 * 3600000) {
+                    // Воскрешаем босса в 16:00
+                    const now = new Date();
+                    if (now.getHours() >= 16) {
+                        GLOBAL_BOSS.hp = [1000, 3000, 6000][GLOBAL_BOSS.idx] || 1000;
+                        GLOBAL_BOSS.lastRespawn = Date.now();
+                        await saveBossData();
+                    }
+                }
+
+                renderUI();
+            } catch (e) {
+                console.error('Ошибка загрузки:', e);
+            }
+        }
+
+        async function saveUserData() {
+            if (!currentUserId) return;
+            try {
+                const { error } = await supabase
+                    .from('users')
+                    .upsert({
+                        id: currentUserId,
+                        email: currentUser.email,
+                        data: G,
+                        boss: GLOBAL_BOSS,
+                        updated_at: new Date().toISOString()
+                    });
+                if (error) console.error('Ошибка сохранения:', error);
+            } catch (e) {
+                console.error('Ошибка сохранения:', e);
+            }
+        }
+
+        async function saveBossData() {
+            if (!currentUserId) return;
+            try {
+                const { error } = await supabase
+                    .from('users')
+                    .update({ boss: GLOBAL_BOSS, updated_at: new Date().toISOString() })
+                    .eq('id', currentUserId);
+                if (error) console.error('Ошибка сохранения босса:', error);
+            } catch (e) {
+                console.error('Ошибка сохранения босса:', e);
+            }
+        }
+
+        // Сохраняем изменения в БД
+        let saveTimeout = null;
+
+        function autoSave() {
+            clearTimeout(saveTimeout);
+            saveTimeout = setTimeout(() => {
+                saveUserData();
+            }, 2000);
+        }
+
+        // ============================================================
+        // 5. ИГРОВАЯ ЛОГИКА
+        // ============================================================
+
         const SHARDS = {
             'Осколок Вечности': { l: 1, c: .001 },
             'Кристалл Света': { l: 1, c: .001 },
@@ -964,19 +1239,6 @@
             { nm: '🐉 Дракон', hp: 3000, ico: '🐉' },
             { nm: '💀 Лич', hp: 6000, ico: '💀' }
         ];
-        const MISSIONS_DEF = [
-            { id: 'f8', nm: '🌾 Шахтёр', d: 'Добыть 8 раз', t: 8, tp: 'farm', rw: 1 },
-            { id: 's1', nm: '💎 Коллекционер', d: 'Найти осколок', t: 1, tp: 'shard', rw: 2 },
-            { id: 'w5', nm: '⚒️ Трудоголик', d: '5 работ', t: 5, tp: 'work', rw: 2 },
-            { id: 'r3', nm: '👥 Вербовщик', d: '3 реферала', t: 3, tp: 'ref', rw: 1 }
-        ];
-        const PROFS_DEF = [
-            { id: 'farm', nm: '👨‍🌾 Крестьянин', inc: 60, cd: 4 },
-            { id: 'hunt', nm: '🏹 Охотник', inc: 90, cd: 6 },
-            { id: 'heal', nm: '💊 Лекарь', inc: 120, cd: 8 },
-            { id: 'smit', nm: '⚔️ Оружейник', inc: 180, cd: 12 }
-        ];
-        const PROMOS_DEF = { free: 15, denchak: 15 };
         const TOP_DEMO = [
             { n: 'ВасяКоин', c: 9420, f: 312, r: 18 },
             { n: 'МегаМайнер', c: 5100, f: 201, r: 9 },
@@ -984,56 +1246,10 @@
             { n: 'АлмазДобытчик', c: 2100, f: 98, r: 3 }
         ];
 
-        // ===== СОСТОЯНИЕ =====
-        let G = {
-            coins: 150,
-            farms: 0,
-            refs: 0,
-            keys: 0,
-            lastFarm: 0,
-            farmLv: 1,
-            name: 'Шахтёр',
-            nicks: { p: [], a: null },
-            shards: {},
-            clan: null,
-            clanLF: 0,
-            promos: {},
-            missions: { active: null, lastReset: 0 },
-            profs: {},
-            lastWork: {},
-            auctionBid: 0,
-            chests: 0,
-            boss: { idx: 0, hp: 1000, lastRespawn: 0 },
-            topUpdated: 0,
-            diceRolling: false,
-            refCode: 'demo_' + Math.random().toString(36).substring(2, 8),
-            refsActivated: [],
-            refEarnings: 0
-        };
-
         let _pendingFn = null;
-
-        // ===== ЗАГРУЗКА =====
-        try {
-            const raw = localStorage.getItem('cm3');
-            if (raw) {
-                const p = JSON.parse(raw);
-                ['coins', 'farms', 'refs', 'keys', 'lastFarm', 'farmLv', 'name', 'nicks', 'shards', 'clan', 'clanLF',
-                    'promos', 'missions', 'profs', 'lastWork', 'auctionBid', 'chests', 'boss', 'topUpdated',
-                    'refCode', 'refsActivated', 'refEarnings'
-                ].forEach(k => {
-                    if (p[k] !== undefined) G[k] = p[k];
-                });
-            }
-        } catch (e) {}
-
-        function save() {
-            try { localStorage.setItem('cm3', JSON.stringify(G)); } catch (e) {}
-        }
 
         function fmt(n) { return Math.round(n).toLocaleString('ru'); }
 
-        // ===== ТОСТ =====
         function toast(msg, tp) {
             const el = document.getElementById('_t');
             if (!el) return;
@@ -1045,7 +1261,6 @@
             el._x = setTimeout(() => el.classList.remove('show'), 2500);
         }
 
-        // ===== МОДАЛКИ =====
         function confirmAction(title, body, fn) {
             document.getElementById('M_title').textContent = title;
             document.getElementById('M_body').textContent = body;
@@ -1071,17 +1286,455 @@
             document.getElementById('MOD_nick').classList.remove('active');
         }
 
+        function showMainApp() {
+            document.getElementById('authPage').style.display = 'none';
+            document.getElementById('mainApp').style.display = 'block';
+            document.getElementById('MY_REF_CODE').textContent = G.refCode || currentUserId.substring(0, 8);
+            if (G.activatedRef) {
+                document.getElementById('ACTIVATED_REF').textContent = G.activatedRef;
+            }
+            renderUI();
+            setTimeout(() => drawRoulette(), 150);
+            setInterval(() => renderFarmTimer(), 1000);
+        }
+
+        function getFarmCost() { return FARM_COSTS[Math.min(G.farmLv - 1, 4)]; }
+
+        // ============================================================
+        // 6. РЕФЕРАЛЬНАЯ СИСТЕМА
+        // ============================================================
+        async function useRefCode() {
+            const code = document.getElementById('REF_INP').value.trim();
+            if (!code) { toast('Введите код', 'err'); return; }
+            if (code === G.refCode) { toast('Это ваш собственный код', 'err'); return; }
+            if (G.activatedRef) { toast('Вы уже активировали код', 'err'); return; }
+
+            // Проверяем, существует ли пользователь с таким кодом
+            try {
+                const { data, error } = await supabase
+                    .from('users')
+                    .select('id, data')
+                    .eq('data->>refCode', code)
+                    .limit(1);
+
+                if (error || !data || data.length === 0) {
+                    toast('Код не найден', 'err');
+                    return;
+                }
+
+                // Активируем код
+                G.activatedRef = code;
+                G.refs++;
+                G.coins += 25;
+                G.refEarnings += 25;
+
+                // Обновляем данные основателя (в демо-режиме просто сохраняем)
+                await saveUserData();
+                renderUI();
+                toast('Код активирован! +25 монет', 'gld');
+                document.getElementById('ACTIVATED_REF').textContent = code;
+                document.getElementById('REF_INP').value = '';
+            } catch (e) {
+                toast('Ошибка активации кода', 'err');
+            }
+        }
+
+        // ============================================================
+        // 7. РУЛЕТКА (ИСПРАВЛЕНА)
+        // ============================================================
+        let roulRunning = false;
+
+        function drawRoulette(angle, result) {
+            const cv = document.getElementById('RC');
+            if (!cv) return;
+            const rect = cv.parentElement?.getBoundingClientRect();
+            const w = rect ? rect.width - 4 : 360;
+            cv.width = w;
+            cv.height = 200;
+            const ctx = cv.getContext('2d'),
+                cx = w / 2,
+                cy = 100,
+                R = 78;
+            ctx.clearRect(0, 0, w, 200);
+
+            const segs = [];
+            for (let i = 0; i < 9; i++) { segs.push('red');
+                segs.push('black'); }
+            segs.push('green', 'green');
+
+            const n = segs.length;
+            const a0 = angle || 0;
+            segs.forEach((c, i) => {
+                const a1 = a0 + i / n * Math.PI * 2,
+                    a2 = a0 + (i + 1) / n * Math.PI * 2;
+                ctx.beginPath();
+                ctx.moveTo(cx, cy);
+                ctx.arc(cx, cy, R, a1, a2);
+                ctx.closePath();
+                ctx.fillStyle = c === 'red' ? '#7f1d1d' : c === 'black' ? '#1a1a2e' : '#052e16';
+                ctx.fill();
+                ctx.strokeStyle = '#ffffff18';
+                ctx.lineWidth = .8;
+                ctx.stroke();
+            });
+
+            ctx.beginPath();
+            ctx.arc(cx, cy, 18, 0, Math.PI * 2);
+            ctx.fillStyle = result ? { red: '#ef4444', black: '#6b7280', green: '#10b981' } [result] : '#d0d0e0';
+            ctx.fill();
+            ctx.beginPath();
+            ctx.moveTo(cx, cy - R - 12);
+            ctx.lineTo(cx - 7, cy - R + 6);
+            ctx.lineTo(cx + 7, cy - R + 6);
+            ctx.closePath();
+            ctx.fillStyle = '#f0b429';
+            ctx.fill();
+        }
+
+        function startRoul(col) {
+            if (roulRunning) { toast('Уже крутится!', 'err'); return; }
+            const bet = parseInt(document.getElementById('RL_bet').value);
+            if (G.coins < bet) { toast('Мало монет', 'err'); return; }
+
+            confirmAction(`Ставка ${bet} монет на ${col==='red'?'красный':col==='black'?'чёрный':'зелёный'}?`,
+                `Коэффициент: ${col==='green'?'×5':'×1.75'}. Шанс зелёного — 10%.`,
+                async () => {
+                    G.coins -= bet;
+                    roulRunning = true;
+
+                    const r = Math.random();
+                    const landed = r < .4 ? 'red' : r < .8 ? 'black' : 'green';
+
+                    const segs = [];
+                    for (let i = 0; i < 9; i++) { segs.push('red');
+                        segs.push('black'); }
+                    segs.push('green', 'green');
+                    const n = segs.length;
+                    const possible = [];
+                    segs.forEach((c, i) => { if (c === landed) possible.push(i); });
+                    const targetIdx = possible[Math.floor(Math.random() * possible.length)];
+
+                    const targetAngle = -(targetIdx + 0.5) / n * Math.PI * 2;
+                    const total = targetAngle + Math.PI * 2 * (6 + Math.random() * 3);
+
+                    const dur = 2800;
+                    const t0 = Date.now();
+
+                    function anim() {
+                        const el = Date.now() - t0,
+                            prog = Math.min(1, el / dur);
+                        const ease = 1 - Math.pow(1 - prog, 3.5);
+                        drawRoulette(ease * total, prog >= 1 ? landed : null);
+                        if (prog < 1) {
+                            requestAnimationFrame(anim);
+                        } else {
+                            roulRunning = false;
+                            const multiplier = landed === 'green' ? 5 : 1.75;
+                            const win = col === landed ? Math.floor(bet * multiplier) : 0;
+                            if (win) G.coins += win;
+                            const lbl = landed === 'red' ? 'красное' : landed === 'black' ? 'чёрное' : 'зелёное';
+                            const resEl = document.getElementById('RL_res');
+                            resEl.textContent = col === landed ?
+                                `✅ ${lbl.charAt(0).toUpperCase()+lbl.slice(1)}! +${win} монет` :
+                                `❌ ${lbl.charAt(0).toUpperCase()+lbl.slice(1)} — проигрыш`;
+                            resEl.className = 'game-result ' + (col === landed ? 'win' : 'lose');
+                            autoSave();
+                            renderUI();
+                            toast(col === landed ? `+${win} монет!` : 'Не повезло', col === landed ? 'gld' : 'err');
+                        }
+                    }
+                    requestAnimationFrame(anim);
+                });
+        }
+
+        // ============================================================
+        // 8. КУБИК
+        // ============================================================
+        const DICE_FACES = ['⚀', '⚁', '⚂', '⚃', '⚄', '⚅'];
+        let diceRolling = false;
+
+        function updateDiceDisplay(val, color) {
+            const el = document.getElementById('diceMain');
+            if (el) {
+                el.textContent = DICE_FACES[val] || '⚀';
+                el.classList.remove('rolling');
+                if (color === 'red') {
+                    el.style.borderColor = '#ef4444';
+                    el.style.boxShadow = '0 0 20px rgba(239,68,68,0.3)';
+                } else if (color === 'black') {
+                    el.style.borderColor = '#6b7280';
+                    el.style.boxShadow = '0 0 20px rgba(107,114,128,0.3)';
+                } else {
+                    el.style.borderColor = 'var(--acc)';
+                    el.style.boxShadow = 'none';
+                }
+            }
+            document.getElementById('dcRed').className = color === 'red' ? 'active-red' : '';
+            document.getElementById('dcBlack').className = color === 'black' ? 'active-black' : '';
+        }
+
+        function animateDiceRoll(callback) {
+            const el = document.getElementById('diceMain');
+            if (!el) { callback(); return; }
+            el.classList.add('rolling');
+            let count = 0;
+            const maxCount = 20;
+            const interval = setInterval(() => {
+                el.textContent = DICE_FACES[Math.floor(Math.random() * 6)];
+                count++;
+                if (count >= maxCount) {
+                    clearInterval(interval);
+                    el.classList.remove('rolling');
+                    callback();
+                }
+            }, 80);
+        }
+
+        function playDice(chosenColor) {
+            if (diceRolling) return;
+            if (G.coins < 50) { toast('Нужно 50 монет', 'err'); return; }
+            G.coins -= 50;
+            diceRolling = true;
+            const resultEl = document.getElementById('DC_res');
+
+            const diceValue = Math.floor(Math.random() * 6) + 1;
+            const landedColor = diceValue % 2 === 1 ? 'red' : 'black';
+
+            const baseWin = diceValue * 10;
+            const bonusWin = chosenColor === landedColor ? 10 : 0;
+            const totalWin = baseWin + bonusWin;
+
+            animateDiceRoll(() => {
+                updateDiceDisplay(diceValue - 1, landedColor);
+                G.coins += totalWin;
+                const profit = totalWin - 50;
+                const colorName = landedColor === 'red' ? 'красный' : 'чёрный';
+                const bonusText = bonusWin > 0 ? ` + бонус ${bonusWin} за цвет!` : ' (цвет не угадан)';
+                resultEl.textContent = profit > 0 ?
+                    `✅ Выпало ${diceValue} (${colorName})! Выигрыш +${profit} монет${bonusText}` :
+                    `❌ Выпало ${diceValue} (${colorName}) — получено ${totalWin} монет`;
+                resultEl.className = 'game-result ' + (profit > 0 ? 'win' : 'lose');
+                diceRolling = false;
+                autoSave();
+                renderUI();
+                toast(profit > 0 ? `+${profit} монет!` : 'Не повезло', profit > 0 ? 'gld' : 'err');
+            });
+        }
+
+        // ============================================================
+        // 9. АУКЦИОН
+        // ============================================================
+        function bid(a) {
+            if (G.coins < a) { toast('Мало монет', 'err'); return; }
+            G.coins -= a;
+            G.auctionBid += a;
+            document.getElementById('AU_amt').textContent = G.auctionBid;
+            document.getElementById('MY_bid').textContent = G.auctionBid;
+            document.getElementById('AU_lead').textContent = 'Вы лидируете!';
+            autoSave();
+            renderUI();
+            toast('Ставка: ' + G.auctionBid + ' монет', 'gld');
+        }
+
+        // ============================================================
+        // 10. ФАРМ
+        // ============================================================
+        function doFarm() {
+            const now = Date.now();
+            if (now - G.lastFarm < 3600000 && G.lastFarm) { toast('Кулдаун ещё не прошёл!', 'err'); return; }
+            const mult = 1 + (G.farmLv - 1) * .2;
+            const earned = Math.round((Math.floor(Math.random() * 5) + 1) * mult);
+            G.coins += earned;
+            G.farms++;
+            G.lastFarm = now;
+            const m = G.missions.active;
+            if (m?.f8) m.f8.prog = Math.min(m.f8.t, (m.f8.prog || 0) + 1);
+            let sm = '';
+            for (const [nm, info] of Object.entries(SHARDS)) {
+                if (Math.random() < info.c) {
+                    G.shards[nm] = (G.shards[nm] || 0) + 1;
+                    sm = `\n✨ ${nm}`;
+                    if (m?.s1) m.s1.prog = 1;
+                    break;
+                }
+            }
+            autoSave();
+            renderUI();
+            toast(`+${earned} монет!${sm}`, 'gld');
+        }
+
+        function upgradeFarm() {
+            if (G.farmLv >= 5) { toast('Максимальный уровень!', 'err'); return; }
+            const cost = getFarmCost();
+            if (G.coins < cost) { toast('Недостаточно монет: нужно ' + cost, 'err'); return; }
+            G.coins -= cost;
+            G.farmLv++;
+            autoSave();
+            renderUI();
+            toast('Шахта улучшена до ур. ' + G.farmLv + '!', 'ok');
+        }
+
+        // ============================================================
+        // 11. БОСС (ОБЩИЙ ДЛЯ ВСЕХ)
+        // ============================================================
+        function atkBoss() {
+            if (G.coins < 20) { toast('Нужно 20 монет', 'err'); return; }
+            if (GLOBAL_BOSS.hp <= 0) { toast('Босс уже повержен! Ждите 16:00 МСК', 'err'); return; }
+            G.coins -= 20;
+            const dmg = Math.floor(Math.random() * 41) + 10;
+            GLOBAL_BOSS.hp = Math.max(0, GLOBAL_BOSS.hp - dmg);
+            let msg = 'Урон: ' + dmg;
+            if (Math.random() < .2) { G.chests++;
+                msg += ' · 🎁 Сундук!'; }
+            if (GLOBAL_BOSS.hp <= 0) {
+                msg += ' · Босс повержён! Следующий в 16:00 МСК';
+                G.chests += 3;
+                GLOBAL_BOSS.lastRespawn = Date.now();
+                saveBossData();
+            }
+            document.getElementById('ATK_log').textContent = msg;
+            autoSave();
+            renderUI();
+            toast(msg, 'gld');
+        }
+
+        function openChest() {
+            if (G.chests <= 0) return;
+            G.chests--;
+            const r = Math.random();
+            let rw;
+            if (r < .5) {
+                const a = Math.floor(Math.random() * 40) + 10;
+                G.coins += a;
+                rw = `+${a} монет`;
+            } else if (r < .8) {
+                const k = Math.floor(Math.random() * 3) + 1;
+                G.keys += k;
+                rw = `+${k} ключей`;
+            } else {
+                const sn = Object.keys(SHARDS)[Math.floor(Math.random() * Object.keys(SHARDS).length)];
+                G.shards[sn] = (G.shards[sn] || 0) + 1;
+                rw = `✨ ${sn}`;
+            }
+            autoSave();
+            renderUI();
+            toast('Сундук: ' + rw, 'gld');
+        }
+
+        // ============================================================
+        // 12. МИССИИ
+        // ============================================================
+        function claimM(id) {
+            const m = G.missions.active?.[id];
+            if (!m || m.claimed || m.prog < m.t) return;
+            m.claimed = true;
+            G.keys += m.rw;
+            autoSave();
+            renderUI();
+            toast(`+${m.rw} ключ!`, 'gld');
+        }
+
+        // ============================================================
+        // 13. КЛАН
+        // ============================================================
+        function createClan() {
+            if (G.coins < 1500) { toast('Нужно 1500 монет', 'err'); return; }
+            const names = ['Kingdom Squad', 'Empire Crew', 'Dragon Force', 'Shadow Order', 'Titan Clan', 'Neon Warriors'];
+            G.coins -= 1500;
+            G.clan = { nm: names[Math.floor(Math.random() * names.length)], d: 0, m: [G.name] };
+            G.clanLF = 0;
+            autoSave();
+            renderUI();
+            toast('Клан создан!', 'ok');
+        }
+
+        function disbandClan() {
+            G.clan = null;
+            autoSave();
+            renderUI();
+            toast('Клан распущен', 'info');
+        }
+
+        function clanFarm() {
+            if (!G.clan) return;
+            if (Date.now() - G.clanLF < 6 * 3600000) { toast('Ещё не прошло 6 часов', 'err'); return; }
+            const m = Math.floor(Math.random() * 3) + 1;
+            G.clan.d += m;
+            G.clanLF = Date.now();
+            autoSave();
+            renderUI();
+            toast(`+${m} алмазов!`, 'gld');
+        }
+
+        function exDiam(n) {
+            if (!G.clan || G.clan.d < n) { toast('Нет алмазов', 'err'); return; }
+            G.clan.d -= n;
+            G.coins += n * 5;
+            autoSave();
+            renderUI();
+            toast(`+${n*5} монет!`, 'gld');
+        }
+
+        // ============================================================
+        // 14. МАГАЗИН
+        // ============================================================
+        function buyCoins(amt, price) {
+            G.coins += amt;
+            autoSave();
+            renderUI();
+            toast(`+${fmt(amt)} монет зачислено!`, 'gld');
+        }
+
+        function nickAct(id, owned) {
+            if (owned) {
+                G.nicks.a = G.nicks.a === id ? null : id;
+                autoSave();
+                renderUI();
+                toast('Стиль изменён!', 'ok');
+            } else {
+                if (G.coins < 250) { toast('Нужно 250 монет', 'err'); return; }
+                confirmAction(`Купить стиль «${NICK_STYLES[id].n}»?`, `Стоимость 250 монет. Стиль сразу станет активным.`,
+                    () => {
+                        G.coins -= 250;
+                        G.nicks.p.push(id);
+                        G.nicks.a = id;
+                        autoSave();
+                        renderUI();
+                        toast('Стиль куплен и активирован!', 'gld');
+                    });
+            }
+        }
+
+        function usePromo() {
+            const v = document.getElementById('PR_inp').value.trim().toLowerCase();
+            if (v) activatePromo(v);
+            document.getElementById('PR_inp').value = '';
+        }
+
+        function activatePromo(c) {
+            const PROMOS_DEF = { free: 15, denchak: 15 };
+            if (!PROMOS_DEF[c]) { toast('Промокод не найден', 'err'); return; }
+            if (G.promos[c]) { toast('Уже использован ранее', 'err'); return; }
+            G.coins += PROMOS_DEF[c];
+            G.promos[c] = true;
+            autoSave();
+            renderUI();
+            toast(`+${PROMOS_DEF[c]} монет!`, 'gld');
+        }
+
         function saveNick() {
             const v = document.getElementById('NK_inp').value.trim();
             if (v.length < 3 || v.length > 16) { toast('3–16 символов', 'err'); return; }
             G.name = v;
-            save();
+            autoSave();
             renderUI();
             closeNickMod();
             toast('Ник изменён!', 'ok');
         }
 
-        // ===== НАВИГАЦИЯ =====
+        // ============================================================
+        // 15. НАВИГАЦИЯ И ОТРИСОВКА
+        // ============================================================
         function goSc(nm) {
             document.querySelectorAll('.sc').forEach(s => s.classList.remove('on'));
             document.querySelectorAll('.nb').forEach(b => b.classList.remove('on'));
@@ -1094,33 +1747,44 @@
             renderUI();
         }
 
-        // ===== БАННЕР =====
+        function gTab(t, el) {
+            ['rl', 'dc', 'au'].forEach(x => {
+                const d = document.getElementById('G_' + x);
+                if (d) d.style.display = x === t ? 'block' : 'none';
+                const tb = document.getElementById('GT_' + x);
+                if (tb) tb.classList.remove('on');
+            });
+            if (el) el.classList.add('on');
+            if (t === 'rl') setTimeout(() => drawRoulette(), 40);
+            if (t === 'dc') setTimeout(() => updateDiceDisplay(0, null), 40);
+        }
+
+        function topTab(t, el) {
+            document.querySelectorAll('.sc#sc-top .tab').forEach(e => e.classList.remove('on'));
+            if (el) el.classList.add('on');
+            renderTop(t);
+        }
+
         function openTelegram() {
             window.open('https://t.me/minercoinsf', '_blank');
         }
 
-        // ===== ГЕТТЕРЫ =====
-        function getFarmCost() { return FARM_COSTS[Math.min(G.farmLv - 1, 4)]; }
+        // ============================================================
+        // 16. ОТРИСОВКА UI
+        // ============================================================
+        const NICK_STYLES = {
+            gold: { e: '🌟', n: 'Золотой' },
+            diamond: { e: '💎', n: 'Алмазный' },
+            fire: { e: '🔥', n: 'Огненный' },
+            vip: { e: '👑', n: 'VIP' },
+            star: { e: '⭐', n: 'Звёздный' },
+            ice: { e: '❄️', n: 'Ледяной' },
+            shadow: { e: '🌑', n: 'Теневой' },
+            ninja: { e: '🥷', n: 'Ниндзя' },
+            galaxy: { e: '🌌', n: 'Галактический' },
+            mystic: { e: '🔮', n: 'Мистический' }
+        };
 
-        // ===== РЕФЕРАЛЬНАЯ СИСТЕМА =====
-        function useRefCode() {
-            const code = document.getElementById('REF_INP').value.trim();
-            if (!code) { toast('Введите код', 'err'); return; }
-            if (code === G.refCode) { toast('Это ваш собственный код', 'err'); return; }
-            if (G.refsActivated.includes(code)) { toast('Код уже активирован', 'err'); return; }
-
-            // Находим основателя по коду (в демо - просто начисляем)
-            G.refsActivated.push(code);
-            G.refs++;
-            G.coins += 25; // бонус основателю
-            G.refEarnings += 25;
-            save();
-            renderUI();
-            toast('Код активирован! +25 монет основателю', 'gld');
-            document.getElementById('REF_INP').value = '';
-        }
-
-        // ===== ОТРИСОВКА =====
         function renderUI() {
             document.getElementById('H_coins').textContent = fmt(G.coins);
             document.getElementById('S_c').textContent = fmt(G.coins);
@@ -1134,17 +1798,20 @@
             const an = G.nicks.a ? NICK_STYLES[G.nicks.a] : null;
             document.getElementById('NICK_LBL').textContent = an ? `Стиль: ${an.e} ${an.n}` : 'Стиль не выбран';
             document.getElementById('AV').textContent = an ? an.e : '⛏';
-            document.getElementById('MY_REF_CODE').textContent = G.refCode;
+            document.getElementById('MY_REF_CODE').textContent = G.refCode || currentUserId?.substring(0, 8) || 'загрузка...';
+            if (G.activatedRef) {
+                document.getElementById('ACTIVATED_REF').textContent = G.activatedRef;
+            }
             renderFarmTimer();
             renderShards();
             renderNicks();
             renderMissions();
-            renderProfs();
             renderBoss();
             renderClan();
             document.getElementById('K_big').textContent = G.keys + ' 🔑';
             document.getElementById('CH_btn').disabled = G.chests <= 0;
             document.getElementById('CH_cnt').textContent = G.chests;
+            renderTop('b');
         }
 
         function renderFarmTimer() {
@@ -1191,15 +1858,8 @@
         }
 
         function renderMissions() {
-            const now = Date.now();
-            if (now - G.missions.lastReset > 86400000 || !G.missions.active) {
-                const picked = [...MISSIONS_DEF].sort(() => Math.random() - .5).slice(0, 3);
-                G.missions.active = {};
-                picked.forEach(m => { G.missions.active[m.id] = { ...m, prog: 0, claimed: false }; });
-                G.missions.lastReset = now;
-                save();
-            }
             const el = document.getElementById('MS_list');
+            if (!G.missions.active) return;
             el.innerHTML = Object.values(G.missions.active).map(m => {
                 const done = m.prog >= m.t;
                 const pct = Math.min(100, Math.round(m.prog / m.t * 100));
@@ -1214,54 +1874,31 @@
             }).join('');
         }
 
-        function renderProfs() {
-            document.getElementById('PR_list').innerHTML = PROFS_DEF.map(p => {
-                const ul = !!G.profs[p.id];
-                const lw = G.lastWork[p.id] || 0;
-                const cdms = p.cd * 3600000;
-                const canW = ul && (Date.now() - lw >= cdms);
-                const remH = ul && !canW ? Math.ceil((lw + cdms - Date.now()) / 3600000) : 0;
-                return `<div class="row">
-              <div style="font-size:20px;width:28px;text-align:center">${p.nm.split(' ')[0]}</div>
-              <div style="flex:1">
-                <div style="font-size:12px;font-weight:500">${p.nm.split(' ').slice(1).join(' ')}</div>
-                <div style="font-size:10px;color:var(--tx2)">+${p.inc} монет · кд ${p.cd}ч</div>
-              </div>
-              ${ul?`<button class="btn ${canW?'bp':'bs'}" style="width:auto;padding:5px 9px;font-size:11px" ${canW?'':'disabled'} onclick="confirmAction('Работать профессией?','Вы получите ${p.inc} монет. Кулдаун ${p.cd} ч.',()=>workProf('${p.id}'))">${canW?'Работать':remH+'ч'}</button>`:
-              `<button class="btn bs" style="width:auto;padding:5px 9px;font-size:11px" onclick="confirmAction('Изучить ${p.nm.split(' ').slice(1).join(' ')}?','Стоимость ${p.inc*2} монет. После изучения можно работать каждые ${p.cd} ч и зарабатывать ${p.inc} монет.',()=>learnProf('${p.id}'))">${p.inc*2}💰</button>`}
-            </div>`;
-            }).join('');
-        }
-
         function renderBoss() {
             const now = Date.now();
-            // Спавн босса в 16:00 МСК каждый день
-            const mskTime = new Date(now + 3 * 3600000); // UTC+3
+            const mskTime = new Date(now + 3 * 3600000);
             const nextSpawn = new Date(mskTime);
             nextSpawn.setHours(16, 0, 0, 0);
-            if (mskTime > nextSpawn) {
-                nextSpawn.setDate(nextSpawn.getDate() + 1);
-            }
+            if (mskTime > nextSpawn) nextSpawn.setDate(nextSpawn.getDate() + 1);
             const timeToSpawn = nextSpawn - mskTime;
 
-            // Если босс мёртв и время спавна пришло - воскрешаем
-            if (G.boss.hp <= 0 && timeToSpawn < 60000) {
-                G.boss.hp = BOSSES[G.boss.idx].hp;
-                save();
+            if (GLOBAL_BOSS.hp <= 0 && timeToSpawn < 60000) {
+                GLOBAL_BOSS.hp = BOSSES[GLOBAL_BOSS.idx].hp;
+                saveBossData();
             }
 
-            const b = BOSSES[G.boss.idx] || BOSSES[0];
+            const b = BOSSES[GLOBAL_BOSS.idx] || BOSSES[0];
             const maxhp = b.hp;
-            const pct = Math.max(0, Math.round(G.boss.hp / maxhp * 100));
+            const pct = Math.max(0, Math.round(GLOBAL_BOSS.hp / maxhp * 100));
             document.getElementById('BS_ico').textContent = b.ico;
             document.getElementById('BS_nm').textContent = b.nm;
             document.getElementById('BS_hp').style.width = pct + '%';
-            document.getElementById('BS_hp_txt').textContent = fmt(G.boss.hp) + ' / ' + fmt(maxhp) + ' ХП';
-            document.getElementById('BS_st').textContent = G.boss.hp > 0 ? 'Активен — атакуйте!' : 'Повержен! Ожидайте 16:00 МСК';
-            // Время до спавна
+            document.getElementById('BS_hp_txt').textContent = fmt(GLOBAL_BOSS.hp) + ' / ' + fmt(maxhp) + ' ХП';
+            document.getElementById('BS_st').textContent = GLOBAL_BOSS.hp > 0 ? 'Активен — атакуйте!' :
+                'Повержен! Ожидайте 16:00 МСК';
             const hours = Math.floor(timeToSpawn / 3600000);
             const mins = Math.floor((timeToSpawn % 3600000) / 60000);
-            document.getElementById('BS_respawn').textContent = G.boss.hp > 0 ?
+            document.getElementById('BS_respawn').textContent = GLOBAL_BOSS.hp > 0 ?
                 'Следующий босс в 16:00 МСК' :
                 `Респавн через ${hours}ч ${mins}м (в 16:00 МСК)`;
         }
@@ -1286,15 +1923,6 @@
         function renderTop(tp) {
             const now = Date.now();
             const upd = document.getElementById('TOP_upd');
-            if (now - G.topUpdated > 600000) {
-                TOP_DEMO.forEach(p => { p.c += Math.floor(Math.random() * 300 - 50);
-                    p.f += Math.floor(Math.random() * 8);
-                    p.c = Math.max(0, p.c); });
-                G.topUpdated = now;
-                save();
-            }
-            const rem = Math.max(0, Math.ceil((G.topUpdated + 600000 - now) / 1000));
-            upd.textContent = rem > 30 ? `Обновление через ${Math.round(rem/60)}м` : 'Только что обновлено';
             const all = [...TOP_DEMO, { n: G.name, c: G.coins, f: G.farms, r: G.refs }];
             const key = tp === 'b' ? 'c' : tp === 'f' ? 'f' : 'r';
             const titles = { b: 'Топ по балансу', f: 'Топ по фармам', r: 'Топ по рефералам' };
@@ -1307,426 +1935,9 @@
             }).join('');
         }
 
-        function gTab(t, el) {
-            ['rl', 'dc', 'au'].forEach(x => {
-                const d = document.getElementById('G_' + x);
-                if (d) d.style.display = x === t ? 'block' : 'none';
-                const tb = document.getElementById('GT_' + x);
-                if (tb) tb.classList.remove('on');
-            });
-            if (el) el.classList.add('on');
-            if (t === 'rl') setTimeout(() => drawRoulette(), 40);
-            if (t === 'dc') setTimeout(() => updateDiceDisplay(0, null), 40);
-        }
-
-        function topTab(t, el) {
-            document.querySelectorAll('.sc#sc-top .tab').forEach(e => e.classList.remove('on'));
-            if (el) el.classList.add('on');
-            renderTop(t);
-        }
-
-        // ===== ИГРОВЫЕ ФУНКЦИИ =====
-
-        // ---- РУЛЕТКА (ИСПРАВЛЕНА) ----
-        let roulRunning = false;
-
-        function drawRoulette(angle, result) {
-            const cv = document.getElementById('RC');
-            if (!cv) return;
-            const rect = cv.parentElement?.getBoundingClientRect();
-            const w = rect ? rect.width - 4 : 360;
-            cv.width = w;
-            cv.height = 200;
-            const ctx = cv.getContext('2d'),
-                cx = w / 2,
-                cy = 100,
-                R = 78;
-            ctx.clearRect(0, 0, w, 200);
-
-            // 20 сегментов: 18 цветных + 2 зеленых
-            const segs = [];
-            for (let i = 0; i < 9; i++) { segs.push('red');
-                segs.push('black'); }
-            segs.push('green', 'green');
-
-            const n = segs.length;
-            const a0 = angle || 0;
-            segs.forEach((c, i) => {
-                const a1 = a0 + i / n * Math.PI * 2,
-                    a2 = a0 + (i + 1) / n * Math.PI * 2;
-                ctx.beginPath();
-                ctx.moveTo(cx, cy);
-                ctx.arc(cx, cy, R, a1, a2);
-                ctx.closePath();
-                ctx.fillStyle = c === 'red' ? '#7f1d1d' : c === 'black' ? '#1a1a2e' : '#052e16';
-                ctx.fill();
-                ctx.strokeStyle = '#ffffff18';
-                ctx.lineWidth = .8;
-                ctx.stroke();
-            });
-
-            ctx.beginPath();
-            ctx.arc(cx, cy, 18, 0, Math.PI * 2);
-            ctx.fillStyle = result ? { red: '#ef4444', black: '#6b7280', green: '#10b981' } [result] : '#d0d0e0';
-            ctx.fill();
-            ctx.beginPath();
-            ctx.moveTo(cx, cy - R - 12);
-            ctx.lineTo(cx - 7, cy - R + 6);
-            ctx.lineTo(cx + 7, cy - R + 6);
-            ctx.closePath();
-            ctx.fillStyle = '#f0b429';
-            ctx.fill();
-        }
-
-        function startRoul(col) {
-            if (roulRunning) { toast('Уже крутится!', 'err'); return; }
-            const bet = parseInt(document.getElementById('RL_bet').value);
-            if (G.coins < bet) { toast('Мало монет', 'err'); return; }
-
-            confirmAction(`Ставка ${bet} монет на ${col==='red'?'красный':col==='black'?'чёрный':'зелёный'}?`,
-                `Коэффициент: ${col==='green'?'×5':'×1.75'}. Шанс зелёного — 10%.`,
-                () => {
-                    G.coins -= bet;
-                    roulRunning = true;
-
-                    const r = Math.random();
-                    const landed = r < .4 ? 'red' : r < .8 ? 'black' : 'green';
-
-                    const segs = [];
-                    for (let i = 0; i < 9; i++) { segs.push('red');
-                        segs.push('black'); }
-                    segs.push('green', 'green');
-                    const n = segs.length;
-                    const possible = [];
-                    segs.forEach((c, i) => { if (c === landed) possible.push(i); });
-                    const targetIdx = possible[Math.floor(Math.random() * possible.length)];
-
-                    // Угол: стрелка смотрит вверх (0), сегмент i занимает угол от i/n*2π до (i+1)/n*2π
-                    const targetAngle = -(targetIdx + 0.5) / n * Math.PI * 2;
-                    const total = targetAngle + Math.PI * 2 * (6 + Math.random() * 3);
-
-                    const dur = 2800;
-                    const t0 = Date.now();
-
-                    function anim() {
-                        const el = Date.now() - t0,
-                            prog = Math.min(1, el / dur);
-                        const ease = 1 - Math.pow(1 - prog, 3.5);
-                        drawRoulette(ease * total, prog >= 1 ? landed : null);
-                        if (prog < 1) {
-                            requestAnimationFrame(anim);
-                        } else {
-                            roulRunning = false;
-                            const multiplier = landed === 'green' ? 5 : 1.75;
-                            const win = col === landed ? Math.floor(bet * multiplier) : 0;
-                            if (win) G.coins += win;
-                            const lbl = landed === 'red' ? 'красное' : landed === 'black' ? 'чёрное' : 'зелёное';
-                            const resEl = document.getElementById('RL_res');
-                            resEl.textContent = col === landed ?
-                                `✅ ${lbl.charAt(0).toUpperCase()+lbl.slice(1)}! +${win} монет` :
-                                `❌ ${lbl.charAt(0).toUpperCase()+lbl.slice(1)} — проигрыш`;
-                            resEl.className = 'game-result ' + (col === landed ? 'win' : 'lose');
-                            save();
-                            renderUI();
-                            toast(col === landed ? `+${win} монет!` : 'Не повезло', col === landed ? 'gld' : 'err');
-                        }
-                    }
-                    requestAnimationFrame(anim);
-                });
-        }
-
-        // ---- КУБИК ----
-        const DICE_FACES = ['⚀', '⚁', '⚂', '⚃', '⚄', '⚅'];
-
-        function updateDiceDisplay(val, color) {
-            const el = document.getElementById('diceMain');
-            if (el) {
-                el.textContent = DICE_FACES[val] || '⚀';
-                el.classList.remove('rolling');
-                if (color === 'red') {
-                    el.style.borderColor = '#ef4444';
-                    el.style.boxShadow = '0 0 20px rgba(239,68,68,0.3)';
-                } else if (color === 'black') {
-                    el.style.borderColor = '#6b7280';
-                    el.style.boxShadow = '0 0 20px rgba(107,114,128,0.3)';
-                } else {
-                    el.style.borderColor = 'var(--acc)';
-                    el.style.boxShadow = 'none';
-                }
-            }
-            document.getElementById('dcRed').className = color === 'red' ? 'active-red' : '';
-            document.getElementById('dcBlack').className = color === 'black' ? 'active-black' : '';
-        }
-
-        function animateDiceRoll(callback) {
-            const el = document.getElementById('diceMain');
-            if (!el) { callback(); return; }
-            el.classList.add('rolling');
-            let count = 0;
-            const maxCount = 20;
-            const interval = setInterval(() => {
-                el.textContent = DICE_FACES[Math.floor(Math.random() * 6)];
-                count++;
-                if (count >= maxCount) {
-                    clearInterval(interval);
-                    el.classList.remove('rolling');
-                    callback();
-                }
-            }, 80);
-        }
-
-        function playDice(chosenColor) {
-            if (G.diceRolling) return;
-            if (G.coins < 50) { toast('Нужно 50 монет', 'err'); return; }
-            G.coins -= 50;
-            G.diceRolling = true;
-            const resultEl = document.getElementById('DC_res');
-
-            const diceValue = Math.floor(Math.random() * 6) + 1;
-            const landedColor = diceValue % 2 === 1 ? 'red' : 'black';
-
-            const baseWin = diceValue * 10;
-            const bonusWin = chosenColor === landedColor ? 10 : 0;
-            const totalWin = baseWin + bonusWin;
-
-            animateDiceRoll(() => {
-                updateDiceDisplay(diceValue - 1, landedColor);
-                G.coins += totalWin;
-                const profit = totalWin - 50;
-                const colorName = landedColor === 'red' ? 'красный' : 'чёрный';
-                const bonusText = bonusWin > 0 ? ` + бонус ${bonusWin} за цвет!` : ' (цвет не угадан)';
-                resultEl.textContent = profit > 0 ?
-                    `✅ Выпало ${diceValue} (${colorName})! Выигрыш +${profit} монет${bonusText}` :
-                    `❌ Выпало ${diceValue} (${colorName}) — получено ${totalWin} монет`;
-                resultEl.className = 'game-result ' + (profit > 0 ? 'win' : 'lose');
-                G.diceRolling = false;
-                save();
-                renderUI();
-                toast(profit > 0 ? `+${profit} монет!` : 'Не повезло', profit > 0 ? 'gld' : 'err');
-            });
-        }
-
-        // ---- АУКЦИОН ----
-        function bid(a) {
-            if (G.coins < a) { toast('Мало монет', 'err'); return; }
-            G.coins -= a;
-            G.auctionBid += a;
-            document.getElementById('AU_amt').textContent = G.auctionBid;
-            document.getElementById('MY_bid').textContent = G.auctionBid;
-            document.getElementById('AU_lead').textContent = 'Вы лидируете!';
-            save();
-            renderUI();
-            toast('Ставка: ' + G.auctionBid + ' монет', 'gld');
-        }
-
-        // ===== ОСНОВНЫЕ ДЕЙСТВИЯ =====
-
-        function doFarm() {
-            const now = Date.now();
-            if (now - G.lastFarm < 3600000 && G.lastFarm) { toast('Кулдаун ещё не прошёл!', 'err'); return; }
-            const mult = 1 + (G.farmLv - 1) * .2;
-            const earned = Math.round((Math.floor(Math.random() * 5) + 1) * mult);
-            G.coins += earned;
-            G.farms++;
-            G.lastFarm = now;
-            const m = G.missions.active;
-            if (m?.f8) m.f8.prog = Math.min(m.f8.t, (m.f8.prog || 0) + 1);
-            let sm = '';
-            for (const [nm, info] of Object.entries(SHARDS)) {
-                if (Math.random() < info.c) {
-                    G.shards[nm] = (G.shards[nm] || 0) + 1;
-                    sm = `\n✨ ${nm}`;
-                    if (m?.s1) m.s1.prog = 1;
-                    break;
-                }
-            }
-            save();
-            renderUI();
-            toast(`+${earned} монет!${sm}`, 'gld');
-        }
-
-        function upgradeFarm() {
-            if (G.farmLv >= 5) { toast('Максимальный уровень!', 'err'); return; }
-            const cost = getFarmCost();
-            if (G.coins < cost) { toast('Недостаточно монет: нужно ' + cost, 'err'); return; }
-            G.coins -= cost;
-            G.farmLv++;
-            save();
-            renderUI();
-            toast('Шахта улучшена до ур. ' + G.farmLv + '!', 'ok');
-        }
-
-        function nickAct(id, owned) {
-            if (owned) {
-                G.nicks.a = G.nicks.a === id ? null : id;
-                save();
-                renderUI();
-                toast('Стиль изменён!', 'ok');
-            } else {
-                if (G.coins < 250) { toast('Нужно 250 монет', 'err'); return; }
-                confirmAction(`Купить стиль «${NICK_STYLES[id].n}»?`, `Стоимость 250 монет. Стиль сразу станет активным.`,
-                    () => {
-                        G.coins -= 250;
-                        G.nicks.p.push(id);
-                        G.nicks.a = id;
-                        save();
-                        renderUI();
-                        toast('Стиль куплен и активирован!', 'gld');
-                    });
-            }
-        }
-
-        function usePromo() {
-            const v = document.getElementById('PR_inp').value.trim().toLowerCase();
-            if (v) activatePromo(v);
-            document.getElementById('PR_inp').value = '';
-        }
-
-        function activatePromo(c) {
-            if (!PROMOS_DEF[c]) { toast('Промокод не найден', 'err'); return; }
-            if (G.promos[c]) { toast('Уже использован ранее', 'err'); return; }
-            G.coins += PROMOS_DEF[c];
-            G.promos[c] = true;
-            save();
-            renderUI();
-            toast(`+${PROMOS_DEF[c]} монет!`, 'gld');
-        }
-
-        function addRef() {
-            G.refs++;
-            G.coins += 25;
-            const m = G.missions.active;
-            if (m?.r3) m.r3.prog = Math.min(3, (m.r3.prog || 0) + 1);
-            save();
-            renderUI();
-            toast('+25 монет за реферала!', 'gld');
-        }
-
-        function copyRef() { toast('Ссылка скопирована!', 'ok'); }
-
-        function buyCoins(amt, price) {
-            G.coins += amt;
-            save();
-            renderUI();
-            toast(`+${fmt(amt)} монет зачислено!`, 'gld');
-        }
-
-        function createClan() {
-            if (G.coins < 1500) { toast('Нужно 1500 монет', 'err'); return; }
-            const names = ['Kingdom Squad', 'Empire Crew', 'Dragon Force', 'Shadow Order', 'Titan Clan', 'Neon Warriors'];
-            G.coins -= 1500;
-            G.clan = { nm: names[Math.floor(Math.random() * names.length)], d: 0, m: [G.name] };
-            G.clanLF = 0;
-            save();
-            renderUI();
-            toast('Клан создан!', 'ok');
-        }
-
-        function disbandClan() {
-            G.clan = null;
-            save();
-            renderUI();
-            toast('Клан распущен', 'info');
-        }
-
-        function clanFarm() {
-            if (!G.clan) return;
-            if (Date.now() - G.clanLF < 6 * 3600000) { toast('Ещё не прошло 6 часов', 'err'); return; }
-            const m = Math.floor(Math.random() * 3) + 1;
-            G.clan.d += m;
-            G.clanLF = Date.now();
-            save();
-            renderUI();
-            toast(`+${m} алмазов!`, 'gld');
-        }
-
-        function exDiam(n) {
-            if (!G.clan || G.clan.d < n) { toast('Нет алмазов', 'err'); return; }
-            G.clan.d -= n;
-            G.coins += n * 5;
-            save();
-            renderUI();
-            toast(`+${n*5} монет!`, 'gld');
-        }
-
-        function claimM(id) {
-            const m = G.missions.active?.[id];
-            if (!m || m.claimed || m.prog < m.t) return;
-            m.claimed = true;
-            G.keys += m.rw;
-            save();
-            renderUI();
-            toast(`+${m.rw} ключ!`, 'gld');
-        }
-
-        function workProf(id) {
-            const p = PROFS_DEF.find(x => x.id === id);
-            if (!p || !G.profs[id]) return;
-            if (Date.now() - (G.lastWork[id] || 0) < p.cd * 3600000) { toast('Ещё кулдаун', 'err'); return; }
-            G.coins += p.inc;
-            G.lastWork[id] = Date.now();
-            const m = G.missions.active;
-            if (m?.w5) m.w5.prog = Math.min(5, (m.w5.prog || 0) + 1);
-            save();
-            renderUI();
-            toast(`+${p.inc} монет!`, 'gld');
-        }
-
-        function learnProf(id) {
-            const p = PROFS_DEF.find(x => x.id === id);
-            if (!p) return;
-            const cost = p.inc * 2;
-            if (G.coins < cost) { toast(`Нужно ${cost} монет`, 'err'); return; }
-            G.coins -= cost;
-            G.profs[id] = true;
-            save();
-            renderUI();
-            toast('Профессия изучена!', 'ok');
-        }
-
-        function atkBoss() {
-            if (G.coins < 20) { toast('Нужно 20 монет', 'err'); return; }
-            if (G.boss.hp <= 0) { toast('Босс уже повержен! Ждите 16:00 МСК', 'err'); return; }
-            G.coins -= 20;
-            const dmg = Math.floor(Math.random() * 41) + 10;
-            G.boss.hp = Math.max(0, G.boss.hp - dmg);
-            let msg = 'Урон: ' + dmg;
-            if (Math.random() < .2) { G.chests++;
-                msg += ' · 🎁 Сундук!'; }
-            if (G.boss.hp <= 0) {
-                msg += ' · Босс повержён! Следующий в 16:00 МСК';
-                G.chests += 3;
-            }
-            document.getElementById('ATK_log').textContent = msg;
-            save();
-            renderUI();
-            toast(msg, 'gld');
-        }
-
-        function openChest() {
-            if (G.chests <= 0) return;
-            G.chests--;
-            const r = Math.random();
-            let rw;
-            if (r < .5) {
-                const a = Math.floor(Math.random() * 40) + 10;
-                G.coins += a;
-                rw = `+${a} монет`;
-            } else if (r < .8) {
-                const k = Math.floor(Math.random() * 3) + 1;
-                G.keys += k;
-                rw = `+${k} ключей`;
-            } else {
-                const sn = Object.keys(SHARDS)[Math.floor(Math.random() * Object.keys(SHARDS).length)];
-                G.shards[sn] = (G.shards[sn] || 0) + 1;
-                rw = `✨ ${sn}`;
-            }
-            save();
-            renderUI();
-            toast('Сундук: ' + rw, 'gld');
-        }
-
-        // ===== УСТАНОВКА БАННЕРА =====
+        // ============================================================
+        // 17. БАННЕР
+        // ============================================================
         function setBannerImage(url) {
             const img = document.getElementById('BNR_img');
             img.src = url;
@@ -1738,18 +1949,19 @@
             };
         }
 
-        // ===== ИНИЦИАЛИЗАЦИЯ =====
-        renderUI();
-        setTimeout(() => drawRoulette(), 150);
-        setInterval(() => renderFarmTimer(), 1000);
-        setInterval(() => {
-            const sc = document.querySelector('.sc.on');
-            if (sc && sc.id === 'sc-top') renderTop('b');
-            renderBoss(); // обновляем таймер босса
-        }, 30000);
-
+        // ============================================================
+        // 18. ИНИЦИАЛИЗАЦИЯ
+        // ============================================================
         setBannerImage('https://i.ibb.co/hRSsFg5R/Chat-GPT-Image-19-2026-20-55-28.png');
         updateDiceDisplay(0, null);
+
+        // Проверяем авторизацию каждые 30 секунд
+        setInterval(() => {
+            if (currentUserId) {
+                loadUserData();
+            }
+        }, 30000);
     </script>
+
 </body>
 </html>
