@@ -113,11 +113,11 @@
         .nb:hover {
             color: var(--gld);
         }
-        .nb i {
-            font-size: 19px;
+        .nb span {
+            font-size: 10px;
         }
 
-        /* Баннер - теперь над навигацией, виден всегда */
+        /* Баннер на всю ширину */
         .bnr {
             border-top: 1px solid var(--bd2);
             border-bottom: 1px solid var(--bd2);
@@ -125,7 +125,7 @@
             display: flex;
             align-items: stretch;
             overflow: hidden;
-            height: 62px;
+            height: 70px;
             background: var(--bg2);
             position: fixed;
             bottom: 60px;
@@ -134,17 +134,18 @@
             max-width: 430px;
             margin: 0 auto;
             z-index: 45;
+            width: 100%;
         }
         .bnr-img {
             flex-shrink: 0;
-            width: 110px;
+            width: 120px;
             object-fit: cover;
             display: block;
         }
         .bnr-img-placeholder {
             flex-shrink: 0;
-            width: 110px;
-            height: 62px;
+            width: 120px;
+            height: 70px;
             background: var(--bg3);
             display: flex;
             align-items: center;
@@ -160,24 +161,31 @@
             flex-direction: column;
             justify-content: center;
             background: var(--bg2);
+            min-width: 0;
         }
         .bnr-title {
-            font-size: 11px;
+            font-size: 12px;
             font-weight: 600;
             color: var(--gld);
             margin-bottom: 2px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
         .bnr-sub {
-            font-size: 10px;
+            font-size: 11px;
             color: var(--tx2);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
         .bnr-btn {
             align-self: stretch;
-            padding: 0 12px;
+            padding: 0 16px;
             background: var(--gld);
             color: #1a0800;
             border: none;
-            font-size: 11px;
+            font-size: 13px;
             font-weight: 700;
             cursor: pointer;
             flex-shrink: 0;
@@ -188,7 +196,7 @@
             display: none;
             flex-direction: column;
             gap: 10px;
-            padding-bottom: 130px;
+            padding-bottom: 140px;
         }
         .sc.on {
             display: flex;
@@ -240,18 +248,18 @@
         }
         .btn {
             width: 100%;
-            padding: 13px 11px;
+            padding: 14px 11px;
             border: none;
             border-radius: var(--r2);
-            font-size: 14px;
+            font-size: 15px;
             font-weight: 600;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 5px;
+            gap: 6px;
             transition: .12s;
-            min-height: 48px;
+            min-height: 52px;
         }
         .btn:active {
             transform: scale(.97);
@@ -525,8 +533,9 @@
             gap: 6px;
         }
         .roulette-buttons .btn {
-            font-size: 14px;
+            font-size: 15px;
             padding: 14px 0;
+            min-height: 52px;
         }
         .dice-buttons {
             display: grid;
@@ -534,17 +543,18 @@
             gap: 6px;
         }
         .dice-buttons .btn {
-            font-size: 14px;
+            font-size: 15px;
             padding: 14px 0;
+            min-height: 52px;
         }
 
         .game-result {
-            font-size: 14px;
+            font-size: 15px;
             text-align: center;
-            min-height: 24px;
+            min-height: 28px;
             margin-bottom: 10px;
             color: var(--tx2);
-            font-weight: 500;
+            font-weight: 600;
         }
         .game-result.win {
             color: var(--gld);
@@ -577,35 +587,64 @@
             opacity: 1;
         }
 
+        /* Кубик */
         .dice-container {
             display: flex;
             justify-content: center;
-            gap: 6px;
-            margin: 8px 0;
+            gap: 8px;
+            margin: 10px 0;
             flex-wrap: wrap;
         }
         .dice {
-            width: 52px;
-            height: 52px;
+            width: 60px;
+            height: 60px;
             background: var(--bg4);
             border: 2px solid var(--acc);
-            border-radius: 8px;
+            border-radius: 10px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 30px;
+            font-size: 34px;
             color: var(--tx);
             transition: transform 0.1s;
+            user-select: none;
         }
         .dice.rolling {
             animation: diceRoll 0.08s infinite alternate;
         }
         @keyframes diceRoll {
             0% {
-                transform: rotate(-10deg) scale(0.95);
+                transform: rotate(-15deg) scale(0.9);
             }
             100% {
-                transform: rotate(10deg) scale(1.05);
+                transform: rotate(15deg) scale(1.1);
+            }
+        }
+
+        /* Увеличенные кнопки внизу */
+        .nav .nb span {
+            font-size: 11px;
+        }
+        .nav .nb i {
+            font-size: 22px;
+        }
+
+        /* Адаптив */
+        @media (max-width: 400px) {
+            .bnr-title {
+                font-size: 10px;
+            }
+            .bnr-sub {
+                font-size: 9px;
+            }
+            .bnr-btn {
+                font-size: 11px;
+                padding: 0 10px;
+            }
+            .dice {
+                width: 48px;
+                height: 48px;
+                font-size: 28px;
             }
         }
     </style>
@@ -717,19 +756,17 @@
 
                 <div id="G_dc" style="display:none">
                     <div class="card">
-                        <div class="ct">кубики — ставка 50 монет, шанс 33%</div>
-                        <div id="DC_res" class="game-result">Кидайте кубики и выигрывайте!</div>
-                        <div class="dice-container" id="diceContainer">
-                            <div class="dice" id="dice0">⚀</div>
-                            <div class="dice" id="dice1">⚀</div>
-                            <div class="dice" id="dice2">⚀</div>
-                            <div class="dice" id="dice3">⚀</div>
-                            <div class="dice" id="dice4">⚀</div>
+                        <div class="ct">кубик — ставка 50 монет</div>
+                        <div id="DC_res" class="game-result">Кидайте кубик и выигрывайте!</div>
+                        <div class="dice-container">
+                            <div class="dice" id="diceMain">⚀</div>
                         </div>
-                        <div style="font-size:11px;color:var(--tx2);text-align:center;margin:8px 0">Выигрыш = угаданные кубики × 5 монет (из 25)</div>
+                        <div style="font-size:11px;color:var(--tx2);text-align:center;margin:8px 0">
+                            Выпавшее число определяет выигрыш: число × 5 монет
+                        </div>
                         <div class="dice-buttons">
-                            <button class="btn" style="background:#7f1d1d;color:#fca5a5;border:1px solid #991b1b" onclick="confirmAction('Ставка 50 монет?','Вы выберете красный. Шанс выигрыша 33%. Выигрыш — кубики × 5 монет.',()=>playDice('red'))">🔴 Красный</button>
-                            <button class="btn" style="background:#1c1c2e;color:#d1d5db;border:1px solid #374151" onclick="confirmAction('Ставка 50 монет?','Вы выберете чёрный. Шанс выигрыша 33%. Выигрыш — кубики × 5 монет.',()=>playDice('black'))">⚫ Чёрный</button>
+                            <button class="btn" style="background:#7f1d1d;color:#fca5a5;border:1px solid #991b1b" onclick="confirmAction('Ставка 50 монет?','Кубик выпадет случайно. Выигрыш = число на кубике × 5 монет.',()=>playDice('red'))">🎲 Красный 50 монет</button>
+                            <button class="btn" style="background:#1c1c2e;color:#d1d5db;border:1px solid #374151" onclick="confirmAction('Ставка 50 монет?','Кубик выпадет случайно. Выигрыш = число на кубике × 5 монет.',()=>playDice('black'))">🎲 Чёрный 50 монет</button>
                         </div>
                     </div>
                 </div>
@@ -857,8 +894,8 @@
                         <button class="btn bp" style="width:auto;padding:0 12px" onclick="usePromo()">OK</button>
                     </div>
                     <div class="g2">
-                        <button class="btn bs" style="font-size:11px" onclick="activatePromo('free')">🎁 FREE → +15 монет</button>
-                        <button class="btn bs" style="font-size:11px" onclick="activatePromo('denchak')">🎁 DENCHAK → +15</button>
+                        <button class="btn bs" style="font-size:12px" onclick="activatePromo('free')">🎁 FREE → +15 монет</button>
+                        <button class="btn bs" style="font-size:12px" onclick="activatePromo('denchak')">🎁 DENCHAK → +15</button>
                     </div>
                 </div>
 
@@ -888,12 +925,12 @@
 
         </div>
 
-        <!-- Баннер теперь зафиксирован над навигацией -->
+        <!-- Баннер на всю ширину -->
         <div class="bnr" id="BNR">
             <img id="BNR_img" src="" alt="CoinMine баннер" class="bnr-img" onerror="this.style.display='none';document.getElementById('BNR_ph').style.display='flex'" style="display:none">
             <div id="BNR_ph" class="bnr-img-placeholder">⛏ CM</div>
             <div class="bnr-txt">
-                <div class="bnr-title">CoinMine · Mining Today, Value Tomorrow</div>
+                <div class="bnr-title">⛏ CoinMine · Mining Today, Value Tomorrow</div>
                 <div class="bnr-sub">Добывай монеты, побеждай боссов, строй клан</div>
             </div>
             <button class="bnr-btn" onclick="goSc('shop')">Играть</button>
@@ -1270,7 +1307,7 @@
             });
             if (el) el.classList.add('on');
             if (t === 'rl') setTimeout(() => drawRoulette(), 40);
-            if (t === 'dc') setTimeout(() => updateDiceDisplay([0, 0, 0, 0, 0]), 40);
+            if (t === 'dc') setTimeout(() => updateDiceDisplay(0), 40);
         }
 
         function topTab(t, el) {
@@ -1281,9 +1318,8 @@
 
         // ===== ИГРОВЫЕ ФУНКЦИИ =====
 
-        // ---- РУЛЕТКА (исправлена) ----
+        // ---- РУЛЕТКА (ИСПРАВЛЕНА) ----
         let roulRunning = false;
-        let roulLanded = null;
 
         function drawRoulette(angle, result) {
             const cv = document.getElementById('RC');
@@ -1348,7 +1384,7 @@
 
                     // ЧЕСТНЫЙ результат заранее
                     const r = Math.random();
-                    roulLanded = r < .4 ? 'red' : r < .8 ? 'black' : 'green';
+                    const landed = r < .4 ? 'red' : r < .8 ? 'black' : 'green';
 
                     // Находим нужный угол для остановки на выбранном цвете
                     const segs = [];
@@ -1357,17 +1393,14 @@
                     segs.push('green', 'green');
                     const n = segs.length;
                     // Ищем индекс сегмента с нужным цветом
-                    let targetIdx = -1;
-                    // Ищем случайный сегмент нужного цвета
                     const possible = [];
-                    segs.forEach((c, i) => { if (c === roulLanded) possible.push(i); });
-                    targetIdx = possible[Math.floor(Math.random() * possible.length)];
+                    segs.forEach((c, i) => { if (c === landed) possible.push(i); });
+                    const targetIdx = possible[Math.floor(Math.random() * possible.length)];
 
                     // Угол: стрелка смотрит вверх (0), сегмент i занимает угол от i/n*2π до (i+1)/n*2π
-                    // Нужно чтобы центр сегмента был сверху: a0 + (i+0.5)/n*2π = 0 (или 2π)
                     const targetAngle = -(targetIdx + 0.5) / n * Math.PI * 2;
                     // Добавляем несколько оборотов
-                    const total = targetAngle + Math.PI * 2 * (6 + Math.random() * 2);
+                    const total = targetAngle + Math.PI * 2 * (6 + Math.random() * 3);
 
                     const dur = 2800;
                     const t0 = Date.now();
@@ -1376,64 +1409,51 @@
                         const el = Date.now() - t0,
                             prog = Math.min(1, el / dur);
                         const ease = 1 - Math.pow(1 - prog, 3.5);
-                        drawRoulette(ease * total, prog >= 1 ? roulLanded : null);
+                        drawRoulette(ease * total, prog >= 1 ? landed : null);
                         if (prog < 1) {
                             requestAnimationFrame(anim);
                         } else {
                             roulRunning = false;
-                            const win = col === roulLanded ? (roulLanded === 'green' ? bet * 5 : Math.floor(bet *
-                            1.75)) : 0;
+                            const win = col === landed ? (landed === 'green' ? bet * 5 : Math.floor(bet * 1.75)) : 0;
                             if (win) G.coins += win;
-                            const lbl = roulLanded === 'red' ? 'красное' : roulLanded === 'black' ? 'чёрное' :
-                            'зелёное';
+                            const lbl = landed === 'red' ? 'красное' : landed === 'black' ? 'чёрное' : 'зелёное';
                             const resEl = document.getElementById('RL_res');
-                            resEl.textContent = col === roulLanded ?
+                            resEl.textContent = col === landed ?
                                 `✅ ${lbl.charAt(0).toUpperCase()+lbl.slice(1)}! +${win} монет` :
                                 `❌ ${lbl.charAt(0).toUpperCase()+lbl.slice(1)} — проигрыш`;
-                            resEl.className = 'game-result ' + (col === roulLanded ? 'win' : 'lose');
+                            resEl.className = 'game-result ' + (col === landed ? 'win' : 'lose');
                             save();
                             renderUI();
-                            toast(col === roulLanded ? `+${win} монет!` : 'Не повезло', col === roulLanded ? 'gld' :
-                                'err');
+                            toast(col === landed ? `+${win} монет!` : 'Не повезло', col === landed ? 'gld' : 'err');
                         }
                     }
                     requestAnimationFrame(anim);
                 });
         }
 
-        // ---- КУБИКИ (исправлены) ----
+        // ---- КУБИК (ОДИН КУБИК С ВРАЩЕНИЕМ) ----
         const DICE_FACES = ['⚀', '⚁', '⚂', '⚃', '⚄', '⚅'];
 
-        function updateDiceDisplay(vals) {
-            for (let i = 0; i < 5; i++) {
-                const el = document.getElementById('dice' + i);
-                if (el) {
-                    el.textContent = DICE_FACES[vals[i] || 0];
-                    el.classList.remove('rolling');
-                }
+        function updateDiceDisplay(val) {
+            const el = document.getElementById('diceMain');
+            if (el) {
+                el.textContent = DICE_FACES[val] || '⚀';
+                el.classList.remove('rolling');
             }
         }
 
         function animateDiceRoll(callback) {
-            const diceEls = [];
-            for (let i = 0; i < 5; i++) {
-                const el = document.getElementById('dice' + i);
-                if (el) {
-                    el.classList.add('rolling');
-                    diceEls.push(el);
-                }
-            }
+            const el = document.getElementById('diceMain');
+            if (!el) { callback(); return; }
+            el.classList.add('rolling');
             let count = 0;
             const maxCount = 20;
             const interval = setInterval(() => {
-                for (let i = 0; i < 5; i++) {
-                    const el = document.getElementById('dice' + i);
-                    if (el) el.textContent = DICE_FACES[Math.floor(Math.random() * 6)];
-                }
+                el.textContent = DICE_FACES[Math.floor(Math.random() * 6)];
                 count++;
                 if (count >= maxCount) {
                     clearInterval(interval);
-                    for (const el of diceEls) el.classList.remove('rolling');
+                    el.classList.remove('rolling');
                     callback();
                 }
             }, 80);
@@ -1446,18 +1466,18 @@
             G.diceRolling = true;
             const resultEl = document.getElementById('DC_res');
 
-            // ЧЕСТНЫЙ результат
-            const won = Math.random() < 0.33;
-            const guessed = won ? Math.floor(Math.random() * 16) + 10 : Math.floor(Math.random() * 6);
-            const winAmount = guessed * 5;
-            const finalVals = Array.from({ length: 5 }, () => Math.floor(Math.random() * 6));
+            // ЧЕСТНЫЙ результат - число от 1 до 6
+            const diceValue = Math.floor(Math.random() * 6) + 1;
+            const winAmount = diceValue * 5;
 
             animateDiceRoll(() => {
-                updateDiceDisplay(finalVals);
+                // Показываем финальное значение
+                updateDiceDisplay(diceValue - 1);
                 G.coins += winAmount;
                 const profit = winAmount - 50;
-                resultEl.textContent = profit > 0 ? `✅ Угадано ${guessed}/25 — выигрыш +${profit} монет` :
-                    `❌ Угадано ${guessed}/25 — получено ${winAmount} монет`;
+                resultEl.textContent = profit > 0 ?
+                    `✅ Выпало ${diceValue}! Выигрыш +${profit} монет` :
+                    `❌ Выпало ${diceValue} — получено ${winAmount} монет`;
                 resultEl.className = 'game-result ' + (profit > 0 ? 'win' : 'lose');
                 G.diceRolling = false;
                 save();
