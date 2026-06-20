@@ -1046,193 +1046,258 @@
         // ============================================================
         // 2. ГЕНЕРАЦИЯ ID УСТРОЙСТВА (мягкая привязка)
         // ============================================================
-        function getDeviceId() {
-            let deviceId = localStorage.getItem('coinmine_device_id');
-            if (!deviceId) {
-                const components = [
-                    navigator.userAgent,
-                    navigator.language,
-                    screen.width + 'x' + screen.height,
-                    screen.colorDepth,
-                    navigator.hardwareConcurrency || 'unknown',
-                    new Date().getTimezoneOffset()
-                ];
-                const str = components.join('|');
-                let hash = 0;
-                for (let i = 0; i < str.length; i++) {
-                    const char = str.charCodeAt(i);
-                    hash = ((hash << 5) - hash) + char;
-                    hash = hash & hash;
-                }
-                deviceId = 'device_' + Math.abs(hash).toString(36) + '_' + Date.now().toString(36).slice(-4);
-                localStorage.setItem('coinmine_device_id', deviceId);
-            }
-            return deviceId;
+        // ============================================================
+// 2. ИНИЦИАЛИЗАЦИЯ SUPABASE (с ожиданием загрузки)
+// ============================================================
+let supabase = null;
+let currentUser = null;
+let currentUserId = null;
+let isAuthMode = 'login';
+
+// Функция для инициализации после загрузки скрипта
+function initSupabase() {
+    if (typeof supabaseJs !== 'undefined') {
+        const { createClient } = supabaseJs;
+        supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        console.log('✅ Supabase инициализирован');
+        checkAuth();
+    } else {
+        console.log('⏳ Ожидание загрузки Supabase...');
+        setTimeout(initSupabase, 100);
+    }
+}
+
+// Загружаем Supabase SDK
+const script = document.createElement('script');
+script.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
+script.onload = function() {
+    console.log('📦 Supabase SDK загружен');
+    initSupabase();
+};
+script.onerror = function() {
+    console.error('❌ Ошибка загрузки Supabase SDK');
+    document.getElementById('authStatus').textContent = '❌ Ошибка загрузки SDK';
+    document.getElementById('authStatus').style.color = 'var(--red)';
+};
+document.head.appendChild(script);
+
+// ============================================================
+// 3. АВТОРИЗАЦИЯ
+// ============================================================
+function toggleAuthMode() {
+    if (!supabase) {
+        document.getElementById('authStatus').textContent = '⏳ Загрузка...';
+        return;
+    }
+    isAuthMode = isAuthMode === 'login' ? 'register' : 'login';
+    const sub = document.getElementById('authSub');
+    const btn = document.getElementById('authBtn');
+    const toggle = document.getElementById('authToggle');
+    if (isAuthMode === 'login') {
+        sub.textContent = 'Войдите в свой аккаунт';
+        btn.textContent = 'Войти';
+        toggle.textContent = 'Нет аккаунта? Зарегистрироваться';
+    } else {
+        sub.textContent = 'Создайте новый аккаунт';
+        btn.textContent = 'Зарегистрироваться';
+        toggle.textContent = 'Уже есть аккаунт? Войти';
+    }
+}
+
+async function handleAuth() {
+    if (!supabase) {
+        document.getElementById('authStatus').textContent = '⏳ Подождите, идёт загрузка...';
+        document.getElementById('authStatus').style.color = 'var(--gld)';
+        return;
+    }
+
+    const email = document.getElementById('authEmail').value.trim();
+    const pass = document.getElementById('authPass').value.trim();
+    const status = document.getElementById('authStatus');
+
+    if (!email || !pass) {
+        status.textContent = 'Заполните все поля';
+        status.style.color = 'var(--red)';
+        return;
+    }
+    if (pass.length < 6) {
+        status.textContent = 'Пароль должен быть минимум 6 символов';
+        status.style.color = 'var(--red)';
+        return;
+    }
+
+    try {
+        let result;
+        if (isAuthMode === 'login') {
+            result = await supabase.auth.signInWithPassword({ email, password: pass });
+        } else {
+            result = await supabase.auth.signUp({ email, password: pass });
         }
 
-        function getDeviceName() {
-            let name = localStorage.getItem('coinmine_device_name');
-            if (!name) {
-                const ua = navigator.userAgent;
-                if (ua.includes('Android')) name = '📱 Android';
-                else if (ua.includes('iPhone') || ua.includes('iPad')) name = '📱 iOS';
-                else if (ua.includes('Windows')) name = '💻 Windows';
-                else if (ua.includes('Mac')) name = '💻 Mac';
-                else name = '🌐 Браузер';
-                localStorage.setItem('coinmine_device_name', name);
-            }
-            return name;
+        if (result.error) {
+            status.textContent = 'Ошибка: ' + result.error.message;
+            status.style.color = 'var(--red)';
+            return;
         }
 
-        const DEVICE_ID = getDeviceId();
-        const DEVICE_NAME = getDeviceName();
-
-        // ============================================================
-        // 3. ПОДКЛЮЧЕНИЕ К БАЗЕ ДАННЫХ
-        // ============================================================
-        let supabase = null;
-        let currentUser = null;
-        let currentUserId = null;
-        let isAuthMode = 'login';
-
-        const script = document.createElement('script');
-        script.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
-        script.onload = function() {
-            const { createClient } = supabaseJs;
-            supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-            checkAuth();
-        };
-        document.head.appendChild(script);
-
-        // ============================================================
-        // 4. АВТОРИЗАЦИЯ
-        // ============================================================
-        function toggleAuthMode() {
-            isAuthMode = isAuthMode === 'login' ? 'register' : 'login';
-            const sub = document.getElementById('authSub');
-            const btn = document.getElementById('authBtn');
-            const toggle = document.getElementById('authToggle');
-            if (isAuthMode === 'login') {
-                sub.textContent = 'Войдите в свой аккаунт';
-                btn.textContent = 'Войти';
-                toggle.textContent = 'Нет аккаунта? Зарегистрироваться';
-            } else {
-                sub.textContent = 'Создайте новый аккаунт';
-                btn.textContent = 'Зарегистрироваться';
-                toggle.textContent = 'Уже есть аккаунт? Войти';
+        if (result.data.user) {
+            currentUser = result.data.user;
+            currentUserId = currentUser.id;
+            status.textContent = isAuthMode === 'login' ? '✅ Вход выполнен!' : '✅ Регистрация успешна!';
+            status.style.color = 'var(--grn)';
+            
+            if (isAuthMode === 'register') {
+                // Создаём запись пользователя
+                const devices = [{
+                    id: DEVICE_ID,
+                    name: DEVICE_NAME,
+                    last_active: new Date().toISOString(),
+                    current: true
+                }];
+                await supabase
+                    .from('users')
+                    .upsert({
+                        id: currentUserId,
+                        email: currentUser.email,
+                        data: G,
+                        boss: GLOBAL_BOSS,
+                        devices: devices,
+                        created_at: new Date().toISOString(),
+                        updated_at: new Date().toISOString()
+                    });
             }
+            
+            await loadUserData();
+            showMainApp();
+        } else {
+            status.textContent = 'Проверьте почту для подтверждения';
+            status.style.color = 'var(--gld)';
         }
+    } catch (e) {
+        status.textContent = 'Ошибка: ' + e.message;
+        status.style.color = 'var(--red)';
+    }
+}
 
-        async function handleAuth() {
-            const email = document.getElementById('authEmail').value.trim();
-            const pass = document.getElementById('authPass').value.trim();
-            const status = document.getElementById('authStatus');
-
-            if (!email || !pass) {
-                status.textContent = 'Заполните все поля';
-                status.style.color = 'var(--red)';
-                return;
-            }
-            if (pass.length < 6) {
-                status.textContent = 'Пароль должен быть минимум 6 символов';
-                status.style.color = 'var(--red)';
-                return;
-            }
-
-            try {
-                let result;
-                if (isAuthMode === 'login') {
-                    result = await supabase.auth.signInWithPassword({ email, password: pass });
-                } else {
-                    result = await supabase.auth.signUp({ email, password: pass });
-                }
-
-                if (result.error) {
-                    status.textContent = 'Ошибка: ' + result.error.message;
-                    status.style.color = 'var(--red)';
-                    return;
-                }
-
-                if (result.data.user) {
-                    currentUser = result.data.user;
-                    currentUserId = currentUser.id;
-
-                    // При регистрации создаём запись с устройствами
-                    if (isAuthMode === 'register') {
-                        const devices = [{
-                            id: DEVICE_ID,
-                            name: DEVICE_NAME,
-                            last_active: new Date().toISOString(),
-                            current: true
-                        }];
-                        await supabase
-                            .from('users')
-                            .upsert({
-                                id: currentUserId,
-                                email: currentUser.email,
-                                data: G,
-                                boss: GLOBAL_BOSS,
-                                devices: devices,
-                                created_at: new Date().toISOString(),
-                                updated_at: new Date().toISOString()
-                            });
-                    }
-
-                    await loadUserData();
-                    showMainApp();
-                    status.textContent = isAuthMode === 'login' ? '✅ Вход выполнен!' : '✅ Регистрация успешна!';
-                    status.style.color = 'var(--grn)';
-                } else {
-                    status.textContent = 'Проверьте почту для подтверждения';
-                    status.style.color = 'var(--gld)';
-                }
-            } catch (e) {
-                status.textContent = 'Ошибка: ' + e.message;
-                status.style.color = 'var(--red)';
-            }
+async function checkAuth() {
+    if (!supabase) {
+        console.log('⏳ Supabase ещё не инициализирован');
+        return;
+    }
+    try {
+        const { data } = await supabase.auth.getSession();
+        if (data?.session?.user) {
+            currentUser = data.session.user;
+            currentUserId = currentUser.id;
+            await loadUserData();
+            showMainApp();
         }
+    } catch (e) {
+        console.log('Не авторизован');
+    }
+}
 
-        async function checkAuth() {
-            try {
-                const { data } = await supabase.auth.getSession();
-                if (data?.session?.user) {
-                    currentUser = data.session.user;
-                    currentUserId = currentUser.id;
-                    await loadUserData();
-                    showMainApp();
-                }
-            } catch (e) {
-                console.log('Не авторизован');
-            }
+// ============================================================
+// 4. ГЕНЕРАЦИЯ ID УСТРОЙСТВА
+// ============================================================
+function getDeviceId() {
+    let deviceId = localStorage.getItem('coinmine_device_id');
+    if (!deviceId) {
+        const components = [
+            navigator.userAgent,
+            navigator.language,
+            screen.width + 'x' + screen.height,
+            screen.colorDepth,
+            navigator.hardwareConcurrency || 'unknown',
+            new Date().getTimezoneOffset()
+        ];
+        const str = components.join('|');
+        let hash = 0;
+        for (let i = 0; i < str.length; i++) {
+            const char = str.charCodeAt(i);
+            hash = ((hash << 5) - hash) + char;
+            hash = hash & hash;
         }
+        deviceId = 'device_' + Math.abs(hash).toString(36) + '_' + Date.now().toString(36).slice(-4);
+        localStorage.setItem('coinmine_device_id', deviceId);
+    }
+    return deviceId;
+}
 
-        // ============================================================
-        // 5. РАБОТА С ДАННЫМИ ПОЛЬЗОВАТЕЛЯ
-        // ============================================================
-        const G = {
-            coins: 150,
-            farms: 0,
-            refs: 0,
-            keys: 0,
-            lastFarm: 0,
-            farmLv: 1,
-            name: 'Шахтёр',
-            nicks: { p: [], a: null },
-            shards: {},
-            clan: null,
-            clanLF: 0,
-            promos: {},
-            missions: { active: null, lastReset: 0 },
-            auctionBid: 0,
-            chests: 0,
-            refCode: '',
-            activatedRef: null,
-            refEarnings: 0
-        };
+function getDeviceName() {
+    let name = localStorage.getItem('coinmine_device_name');
+    if (!name) {
+        const ua = navigator.userAgent;
+        if (ua.includes('Android')) name = '📱 Android';
+        else if (ua.includes('iPhone') || ua.includes('iPad')) name = '📱 iOS';
+        else if (ua.includes('Windows')) name = '💻 Windows';
+        else if (ua.includes('Mac')) name = '💻 Mac';
+        else name = '🌐 Браузер';
+        localStorage.setItem('coinmine_device_name', name);
+    }
+    return name;
+}
 
-        let GLOBAL_BOSS = { idx: 0, hp: 1000, lastRespawn: 0 };
-        let USER_DEVICES = [];
-        let saveTimeout = null;
+const DEVICE_ID = getDeviceId();
+const DEVICE_NAME = getDeviceName();
+
+// ============================================================
+// 5. ДАННЫЕ ПО УМОЛЧАНИЮ
+// ============================================================
+const G = {
+    coins: 150,
+    farms: 0,
+    refs: 0,
+    keys: 0,
+    lastFarm: 0,
+    farmLv: 1,
+    name: 'Шахтёр',
+    nicks: { p: [], a: null },
+    shards: {},
+    clan: null,
+    clanLF: 0,
+    promos: {},
+    missions: { active: null, lastReset: 0 },
+    auctionBid: 0,
+    chests: 0,
+    refCode: '',
+    activatedRef: null,
+    refEarnings: 0
+};
+
+let GLOBAL_BOSS = { idx: 0, hp: 1000, lastRespawn: 0 };
+let USER_DEVICES = [];
+let saveTimeout = null;
+
+// ============================================================
+// 6. ИНИЦИАЛИЗАЦИЯ
+// ============================================================
+console.log('🆔 ID устройства:', DEVICE_ID);
+console.log('📱 Имя устройства:', DEVICE_NAME);
+console.log('⏳ Инициализация...');
+
+// Показываем статус загрузки
+document.getElementById('authStatus').textContent = '⏳ Подключение к серверу...';
+document.getElementById('authStatus').style.color = 'var(--gld)';
+
+// Функция для отображения статуса загрузки SDK
+function showLoadingStatus() {
+    const status = document.getElementById('authStatus');
+    const dots = status.textContent.split('.').length - 1;
+    if (dots < 3) {
+        status.textContent = '⏳ Подключение' + '.'.repeat(dots + 1);
+    } else {
+        status.textContent = '⏳ Подключение';
+    }
+}
+
+// Обновляем статус каждые 500 мс, пока SDK не загрузится
+const loadingInterval = setInterval(showLoadingStatus, 500);
+
+// Инициализируем после загрузки страницы
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('📄 Страница загружена');
+});
 
         async function loadUserData() {
             try {
