@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>CoinMine</title>
     <style>
+        /* ===== СБРОС И БАЗА ===== */
         * {
             box-sizing: border-box;
             margin: 0;
@@ -32,8 +33,7 @@
             --silver: #c0c0c0;
             --bronze: #cd7f32;
         }
-        html,
-        body {
+        html, body {
             height: 100%;
             background: #07070f;
             color: var(--tx);
@@ -43,16 +43,14 @@
             overflow-x: hidden;
         }
 
-        /* ════════════════════════════════════════ */
-        /* БОКОВЫЕ КАРТИНКИ */
-        /* ════════════════════════════════════════ */
+        /* ===== БОКОВЫЕ КАРТИНКИ ===== */
         body::before,
         body::after {
             content: '';
             position: fixed;
             top: 0;
             bottom: 0;
-            width: calc((100% - 500px) / 2);
+            width: calc((100% - 600px) / 2);
             min-width: 20px;
             z-index: 0;
             pointer-events: none;
@@ -60,29 +58,18 @@
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
-            opacity: 0.25;
+            opacity: 0.3;
+        }
+        body::before { left: 0; }
+        body::after { right: 0; }
+
+        @media (max-width: 700px) {
+            body::before, body::after { display: none !important; }
         }
 
-        body::before {
-            left: 0;
-        }
-
-        body::after {
-            right: 0;
-        }
-
-        @media (max-width: 500px) {
-            body::before,
-            body::after {
-                display: none !important;
-            }
-        }
-
-        /* ════════════════════════════════════════ */
-        /* ОСНОВНОЙ КОНТЕЙНЕР */
-        /* ════════════════════════════════════════ */
+        /* ===== ОСНОВНОЙ КОНТЕЙНЕР — РАСШИРЕН ДЛЯ ПК ===== */
         .app {
-            max-width: 500px;
+            max-width: 700px;
             margin: 0 auto;
             background: var(--bg);
             position: relative;
@@ -91,36 +78,27 @@
             box-shadow: 0 0 60px rgba(0, 0, 0, 0.8);
             padding-bottom: 70px;
         }
-
-        @media (max-width: 500px) {
-            .app {
-                max-width: 430px;
-            }
+        @media (max-width: 700px) {
+            .app { max-width: 100%; }
         }
 
-        /* ════════════════════════════════════════ */
-        /* СТАТИЧНЫЙ БАННЕР — НЕ ПЕРЕКРЫВАЕТ ФУНКЦИИ */
-        /* ════════════════════════════════════════ */
+        /* ===== СТАТИЧНЫЙ БАННЕР — РАСТЯНУТ И ВИДЕН ===== */
         .static-banner {
             position: fixed;
-            bottom: 70px;
+            bottom: 62px;
             left: 50%;
             transform: translateX(-50%);
             z-index: 55;
             width: calc(100% - 20px);
-            max-width: 480px;
-            height: 56px;
+            max-width: 680px;
+            height: 70px;
             border-radius: 12px;
             overflow: hidden;
             cursor: pointer;
             border: 1px solid var(--bd2);
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
             transition: .3s;
             background: var(--bg2);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            pointer-events: auto;
         }
         .static-banner:hover {
             border-color: var(--acc2);
@@ -131,84 +109,38 @@
             height: 100%;
             object-fit: cover;
             display: block;
-            position: absolute;
-            inset: 0;
-            opacity: 0.3;
         }
-        .static-banner .content {
-            position: relative;
-            z-index: 2;
+        .static-banner .placeholder {
+            width: 100%;
+            height: 100%;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 10px;
-            padding: 0 16px;
-            width: 100%;
-            height: 100%;
-            background: rgba(13, 13, 28, 0.7);
-            backdrop-filter: blur(4px);
-        }
-        .static-banner .content .icon {
-            font-size: 24px;
-        }
-        .static-banner .content .text {
             font-size: 16px;
             font-weight: 700;
             color: var(--gld);
-            letter-spacing: 0.5px;
-            background: linear-gradient(135deg, var(--gld), var(--gld2));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-        .static-banner .content .sub {
-            font-size: 11px;
-            color: var(--tx2);
-            font-weight: 400;
-            -webkit-text-fill-color: var(--tx2);
+            background: var(--bg3);
         }
 
-        @media (max-width: 500px) {
+        @media (max-width: 700px) {
             .static-banner {
-                max-width: 410px;
-                height: 50px;
-                bottom: 66px;
-            }
-            .static-banner .content .text {
-                font-size: 14px;
-            }
-            .static-banner .content .sub {
-                font-size: 10px;
+                max-width: 95%;
+                height: 60px;
+                bottom: 62px;
             }
         }
 
-        /* ════════════════════════════════════════ */
-        /* АНИМАЦИИ */
-        /* ════════════════════════════════════════ */
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-        }
-        @keyframes glow {
-            0%, 100% { box-shadow: 0 0 20px rgba(124, 58, 237, 0.2); }
-            50% { box-shadow: 0 0 40px rgba(124, 58, 237, 0.6); }
-        }
-        @keyframes float {
-            0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-8px); }
-        }
-
+        /* ===== АНИМАЦИИ ===== */
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+        @keyframes glow { 0%, 100% { box-shadow: 0 0 20px rgba(124, 58, 237, 0.2); } 50% { box-shadow: 0 0 40px rgba(124, 58, 237, 0.6); } }
+        @keyframes float { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-8px); } }
         .animated { animation: fadeIn 0.4s ease forwards; }
         .pulse { animation: pulse 2s ease-in-out infinite; }
         .glow { animation: glow 2s ease-in-out infinite; }
         .float { animation: float 3s ease-in-out infinite; }
 
-        /* ════════════════════════════════════════ */
-        /* AUTH */
-        /* ════════════════════════════════════════ */
+        /* ===== AUTH ===== */
         #authWrap {
             min-height: 100vh;
             display: flex;
@@ -219,7 +151,7 @@
         }
         .auth-box {
             width: 100%;
-            max-width: 380px;
+            max-width: 400px;
             background: var(--bg2);
             border: 1px solid var(--bd2);
             border-radius: 20px;
@@ -246,8 +178,7 @@
         }
         .auth-banner img {
             width: 100%;
-            height: 100%;
-            object-fit: cover;
+            height: auto;
             display: block;
         }
         .auth-title {
@@ -326,9 +257,7 @@
             position: relative;
             overflow: hidden;
         }
-        .btn:active {
-            transform: scale(.97);
-        }
+        .btn:active { transform: scale(.97); }
         .bp {
             background: linear-gradient(135deg, var(--acc), var(--acc2));
             color: #fff;
@@ -343,9 +272,7 @@
             color: var(--tx);
             border: 1.5px solid var(--bd2);
         }
-        .bs:hover {
-            border-color: var(--acc2);
-        }
+        .bs:hover { border-color: var(--acc2); }
         .btn:disabled {
             opacity: .5;
             cursor: not-allowed;
@@ -363,17 +290,13 @@
         .astat.ld { color: var(--gld); }
         .astat.warn { color: var(--gld2); }
 
-        /* ════════════════════════════════════════ */
-        /* APP */
-        /* ════════════════════════════════════════ */
+        /* ===== APP ===== */
         #appWrap {
             display: none;
             flex-direction: column;
             min-height: 100vh;
         }
-        #appWrap.on {
-            display: flex;
-        }
+        #appWrap.on { display: flex; }
 
         .hdr {
             background: var(--bg2);
@@ -389,7 +312,7 @@
             background: rgba(13, 13, 28, 0.9);
         }
         .hdr-logo {
-            font-size: 16px;
+            font-size: 18px;
             font-weight: 800;
             background: linear-gradient(135deg, var(--gld), var(--gld2));
             -webkit-background-clip: text;
@@ -402,8 +325,8 @@
             background: var(--bg3);
             border: 1px solid #f0b42930;
             border-radius: 20px;
-            padding: 5px 13px;
-            font-size: 13px;
+            padding: 5px 14px;
+            font-size: 14px;
             font-weight: 700;
             color: var(--gld);
             transition: .3s;
@@ -441,16 +364,14 @@
             bottom: 0;
             left: 0;
             right: 0;
-            max-width: 500px;
+            max-width: 700px;
             margin: 0 auto;
             z-index: 50;
             backdrop-filter: blur(10px);
             background: rgba(13, 13, 28, 0.95);
         }
-        @media (max-width: 500px) {
-            .nav {
-                max-width: 430px;
-            }
+        @media (max-width: 700px) {
+            .nav { max-width: 100%; }
         }
         .nb {
             display: flex;
@@ -476,7 +397,7 @@
             background: rgba(240, 180, 41, 0.1);
         }
         .nb span {
-            font-size: 20px;
+            font-size: 22px;
         }
 
         .logout-btn {
@@ -495,9 +416,7 @@
             border-color: var(--red);
         }
 
-        /* ════════════════════════════════════════ */
-        /* CARDS */
-        /* ════════════════════════════════════════ */
+        /* ===== CARDS ===== */
         .card {
             background: var(--bg3);
             border: 1px solid var(--bd);
@@ -517,16 +436,8 @@
             margin-bottom: 10px;
             font-weight: 600;
         }
-        .g2 {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 8px;
-        }
-        .g3 {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 7px;
-        }
+        .g2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        .g3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 7px; }
         .st {
             background: var(--bg4);
             border-radius: var(--r2);
@@ -556,9 +467,7 @@
             border-bottom: 1px solid var(--bd);
             transition: .3s;
         }
-        .row:last-child {
-            border-bottom: none;
-        }
+        .row:last-child { border-bottom: none; }
         .row:hover {
             background: var(--bg4);
             margin: 0 -8px;
@@ -576,36 +485,22 @@
             border-radius: 20px;
             transition: width .6s ease;
         }
-        .pf-gld {
-            background: linear-gradient(90deg, #b87800, var(--gld));
-        }
-        .pf-acc {
-            background: linear-gradient(90deg, var(--acc), var(--acc2));
-        }
-        .pf-grn {
-            background: var(--grn);
-        }
+        .pf-gld { background: linear-gradient(90deg, #b87800, var(--gld)); }
+        .pf-acc { background: linear-gradient(90deg, var(--acc), var(--acc2)); }
+        .pf-grn { background: var(--grn); }
         .fl {
             display: flex;
             align-items: center;
             gap: 8px;
         }
-        .f1 {
-            flex: 1;
-        }
+        .f1 { flex: 1; }
         .tm {
             color: var(--tx2);
             font-size: 12px;
         }
-        .mt8 {
-            margin-top: 8px;
-        }
-        .mb8 {
-            margin-bottom: 8px;
-        }
-        .tc {
-            text-align: center;
-        }
+        .mt8 { margin-top: 8px; }
+        .mb8 { margin-bottom: 8px; }
+        .tc { text-align: center; }
         .irow {
             display: flex;
             gap: 7px;
@@ -658,13 +553,9 @@
             padding: 8px 10px;
             margin: 0 -6px;
         }
-        .top-row:last-child {
-            border-bottom: none;
-        }
+        .top-row:last-child { border-bottom: none; }
 
-        /* ════════════════════════════════════════ */
-        /* BOSS */
-        /* ════════════════════════════════════════ */
+        /* ===== BOSS ===== */
         .boss-wrap {
             text-align: center;
             padding: 8px 0;
@@ -712,9 +603,7 @@
             border-radius: 10px;
         }
 
-        /* ════════════════════════════════════════ */
-        /* ROULETTE */
-        /* ════════════════════════════════════════ */
+        /* ===== ROULETTE ===== */
         .rl-wrap {
             position: relative;
             width: 100%;
@@ -743,9 +632,7 @@
             filter: drop-shadow(0 2px 8px #f0b429aa);
         }
 
-        /* ════════════════════════════════════════ */
-        /* DICE */
-        /* ════════════════════════════════════════ */
+        /* ===== DICE ===== */
         .dice-scene {
             width: 100%;
             height: 220px;
@@ -800,9 +687,7 @@
             font-weight: 600;
         }
 
-        /* ════════════════════════════════════════ */
-        /* PODIUM */
-        /* ════════════════════════════════════════ */
+        /* ===== PODIUM ===== */
         .podium {
             display: flex;
             flex-direction: column;
@@ -849,9 +734,7 @@
         .podium-name { flex: 1; font-weight: 600; font-size: 14px; }
         .podium-bid { font-weight: 700; color: var(--gld); font-size: 14px; }
 
-        /* ════════════════════════════════════════ */
-        /* CLAN */
-        /* ════════════════════════════════════════ */
+        /* ===== CLAN ===== */
         .clan-icon {
             font-size: 60px;
             text-align: center;
@@ -870,9 +753,7 @@
             color: var(--gld);
         }
 
-        /* ════════════════════════════════════════ */
-        /* SHOP */
-        /* ════════════════════════════════════════ */
+        /* ===== SHOP ===== */
         .pkg-g {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -914,9 +795,7 @@
             margin-bottom: 3px;
         }
 
-        /* ════════════════════════════════════════ */
-        /* NICKS */
-        /* ════════════════════════════════════════ */
+        /* ===== NICKS ===== */
         .nick-g {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -945,9 +824,7 @@
             box-shadow: 0 0 0 2px #f0b42930;
         }
 
-        /* ════════════════════════════════════════ */
-        /* MODALS */
-        /* ════════════════════════════════════════ */
+        /* ===== MODALS ===== */
         .mod-bg {
             display: none;
             position: fixed;
@@ -959,9 +836,7 @@
             padding: 16px;
             animation: fadeIn 0.2s ease;
         }
-        .mod-bg.on {
-            display: flex;
-        }
+        .mod-bg.on { display: flex; }
         .mod-box {
             background: var(--bg3);
             border: 1px solid var(--bd2);
@@ -987,9 +862,7 @@
             display: flex;
             gap: 8px;
         }
-        .mod-btns .btn {
-            flex: 1;
-        }
+        .mod-btns .btn { flex: 1; }
 
         .bdg {
             display: inline-flex;
@@ -1329,7 +1202,7 @@
                     </div>
                 </div>
 
-                <!-- TOP -->
+                <!-- TOP — РАСШИРЕННЫЙ ТОП -->
                 <div class="sc" id="sc-top">
                     <div class="tab-r">
                         <div class="tab on" id="TT_b" onclick="topTab('b',this)">💰 Баланс</div>
@@ -1360,15 +1233,11 @@
     </div>
 
     <!-- ════════════════════════════════════════ -->
-    <!-- СТАТИЧНЫЙ БАННЕР — НЕ ПЕРЕКРЫВАЕТ ФУНКЦИИ -->
+    <!-- СТАТИЧНЫЙ БАННЕР — РАСШИРЕН И ВИДЕН ПОЛНОСТЬЮ -->
     <!-- ════════════════════════════════════════ -->
     <div class="static-banner" onclick="window.open('https://t.me/minercoinsf', '_blank')">
-        <img src="https://i.ibb.co/B5CTFj4c/Chat-GPT-Image-20-2026-14-52-25.png" alt="CoinMine" onerror="this.style.display='none'">
-        <div class="content">
-            <span class="icon">⛏</span>
-            <span class="text">CoinMine</span>
-            <span class="sub">| Присоединяйся!</span>
-        </div>
+        <img id="staticBannerImg" src="https://i.ibb.co/B5CTFj4c/Chat-GPT-Image-20-2026-14-52-25.png" alt="CoinMine Баннер" onerror="this.style.display='none';this.parentElement.querySelector('.placeholder').style.display='flex'">
+        <div class="placeholder" style="display:none;">⛏ CoinMine</div>
     </div>
 
     <!-- MODALS -->
