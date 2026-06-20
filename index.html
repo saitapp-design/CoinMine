@@ -60,7 +60,7 @@
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
-            opacity: 0.3;
+            opacity: 0.25;
         }
 
         body::before {
@@ -99,24 +99,28 @@
         }
 
         /* ════════════════════════════════════════ */
-        /* СТАТИЧНЫЙ БАННЕР — ВСЕГДА ВИДЕН */
+        /* СТАТИЧНЫЙ БАННЕР — НЕ ПЕРЕКРЫВАЕТ ФУНКЦИИ */
         /* ════════════════════════════════════════ */
         .static-banner {
             position: fixed;
-            bottom: 62px;
+            bottom: 70px;
             left: 50%;
             transform: translateX(-50%);
             z-index: 55;
             width: calc(100% - 20px);
             max-width: 480px;
-            height: 60px;
+            height: 56px;
             border-radius: 12px;
             overflow: hidden;
             cursor: pointer;
             border: 1px solid var(--bd2);
-            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
             transition: .3s;
             background: var(--bg2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            pointer-events: auto;
         }
         .static-banner:hover {
             border-color: var(--acc2);
@@ -127,24 +131,53 @@
             height: 100%;
             object-fit: cover;
             display: block;
+            position: absolute;
+            inset: 0;
+            opacity: 0.3;
         }
-        .static-banner .placeholder {
-            width: 100%;
-            height: 100%;
+        .static-banner .content {
+            position: relative;
+            z-index: 2;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 14px;
+            gap: 10px;
+            padding: 0 16px;
+            width: 100%;
+            height: 100%;
+            background: rgba(13, 13, 28, 0.7);
+            backdrop-filter: blur(4px);
+        }
+        .static-banner .content .icon {
+            font-size: 24px;
+        }
+        .static-banner .content .text {
+            font-size: 16px;
             font-weight: 700;
             color: var(--gld);
-            background: var(--bg3);
+            letter-spacing: 0.5px;
+            background: linear-gradient(135deg, var(--gld), var(--gld2));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .static-banner .content .sub {
+            font-size: 11px;
+            color: var(--tx2);
+            font-weight: 400;
+            -webkit-text-fill-color: var(--tx2);
         }
 
         @media (max-width: 500px) {
             .static-banner {
                 max-width: 410px;
-                height: 55px;
-                bottom: 62px;
+                height: 50px;
+                bottom: 66px;
+            }
+            .static-banner .content .text {
+                font-size: 14px;
+            }
+            .static-banner .content .sub {
+                font-size: 10px;
             }
         }
 
@@ -1327,11 +1360,15 @@
     </div>
 
     <!-- ════════════════════════════════════════ -->
-    <!-- СТАТИЧНЫЙ БАННЕР — ВСЕГДА ВИДЕН -->
+    <!-- СТАТИЧНЫЙ БАННЕР — НЕ ПЕРЕКРЫВАЕТ ФУНКЦИИ -->
     <!-- ════════════════════════════════════════ -->
     <div class="static-banner" onclick="window.open('https://t.me/minercoinsf', '_blank')">
-        <img id="staticBannerImg" src="https://i.ibb.co/B5CTFj4c/Chat-GPT-Image-20-2026-14-52-25.png" alt="CoinMine Баннер" onerror="this.style.display='none';this.parentElement.querySelector('.placeholder').style.display='flex'">
-        <div class="placeholder" style="display:none;">⛏ CoinMine</div>
+        <img src="https://i.ibb.co/B5CTFj4c/Chat-GPT-Image-20-2026-14-52-25.png" alt="CoinMine" onerror="this.style.display='none'">
+        <div class="content">
+            <span class="icon">⛏</span>
+            <span class="text">CoinMine</span>
+            <span class="sub">| Присоединяйся!</span>
+        </div>
     </div>
 
     <!-- MODALS -->
