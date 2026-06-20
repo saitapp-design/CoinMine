@@ -76,7 +76,7 @@
             z-index: 1;
             min-height: 100vh;
             box-shadow: 0 0 60px rgba(0, 0, 0, 0.8);
-            padding-bottom: 130px; /* Увеличен отступ для баннера и навигации */
+            padding-bottom: 160px; /* Увеличен отступ для баннера и навигации */
             padding-top: 10px;
         }
         @media (max-width: 700px) {
@@ -86,7 +86,7 @@
         /* ===== БАННЕР — ОТДЕЛЁН ОТ НАВИГАЦИИ ===== */
         .static-banner {
             position: fixed;
-            bottom: 85px; /* Отступ от навигации */
+            bottom: 85px;
             left: 50%;
             transform: translateX(-50%);
             z-index: 55;
@@ -355,7 +355,7 @@
             animation: fadeIn 0.3s ease;
         }
 
-        /* ===== НАВИГАЦИЯ С 6 ПУНКТАМИ ===== */
+        /* ===== НАВИГАЦИЯ ===== */
         .nav {
             background: var(--bg2);
             border-top: 1px solid var(--bd);
@@ -519,6 +519,7 @@
             display: flex;
             gap: 4px;
             margin-bottom: 10px;
+            flex-wrap: wrap;
         }
         .tab {
             flex: 1;
@@ -528,9 +529,10 @@
             border: 1px solid var(--bd2);
             border-radius: var(--r3);
             color: var(--tx2);
-            font-size: 11px;
+            font-size: 10px;
             cursor: pointer;
             transition: .3s;
+            min-width: 50px;
         }
         .tab:hover {
             border-color: var(--acc2);
@@ -1204,12 +1206,13 @@
                     </div>
                 </div>
 
-                <!-- TOP — ДОБАВЛЕН В МЕНЮ -->
+                <!-- TOP — с 4 вкладками -->
                 <div class="sc" id="sc-top">
                     <div class="tab-r">
                         <div class="tab on" id="TT_b" onclick="topTab('b',this)">💰 Баланс</div>
                         <div class="tab" id="TT_f" onclick="topTab('f',this)">⛏ Фармы</div>
                         <div class="tab" id="TT_r" onclick="topTab('r',this)">👥 Рефералы</div>
+                        <div class="tab" id="TT_s" onclick="topTab('s',this)">💎 Осколки</div>
                     </div>
                     <div class="card">
                         <div class="fl" style="justify-content:space-between;margin-bottom:10px">
@@ -1222,7 +1225,7 @@
 
             </div>
 
-            <!-- НАВИГАЦИЯ С 6 ПУНКТАМИ (ДОБАВЛЕН ТОП) -->
+            <!-- НАВИГАЦИЯ -->
             <nav class="nav">
                 <button class="nb on" onclick="goSc('home')" id="NB_home"><span>🏠</span>Главная</button>
                 <button class="nb" onclick="goSc('games')" id="NB_games"><span>🎲</span>Игры</button>
@@ -1236,9 +1239,7 @@
 
     </div>
 
-    <!-- ════════════════════════════════════════ -->
-    <!-- БАННЕР — ОТДЕЛЁН ОТ НАВИГАЦИИ -->
-    <!-- ════════════════════════════════════════ -->
+    <!-- БАННЕР -->
     <div class="static-banner" onclick="window.open('https://t.me/minercoinsf', '_blank')">
         <img id="staticBannerImg" src="https://i.ibb.co/B5CTFj4c/Chat-GPT-Image-20-2026-14-52-25.png" alt="CoinMine Баннер" onerror="this.style.display='none';this.parentElement.querySelector('.placeholder').style.display='flex'">
         <div class="placeholder" style="display:none;">⛏ CoinMine</div>
@@ -1271,15 +1272,15 @@
     <div id="TOAST"></div>
 
     <script>
-        // ════════════════════════════════════════════════
+        // ============================================================
         // 1. КОНФИГУРАЦИЯ
-        // ════════════════════════════════════════════════
+        // ============================================================
         const SB_URL = 'https://mazccbkzurbryzusajqc.supabase.co';
         const SB_KEY = 'sb_publishable_GLQvPbCZrDYgd7FCSp861g_poX1-Hwy';
 
-        // ════════════════════════════════════════════════
+        // ============================================================
         // 2. СОСТОЯНИЕ
-        // ════════════════════════════════════════════════
+        // ============================================================
         let TOKEN = null;
         let UID = null;
         let authMode = 'login';
@@ -1341,18 +1342,25 @@
             { id: 'r3', nm: '👥 Вербовщик', d: '3 реферала', t: 3, rw: 1 }
         ];
 
+        // Демо-данные для топа (10 игроков с разными осколками)
         const DEMO_TOP = [
-            { n: 'ВасяКоин', c: 9420, f: 312, r: 18 },
-            { n: 'МегаМайнер', c: 5100, f: 201, r: 9 },
-            { n: 'КоролькоинС', c: 3890, f: 145, r: 6 },
-            { n: 'АлмазДобытчик', c: 2100, f: 98, r: 3 }
+            { n: 'ВасяКоин', c: 9420, f: 312, r: 18, s: 6 },
+            { n: 'МегаМайнер', c: 5100, f: 201, r: 9, s: 5 },
+            { n: 'КоролькоинС', c: 3890, f: 145, r: 6, s: 4 },
+            { n: 'АлмазДобытчик', c: 2100, f: 98, r: 3, s: 3 },
+            { n: 'КриптоКинг', c: 1850, f: 87, r: 5, s: 3 },
+            { n: 'Шахтёр777', c: 1520, f: 76, r: 2, s: 2 },
+            { n: 'БлокХантер', c: 1340, f: 65, r: 4, s: 2 },
+            { n: 'НочнойМайнер', c: 1100, f: 54, r: 1, s: 1 },
+            { n: 'ЗолотойДракон', c: 980, f: 43, r: 3, s: 1 },
+            { n: 'СеребряныйЛис', c: 760, f: 32, r: 2, s: 0 }
         ];
 
         const FARM_COSTS = [50, 100, 250, 500, 1000];
 
-        // ════════════════════════════════════════════════
+        // ============================================================
         // 3. ВСПОМОГАТЕЛЬНЫЕ
-        // ════════════════════════════════════════════════
+        // ============================================================
         function fmt(n) { return Math.round(n).toLocaleString('ru'); }
 
         function toast(msg, t) {
@@ -1374,11 +1382,9 @@
 
         function getFarmCost() { return FARM_COSTS[Math.min(G.farmLv - 1, 4)]; }
 
-        function openTelegram() { window.open('https://t.me/minercoinsf', '_blank'); }
-
-        // ════════════════════════════════════════════════
+        // ============================================================
         // 4. ОТПЕЧАТОК УСТРОЙСТВА
-        // ════════════════════════════════════════════════
+        // ============================================================
         function getFingerprint() {
             let fp = localStorage.getItem('coinmine_fp');
             if (fp) return fp;
@@ -1401,9 +1407,9 @@
         }
         const FINGERPRINT = getFingerprint();
 
-        // ════════════════════════════════════════════════
+        // ============================================================
         // 5. API
-        // ════════════════════════════════════════════════
+        // ============================================================
         async function sbFetch(path, opts = {}) {
             const headers = {
                 'apikey': SB_KEY,
@@ -1420,9 +1426,9 @@
             return { ok: r.ok, status: r.status, data: d };
         }
 
-        // ════════════════════════════════════════════════
-        // 6. РЕГИСТРАЦИЯ, ВХОД И СМЕНА КОДА
-        // ════════════════════════════════════════════════
+        // ============================================================
+        // 6. РЕГИСТРАЦИЯ, ВХОД
+        // ============================================================
         async function authRegister(username, password, fingerprint) {
             const { data: existing } = await sbFetch(
                 `/rest/v1/users?fingerprint=eq.${encodeURIComponent(fingerprint)}&select=id`, { noAuth: true }
@@ -1503,7 +1509,6 @@
             return user;
         }
 
-        // Смена реферального кода
         async function changeRefCode() {
             if (!UID) { toast('Сначала войдите в аккаунт', 'err'); return; }
             const newCode = prompt('Введите новый реферальный код (4-8 символов, только буквы и цифры):');
@@ -1531,9 +1536,9 @@
             toast('Реферальный код изменён на: ' + newCode, 'ok');
         }
 
-        // ════════════════════════════════════════════════
+        // ============================================================
         // 7. АВТОРИЗАЦИЯ UI
-        // ════════════════════════════════════════════════
+        // ============================================================
         function setAuthMode(m) {
             authMode = m;
             document.querySelectorAll('.auth-tab').forEach((el, i) => {
@@ -1620,9 +1625,9 @@
             return false;
         }
 
-        // ════════════════════════════════════════════════
+        // ============================================================
         // 8. СОХРАНЕНИЕ ДАННЫХ
-        // ════════════════════════════════════════════════
+        // ============================================================
         async function saveUserData() {
             if (!UID) return;
             try {
@@ -1642,9 +1647,9 @@
             saveTimer = setTimeout(() => saveUserData(), 2000);
         }
 
-        // ════════════════════════════════════════════════
+        // ============================================================
         // 9. ПОКАЗ ПРИЛОЖЕНИЯ
-        // ════════════════════════════════════════════════
+        // ============================================================
         function showApp() {
             document.getElementById('authWrap').style.display = 'none';
             document.getElementById('appWrap').classList.add('on');
@@ -1667,9 +1672,9 @@
             }
         }
 
-        // ════════════════════════════════════════════════
+        // ============================================================
         // 10. НАВИГАЦИЯ
-        // ════════════════════════════════════════════════
+        // ============================================================
         function goSc(nm) {
             document.querySelectorAll('.sc').forEach(s => s.classList.remove('on'));
             document.querySelectorAll('.nb').forEach(b => b.classList.remove('on'));
@@ -1702,9 +1707,9 @@
             renderTop(t);
         }
 
-        // ════════════════════════════════════════════════
+        // ============================================================
         // 11. МОДАЛЬНЫЕ ОКНА
-        // ════════════════════════════════════════════════
+        // ============================================================
         function conf(title, body, fn) {
             document.getElementById('M_t').textContent = title;
             document.getElementById('M_b').textContent = body;
@@ -1731,9 +1736,9 @@
             toast('Ник изменён!', 'ok');
         }
 
-        // ════════════════════════════════════════════════
+        // ============================================================
         // 12. ОТРИСОВКА UI
-        // ════════════════════════════════════════════════
+        // ============================================================
         function renderUI() {
             const sets = {
                 H_c: G.coins,
@@ -1900,31 +1905,57 @@
             topLastType = tp;
             const now = Date.now();
             if (now - topUpdated > 600000) {
-                DEMO_TOP.forEach(p => { p.c = Math.max(0, p.c + Math.floor(Math.random() * 400 - 100));
-                    p.f += Math.floor(Math.random() * 6); });
+                DEMO_TOP.forEach(p => {
+                    p.c = Math.max(0, p.c + Math.floor(Math.random() * 400 - 100));
+                    p.f += Math.floor(Math.random() * 6);
+                    p.r += Math.floor(Math.random() * 2);
+                    p.s = Math.min(6, p.s + (Math.random() > 0.7 ? 1 : 0));
+                });
                 topUpdated = now;
             }
+
             const rem = Math.max(0, Math.ceil((topUpdated + 600000 - now) / 1000));
             document.getElementById('TOP_u').textContent = rem > 30 ? `обновление через ${Math.round(rem/60)}м` : 'только что';
-            const all = [...DEMO_TOP, { n: G.name, c: G.coins, f: G.farms, r: G.refs }];
-            const key = tp === 'b' ? 'c' : tp === 'f' ? 'f' : 'r';
-            const titles = { b: 'Топ по балансу', f: 'Топ по фармам', r: 'Топ по рефералам' };
+
+            // Добавляем текущего игрока в топ
+            const shardCount = Object.keys(G.shards).length;
+            const all = [...DEMO_TOP, { n: G.name, c: G.coins, f: G.farms, r: G.refs, s: shardCount }];
+
+            const key = tp === 'b' ? 'c' : tp === 'f' ? 'f' : tp === 'r' ? 'r' : 's';
+            const titles = {
+                b: 'Топ по балансу',
+                f: 'Топ по фармам',
+                r: 'Топ по рефералам',
+                s: 'Топ по осколкам'
+            };
+            const symbols = {
+                b: '💰',
+                f: '⛏',
+                r: '👥',
+                s: '💎'
+            };
+
             document.getElementById('TOP_t').textContent = titles[tp];
             all.sort((a, b) => b[key] - a[key]);
+
+            // Берём топ-10 (или сколько есть)
+            const top10 = all.slice(0, 10);
             const clrs = ['var(--gld)', '#c0c0d0', '#cd7f32'];
-            document.getElementById('TOP_l').innerHTML = all.slice(0, 8).map((p, i) => {
-                const val = tp === 'b' ? fmt(p.c) + ' 💰' : tp === 'f' ? p.f + ' ⛏' : p.r + ' 👥';
-                return `<div class="top-row">
+
+            document.getElementById('TOP_l').innerHTML = top10.map((p, i) => {
+                const val = tp === 's' ? `${p.s} осколков` : fmt(p[key]) + ' ' + symbols[tp];
+                const isPlayer = p.n === G.name;
+                return `<div class="top-row" style="${isPlayer ? 'background:var(--bg4);border-radius:6px;' : ''}">
                     <div style="font-size:15px;font-weight:700;min-width:22px;color:${clrs[i]||'var(--tx2)'}">${i+1}</div>
-                    <div style="flex:1;font-size:13px">${p.n}</div>
+                    <div style="flex:1;font-size:13px">${p.n} ${isPlayer ? '👈' : ''}</div>
                     <div style="color:var(--gld);font-weight:700;font-size:13px">${val}</div>
                 </div>`;
             }).join('');
         }
 
-        // ════════════════════════════════════════════════
+        // ============================================================
         // 13. РУЛЕТКА
-        // ════════════════════════════════════════════════
+        // ============================================================
         const SEG_COUNT = 20;
         const SEGS = (() => {
             const s = [];
@@ -2036,9 +2067,9 @@
                 });
         }
 
-        // ════════════════════════════════════════════════
+        // ============================================================
         // 14. КУБИК
-        // ════════════════════════════════════════════════
+        // ============================================================
         const DICE_FACES_STR = ['⚀', '⚁', '⚂', '⚃', '⚄', '⚅'];
         const DICE_ROT = {
             1: { x: 0, y: 0 },
@@ -2165,9 +2196,9 @@
             requestAnimationFrame(anim);
         }
 
-        // ════════════════════════════════════════════════
+        // ============================================================
         // 15. АУКЦИОН
-        // ════════════════════════════════════════════════
+        // ============================================================
         function renderPodium() {
             const podiumEl = document.getElementById('podiumList');
             if (!podiumEl) return;
@@ -2228,9 +2259,9 @@
             toast('Ставка: ' + G.auctionBid, 'gld');
         }
 
-        // ════════════════════════════════════════════════
+        // ============================================================
         // 16. ИГРОВЫЕ ДЕЙСТВИЯ
-        // ════════════════════════════════════════════════
+        // ============================================================
         function doFarm() {
             const now = Date.now();
             if (now - G.lastFarm < 3600000 && G.lastFarm) { toast('Кулдаун ещё не прошёл!', 'err'); return; }
@@ -2417,9 +2448,9 @@
             toast(`+${PROMOS[c]} монет!`, 'gld');
         }
 
-        // ════════════════════════════════════════════════
+        // ============================================================
         // 17. ЗАПУСК
-        // ════════════════════════════════════════════════
+        // ============================================================
         document.addEventListener('DOMContentLoaded', async () => {
             aStat('⏳ Проверка сессии...', 'ld');
             renderDiceIdle();
