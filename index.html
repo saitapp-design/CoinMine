@@ -671,6 +671,16 @@
                     <div class="ct">осколки (выпадают при добыче)</div>
                     <div id="SH_home" style="font-size:12px;color:var(--tx2)">Осколки выпадают случайно при добыче монет</div>
                 </div>
+
+                <div class="card">
+                    <div class="ct">реферальная программа</div>
+                    <div style="display:flex;gap:6px;margin-bottom:6px">
+                        <input class="inp" id="REF_INP" placeholder="Введите реферальный код..." style="flex:1">
+                        <button class="btn bp" style="width:auto;padding:0 12px" onclick="useRefCode()">Активировать</button>
+                    </div>
+                    <div style="font-size:11px;color:var(--tx2);margin-bottom:4px">Ваш реферальный код: <b style="color:var(--gld)" id="MY_REF_CODE">demo_1234</b></div>
+                    <div style="font-size:11px;color:var(--tx2)">За каждого активированного друга: <b style="color:var(--gld)">+25 монет</b> основателю</div>
+                </div>
             </div>
 
             <!-- GAMES -->
@@ -711,7 +721,7 @@
 
                 <div id="G_dc" style="display:none">
                     <div class="card">
-                        <div class="ct">кубик — ставка 50 монет, шанс 33%</div>
+                        <div class="ct">кубик — ставка 50 монет</div>
                         <div id="DC_res" class="game-result">Кидайте кубик и выигрывайте!</div>
                         <div class="dice-container">
                             <div class="dice" id="diceMain">⚀</div>
@@ -721,11 +731,11 @@
                             <span id="dcBlack" class="active-black">⚫ Чёрный</span>
                         </div>
                         <div style="font-size:11px;color:var(--tx2);text-align:center;margin:8px 0">
-                            Выпавшее число × 5 монет + бонус за угаданный цвет (+10 монет)
+                            Выпавшее число × 10 монет + бонус за угаданный цвет (+10 монет)
                         </div>
                         <div class="dice-buttons">
-                            <button class="btn" style="background:#7f1d1d;color:#fca5a5;border:1px solid #991b1b" onclick="confirmAction('Ставка 50 монет?','Кубик выпадет случайно. Выигрыш = число × 5 + бонус за цвет.',()=>playDice('red'))">🔴 Красный 50</button>
-                            <button class="btn" style="background:#1c1c2e;color:#d1d5db;border:1px solid #374151" onclick="confirmAction('Ставка 50 монет?','Кубик выпадет случайно. Выигрыш = число × 5 + бонус за цвет.',()=>playDice('black'))">⚫ Чёрный 50</button>
+                            <button class="btn" style="background:#7f1d1d;color:#fca5a5;border:1px solid #991b1b" onclick="confirmAction('Ставка 50 монет?','Кубик выпадет случайно. Выигрыш = число × 10 + бонус за цвет.',()=>playDice('red'))">🔴 Красный 50</button>
+                            <button class="btn" style="background:#1c1c2e;color:#d1d5db;border:1px solid #374151" onclick="confirmAction('Ставка 50 монет?','Кубик выпадет случайно. Выигрыш = число × 10 + бонус за цвет.',()=>playDice('black'))">⚫ Чёрный 50</button>
                         </div>
                     </div>
                 </div>
@@ -755,6 +765,7 @@
                         <div class="boss-ico" id="BS_ico">👹</div>
                         <div style="font-size:15px;font-weight:700" id="BS_nm">Босс Рябчик</div>
                         <div style="font-size:11px;color:var(--tx2);margin-top:3px" id="BS_st">Активен — атакуйте!</div>
+                        <div style="font-size:10px;color:var(--tx2);margin-top:2px" id="BS_respawn">Следующий босс в 16:00 МСК</div>
                     </div>
                     <div class="hp-bar"><div class="hp-fill" id="BS_hp" style="width:100%"></div></div>
                     <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--tx2);margin-bottom:10px">
@@ -992,9 +1003,12 @@
             lastWork: {},
             auctionBid: 0,
             chests: 0,
-            boss: { idx: 0, hp: 1000 },
+            boss: { idx: 0, hp: 1000, lastRespawn: 0 },
             topUpdated: 0,
-            diceRolling: false
+            diceRolling: false,
+            refCode: 'demo_' + Math.random().toString(36).substring(2, 8),
+            refsActivated: [],
+            refEarnings: 0
         };
 
         let _pendingFn = null;
@@ -1005,7 +1019,8 @@
             if (raw) {
                 const p = JSON.parse(raw);
                 ['coins', 'farms', 'refs', 'keys', 'lastFarm', 'farmLv', 'name', 'nicks', 'shards', 'clan', 'clanLF',
-                    'promos', 'missions', 'profs', 'lastWork', 'auctionBid', 'chests', 'boss', 'topUpdated'
+                    'promos', 'missions', 'profs', 'lastWork', 'auctionBid', 'chests', 'boss', 'topUpdated',
+                    'refCode', 'refsActivated', 'refEarnings'
                 ].forEach(k => {
                     if (p[k] !== undefined) G[k] = p[k];
                 });
@@ -1087,6 +1102,24 @@
         // ===== ГЕТТЕРЫ =====
         function getFarmCost() { return FARM_COSTS[Math.min(G.farmLv - 1, 4)]; }
 
+        // ===== РЕФЕРАЛЬНАЯ СИСТЕМА =====
+        function useRefCode() {
+            const code = document.getElementById('REF_INP').value.trim();
+            if (!code) { toast('Введите код', 'err'); return; }
+            if (code === G.refCode) { toast('Это ваш собственный код', 'err'); return; }
+            if (G.refsActivated.includes(code)) { toast('Код уже активирован', 'err'); return; }
+
+            // Находим основателя по коду (в демо - просто начисляем)
+            G.refsActivated.push(code);
+            G.refs++;
+            G.coins += 25; // бонус основателю
+            G.refEarnings += 25;
+            save();
+            renderUI();
+            toast('Код активирован! +25 монет основателю', 'gld');
+            document.getElementById('REF_INP').value = '';
+        }
+
         // ===== ОТРИСОВКА =====
         function renderUI() {
             document.getElementById('H_coins').textContent = fmt(G.coins);
@@ -1101,6 +1134,7 @@
             const an = G.nicks.a ? NICK_STYLES[G.nicks.a] : null;
             document.getElementById('NICK_LBL').textContent = an ? `Стиль: ${an.e} ${an.n}` : 'Стиль не выбран';
             document.getElementById('AV').textContent = an ? an.e : '⛏';
+            document.getElementById('MY_REF_CODE').textContent = G.refCode;
             renderFarmTimer();
             renderShards();
             renderNicks();
@@ -1200,6 +1234,22 @@
         }
 
         function renderBoss() {
+            const now = Date.now();
+            // Спавн босса в 16:00 МСК каждый день
+            const mskTime = new Date(now + 3 * 3600000); // UTC+3
+            const nextSpawn = new Date(mskTime);
+            nextSpawn.setHours(16, 0, 0, 0);
+            if (mskTime > nextSpawn) {
+                nextSpawn.setDate(nextSpawn.getDate() + 1);
+            }
+            const timeToSpawn = nextSpawn - mskTime;
+
+            // Если босс мёртв и время спавна пришло - воскрешаем
+            if (G.boss.hp <= 0 && timeToSpawn < 60000) {
+                G.boss.hp = BOSSES[G.boss.idx].hp;
+                save();
+            }
+
             const b = BOSSES[G.boss.idx] || BOSSES[0];
             const maxhp = b.hp;
             const pct = Math.max(0, Math.round(G.boss.hp / maxhp * 100));
@@ -1207,7 +1257,13 @@
             document.getElementById('BS_nm').textContent = b.nm;
             document.getElementById('BS_hp').style.width = pct + '%';
             document.getElementById('BS_hp_txt').textContent = fmt(G.boss.hp) + ' / ' + fmt(maxhp) + ' ХП';
-            document.getElementById('BS_st').textContent = G.boss.hp > 0 ? 'Активен — атакуйте!' : 'Повержен! Следующий скоро...';
+            document.getElementById('BS_st').textContent = G.boss.hp > 0 ? 'Активен — атакуйте!' : 'Повержен! Ожидайте 16:00 МСК';
+            // Время до спавна
+            const hours = Math.floor(timeToSpawn / 3600000);
+            const mins = Math.floor((timeToSpawn % 3600000) / 60000);
+            document.getElementById('BS_respawn').textContent = G.boss.hp > 0 ?
+                'Следующий босс в 16:00 МСК' :
+                `Респавн через ${hours}ч ${mins}м (в 16:00 МСК)`;
         }
 
         function renderClan() {
@@ -1271,7 +1327,7 @@
 
         // ===== ИГРОВЫЕ ФУНКЦИИ =====
 
-        // ---- РУЛЕТКА ----
+        // ---- РУЛЕТКА (ИСПРАВЛЕНА) ----
         let roulRunning = false;
 
         function drawRoulette(angle, result) {
@@ -1287,6 +1343,7 @@
                 R = 78;
             ctx.clearRect(0, 0, w, 200);
 
+            // 20 сегментов: 18 цветных + 2 зеленых
             const segs = [];
             for (let i = 0; i < 9; i++) { segs.push('red');
                 segs.push('black'); }
@@ -1344,6 +1401,7 @@
                     segs.forEach((c, i) => { if (c === landed) possible.push(i); });
                     const targetIdx = possible[Math.floor(Math.random() * possible.length)];
 
+                    // Угол: стрелка смотрит вверх (0), сегмент i занимает угол от i/n*2π до (i+1)/n*2π
                     const targetAngle = -(targetIdx + 0.5) / n * Math.PI * 2;
                     const total = targetAngle + Math.PI * 2 * (6 + Math.random() * 3);
 
@@ -1427,7 +1485,7 @@
             const diceValue = Math.floor(Math.random() * 6) + 1;
             const landedColor = diceValue % 2 === 1 ? 'red' : 'black';
 
-            const baseWin = diceValue * 5;
+            const baseWin = diceValue * 10;
             const bonusWin = chosenColor === landedColor ? 10 : 0;
             const totalWin = baseWin + bonusWin;
 
@@ -1628,7 +1686,7 @@
 
         function atkBoss() {
             if (G.coins < 20) { toast('Нужно 20 монет', 'err'); return; }
-            if (G.boss.hp <= 0) { toast('Босс уже повержен', 'err'); return; }
+            if (G.boss.hp <= 0) { toast('Босс уже повержен! Ждите 16:00 МСК', 'err'); return; }
             G.coins -= 20;
             const dmg = Math.floor(Math.random() * 41) + 10;
             G.boss.hp = Math.max(0, G.boss.hp - dmg);
@@ -1636,14 +1694,8 @@
             if (Math.random() < .2) { G.chests++;
                 msg += ' · 🎁 Сундук!'; }
             if (G.boss.hp <= 0) {
-                msg += ' · Босс повержён!';
+                msg += ' · Босс повержён! Следующий в 16:00 МСК';
                 G.chests += 3;
-                setTimeout(() => {
-                    G.boss.idx = (G.boss.idx + 1) % BOSSES.length;
-                    G.boss.hp = BOSSES[G.boss.idx].hp;
-                    save();
-                    renderUI();
-                }, 3000);
             }
             document.getElementById('ATK_log').textContent = msg;
             save();
@@ -1693,7 +1745,8 @@
         setInterval(() => {
             const sc = document.querySelector('.sc.on');
             if (sc && sc.id === 'sc-top') renderTop('b');
-        }, 600000);
+            renderBoss(); // обновляем таймер босса
+        }, 30000);
 
         setBannerImage('https://i.ibb.co/hRSsFg5R/Chat-GPT-Image-19-2026-20-55-28.png');
         updateDiceDisplay(0, null);
