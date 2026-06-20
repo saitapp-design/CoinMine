@@ -28,6 +28,9 @@
             --bd2: #ffffff22;
             --r: 12px;
             --r2: 6px;
+            --gold: #ffd700;
+            --silver: #c0c0c0;
+            --bronze: #cd7f32;
         }
         html,
         body {
@@ -97,12 +100,12 @@
         }
         .auth-tab {
             flex: 1;
-            padding: 8px;
+            padding: 10px 8px;
             text-align: center;
             border: none;
             background: none;
             color: var(--tx2);
-            font-size: 13px;
+            font-size: 14px;
             font-weight: 600;
             cursor: pointer;
             border-radius: 6px;
@@ -254,7 +257,7 @@
         .nav {
             background: var(--bg2);
             border-top: 1px solid var(--bd);
-            padding: 6px 0 max(6px, env(safe-area-inset-bottom));
+            padding: 8px 0 max(8px, env(safe-area-inset-bottom));
             display: grid;
             grid-template-columns: repeat(5, 1fr);
             position: fixed;
@@ -269,12 +272,13 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 2px;
-            padding: 6px 2px;
+            gap: 3px;
+            padding: 8px 2px;
             background: none;
             border: none;
             color: var(--tx2);
-            font-size: 9px;
+            font-size: 11px;
+            font-weight: 600;
             cursor: pointer;
             transition: .15s;
         }
@@ -282,7 +286,7 @@
             color: var(--gld);
         }
         .nb span {
-            font-size: 10px;
+            font-size: 20px;
         }
         .logout-btn {
             background: none;
@@ -542,6 +546,7 @@
             border: 1px solid #991b1b;
         }
 
+        /* Nicks */
         .nick-g {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -565,6 +570,8 @@
             background: #2a1b00;
             box-shadow: 0 0 0 2px #f0b42930;
         }
+
+        /* Shop */
         .pkg-g {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -596,14 +603,22 @@
             padding: 2px 8px;
             border-radius: 8px;
         }
+        .pkg-icon {
+            font-size: 36px;
+            margin-bottom: 3px;
+        }
 
         /* Boss */
-        .boss-ico {
-            font-size: 64px;
+        .boss-wrap {
             text-align: center;
+            padding: 8px 0;
+            position: relative;
+        }
+        .boss-avatar {
+            font-size: 80px;
             line-height: 1;
-            margin-bottom: 6px;
-            filter: drop-shadow(0 0 20px #ef444466);
+            margin-bottom: 4px;
+            filter: drop-shadow(0 0 30px #ef444466);
             animation: bossPulse 2s ease-in-out infinite;
         }
         @keyframes bossPulse {
@@ -615,10 +630,18 @@
                 transform: scale(1.06);
             }
         }
+        .boss-name {
+            font-size: 18px;
+            font-weight: 700;
+        }
+        .boss-status {
+            font-size: 12px;
+            color: var(--tx2);
+        }
         .hp-bar {
-            height: 14px;
+            height: 16px;
             background: var(--bg4);
-            border-radius: 8px;
+            border-radius: 10px;
             overflow: hidden;
             margin: 8px 0;
             position: relative;
@@ -626,8 +649,18 @@
         .hp-fill {
             height: 100%;
             background: linear-gradient(90deg, #991b1b, var(--red), #ff6b6b);
-            border-radius: 8px;
+            border-radius: 10px;
             transition: width .6s ease;
+        }
+        .hp-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(180deg, #ffffff25, transparent);
+            border-radius: 10px;
         }
 
         /* Roulette */
@@ -637,30 +670,32 @@
             border-radius: var(--r);
             overflow: hidden;
             background: var(--bg4);
+            padding: 8px;
         }
         #RC {
             display: block;
             width: 100%;
+            border-radius: var(--r2);
         }
         .rl-marker {
             position: absolute;
-            top: 0;
+            top: 4px;
             left: 50%;
             transform: translateX(-50%);
             width: 0;
             height: 0;
-            border-left: 10px solid transparent;
-            border-right: 10px solid transparent;
-            border-top: 20px solid var(--gld);
+            border-left: 12px solid transparent;
+            border-right: 12px solid transparent;
+            border-top: 22px solid var(--gld);
             z-index: 6;
-            filter: drop-shadow(0 2px 6px #f0b42999);
+            filter: drop-shadow(0 2px 8px #f0b429aa);
         }
 
         /* Dice */
         .dice-scene {
             width: 100%;
-            height: 180px;
-            perspective: 600px;
+            height: 220px;
+            perspective: 700px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -669,48 +704,132 @@
             overflow: hidden;
         }
         .dice-cube {
-            width: 80px;
-            height: 80px;
+            width: 100px;
+            height: 100px;
             position: relative;
             transform-style: preserve-3d;
             transition: none;
         }
         .dice-face {
             position: absolute;
-            width: 80px;
-            height: 80px;
+            width: 100px;
+            height: 100px;
             border: 2px solid rgba(255, 255, 255, .15);
-            border-radius: 10px;
+            border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 36px;
+            font-size: 46px;
             font-weight: 900;
             backface-visibility: hidden;
         }
         .df-front {
-            transform: translateZ(40px);
+            transform: translateZ(50px);
         }
         .df-back {
-            transform: rotateY(180deg) translateZ(40px);
+            transform: rotateY(180deg) translateZ(50px);
         }
         .df-right {
-            transform: rotateY(90deg) translateZ(40px);
+            transform: rotateY(90deg) translateZ(50px);
         }
         .df-left {
-            transform: rotateY(-90deg) translateZ(40px);
+            transform: rotateY(-90deg) translateZ(50px);
         }
         .df-top {
-            transform: rotateX(90deg) translateZ(40px);
+            transform: rotateX(90deg) translateZ(50px);
         }
         .df-bottom {
-            transform: rotateX(-90deg) translateZ(40px);
+            transform: rotateX(-90deg) translateZ(50px);
         }
         .dice-val {
-            font-size: 13px;
+            font-size: 14px;
             text-align: center;
             margin-top: 8px;
-            min-height: 18px;
+            min-height: 20px;
+            font-weight: 600;
+        }
+
+        /* Auction podium */
+        .podium {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            padding: 8px 0;
+        }
+        .podium-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 14px;
+            border-radius: var(--r2);
+            background: var(--bg4);
+            border: 1px solid var(--bd2);
+            transition: .2s;
+        }
+        .podium-item.top1 {
+            background: linear-gradient(135deg, #1a1500, #3d2800);
+            border-color: var(--gold);
+            box-shadow: 0 0 20px #ffd70033;
+        }
+        .podium-item.top2 {
+            background: linear-gradient(135deg, #111122, #222244);
+            border-color: var(--silver);
+        }
+        .podium-item.top3 {
+            background: linear-gradient(135deg, #1a0f0a, #2a1a0f);
+            border-color: var(--bronze);
+        }
+        .podium-rank {
+            font-size: 20px;
+            font-weight: 800;
+            min-width: 30px;
+            text-align: center;
+        }
+        .podium-rank.gold {
+            color: var(--gold);
+        }
+        .podium-rank.silver {
+            color: var(--silver);
+        }
+        .podium-rank.bronze {
+            color: var(--bronze);
+        }
+        .podium-avatar {
+            font-size: 28px;
+        }
+        .podium-name {
+            flex: 1;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        .podium-bid {
+            font-weight: 700;
+            color: var(--gld);
+            font-size: 14px;
+        }
+
+        /* Clan */
+        .clan-icon {
+            font-size: 60px;
+            text-align: center;
+            margin-bottom: 4px;
+            filter: drop-shadow(0 0 20px #7c3aed66);
+        }
+        .clan-name {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--acc3);
+        }
+        .clan-diamonds {
+            font-size: 28px;
+            font-weight: 800;
+            color: var(--gld);
+        }
+
+        .card-icon {
+            font-size: 32px;
+            margin-right: 6px;
+            vertical-align: middle;
         }
 
         #TOAST {
@@ -745,9 +864,9 @@
     <div id="authWrap">
         <div class="auth-box">
             <div class="auth-banner">
-                <img src="<a href="https://ibb.co/zhzsVmch"><img src="https://i.ibb.co/zhzsVmch/Chat-GPT-Image-19-2026-20-55-28.png" alt="CoinMine Banner">
+                <img src="https://i.ibb.co/hRSsFg5R/Chat-GPT-Image-19-2026-20-55-28.png" alt="CoinMine Banner">
             </div>
-            <div class="auth-title">FarmerokGames</div>
+            <div class="auth-title">CoinMine</div>
             <div class="auth-sub" id="authSub">Войдите или создайте аккаунт</div>
             <div class="auth-tabs">
                 <button class="auth-tab on" onclick="setAuthMode('login')" id="tabLogin">Войти</button>
@@ -833,14 +952,15 @@
                     <div class="tab" id="GT_dc" onclick="gTab('dc',this)">🎲 Кубик</div>
                     <div class="tab" id="GT_au" onclick="gTab('au',this)">🏛 Аукцион</div>
                 </div>
+
                 <div id="G_rl">
                     <div class="card">
-                        <div class="ct">рулетка — выберите ставку и цвет</div>
+                        <div class="ct">🎰 рулетка — выберите ставку и цвет</div>
                         <div class="rl-wrap" style="margin-bottom:10px">
-                            <canvas id="RC" height="220" style="width:100%;display:block"></canvas>
+                            <canvas id="RC" height="200" style="width:100%;display:block"></canvas>
                             <div class="rl-marker"></div>
                         </div>
-                        <div id="RL_r" style="font-size:13px;text-align:center;min-height:20px;color:var(--tx2);margin-bottom:10px">Выберите цвет чтобы начать</div>
+                        <div id="RL_r" style="font-size:14px;text-align:center;min-height:24px;color:var(--tx2);margin-bottom:10px;font-weight:600">Выберите цвет чтобы начать</div>
                         <div class="g2" style="margin-bottom:10px">
                             <div>
                                 <div class="tm mb8">Ставка</div>
@@ -853,47 +973,56 @@
                             </div>
                             <div>
                                 <div class="tm mb8">Коэффициенты</div>
-                                <div style="background:var(--bg4);border-radius:var(--r2);padding:8px;font-size:11px;color:var(--tx2)">🔴 ×1.75<br>⚫ ×1.75<br>🟩 ×5.0</div>
+                                <div style="background:var(--bg4);border-radius:var(--r2);padding:8px;font-size:12px;color:var(--tx2);text-align:center">
+                                    <div>🔴 ×1.75</div>
+                                    <div>⚫ ×1.75</div>
+                                    <div>🟩 ×5.0</div>
+                                </div>
                             </div>
                         </div>
                         <div class="g3">
-                            <button class="btn bred" onclick="startRoul('red')">🔴 Красный</button>
-                            <button class="btn" style="background:#1c1c2e;color:#d1d5db;border:1px solid #374151" onclick="startRoul('black')">⚫ Чёрный</button>
-                            <button class="btn" style="background:#052e16;color:#4ade80;border:1px solid #14532d" onclick="startRoul('green')">🟩 Зелёный</button>
+                            <button class="btn" style="background:#7f1d1d;color:#fca5a5;border:1px solid #991b1b;font-size:14px;padding:14px 0" onclick="startRoul('red')">🔴 Красный</button>
+                            <button class="btn" style="background:#1c1c2e;color:#d1d5db;border:1px solid #374151;font-size:14px;padding:14px 0" onclick="startRoul('black')">⚫ Чёрный</button>
+                            <button class="btn" style="background:#052e16;color:#4ade80;border:1px solid #14532d;font-size:14px;padding:14px 0" onclick="startRoul('green')">🟩 Зелёный</button>
                         </div>
                     </div>
                 </div>
+
                 <div id="G_dc" style="display:none">
                     <div class="card">
-                        <div class="ct">3d кубик — ставка 50 монет</div>
+                        <div class="ct">🎲 3d кубик — ставка 50 монет</div>
                         <div class="dice-scene" id="diceScene">
                             <div id="diceCube" class="dice-cube">
-                                <div class="dice-face df-front" id="d-f">⚀</div>
-                                <div class="dice-face df-back" id="d-b">⚅</div>
-                                <div class="dice-face df-right" id="d-r">⚂</div>
-                                <div class="dice-face df-left" id="d-l">⚃</div>
-                                <div class="dice-face df-top" id="d-t">⚁</div>
-                                <div class="dice-face df-bottom" id="d-bo">⚄</div>
+                                <div class="dice-face df-front" id="d-f" style="background:#2a1a35;">⚀</div>
+                                <div class="dice-face df-back" id="d-b" style="background:#1a2a2a;">⚅</div>
+                                <div class="dice-face df-right" id="d-r" style="background:#2a2a1a;">⚂</div>
+                                <div class="dice-face df-left" id="d-l" style="background:#1a2a2a;">⚃</div>
+                                <div class="dice-face df-top" id="d-t" style="background:#2a1a2a;">⚁</div>
+                                <div class="dice-face df-bottom" id="d-bo" style="background:#1a1a2a;">⚄</div>
                             </div>
                         </div>
                         <div class="tm tc dice-val" id="DC_r">Кидайте кубик!</div>
-                        <div class="tm tc" style="font-size:11px;margin-bottom:10px">Число × 10 + бонус за цвет (+10) — ставка 50</div>
+                        <div class="tm tc" style="font-size:12px;margin-bottom:10px">Число × 10 + бонус за цвет (+10) — ставка 50</div>
                         <div class="g2">
-                            <button class="btn bred" onclick="conf('Ставка 50 монет?','Вы выбираете красный. Число на кубике × 10 + 10 бонус если цвет совпал. Стоимость 50 монет.',()=>playDice('red'))">🔴 Красный (50)</button>
-                            <button class="btn" style="background:#1c1c2e;color:#d1d5db;border:1px solid #374151" onclick="conf('Ставка 50 монет?','Вы выбираете чёрный. Число на кубике × 10 + 10 бонус если цвет совпал. Стоимость 50 монет.',()=>playDice('black'))">⚫ Чёрный (50)</button>
+                            <button class="btn" style="background:#7f1d1d;color:#fca5a5;border:1px solid #991b1b;font-size:14px;padding:14px 0" onclick="conf('Ставка 50 монет?','Вы выбираете красный. Число на кубике × 10 + 10 бонус если цвет совпал. Стоимость 50 монет.',()=>playDice('red'))">🔴 Красный (50)</button>
+                            <button class="btn" style="background:#1c1c2e;color:#d1d5db;border:1px solid #374151;font-size:14px;padding:14px 0" onclick="conf('Ставка 50 монет?','Вы выбираете чёрный. Число на кубике × 10 + 10 бонус если цвет совпал. Стоимость 50 монет.',()=>playDice('black'))">⚫ Чёрный (50)</button>
                         </div>
                     </div>
                 </div>
+
                 <div id="G_au" style="display:none">
                     <div class="card">
-                        <div class="ct">аукцион — победитель получает приз от администратора</div>
-                        <div class="tc" style="padding:16px 0">
+                        <div class="ct">🏛 аукцион</div>
+                        <div class="tc" style="padding:8px 0">
                             <div class="tm">Текущая лидирующая ставка</div>
                             <div style="font-size:42px;font-weight:800;color:var(--gld)" id="AU_a">0</div>
                             <div class="tm" id="AU_l">Ставок пока нет</div>
                             <div class="tm mt8">Ваша ставка: <b style="color:var(--gld)" id="MY_b">0</b> монет</div>
                         </div>
-                        <div class="g3 mb8">
+                        <div class="podium" id="podiumList">
+                            <div class="tm tc" style="padding:12px;">Пока нет ставок</div>
+                        </div>
+                        <div class="g3 mt8">
                             <button class="btn bs" onclick="conf('+10 к ставке?','Ваши 10 монет зарезервируются. Если проиграете — вернутся.',()=>bid(10))">+10</button>
                             <button class="btn bs" onclick="conf('+50 к ставке?','Ваши 50 монет зарезервируются. Победитель получает приз.',()=>bid(50))">+50</button>
                             <button class="btn bs" onclick="conf('+100 к ставке?','Ваши 100 монет зарезервируются. Победитель определяется администратором.',()=>bid(100))">+100</button>
@@ -905,20 +1034,23 @@
             <!-- ARENA -->
             <div class="sc" id="sc-arena">
                 <div class="card tc">
-                    <div class="boss-ico" id="BS_i">👹</div>
-                    <div style="font-size:16px;font-weight:700;margin-bottom:4px" id="BS_n">Рябчик</div>
-                    <div class="tm" id="BS_s">Появляется в 16:00 МСК</div>
+                    <div class="boss-wrap">
+                        <div class="boss-avatar" id="BS_i">👹</div>
+                        <div class="boss-name" id="BS_n">Рябчик</div>
+                        <div class="boss-status" id="BS_s">Появляется в 16:00 МСК</div>
+                    </div>
                     <div class="hp-bar"><div class="hp-fill" id="BS_h" style="width:0%"></div></div>
-                    <div class="fl" style="justify-content:space-between;font-size:11px">
-                        <span class="tm" id="BS_ht">0 / 1000 ХП</span>
-                        <span class="tm" id="BS_rs"></span>
+                    <div class="fl" style="justify-content:space-between;font-size:12px;color:var(--tx2)">
+                        <span id="BS_ht">0 / 1000 ХП</span>
+                        <span id="BS_rs"></span>
                     </div>
                     <div class="g2 mt8">
                         <button class="btn bp" id="ATK_btn" onclick="conf('Атаковать Рябчика?','Стоимость: 20 монет. Урон 10–50. Шанс 20% получить сундук.',atkBoss)">⚔ Атаковать (20)</button>
                         <button class="btn bs" id="CH_btn" onclick="conf('Открыть сундук?','Случайная награда: монеты, ключи или редкий осколок.',openChest)">📦 Сундук (<span id="CH_c">0</span>)</button>
                     </div>
-                    <div style="font-size:12px;color:var(--grn);margin-top:8px;min-height:16px" id="ATK_l"></div>
+                    <div style="font-size:13px;color:var(--grn);margin-top:8px;min-height:20px;font-weight:600" id="ATK_l"></div>
                 </div>
+
                 <div class="card">
                     <div class="ct">📋 миссии дня</div>
                     <div id="MS_l"></div>
@@ -932,17 +1064,18 @@
             <!-- CLAN -->
             <div class="sc" id="sc-clan">
                 <div id="CL_no">
-                    <div class="card tc" style="padding:22px">
-                        <div style="font-size:46px;margin-bottom:8px">🏰</div>
-                        <div style="font-size:15px;font-weight:700;margin-bottom:6px">Вы не в клане</div>
+                    <div class="card tc" style="padding:20px">
+                        <div class="clan-icon">🏰</div>
+                        <div style="font-size:16px;font-weight:700;margin-bottom:6px">Вы не в клане</div>
                         <div class="tm mb8">Создайте клан за 1500 монет и добывайте алмазы командой</div>
                         <button class="btn bp" onclick="conf('Создать клан за 1500 монет?','Вы получите случайное название. Можно пригласить до 4 участников и вместе добывать алмазы каждые 6 часов.',createClan)">➕ Создать клан</button>
                     </div>
                 </div>
                 <div id="CL_yes" style="display:none">
                     <div style="background:#0a0620;border:1px solid #4c1d95;border-radius:var(--r);padding:16px;text-align:center;margin-bottom:10px">
-                        <div style="font-size:18px;font-weight:700;color:var(--acc3)" id="CL_n">—</div>
-                        <div style="font-size:30px;font-weight:800;color:var(--gld);margin:5px 0" id="CL_d">0 💎</div>
+                        <div class="clan-icon" id="CL_i">⚔️</div>
+                        <div class="clan-name" id="CL_n">—</div>
+                        <div class="clan-diamonds" id="CL_d">0 💎</div>
                         <div class="tm" id="CL_cd">Фарм доступен!</div>
                     </div>
                     <div class="card">
@@ -960,25 +1093,25 @@
                 <div class="card">
                     <div class="ct">💰 купить монеты</div>
                     <div class="pkg-g">
-                        <div class="pkg" onclick="conf('Купить 500 монет за 30 ₽?','В демо-режиме монеты зачислятся бесплатно.',()=>buyCoins(500))">
-                            <div style="font-size:28px">💰</div>
+                        <div class="pkg" onclick="conf('Купить 500 монет за 30 ₽?','В демо-режиме монеты зачисляются бесплатно.',()=>buyCoins(500))">
+                            <div class="pkg-icon">🪙</div>
                             <div style="font-size:18px;font-weight:700;color:var(--gld)">500</div>
                             <div class="tm">30 ₽</div>
                         </div>
-                        <div class="pkg hot" onclick="conf('Купить 1700 монет за 79 ₽?','1500 + 200 бонусных монет.',()=>buyCoins(1700))">
-                            <div style="font-size:28px">💰💰</div>
+                        <div class="pkg hot" onclick="conf('Купить 1700 монет за 79 ₽?','1500 + 200 бонусных монет. Самый выгодный стартовый набор!',()=>buyCoins(1700))">
+                            <div class="pkg-icon">💰</div>
                             <div style="font-size:18px;font-weight:700;color:var(--gld)">1500</div>
                             <div class="tm">79 ₽</div>
                             <div style="font-size:10px;color:var(--grn)">+200 бонус</div>
                         </div>
                         <div class="pkg" onclick="conf('Купить 4500 монет за 149 ₽?','4000 + 500 бонусных монет.',()=>buyCoins(4500))">
-                            <div style="font-size:28px">💰💰💰</div>
+                            <div class="pkg-icon">💎</div>
                             <div style="font-size:18px;font-weight:700;color:var(--gld)">4000</div>
                             <div class="tm">149 ₽</div>
                             <div style="font-size:10px;color:var(--grn)">+500 бонус</div>
                         </div>
                         <div class="pkg" onclick="conf('Купить 12000 монет за 299 ₽?','10000 + 2000 мега-бонус монет!',()=>buyCoins(12000))">
-                            <div style="font-size:28px">💎</div>
+                            <div class="pkg-icon">👑</div>
                             <div style="font-size:18px;font-weight:700;color:var(--gld)">10000</div>
                             <div class="tm">299 ₽</div>
                             <div style="font-size:10px;color:var(--grn)">+2000 мега</div>
@@ -986,19 +1119,21 @@
                     </div>
                     <div class="tm tc mt8">Демо-режим — монеты зачисляются бесплатно</div>
                 </div>
+
                 <div class="card">
                     <div class="ct">🎨 стили ника (250 монет)</div>
                     <div class="nick-g" id="NK_g"></div>
                 </div>
+
                 <div class="card">
                     <div class="ct">🎁 промокоды</div>
                     <div class="irow mb8">
                         <input class="inp" id="PR_i" placeholder="Введите промокод..." style="margin:0">
-                        <button class="btn bp" style="width:auto;padding:0 12px" onclick="usePromo()">OK</button>
+                        <button class="btn bp" style="width:auto;padding:0 14px" onclick="usePromo()">OK</button>
                     </div>
                     <div class="g2">
-                        <button class="btn bs" style="font-size:11px" onclick="activatePromo('free')">🎁 FREE — +15</button>
-                        <button class="btn bs" style="font-size:11px" onclick="activatePromo('denchak')">🎁 DENCHAK — +15</button>
+                        <button class="btn bs" style="font-size:12px;padding:10px" onclick="activatePromo('free')">🎁 FREE — +15</button>
+                        <button class="btn bs" style="font-size:12px;padding:10px" onclick="activatePromo('denchak')">🎁 DENCHAK — +15</button>
                     </div>
                 </div>
             </div>
@@ -1022,11 +1157,11 @@
         </div>
 
         <nav class="nav">
-            <button class="nb on" onclick="goSc('home')" id="NB_home">🏠<br><span>Главная</span></button>
-            <button class="nb" onclick="goSc('games')" id="NB_games">🎲<br><span>Игры</span></button>
-            <button class="nb" onclick="goSc('arena')" id="NB_arena">⚔️<br><span>Арена</span></button>
-            <button class="nb" onclick="goSc('clan')" id="NB_clan">🛡️<br><span>Клан</span></button>
-            <button class="nb" onclick="goSc('shop')" id="NB_shop">🛒<br><span>Магазин</span></button>
+            <button class="nb on" onclick="goSc('home')" id="NB_home"><span>🏠</span>Главная</button>
+            <button class="nb" onclick="goSc('games')" id="NB_games"><span>🎲</span>Игры</button>
+            <button class="nb" onclick="goSc('arena')" id="NB_arena"><span>⚔️</span>Арена</button>
+            <button class="nb" onclick="goSc('clan')" id="NB_clan"><span>🛡️</span>Клан</button>
+            <button class="nb" onclick="goSc('shop')" id="NB_shop"><span>🛒</span>Магазин</button>
         </nav>
 
         <!-- БАННЕР ВНИЗУ -->
@@ -1094,6 +1229,7 @@
             promos: {},
             missions: { active: null, lastReset: 0 },
             auctionBid: 0,
+            auctionBidders: [], // [{name, avatar, bid}]
             chests: 0,
             refCode: '',
             activatedRef: null
@@ -1181,7 +1317,7 @@
         }
 
         // ════════════════════════════════════════════════
-        // 4. ОТПЕЧАТОК УСТРОЙСТВА (FINGERPRINT)
+        // 4. ОТПЕЧАТОК УСТРОЙСТВА
         // ════════════════════════════════════════════════
         function getFingerprint() {
             let fp = localStorage.getItem('coinmine_fp');
@@ -1321,7 +1457,6 @@
                 return;
             }
 
-            // Проверяем, занят ли код
             const { data: taken } = await sbFetch(
                 `/rest/v1/users?data->>refCode=eq.${encodeURIComponent(newCode)}&select=id`, { noAuth: true }
             );
@@ -1387,6 +1522,8 @@
 
         async function logoutUser() {
             if (!confirm('Выйти из аккаунта?')) return;
+            // Сохраняем данные перед выходом
+            await saveUserData();
             localStorage.removeItem('cm_tok');
             localStorage.removeItem('cm_uid');
             localStorage.removeItem('cm_username');
@@ -1480,7 +1617,10 @@
             document.getElementById('sc-' + nm).classList.add('on');
             const nb = document.getElementById('NB_' + nm);
             if (nb) nb.classList.add('on');
-            if (nm === 'games') setTimeout(() => drawRoulette(0, null), 60);
+            if (nm === 'games') {
+                setTimeout(() => drawRoulette(0, null), 60);
+                renderPodium();
+            }
             if (nm === 'top') renderTop('b');
             renderUI();
         }
@@ -1494,6 +1634,7 @@
             });
             if (t === 'rl') setTimeout(() => drawRoulette(0, null), 40);
             if (t === 'dc') renderDiceIdle();
+            if (t === 'au') renderPodium();
         }
 
         function topTab(t, el) {
@@ -1569,6 +1710,7 @@
             renderBoss();
             renderClan();
             renderTop('b');
+            renderPodium();
         }
 
         function renderFarmTimer() {
@@ -1689,6 +1831,7 @@
                 cd = 6 * 3600000;
             document.getElementById('CL_cd').textContent = el >= cd ? 'Фарм доступен!' : 'Фарм через ' + Math.ceil((cd - el) /
                 3600000) + 'ч';
+            document.getElementById('CL_i').textContent = ['⚔️', '🛡️', '🏹', '🗡️', '🔮'][Math.floor(Math.random() * 5)];
         }
 
         let topLastType = 'b',
@@ -1741,21 +1884,23 @@
             const cv = document.getElementById('RC');
             if (!cv) return;
             cv.width = cv.parentElement?.offsetWidth || 360;
-            cv.height = 220;
+            cv.height = 200;
             const ctx = cv.getContext('2d'),
                 w = cv.width,
-                h = 220,
+                h = 200,
                 cx = w / 2,
                 cy = h / 2,
-                R = Math.min(cx, cy) - 14;
+                R = Math.min(cx, cy) - 16;
             ctx.clearRect(0, 0, w, h);
             ctx.beginPath();
             ctx.arc(cx, cy, R + 4, 0, Math.PI * 2);
             ctx.fillStyle = '#1a1a2e';
             ctx.fill();
+
             const n = SEG_COUNT,
                 segAngle = Math.PI * 2 / n,
                 a0 = (angle || 0) - Math.PI / 2;
+
             SEGS.forEach((c, i) => {
                 const a1 = a0 + i * segAngle,
                     a2 = a0 + (i + 1) * segAngle;
@@ -1769,26 +1914,8 @@
                 ctx.lineWidth = 1.2;
                 ctx.stroke();
             });
-            SEGS.forEach((c, i) => {
-                const mid = a0 + (i + 0.5) * segAngle;
-                const lx = cx + Math.cos(mid) * (R * .65),
-                    ly = cy + Math.sin(mid) * (R * .65);
-                ctx.font = `bold ${R*.11}px sans-serif`;
-                ctx.textAlign = 'center';
-                ctx.textBaseline = 'middle';
-                ctx.fillStyle = c === 'red' ? '#fca5a5' : c === 'black' ? '#9ca3af' : '#4ade80';
-                ctx.fillText(c === 'red' ? 'R' : c === 'black' ? 'B' : 'G', lx, ly);
-            });
-            ctx.beginPath();
-            ctx.arc(cx, cy, R, 0, Math.PI * 2);
-            ctx.strokeStyle = '#ffffff25';
-            ctx.lineWidth = 3;
-            ctx.stroke();
-            ctx.beginPath();
-            ctx.arc(cx, cy, R - 3, 0, Math.PI * 2);
-            ctx.strokeStyle = 'var(--gld)';
-            ctx.lineWidth = 1;
-            ctx.stroke();
+
+            // Чистый центр без надписей
             ctx.beginPath();
             ctx.arc(cx, cy, R * .15, 0, Math.PI * 2);
             const cg = ctx.createRadialGradient(cx, cy, 0, cx, cy, R * .15);
@@ -1861,15 +1988,21 @@
 
         let diceRolling = false;
         let diceAnimFrame = null;
+        let diceColors = ['#2a1a35', '#1a2a2a', '#2a2a1a', '#1a2a2a', '#2a1a2a', '#1a1a2a'];
 
         function setDiceFace(val, col) {
             const cube = document.getElementById('diceCube');
             if (!cube) return;
-            const colors = { red: ['#7f1d1d', '#991b1b', '#b91c1c'], black: ['#1c1c2e', '#1f2037', '#252540'] };
+            const colors = {
+                red: ['#7f1d1d', '#991b1b', '#b91c1c', '#6b1a1a', '#8a1a1a', '#5a1515'],
+                black: ['#1c1c2e', '#1f2037', '#252540', '#15152a', '#1a1a35', '#12122a']
+            };
             const c = colors[col] || colors.black;
-            cube.querySelectorAll('.dice-face').forEach((f, i) => {
+            const faceEls = cube.querySelectorAll('.dice-face');
+            faceEls.forEach((f, i) => {
                 f.style.background = c[i % 3] || c[0];
-                f.style.borderColor = col === 'red' ? '#ef444440' : '#ffffff20';
+                f.style.borderColor = col === 'red' ? '#ef444480' : '#ffffff30';
+                f.style.boxShadow = col === 'red' ? 'inset 0 0 30px #ef444433' : 'inset 0 0 30px #ffffff11';
             });
             document.getElementById('d-f').textContent = DICE_FACES_STR[val - 1] || '⚀';
             document.getElementById('d-b').textContent = DICE_FACES_STR[6 - val] || '⚅';
@@ -1878,16 +2011,18 @@
             document.getElementById('d-t').textContent = DICE_FACES_STR[1];
             document.getElementById('d-bo').textContent = DICE_FACES_STR[4];
             const rot = DICE_ROT[val] || { x: 0, y: 0 };
-            cube.style.transition = 'transform 0.5s ease';
+            cube.style.transition = 'transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)';
             cube.style.transform = `rotateX(${rot.x}deg) rotateY(${rot.y}deg)`;
         }
 
         function renderDiceIdle() {
             const cube = document.getElementById('diceCube');
             if (!cube) return;
-            cube.querySelectorAll('.dice-face').forEach(f => {
-                f.style.background = '#1e1e35';
+            const faceEls = cube.querySelectorAll('.dice-face');
+            faceEls.forEach((f, i) => {
+                f.style.background = diceColors[i % 6] || '#1e1e35';
                 f.style.borderColor = '#ffffff20';
+                f.style.boxShadow = 'none';
             });
             document.getElementById('d-f').textContent = '⚄';
             document.getElementById('d-b').textContent = '⚁';
@@ -1910,7 +2045,16 @@
                 oy = 30;
             cube.style.transition = 'none';
             if (diceAnimFrame) cancelAnimationFrame(diceAnimFrame);
-            const dur = 1800,
+
+            // Меняем цвета во время вращения
+            const colorSets = [
+                ['#7f1d1d', '#991b1b', '#b91c1c', '#6b1a1a', '#8a1a1a', '#5a1515'],
+                ['#1c1c2e', '#1f2037', '#252540', '#15152a', '#1a1a35', '#12122a'],
+                ['#2a1a35', '#1a2a2a', '#2a2a1a', '#1a2a2a', '#2a1a2a', '#1a1a2a']
+            ];
+            const faceEls = cube.querySelectorAll('.dice-face');
+
+            const dur = 2000,
                 t0 = Date.now();
 
             function anim() {
@@ -1918,9 +2062,25 @@
                 if (el < dur) {
                     const prog = el / dur,
                         spd = 1 - prog * 0.7;
-                    const rx = ox + el * 0.7 * spd,
-                        ry = oy + el * 0.9 * spd;
+                    const rx = ox + el * 0.8 * spd,
+                        ry = oy + el * 1.0 * spd;
                     cube.style.transform = `rotateX(${rx}deg) rotateY(${ry}deg)`;
+
+                    // Меняем цвета граней во время вращения
+                    const cs = colorSets[Math.floor(Math.random() * colorSets.length)];
+                    faceEls.forEach((f, i) => {
+                        f.style.background = cs[i % cs.length] || '#1e1e35';
+                        f.style.borderColor = '#ffffff30';
+                    });
+
+                    // Меняем значения граней
+                    document.getElementById('d-f').textContent = DICE_FACES_STR[Math.floor(Math.random() * 6)];
+                    document.getElementById('d-b').textContent = DICE_FACES_STR[Math.floor(Math.random() * 6)];
+                    document.getElementById('d-r').textContent = DICE_FACES_STR[Math.floor(Math.random() * 6)];
+                    document.getElementById('d-l').textContent = DICE_FACES_STR[Math.floor(Math.random() * 6)];
+                    document.getElementById('d-t').textContent = DICE_FACES_STR[Math.floor(Math.random() * 6)];
+                    document.getElementById('d-bo').textContent = DICE_FACES_STR[Math.floor(Math.random() * 6)];
+
                     diceAnimFrame = requestAnimationFrame(anim);
                 } else {
                     const val = Math.floor(Math.random() * 6) + 1;
@@ -1944,20 +2104,74 @@
         }
 
         // ════════════════════════════════════════════════
-        // 15. ИГРОВЫЕ ДЕЙСТВИЯ
+        // 15. АУКЦИОН — ПОДИУМ
         // ════════════════════════════════════════════════
+        function renderPodium() {
+            const podiumEl = document.getElementById('podiumList');
+            if (!podiumEl) return;
+
+            const bidders = G.auctionBidders || [];
+
+            if (bidders.length === 0) {
+                podiumEl.innerHTML = `<div class="tm tc" style="padding:12px;">Пока нет ставок</div>`;
+                return;
+            }
+
+            // Сортируем по убыванию ставки и берём топ-3
+            const sorted = [...bidders].sort((a, b) => b.bid - a.bid);
+            const top3 = sorted.slice(0, 3);
+
+            const medals = ['🥇', '🥈', '🥉'];
+            const ranks = ['gold', 'silver', 'bronze'];
+
+            podiumEl.innerHTML = top3.map((bidder, index) => {
+                const rank = index + 1;
+                const isTop1 = rank === 1;
+                return `<div class="podium-item ${isTop1 ? 'top1' : rank === 2 ? 'top2' : 'top3'}">
+                    <div class="podium-rank ${ranks[index]}">${medals[index]}</div>
+                    <div class="podium-avatar">${bidder.avatar || '👤'}</div>
+                    <div class="podium-name">${bidder.name || 'Игрок'}</div>
+                    <div class="podium-bid">${fmt(bidder.bid)} 💰</div>
+                </div>`;
+            }).join('');
+        }
+
         function bid(a) {
             if (G.coins < a) { toast('Мало монет', 'err'); return; }
             G.coins -= a;
-            G.auctionBid += a;
+            G.auctionBid = (G.auctionBid || 0) + a;
+
+            // Добавляем или обновляем ставку игрока
+            const existing = G.auctionBidders.find(b => b.name === G.name);
+            if (existing) {
+                existing.bid += a;
+            } else {
+                G.auctionBidders.push({
+                    name: G.name,
+                    avatar: G.nicks.a ? NICK_S[G.nicks.a]?.e || '👤' : '👤',
+                    bid: G.auctionBid
+                });
+            }
+
+            // Сортируем и оставляем топ-10
+            G.auctionBidders.sort((a, b) => b.bid - a.bid);
+            if (G.auctionBidders.length > 10) {
+                G.auctionBidders = G.auctionBidders.slice(0, 10);
+            }
+
             document.getElementById('AU_a').textContent = G.auctionBid;
             document.getElementById('MY_b').textContent = G.auctionBid;
             document.getElementById('AU_l').textContent = 'Вы лидируете!';
+
+            renderPodium();
             scheduleSave();
             renderUI();
             toast('Ставка: ' + G.auctionBid, 'gld');
         }
 
+        // ════════════════════════════════════════════════
+        // 16. ИГРОВЫЕ ДЕЙСТВИЯ
+        // ════════════════════════════════════════════════
         function doFarm() {
             const now = Date.now();
             if (now - G.lastFarm < 3600000 && G.lastFarm) { toast('Кулдаун ещё не прошёл!', 'err'); return; }
@@ -2048,7 +2262,9 @@
 
         function createClan() {
             if (G.coins < 1500) { toast('Нужно 1500 монет', 'err'); return; }
-            const names = ['Kingdom Squad', 'Empire Crew', 'Dragon Force', 'Shadow Order', 'Titan Clan', 'Neon Warriors'];
+            const names = ['Kingdom Squad', 'Empire Crew', 'Dragon Force', 'Shadow Order', 'Titan Clan', 'Neon Warriors',
+                'Phoenix Legion', 'Frost Giants'
+            ];
             G.coins -= 1500;
             G.clan = { nm: names[Math.floor(Math.random() * names.length)], d: 0, m: [G.name] };
             G.clanLF = 0;
@@ -2143,7 +2359,7 @@
         }
 
         // ════════════════════════════════════════════════
-        // 16. ЗАПУСК
+        // 17. ЗАПУСК
         // ════════════════════════════════════════════════
         document.addEventListener('DOMContentLoaded', async () => {
             aStat('⏳ Проверка сессии...', 'ld');
@@ -2158,6 +2374,7 @@
                 aStat('Готово ко входу');
             }
             document.getElementById('authBtn').disabled = false;
+            renderPodium();
         });
 
         console.log('✅ Скрипт загружен');
