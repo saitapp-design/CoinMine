@@ -503,7 +503,7 @@ const SUPABASE_ANON_KEY = 'sb_publishable_GLQvPbCZrDYgd7FCSp861g_poX1-Hwy';
     }
 
     async function getUserData(userId) {
-        const response = await fetch(`${SUPABASE_URL}/rest/v1/users?id=eq.${userId}`, {
+        const response = await fetch(`${SUPABASE_URL}/auth/v1/users?id=eq.${userId}`, {
             method: 'GET',
             headers: {
                 'apikey': SUPABASE_ANON_KEY,
@@ -516,7 +516,7 @@ const SUPABASE_ANON_KEY = 'sb_publishable_GLQvPbCZrDYgd7FCSp861g_poX1-Hwy';
     }
 
     async function upsertUserData(userId, data, boss) {
-        const response = await fetch(`${SUPABASE_URL}/rest/v1/users`, {
+        const response = await fetch(`${SUPABASE_URL}/auth/v1/users`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -769,7 +769,7 @@ const SUPABASE_ANON_KEY = 'sb_publishable_GLQvPbCZrDYgd7FCSp861g_poX1-Hwy';
         if (G.activatedRef) { toast('Код уже активирован', 'err'); return; }
 
         try {
-            const response = await fetch(`${SUPABASE_URL}/rest/v1/users?data->>refCode=eq.${code}`, {
+            const response = await fetch(`${SUPABASE_URL}/auth/v1/users?data->>refCode=eq.${code}`, {
                 headers: { 'apikey': SUPABASE_ANON_KEY }
             });
             const data = await response.json();
