@@ -44,7 +44,7 @@
         }
 
         /* ════════════════════════════════════════ */
-        /* БОКОВЫЕ КАРТИНКИ — ВО ВСЁ СВОБОДНОЕ МЕСТО */
+        /* БОКОВЫЕ КАРТИНКИ */
         /* ════════════════════════════════════════ */
         body::before,
         body::after {
@@ -79,7 +79,7 @@
         }
 
         /* ════════════════════════════════════════ */
-        /* ОСНОВНОЙ КОНТЕЙНЕР — ШИРЕ НА ПК */
+        /* ОСНОВНОЙ КОНТЕЙНЕР */
         /* ════════════════════════════════════════ */
         .app {
             max-width: 500px;
@@ -99,41 +99,52 @@
         }
 
         /* ════════════════════════════════════════ */
-        /* ЛОГОТИП CoinMine — ВСЕГДА ВИДЕН НАД МЕНЮ */
+        /* СТАТИЧНЫЙ БАННЕР — ВСЕГДА ВИДЕН */
         /* ════════════════════════════════════════ */
-        .app-brand {
+        .static-banner {
             position: fixed;
             bottom: 62px;
             left: 50%;
             transform: translateX(-50%);
             z-index: 55;
-            background: var(--bg2);
-            padding: 4px 14px;
-            border-radius: 20px;
+            width: calc(100% - 20px);
+            max-width: 480px;
+            height: 60px;
+            border-radius: 12px;
+            overflow: hidden;
+            cursor: pointer;
             border: 1px solid var(--bd2);
-            font-size: 12px;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+            transition: .3s;
+            background: var(--bg2);
+        }
+        .static-banner:hover {
+            border-color: var(--acc2);
+            transform: translateX(-50%) scale(1.02);
+        }
+        .static-banner img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+        .static-banner .placeholder {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
             font-weight: 700;
             color: var(--gld);
-            letter-spacing: 0.5px;
-            white-space: nowrap;
-            pointer-events: none;
-            backdrop-filter: blur(10px);
-            background: rgba(13, 13, 28, 0.85);
-            max-width: 500px;
-            width: auto;
-            text-align: center;
+            background: var(--bg3);
         }
-        .app-brand span {
-            background: linear-gradient(135deg, var(--gld), var(--gld2));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
+
         @media (max-width: 500px) {
-            .app-brand {
+            .static-banner {
+                max-width: 410px;
+                height: 55px;
                 bottom: 62px;
-                font-size: 11px;
-                padding: 3px 12px;
-                max-width: 430px;
             }
         }
 
@@ -449,59 +460,6 @@
             background: var(--bg4);
             color: var(--red);
             border-color: var(--red);
-        }
-
-        /* ════════════════════════════════════════ */
-        /* БАННЕР — КАК В ПРЕДЫДУЩЕЙ ВЕРСИИ */
-        /* ════════════════════════════════════════ */
-        .bnr-wrap {
-            width: 100%;
-            overflow: hidden;
-            position: relative;
-            z-index: 10;
-            margin-top: 10px;
-            border-radius: var(--r);
-        }
-        .bnr-wrap .bnr {
-            display: block;
-            width: 100%;
-            height: 70px;
-            cursor: pointer;
-            background: var(--bg2);
-            border: 1px solid var(--bd2);
-            border-radius: var(--r);
-            transition: .3s;
-            overflow: hidden;
-        }
-        .bnr-wrap .bnr:hover {
-            border-color: var(--acc2);
-            transform: scale(1.01);
-        }
-        .bnr-wrap .bnr-img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            display: block;
-        }
-        .bnr-wrap .bnr-ph {
-            width: 100%;
-            height: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 14px;
-            font-weight: 700;
-            color: var(--gld);
-            background: var(--bg3);
-        }
-        .bnr-label {
-            font-size: 9px;
-            color: var(--tx2);
-            text-align: center;
-            padding: 2px 0;
-            opacity: 0.5;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
         }
 
         /* ════════════════════════════════════════ */
@@ -1143,15 +1101,6 @@
                         <div class="ct">💎 осколки</div>
                         <div id="SH_H" style="font-size:12px;color:var(--tx2)">Выпадают случайно при добыче</div>
                     </div>
-
-                    <!-- БАННЕР 1 -->
-                    <div class="bnr-wrap">
-                        <div class="bnr" onclick="window.open('https://t.me/minercoinsf', '_blank')">
-                            <img id="BNR_img" src="" alt="Реклама" class="bnr-img" onerror="this.style.display='none';document.getElementById('BNR_ph').style.display='flex'">
-                            <div id="BNR_ph" class="bnr-ph">⛏ CoinMine</div>
-                        </div>
-                        <div class="bnr-label">🔄 Реклама · Нажмите для перехода</div>
-                    </div>
                 </div>
 
                 <!-- GAMES -->
@@ -1237,15 +1186,6 @@
                                 <button class="btn bs" onclick="conf('+100 к ставке?','Ваши 100 монет зарезервируются. Победитель определяется администратором.',()=>bid(100))">+100</button>
                             </div>
                         </div>
-                    </div>
-
-                    <!-- БАННЕР 2 -->
-                    <div class="bnr-wrap">
-                        <div class="bnr" onclick="window.open('https://t.me/minercoinsf', '_blank')">
-                            <img src="https://i.ibb.co/B2ZWmtHJ/image.png" alt="Реклама" class="bnr-img" onerror="this.style.display='none';this.parentElement.querySelector('.bnr-ph').style.display='flex'">
-                            <div class="bnr-ph" style="display:none;">⛏ CoinMine</div>
-                        </div>
-                        <div class="bnr-label">🔄 Реклама · Нажмите для перехода</div>
                     </div>
                 </div>
 
@@ -1382,13 +1322,16 @@
                 <button class="nb" onclick="goSc('shop')" id="NB_shop"><span>🛒</span>Магазин</button>
             </nav>
 
-            <!-- ЛОГОТИП CoinMine — ВСЕГДА ВИДЕН НАД МЕНЮ -->
-            <div class="app-brand" id="brandLogo">
-                <span>⛏ CoinMine</span>
-            </div>
-
         </div>
 
+    </div>
+
+    <!-- ════════════════════════════════════════ -->
+    <!-- СТАТИЧНЫЙ БАННЕР — ВСЕГДА ВИДЕН -->
+    <!-- ════════════════════════════════════════ -->
+    <div class="static-banner" onclick="window.open('https://t.me/minercoinsf', '_blank')">
+        <img id="staticBannerImg" src="https://i.ibb.co/B5CTFj4c/Chat-GPT-Image-20-2026-14-52-25.png" alt="CoinMine Баннер" onerror="this.style.display='none';this.parentElement.querySelector('.placeholder').style.display='flex'">
+        <div class="placeholder" style="display:none;">⛏ CoinMine</div>
     </div>
 
     <!-- MODALS -->
@@ -1522,19 +1465,6 @@
         function getFarmCost() { return FARM_COSTS[Math.min(G.farmLv - 1, 4)]; }
 
         function openTelegram() { window.open('https://t.me/minercoinsf', '_blank'); }
-
-        function setBannerImage(url) {
-            const img = document.getElementById('BNR_img');
-            if (!img) return;
-            img.src = url;
-            img.style.display = 'block';
-            const ph = document.getElementById('BNR_ph');
-            if (ph) ph.style.display = 'none';
-            img.onerror = function() {
-                this.style.display = 'none';
-                if (ph) ph.style.display = 'flex';
-            };
-        }
 
         // ════════════════════════════════════════════════
         // 4. ОТПЕЧАТОК УСТРОЙСТВА
@@ -2583,17 +2513,6 @@
         document.addEventListener('DOMContentLoaded', async () => {
             aStat('⏳ Проверка сессии...', 'ld');
             renderDiceIdle();
-
-            // Устанавливаем картинку для баннера
-            const bnrImg = document.querySelector('.bnr img');
-            if (bnrImg) {
-                bnrImg.src = 'https://i.ibb.co/B5CTFj4c/Chat-GPT-Image-20-2026-14-52-25.png';
-                bnrImg.style.display = 'block';
-                const ph = bnrImg.parentElement.querySelector('.bnr-ph');
-                if (ph) ph.style.display = 'none';
-            }
-
-            setBannerImage('https://i.ibb.co/hRSsFg5R/Chat-GPT-Image-19-2026-20-55-28.png');
             const restored = await restoreSession();
             if (restored) {
                 showApp();
