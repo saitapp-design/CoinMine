@@ -207,14 +207,12 @@
         .hl { color: var(--gld); font-weight: 700; }
         :root { --acc3: #c4a0ff; --r3: 4px; }
 
-        /* ===== АВАТАРКИ ===== */
+        /* ===== АВАТАРКИ — ИСПРАВЛЕННАЯ МОБИЛЬНАЯ ВЕРСИЯ ===== */
         .avatar-wrap {
             position: relative;
             cursor: pointer;
             flex-shrink: 0;
-        }
-        .avatar-wrap:hover .avatar-hint {
-            opacity: 1;
+            display: inline-block;
         }
         .avatar-preview {
             width: 52px;
@@ -239,14 +237,16 @@
             border-color: var(--gld);
             transform: scale(1.05);
         }
+
+        /* ПОДСКАЗКА — СМЕЩЕНА НИЖЕ */
         .avatar-hint {
             position: absolute;
-            bottom: -8px;
+            bottom: -18px;
             left: 50%;
             transform: translateX(-50%);
-            background: rgba(0,0,0,0.8);
+            background: rgba(0,0,0,0.85);
             color: var(--tx2);
-            font-size: 9px;
+            font-size: 8px;
             padding: 2px 8px;
             border-radius: 10px;
             white-space: nowrap;
@@ -254,7 +254,14 @@
             transition: .3s;
             pointer-events: none;
             border: 1px solid var(--bd2);
+            z-index: 5;
+            width: auto;
         }
+        .avatar-wrap:hover .avatar-hint {
+            opacity: 1;
+        }
+
+        /* СЕЛЕКТОР — ЦЕНТРИРОВАН */
         .avatar-selector {
             position: absolute;
             top: 58px;
@@ -267,9 +274,10 @@
             opacity: 0;
             pointer-events: none;
             transition: .3s;
-            z-index: 10;
+            z-index: 100;
             width: 220px;
-            max-width: 90vw;
+            max-width: 85vw;
+            box-shadow: 0 8px 40px rgba(0,0,0,0.8);
         }
         .avatar-selector.show {
             opacity: 1;
@@ -285,11 +293,11 @@
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             gap: 8px;
-            margin-bottom: 8px;
+            margin-bottom: 4px;
         }
         .avatar-option {
-            width: 60px;
-            height: 60px;
+            width: 100%;
+            aspect-ratio: 1/1;
             border-radius: 12px;
             border: 2px solid transparent;
             cursor: pointer;
@@ -315,169 +323,98 @@
             border-color: var(--gld);
             box-shadow: 0 0 20px #f0b42944;
         }
-        /* ===== АВАТАРКИ — МОБИЛЬНАЯ ВЕРСИЯ ===== */
-.avatar-wrap {
-    position: relative;
-    cursor: pointer;
-    flex-shrink: 0;
-}
 
-.avatar-preview {
-    width: 52px;
-    height: 52px;
-    border-radius: 50%;
-    background: #190a35;
-    border: 2px solid var(--acc);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 0;
-    transition: .3s;
-    overflow: hidden;
-    flex-shrink: 0;
-}
-.avatar-preview img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-.avatar-preview:hover {
-    border-color: var(--gld);
-    transform: scale(1.05);
-}
+        /* ===== МОБИЛЬНАЯ АДАПТАЦИЯ ===== */
+        @media (max-width: 500px) {
+            .avatar-selector {
+                width: 200px;
+                max-width: 92vw;
+                top: 54px;
+                left: 50%;
+                transform: translateX(-50%);
+                padding: 10px;
+            }
+            .avatar-grid {
+                gap: 6px;
+            }
+            .avatar-option {
+                border-radius: 8px;
+                padding: 3px;
+            }
+            .avatar-hint {
+                font-size: 7px;
+                bottom: -16px;
+                padding: 1px 6px;
+            }
+            .avatar-preview {
+                width: 44px;
+                height: 44px;
+            }
+        }
 
-/* ПОДСКАЗКА — СМЕЩЕНА НИЖЕ */
-.avatar-hint {
-    position: absolute;
-    bottom: -18px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: rgba(0,0,0,0.85);
-    color: var(--tx2);
-    font-size: 8px;
-    padding: 2px 8px;
-    border-radius: 10px;
-    white-space: nowrap;
-    opacity: 0;
-    transition: .3s;
-    pointer-events: none;
-    border: 1px solid var(--bd2);
-    z-index: 5;
-}
-.avatar-wrap:hover .avatar-hint {
-    opacity: 1;
-}
+        @media (max-width: 380px) {
+            .avatar-selector {
+                width: 170px;
+                max-width: 95vw;
+                padding: 8px;
+                top: 50px;
+            }
+            .avatar-grid {
+                gap: 4px;
+            }
+            .avatar-option {
+                border-radius: 6px;
+                padding: 2px;
+            }
+        }
 
-/* СЕЛЕКТОР — ЦЕНТРИРОВАН */
-.avatar-selector {
-    position: absolute;
-    top: 58px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: var(--bg3);
-    border: 1px solid var(--bd2);
-    border-radius: var(--r);
-    padding: 12px;
-    opacity: 0;
-    pointer-events: none;
-    transition: .3s;
-    z-index: 100;
-    width: 220px;
-    max-width: 85vw;
-    box-shadow: 0 8px 40px rgba(0,0,0,0.8);
-}
-.avatar-selector.show {
-    opacity: 1;
-    pointer-events: auto;
-}
+        /* ===== АВАТАРКИ В ТОПЕ ===== */
+        .top-avatar {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            overflow: hidden;
+            flex-shrink: 0;
+            border: 1.5px solid var(--bd2);
+            background: #190a35;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .top-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .top-avatar .placeholder {
+            font-size: 14px;
+            color: var(--tx2);
+        }
+        @media (max-width: 500px) {
+            .top-avatar {
+                width: 24px;
+                height: 24px;
+            }
+            .top-avatar .placeholder {
+                font-size: 11px;
+            }
+        }
 
-.avatar-selector-title {
-    text-align: center;
-    color: var(--tx2);
-    font-size: 11px;
-    margin-bottom: 8px;
-}
-
-/* СЕТКА АВАТАРОК */
-.avatar-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 8px;
-    margin-bottom: 4px;
-}
-
-.avatar-option {
-    width: 100%;
-    aspect-ratio: 1/1;
-    border-radius: 12px;
-    border: 2px solid transparent;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: .3s;
-    background: var(--bg4);
-    overflow: hidden;
-    padding: 4px;
-}
-.avatar-option img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    border-radius: 8px;
-}
-.avatar-option:hover {
-    border-color: var(--acc2);
-    transform: scale(1.05);
-}
-.avatar-option.active {
-    border-color: var(--gld);
-    box-shadow: 0 0 20px #f0b42944;
-}
-
-/* ===== МОБИЛЬНАЯ АДАПТАЦИЯ ===== */
-@media (max-width: 500px) {
-    .avatar-selector {
-        width: 200px;
-        max-width: 92vw;
-        top: 56px;
-        left: 50%;
-        transform: translateX(-50%);
-        padding: 10px;
-    }
-    .avatar-grid {
-        gap: 6px;
-    }
-    .avatar-option {
-        border-radius: 8px;
-        padding: 3px;
-    }
-    .avatar-hint {
-        font-size: 7px;
-        bottom: -16px;
-        padding: 1px 6px;
-    }
-    .avatar-preview {
-        width: 44px;
-        height: 44px;
-    }
-}
-
-/* ===== ДЛЯ ОЧЕНЬ МАЛЕНЬКИХ ЭКРАНОВ ===== */
-@media (max-width: 380px) {
-    .avatar-selector {
-        width: 170px;
-        max-width: 95vw;
-        padding: 8px;
-    }
-    .avatar-grid {
-        gap: 4px;
-    }
-    .avatar-option {
-        border-radius: 6px;
-        padding: 2px;
-    }
-}
+        .top-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 0;
+            border-bottom: 1px solid var(--bd);
+            transition: .3s;
+        }
+        .top-row:hover {
+            background: var(--bg4);
+            border-radius: 6px;
+            padding: 8px 10px;
+            margin: 0 -6px;
+        }
+        .top-row:last-child { border-bottom: none; }
     </style>
 </head>
 <body>
@@ -517,7 +454,7 @@
                 <div class="sc on" id="sc-home">
                     <div class="card">
                         <div class="fl" style="margin-bottom:14px">
-                            <!-- АВАТАРКА С ВЫБОРОМ КАРТИНОК -->
+                            <!-- АВАТАРКА -->
                             <div class="avatar-wrap">
                                 <div class="avatar-preview" id="avatarPreview" onclick="toggleAvatarSelector()">
                                     <img id="avatarImg" src="https://i.postimg.cc/ydqnTq7J/1b5e1ca8f182156f9106095981de17b7.png" alt="Аватар">
@@ -830,7 +767,7 @@
 
     <script>
         // ============================================================
-        // 1. КОНФИГУРАЦИЯ — ОПТИМИЗИРОВАННАЯ
+        // 1. КОНФИГУРАЦИЯ
         // ============================================================
         const SB_URL = 'https://mazccbkzurbryzusajqc.supabase.co';
         const SB_ANON_KEY = 'sb_publishable_GLQvPbCZrDYgd7FCSp861g_poX1-Hwy';
@@ -958,7 +895,7 @@
         let BOSS_STATE = { hp: 0, lastKill: 0 };
 
         // ============================================================
-        // 6. API — С ПОВТОРНЫМИ ПОПЫТКАМИ
+        // 6. API
         // ============================================================
         async function sbFetch(path, opts = {}) {
             const headers = {
@@ -986,7 +923,7 @@
         }
 
         // ============================================================
-        // 7. ТОП-10 — ОПТИМИЗИРОВАННЫЙ
+        // 7. ТОП-10
         // ============================================================
         async function loadTopPlayers(tp = 'b') {
             const now = Date.now();
@@ -1010,7 +947,8 @@
                                 c: u.data.coins || 0,
                                 f: u.data.farms || 0,
                                 r: u.data.refs || 0,
-                                s: shardCount
+                                s: shardCount,
+                                a: u.data.avatar || AVATAR_LIST[0]
                             };
                         });
                     
@@ -1103,7 +1041,6 @@
             if (user.data) {
                 const p = user.data;
                 Object.keys(G).forEach(k => { if (p[k] !== undefined) G[k] = p[k]; });
-                // Загружаем аватар
                 if (p.avatar) G.avatar = p.avatar;
             }
             if (user.boss) Object.assign(BOSS_STATE, user.boss);
@@ -1123,7 +1060,7 @@
         }
 
         // ============================================================
-        // 9. СОХРАНЕНИЕ — ОПТИМИЗИРОВАННОЕ
+        // 9. СОХРАНЕНИЕ
         // ============================================================
         function scheduleSave() {
             pendingChanges = true;
@@ -1186,7 +1123,7 @@
         }
 
         // ============================================================
-        // 10. ВОССТАНОВЛЕНИЕ ОФЛАЙН-ДАННЫХ
+        // 10. ВОССТАНОВЛЕНИЕ
         // ============================================================
         async function restoreOfflineQueue() {
             try {
@@ -1211,9 +1148,6 @@
             }
         }
 
-        // ============================================================
-        // 11. ВОССТАНОВЛЕНИЕ СЕССИИ
-        // ============================================================
         async function restoreSession() {
             const u = localStorage.getItem('cm_uid');
             const username = localStorage.getItem('cm_username');
@@ -1253,7 +1187,7 @@
         }
 
         // ============================================================
-        // 12. УПРАВЛЕНИЕ БАННЕРОМ
+        // 11. УПРАВЛЕНИЕ БАННЕРОМ
         // ============================================================
         function toggleBanner(show) {
             const banner = document.getElementById('mainBanner');
@@ -1268,7 +1202,7 @@
         })();
 
         // ============================================================
-        // 13. УПРАВЛЕНИЕ АВАТАРКОЙ
+        // 12. УПРАВЛЕНИЕ АВАТАРКОЙ
         // ============================================================
         function toggleAvatarSelector() {
             const sel = document.getElementById('avatarSelector');
@@ -1306,7 +1240,7 @@
         }
 
         // ============================================================
-        // 14. АВТОРИЗАЦИЯ UI
+        // 13. АВТОРИЗАЦИЯ UI
         // ============================================================
         window.setAuthMode = function(m) {
             authMode = m;
@@ -1366,7 +1300,7 @@
         };
 
         // ============================================================
-        // 15. ПОКАЗ ПРИЛОЖЕНИЯ
+        // 14. ПОКАЗ ПРИЛОЖЕНИЯ
         // ============================================================
         function showApp() {
             document.getElementById('authWrap').style.display = 'none';
@@ -1399,7 +1333,7 @@
         }
 
         // ============================================================
-        // 16. ОСТАЛЬНЫЕ ФУНКЦИИ
+        // 15. ОСТАЛЬНЫЕ ФУНКЦИИ
         // ============================================================
         window.toast = function(msg, t) {
             const e = document.getElementById('TOAST');
@@ -1421,7 +1355,7 @@
         function fmt(n) { return Math.round(n).toLocaleString('ru'); }
 
         // ============================================================
-        // 17. НАВИГАЦИЯ И UI
+        // 16. НАВИГАЦИЯ
         // ============================================================
         window.goSc = function(nm) {
             document.querySelectorAll('.sc').forEach(s => s.classList.remove('on'));
@@ -1476,7 +1410,7 @@
         };
 
         // ============================================================
-        // 18. ОТРИСОВКА
+        // 17. ОТРИСОВКА
         // ============================================================
         function renderUI() {
             const sets = {
@@ -1493,7 +1427,6 @@
                 if (el) el.textContent = typeof v === 'number' ? fmt(v) : v;
             });
 
-            // Обновляем аватар
             updateAvatarPreview();
 
             const an = G.nicks.a ? NICK_S[G.nicks.a] : null;
@@ -1627,7 +1560,7 @@
         }
 
         // ============================================================
-        // 19. ТОП — ОПТИМИЗИРОВАННЫЙ
+        // 18. ТОП С АВАТАРКАМИ
         // ============================================================
         let topLastType = 'b';
 
@@ -1648,10 +1581,18 @@
             const shardCount = getShardCount();
             const topPlayers = topCache.data || [];
             
+            // Добавляем текущего игрока
             const all = [...topPlayers];
             const exists = all.some(p => p.n === G.name);
             if (!exists && G.name) {
-                all.push({ n: G.name, c: G.coins, f: G.farms, r: G.refs, s: shardCount });
+                all.push({ 
+                    n: G.name, 
+                    c: G.coins, 
+                    f: G.farms, 
+                    r: G.refs, 
+                    s: shardCount,
+                    a: G.avatar || AVATAR_LIST[0]
+                });
             }
 
             if (all.length === 0) {
@@ -1683,8 +1624,13 @@
             document.getElementById('TOP_l').innerHTML = top10.map((p, i) => {
                 const val = tp === 's' ? `${p.s} осколков` : fmt(p[key] || 0) + ' ' + symbols[tp];
                 const isPlayer = p.n === G.name;
+                const avatarUrl = p.a || AVATAR_LIST[0];
+                
                 return `<div class="top-row" style="${isPlayer ? 'background:var(--bg4);border-radius:6px;' : ''}">
                     <div style="font-size:15px;font-weight:700;min-width:22px;color:${clrs[i]||'var(--tx2)'}">${i+1}</div>
+                    <div class="top-avatar">
+                        <img src="${avatarUrl}" alt="${p.n}" loading="lazy" onerror="this.style.display='none';this.parentElement.innerHTML='<span class=\\'placeholder\\'>👤</span>'">
+                    </div>
                     <div style="flex:1;font-size:13px">${p.n} ${isPlayer ? '👈' : ''}</div>
                     <div style="color:var(--gld);font-weight:700;font-size:13px">${val}</div>
                 </div>`;
@@ -1692,7 +1638,7 @@
         }
 
         // ============================================================
-        // 20. РУЛЕТКА
+        // 19. РУЛЕТКА (оставлена без изменений)
         // ============================================================
         const RC = document.getElementById('rouletteCanvas');
         const rctx = RC.getContext('2d');
@@ -2016,42 +1962,15 @@
         idleSpin();
 
         // ============================================================
-        // 21. КУБИК
+        // 20. КУБИК (сокращён для экономии места)
         // ============================================================
         const PIP_LAYOUTS = {
-            1: [
-                [1, 1]
-            ],
-            2: [
-                [0, 0],
-                [2, 2]
-            ],
-            3: [
-                [0, 0],
-                [1, 1],
-                [2, 2]
-            ],
-            4: [
-                [0, 0],
-                [0, 2],
-                [2, 0],
-                [2, 2]
-            ],
-            5: [
-                [0, 0],
-                [0, 2],
-                [1, 1],
-                [2, 0],
-                [2, 2]
-            ],
-            6: [
-                [0, 0],
-                [0, 2],
-                [1, 0],
-                [1, 2],
-                [2, 0],
-                [2, 2]
-            ]
+            1: [[1, 1]],
+            2: [[0, 0], [2, 2]],
+            3: [[0, 0], [1, 1], [2, 2]],
+            4: [[0, 0], [0, 2], [2, 0], [2, 2]],
+            5: [[0, 0], [0, 2], [1, 1], [2, 0], [2, 2]],
+            6: [[0, 0], [0, 2], [1, 0], [1, 2], [2, 0], [2, 2]]
         };
 
         const CUBE_PALETTES = [
@@ -2241,7 +2160,7 @@
         };
 
         // ============================================================
-        // 22. ОСТАЛЬНЫЕ ИГРОВЫЕ ДЕЙСТВИЯ
+        // 21. ОСТАЛЬНЫЕ ИГРОВЫЕ ДЕЙСТВИЯ
         // ============================================================
         function renderPodium() {
             const podiumEl = document.getElementById('podiumList');
@@ -2473,7 +2392,7 @@
         };
 
         // ============================================================
-        // 23. ЗАПУСК
+        // 22. ЗАПУСК
         // ============================================================
         document.addEventListener('DOMContentLoaded', async () => {
             aStat('⏳ Проверка сессии...', 'ld');
