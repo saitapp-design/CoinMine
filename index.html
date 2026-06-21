@@ -513,305 +513,301 @@
 
     <script>
         // ============================================================
-        // 1. КОНФИГУРАЦИЯ
-        // ============================================================
-        const SB_URL = 'https://mazccbkzurbryzusajqc.supabase.co';
-        const SB_ANON_KEY = 'sb_publishable_GLQvPbCZrDYgd7FCSp861g_poX1-Hwy';
+// 1. КОНФИГУРАЦИЯ
+// ============================================================
+const SB_URL = 'https://mazccbkzurbryzusajqc.supabase.co';
+const SB_ANON_KEY = 'sb_publishable_GLQvPbCZrDYgd7FCSp861g_poX1-Hwy';
 
-        console.log('🔓 Публичный ключ');
-        console.log('📡 URL:', SB_URL);
+// ============================================================
+// 2. API — ИСПРАВЛЕННЫЙ
+// ============================================================
+async function sbFetch(path, opts = {}) {
+    const headers = {
+        'apikey': SB_ANON_KEY,
+        'Content-Type': 'application/json',
+        'Prefer': 'return=representation',
+        ...(opts.headers || {})
+    };
+    
+    if (TOKEN && !opts.noAuth) {
+        headers['Authorization'] = 'Bearer ' + TOKEN;
+    }
+    
+    const r = await fetch(SB_URL + path, { ...opts, headers });
+    const txt = await r.text();
+    let d;
+    try { d = JSON.parse(txt); } catch (e) { d = txt; }
+    return { ok: r.ok, status: r.status, data: d };
+}
 
-        // ============================================================
-        // 2. СОСТОЯНИЕ
-        // ============================================================
-        let TOKEN = null;
-        let UID = null;
-        let authMode = 'login';
-        let _pFn = null;
-        let saveTimer = null;
-        let currentUsername = '';
-        let isSaving = false;
-        let saveQueue = [];
+// ============================================================
+// 3. СОХРАНЕНИЕ — С ПРОВЕРКОЙ
+// ============================================================
+async function saveUserData() {
+    if (!UID) {
+        console.warn('❌ Нет UID');
+        return false;
+    }
 
-        const NICK_S = {
-            gold: { e: '🌟', n: 'Золотой' },
-            diamond: { e: '💎', n: 'Алмазный' },
-            fire: { e: '🔥', n: 'Огненный' },
-            vip: { e: '👑', n: 'VIP' },
-            star: { e: '⭐', n: 'Звёздный' },
-            ice: { e: '❄️', n: 'Ледяной' },
-            shadow: { e: '🌑', n: 'Теневой' },
-            ninja: { e: '🥷', n: 'Ниндзя' },
-            galaxy: { e: '🌌', n: 'Галактический' },
-            mystic: { e: '🔮', n: 'Мистический' }
+    if (isSaving) {
+        saveQueue.push(Date.now());
+        return false;
+    }
+
+    isSaving = true;
+
+    try {
+        // Копируем данные, чтобы не было ссылок
+        const dataToSave = JSON.parse(JSON.stringify(G));
+        const bossToSave = JSON.parse(JSON.stringify(BOSS_STATE));
+
+        const payload = {
+            data: dataToSave,
+            boss: bossToSave,
+            updated_at: new Date().toISOString()
         };
 
-        const SHARDS_C = {
-            'Осколок Вечности': { l: 1, c: .001 },
-            'Кристалл Света': { l: 1, c: .001 },
-            'Обсидиановая Слеза': { l: 2, c: .003 },
-            'Ледяное Сердце': { l: 3, c: .006 },
-            'Свет Луны': { l: 5, c: .015 },
-            'Ткань Реальности': { l: 5, c: .015 }
-        };
-        const SHARDS_LIST = Object.keys(SHARDS_C);
-        const PROMOS = { free: 15, denchak: 15 };
+        console.log('💾 Сохранение:', { 
+            coins: G.coins, 
+            farms: G.farms,
+            shards: Object.keys(G.shards).length,
+            uid: UID
+        });
 
-        const MISSIONS_DEF = [
-            { id: 'f8', nm: '🌾 Шахтёр', d: 'Добыть 8 раз', t: 8, rw: 1 },
-            { id: 's1', nm: '💎 Коллекционер', d: 'Найти осколок', t: 1, rw: 2 },
-            { id: 'w5', nm: '⚒️ Трудоголик', d: '5 профессий', t: 5, rw: 2 },
-            { id: 'r3', nm: '👥 Вербовщик', d: '3 реферала', t: 3, rw: 1 }
-        ];
+        // Пробуем сохранить с явным указанием ID
+        const { ok, status, data } = await sbFetch(`/rest/v1/users?id=eq.${UID}`, {
+            method: 'PATCH',
+            body: JSON.stringify(payload),
+            headers: {
+                'Prefer': 'return=representation'
+            }
+        });
 
-        const FARM_COSTS = [50, 100, 250, 500, 1000];
-
-        let REAL_PLAYERS = [];
-
-        let G = {
-            coins: 0, farms: 0, refs: 0, keys: 0, lastFarm: 0, farmLv: 1,
-            name: 'Шахтёр', nicks: { p: [], a: null }, shards: {},
-            clan: null, clanLF: 0, promos: {},
-            missions: { active: null, lastReset: 0 },
-            auctionBid: 0, auctionBidders: [], chests: 0,
-            refCode: '', activatedRef: null
-        };
-
-        let BOSS_STATE = { hp: 0, lastKill: 0 };
-
-        // ============================================================
-        // 3. ВСПОМОГАТЕЛЬНЫЕ
-        // ============================================================
-        function fmt(n) { return Math.round(n).toLocaleString('ru'); }
-
-        window.toast = function(msg, t) {
-            const e = document.getElementById('TOAST');
-            if (!e) return;
-            const colors = { ok: '#065f46', gld: '#92620a', err: '#7f1d1d', info: '#2e1065' };
-            e.style.background = colors[t] || colors.info;
-            e.textContent = msg;
-            e.style.opacity = '1';
-            clearTimeout(e._x);
-            e._x = setTimeout(() => e.style.opacity = '0', 2400);
-        };
-
-        function aStat(text, type) {
-            const e = document.getElementById('authStatus');
-            if (e) { e.textContent = text; e.className = 'astat ' + (type || ''); }
+        if (!ok) {
+            console.error('❌ Ошибка сохранения:', status, data);
+            
+            // Если записи нет — создаём новую
+            if (status === 404) {
+                console.log('🔄 Запись не найдена, создаём новую...');
+                const newUser = {
+                    id: UID,
+                    username: currentUsername,
+                    password: 'temp',
+                    fingerprint: FINGERPRINT,
+                    data: dataToSave,
+                    boss: bossToSave,
+                    created_at: new Date().toISOString(),
+                    updated_at: new Date().toISOString()
+                };
+                
+                const { ok: created, data: newData } = await sbFetch('/rest/v1/users', {
+                    method: 'POST',
+                    body: JSON.stringify(newUser),
+                    noAuth: true
+                });
+                
+                if (created) {
+                    console.log('✅ Новая запись создана');
+                    return true;
+                }
+            }
+            return false;
         }
 
-        window.getFarmCost = function() { return FARM_COSTS[Math.min(G.farmLv - 1, 4)]; };
+        console.log('✅ Сохранено успешно');
+        return true;
 
-        function getShardCount() {
-            return Object.keys(G.shards).filter(k => G.shards[k] > 0).length;
+    } catch (e) {
+        console.error('❌ Критическая ошибка:', e);
+        return false;
+    } finally {
+        isSaving = false;
+        if (saveQueue.length > 0) {
+            saveQueue.pop();
+            setTimeout(() => saveUserData(), 1000);
         }
+    }
+}
 
-        function getFingerprint() {
-            let fp = localStorage.getItem('coinmine_fp');
-            if (fp) return fp;
-            const parts = [
-                navigator.userAgent, navigator.language,
-                screen.width + 'x' + screen.height, screen.colorDepth,
-                navigator.hardwareConcurrency || 'unknown',
-                new Date().getTimezoneOffset()
-            ];
-            let hash = 0;
-            for (let c of parts.join('|')) {
-                hash = ((hash << 5) - hash) + c.charCodeAt(0);
-                hash = hash & hash;
+// ============================================================
+// 4. ЗАГРУЗКА — С ПРОВЕРКОЙ
+// ============================================================
+async function restoreSession() {
+    const t = localStorage.getItem('cm_tok');
+    const u = localStorage.getItem('cm_uid');
+    const username = localStorage.getItem('cm_username');
+    
+    if (!t || !u || !username) {
+        console.log('❌ Нет сохранённой сессии');
+        return false;
+    }
+
+    TOKEN = t;
+    UID = u;
+    currentUsername = username;
+
+    console.log('🔄 Загрузка данных для:', UID);
+
+    try {
+        // Пробуем загрузить данные
+        const { data, ok, status } = await sbFetch(
+            `/rest/v1/users?id=eq.${UID}&select=id,username,data,boss,fingerprint`,
+            { noAuth: true }
+        );
+
+        if (ok && data && data.length > 0) {
+            const user = data[0];
+            console.log('📥 Данные загружены:', {
+                username: user.username,
+                hasData: !!user.data,
+                hasBoss: !!user.boss
+            });
+
+            if (user.data) {
+                // Обновляем G только теми полями, которые есть
+                const p = user.data;
+                Object.keys(G).forEach(k => { 
+                    if (p[k] !== undefined && p[k] !== null) {
+                        G[k] = p[k];
+                    }
+                });
             }
-            fp = 'fp_' + Math.abs(hash).toString(36);
-            localStorage.setItem('coinmine_fp', fp);
-            return fp;
-        }
-        const FINGERPRINT = getFingerprint();
-
-        // ============================================================
-        // 4. API
-        // ============================================================
-        async function sbFetch(path, opts = {}) {
-            const headers = {
-                'apikey': SB_ANON_KEY,
-                'Content-Type': 'application/json',
-                ...(opts.headers || {})
-            };
-            if (TOKEN && !opts.noAuth) {
-                headers['Authorization'] = 'Bearer ' + TOKEN;
+            
+            if (user.boss) {
+                Object.assign(BOSS_STATE, user.boss);
             }
-            const r = await fetch(SB_URL + path, { ...opts, headers });
-            const txt = await r.text();
-            let d;
-            try { d = JSON.parse(txt); } catch (e) { d = txt; }
-            return { ok: r.ok, status: r.status, data: d };
-        }
-
-        // ============================================================
-        // 5. АВТОРИЗАЦИЯ
-        // ============================================================
-        async function authRegister(username, password, fingerprint) {
-            const { data: existing } = await sbFetch(
-                `/rest/v1/users?fingerprint=eq.${encodeURIComponent(fingerprint)}&select=id`, { noAuth: true }
-            );
-            if (existing && existing.length > 0) {
-                throw new Error('На этом устройстве уже есть аккаунт');
-            }
-
-            const { data: taken } = await sbFetch(
-                `/rest/v1/users?username=eq.${encodeURIComponent(username)}&select=id`, { noAuth: true }
-            );
-            if (taken && taken.length > 0) {
-                throw new Error('Этот логин уже занят');
+            
+            if (!G.refCode) {
+                G.refCode = UID.slice(0, 8);
             }
 
+            console.log('📊 Текущие данные:', {
+                coins: G.coins,
+                farms: G.farms,
+                shards: Object.keys(G.shards).length,
+                refs: G.refs
+            });
+
+            await loadAllPlayers();
+            return true;
+        } else {
+            console.log('❌ Пользователь не найден в базе, статус:', status);
+            
+            // Пробуем создать запись
+            console.log('🔄 Создаём запись для пользователя...');
             const newUser = {
-                username, password, fingerprint,
-                data: {
-                    coins: 150, farms: 0, refs: 0, keys: 0, lastFarm: 0, farmLv: 1,
-                    name: username, nicks: { p: [], a: null }, shards: {},
-                    clan: null, clanLF: 0, promos: {},
-                    missions: { active: null, lastReset: 0 },
-                    auctionBid: 0, auctionBidders: [], chests: 0,
-                    refCode: '', activatedRef: null
-                },
-                boss: { hp: 0, lastKill: 0 },
+                id: UID,
+                username: currentUsername,
+                password: 'temp',
+                fingerprint: FINGERPRINT,
+                data: G,
+                boss: BOSS_STATE,
                 created_at: new Date().toISOString(),
                 updated_at: new Date().toISOString()
             };
-
-            const { ok, data, status } = await sbFetch('/rest/v1/users', {
+            
+            const { ok: created, data: newData } = await sbFetch('/rest/v1/users', {
                 method: 'POST',
-                headers: { 'Prefer': 'return=representation' },
+                body: JSON.stringify(newUser),
                 noAuth: true,
-                body: JSON.stringify(newUser)
+                headers: {
+                    'Prefer': 'return=representation'
+                }
             });
-
-            if (!ok) {
-                const msg = data?.details || data?.message || 'Ошибка регистрации';
-                throw new Error(msg);
-            }
-
-            return await authLogin(username, password);
-        }
-
-        async function authLogin(username, password) {
-            const { data, ok } = await sbFetch(
-                `/rest/v1/users?username=eq.${encodeURIComponent(username)}&password=eq.${encodeURIComponent(password)}&select=id,username,data,boss,fingerprint`, { noAuth: true }
-            );
-
-            if (!ok || !data || data.length === 0) {
-                throw new Error('Неверный логин или пароль');
-            }
-
-            const user = data[0];
-
-            if (user.fingerprint && user.fingerprint !== FINGERPRINT) {
-                throw new Error('Этот аккаунт привязан к другому устройству');
-            }
-
-            if (!user.fingerprint) {
-                await sbFetch(`/rest/v1/users?id=eq.${user.id}`, {
-                    method: 'PATCH',
-                    noAuth: true,
-                    body: JSON.stringify({ fingerprint: FINGERPRINT })
-                });
-            }
-
-            if (user.data) {
-                const p = user.data;
-                Object.keys(G).forEach(k => { if (p[k] !== undefined) G[k] = p[k]; });
-            }
-            if (user.boss) Object.assign(BOSS_STATE, user.boss);
-
-            if (!G.refCode) G.refCode = user.id.slice(0, 8);
-
-            TOKEN = 'temp_' + Date.now() + '_' + user.id;
-            UID = user.id;
-            currentUsername = username;
-
-            localStorage.setItem('cm_tok', TOKEN);
-            localStorage.setItem('cm_uid', UID);
-            localStorage.setItem('cm_username', username);
-
-            await loadAllPlayers();
-
-            return user;
-        }
-
-        // ============================================================
-        // 6. ЗАГРУЗКА ВСЕХ ИГРОКОВ
-        // ============================================================
-        async function loadAllPlayers() {
-            try {
-                const { data, ok } = await sbFetch(
-                    `/rest/v1/users?select=username,data`, { noAuth: true }
-                );
-                if (ok && data) {
-                    REAL_PLAYERS = data
-                        .filter(u => u.username && u.data)
-                        .map(u => ({
-                            n: u.username,
-                            c: u.data.coins || 0,
-                            f: u.data.farms || 0,
-                            r: u.data.refs || 0,
-                            s: u.data.shards ? Object.keys(u.data.shards).filter(k => u.data.shards[k] > 0).length : 0
-                        }));
-                    console.log('👥 Загружено игроков:', REAL_PLAYERS.length);
-                }
-            } catch (e) {
-                console.error('❌ Ошибка загрузки игроков:', e);
-            }
-        }
-
-        // ============================================================
-        // 7. СОХРАНЕНИЕ
-        // ============================================================
-        async function saveUserData() {
-            if (!UID) return false;
-            if (isSaving) { saveQueue.push(Date.now()); return false; }
-            isSaving = true;
-
-            try {
-                const payload = {
-                    data: G,
-                    boss: BOSS_STATE,
-                    updated_at: new Date().toISOString()
-                };
-
-                console.log('💾 Сохранение:', { coins: G.coins, farms: G.farms });
-
-                const { ok, status, data } = await sbFetch(`/rest/v1/users?id=eq.${UID}`, {
-                    method: 'PATCH',
-                    body: JSON.stringify(payload)
-                });
-
-                if (!ok) {
-                    console.error('❌ Ошибка сохранения:', status, data);
-                    return false;
-                }
-
-                console.log('✅ Сохранено');
+            
+            if (created) {
+                console.log('✅ Запись создана');
+                await loadAllPlayers();
                 return true;
-            } catch (e) {
-                console.error('❌ Ошибка:', e);
-                return false;
-            } finally {
-                isSaving = false;
-                if (saveQueue.length > 0) {
-                    saveQueue.pop();
-                    setTimeout(() => saveUserData(), 1000);
-                }
             }
+            return false;
         }
+    } catch (e) {
+        console.error('❌ Ошибка загрузки:', e);
+        return false;
+    }
+}
 
-        function scheduleSave() {
-            clearTimeout(saveTimer);
-            saveTimer = setTimeout(() => saveUserData(), 2000);
+// ============================================================
+// 5. ПРОВЕРКА СВЯЗИ С БАЗОЙ
+// ============================================================
+async function testConnection() {
+    try {
+        console.log('🔍 Проверка подключения к Supabase...');
+        const { ok, data } = await sbFetch('/rest/v1/users?limit=1', { noAuth: true });
+        if (ok) {
+            console.log('✅ Подключение к Supabase работает');
+            console.log('📊 Всего пользователей:', data?.length || 0);
+            return true;
+        } else {
+            console.error('❌ Ошибка подключения:', data);
+            return false;
         }
+    } catch (e) {
+        console.error('❌ Критическая ошибка:', e);
+        return false;
+    }
+}
 
-        async function forceSave() {
-            clearTimeout(saveTimer);
-            return await saveUserData();
-        }
+// ============================================================
+// 6. КОМАНДА ДЛЯ ПРОСМОТРА ДАННЫХ В КОНСОЛИ
+// ============================================================
+window.showMyData = async function() {
+    if (!UID) {
+        console.log('❌ Вы не авторизованы');
+        return;
+    }
+    
+    console.log('📊 ВАШИ ДАННЫЕ В ПАМЯТИ:');
+    console.log('💰 Монеты:', G.coins);
+    console.log('⛏ Фармы:', G.farms);
+    console.log('👥 Рефералы:', G.refs);
+    console.log('🔑 Ключи:', G.keys);
+    console.log('💎 Осколки:', Object.keys(G.shards).length);
+    console.log('📦 Сундуки:', G.chests);
+    console.log('🏰 Клан:', G.clan?.nm || 'нет');
+    console.log('👹 Босс ХП:', BOSS_STATE.hp);
+    
+    console.log('🔄 Загружаю данные с сервера...');
+    const { data, ok } = await sbFetch(
+        `/rest/v1/users?id=eq.${UID}&select=id,username,data,boss`,
+        { noAuth: true }
+    );
+    
+    if (ok && data && data.length > 0) {
+        const user = data[0];
+        console.log('📦 ДАННЫЕ НА СЕРВЕРЕ:');
+        console.log('👤 Логин:', user.username);
+        console.log('💰 Монеты:', user.data?.coins || 0);
+        console.log('⛏ Фармы:', user.data?.farms || 0);
+        console.log('👥 Рефералы:', user.data?.refs || 0);
+        console.log('💎 Осколки:', user.data?.shards ? Object.keys(user.data.shards).length : 0);
+        console.log('👹 Босс ХП:', user.boss?.hp || 0);
+        console.log('🕐 Обновлено:', user.updated_at);
+        
+        // Проверяем совпадение
+        const serverCoins = user.data?.coins || 0;
+        const localCoins = G.coins || 0;
+        console.log('🔍 Совпадение монет:', serverCoins === localCoins ? '✅ ДА' : '❌ НЕТ');
+    } else {
+        console.log('❌ Не удалось загрузить данные с сервера');
+    }
+};
+
+// ============================================================
+// 7. ПРИНУДИТЕЛЬНОЕ СОХРАНЕНИЕ (для теста)
+// ============================================================
+window.forceSave = async function() {
+    console.log('💾 Принудительное сохранение...');
+    const result = await saveUserData();
+    if (result) {
+        console.log('✅ Сохранено');
+        await window.showMyData();
+    } else {
+        console.log('❌ Ошибка сохранения');
+    }
+    return result;
+};
 
         // ============================================================
         // 8. АВТОРИЗАЦИЯ UI
