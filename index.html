@@ -32,6 +32,13 @@
             --gold: #ffd700;
             --silver: #c0c0c0;
             --bronze: #cd7f32;
+            --color-text-primary: #f0f0ff;
+            --color-text-secondary: #9090b8;
+            --color-border-secondary: #ffffff22;
+            --border-radius-md: 8px;
+            --color-background-primary: #131328;
+            --color-background-secondary: #1a1a35;
+            --color-border-tertiary: #ffffff14;
         }
         html, body {
             height: 100%;
@@ -43,7 +50,7 @@
             overflow-x: hidden;
         }
 
-        /* ===== БОКОВЫЕ КАРТИНКИ — ТЕПЕРЬ ВЕСЬ ТЕКСТ ВИДЕН ===== */
+        /* ===== БОКОВЫЕ КАРТИНКИ ===== */
         body::before,
         body::after {
             content: '';
@@ -76,18 +83,17 @@
             z-index: 1;
             min-height: 100vh;
             box-shadow: 0 0 60px rgba(0, 0, 0, 0.8);
-            padding-bottom: 70px;
-            /* Добавлен отступ для прокрутки */
+            padding-bottom: 180px;
             padding-top: 10px;
         }
         @media (max-width: 700px) {
             .app { max-width: 100%; }
         }
 
-        /* ===== СТАТИЧНЫЙ БАННЕР — ВЫШЕ И В ЦЕНТРЕ ===== */
+        /* ===== БАННЕР — ОТДЕЛЁН ОТ НАВИГАЦИИ ===== */
         .static-banner {
             position: fixed;
-            bottom: 62px;
+            bottom: 100px;
             left: 50%;
             transform: translateX(-50%);
             z-index: 55;
@@ -128,7 +134,7 @@
             .static-banner {
                 max-width: 95%;
                 height: 75px;
-                bottom: 62px;
+                bottom: 95px;
             }
         }
 
@@ -297,8 +303,7 @@
             display: none;
             flex-direction: column;
             min-height: 100vh;
-            /* Добавлен отступ, чтобы контент не перекрывался баннером */
-            padding-bottom: 100px;
+            padding-bottom: 120px;
         }
         #appWrap.on { display: flex; }
 
@@ -358,12 +363,13 @@
             animation: fadeIn 0.3s ease;
         }
 
+        /* ===== НАВИГАЦИЯ ===== */
         .nav {
             background: var(--bg2);
             border-top: 1px solid var(--bd);
-            padding: 8px 0 max(8px, env(safe-area-inset-bottom));
+            padding: 6px 0 max(6px, env(safe-area-inset-bottom));
             display: grid;
-            grid-template-columns: repeat(5, 1fr);
+            grid-template-columns: repeat(6, 1fr);
             position: fixed;
             bottom: 0;
             left: 0;
@@ -381,16 +387,16 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 3px;
-            padding: 8px 2px;
+            gap: 2px;
+            padding: 6px 2px;
             background: none;
             border: none;
             color: var(--tx2);
-            font-size: 11px;
+            font-size: 9px;
             font-weight: 600;
             cursor: pointer;
             transition: .3s;
-            border-radius: 8px;
+            border-radius: 6px;
         }
         .nb:hover {
             color: var(--tx);
@@ -401,7 +407,7 @@
             background: rgba(240, 180, 41, 0.1);
         }
         .nb span {
-            font-size: 22px;
+            font-size: 18px;
         }
 
         .logout-btn {
@@ -521,6 +527,7 @@
             display: flex;
             gap: 4px;
             margin-bottom: 10px;
+            flex-wrap: wrap;
         }
         .tab {
             flex: 1;
@@ -530,9 +537,10 @@
             border: 1px solid var(--bd2);
             border-radius: var(--r3);
             color: var(--tx2);
-            font-size: 11px;
+            font-size: 10px;
             cursor: pointer;
             transition: .3s;
+            min-width: 50px;
         }
         .tab:hover {
             border-color: var(--acc2);
@@ -607,136 +615,149 @@
             border-radius: 10px;
         }
 
-        /* ===== ROULETTE ===== */
-        .rl-wrap {
-            position: relative;
-            width: 100%;
-            border-radius: var(--r);
-            overflow: hidden;
-            background: var(--bg4);
-            padding: 8px;
-        }
-        #RC {
-            display: block;
-            width: 100%;
-            border-radius: var(--r2);
-            background: #1a1a2e;
-        }
-        .rl-marker {
-            position: absolute;
-            top: 4px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 0;
-            height: 0;
-            border-left: 12px solid transparent;
-            border-right: 12px solid transparent;
-            border-top: 22px solid var(--gld);
-            z-index: 6;
-            filter: drop-shadow(0 2px 8px #f0b429aa);
-        }
-
-        /* ===== DICE ===== */
-        .dice-scene {
-            width: 100%;
-            height: 220px;
-            perspective: 700px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: var(--bg4);
-            border-radius: var(--r);
-            overflow: hidden;
-            position: relative;
-        }
-        .dice-scene::after {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: radial-gradient(circle at center, #7c3aed11, transparent 70%);
-            pointer-events: none;
-        }
-        .dice-cube {
-            width: 100px;
-            height: 100px;
-            position: relative;
-            transform-style: preserve-3d;
-            transition: transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
-        .dice-face {
-            position: absolute;
-            width: 100px;
-            height: 100px;
-            border: 2px solid rgba(255, 255, 255, .15);
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 46px;
-            font-weight: 900;
-            backface-visibility: hidden;
-            transition: .3s;
-        }
-        .df-front { transform: translateZ(50px); }
-        .df-back { transform: rotateY(180deg) translateZ(50px); }
-        .df-right { transform: rotateY(90deg) translateZ(50px); }
-        .df-left { transform: rotateY(-90deg) translateZ(50px); }
-        .df-top { transform: rotateX(90deg) translateZ(50px); }
-        .df-bottom { transform: rotateX(-90deg) translateZ(50px); }
-        .dice-val {
-            font-size: 14px;
-            text-align: center;
-            margin-top: 8px;
-            min-height: 20px;
-            font-weight: 600;
-        }
-
-        /* ===== PODIUM ===== */
-        .podium {
+        /* ===== ROULETTE — НОВАЯ АНИМАЦИЯ ===== */
+        .rl-section {
             display: flex;
             flex-direction: column;
-            gap: 8px;
-            padding: 8px 0;
-        }
-        .podium-item {
-            display: flex;
             align-items: center;
             gap: 12px;
-            padding: 10px 14px;
-            border-radius: var(--r2);
-            background: var(--bg4);
-            border: 1px solid var(--bd2);
-            transition: .3s;
-            cursor: default;
+            padding: 10px 0;
         }
-        .podium-item:hover {
-            transform: translateX(4px);
-        }
-        .podium-item.top1 {
-            background: linear-gradient(135deg, #1a1500, #3d2800);
-            border-color: var(--gold);
-            box-shadow: 0 0 20px #ffd70033;
-        }
-        .podium-item.top2 {
-            background: linear-gradient(135deg, #111122, #222244);
-            border-color: var(--silver);
-        }
-        .podium-item.top3 {
-            background: linear-gradient(135deg, #1a0f0a, #2a1a0f);
-            border-color: var(--bronze);
-        }
-        .podium-rank {
-            font-size: 20px;
-            font-weight: 800;
-            min-width: 30px;
+        .rl-label {
+            font-size: 13px;
+            color: var(--color-text-secondary);
+            font-weight: 500;
             text-align: center;
         }
-        .podium-rank.gold { color: var(--gold); }
-        .podium-rank.silver { color: var(--silver); }
-        .podium-rank.bronze { color: var(--bronze); }
-        .podium-avatar { font-size: 28px; }
-        .podium-name { flex: 1; font-weight: 600; font-size: 14px; }
-        .podium-bid { font-weight: 700; color: var(--gld); font-size: 14px; }
+        .rl-canvas-wrap {
+            position: relative;
+            width: 320px;
+            height: 320px;
+            max-width: 100%;
+            margin: 0 auto;
+        }
+        #rouletteCanvas {
+            border-radius: 50%;
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+        .rl-result {
+            font-size: 14px;
+            font-weight: 500;
+            text-align: center;
+            min-height: 22px;
+            color: var(--color-text-primary);
+        }
+        .rl-btns {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .rl-btns button {
+            padding: 8px 18px;
+            border-radius: var(--border-radius-md);
+            border: 0.5px solid var(--color-border-secondary);
+            background: var(--color-background-primary);
+            color: var(--color-text-primary);
+            font-size: 13px;
+            cursor: pointer;
+            transition: background .15s;
+        }
+        .rl-btns button:hover { background: var(--color-background-secondary); }
+        .btn-red { border-color: #b91c1c !important; color: #b91c1c !important; }
+        .btn-blk { border-color: #555 !important; }
+        .btn-grn { border-color: #15803d !important; color: #15803d !important; }
+
+        /* ===== DICE — НОВАЯ АНИМАЦИЯ ===== */
+        .dice-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 14px;
+            padding: 10px 0;
+        }
+        .dice-scene {
+            width: 200px;
+            height: 200px;
+            perspective: 600px;
+            cursor: pointer;
+            max-width: 100%;
+        }
+        .dice-cube {
+            width: 140px;
+            height: 140px;
+            position: relative;
+            transform-style: preserve-3d;
+            margin: 30px auto;
+            transform: rotateX(-20deg) rotateY(30deg);
+        }
+        .face {
+            position: absolute;
+            width: 140px;
+            height: 140px;
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid rgba(255, 255, 255, .18);
+            backface-visibility: hidden;
+            transition: background .4s;
+        }
+        .face.front { transform: translateZ(70px); }
+        .face.back { transform: rotateY(180deg) translateZ(70px); }
+        .face.right { transform: rotateY(90deg) translateZ(70px); }
+        .face.left { transform: rotateY(-90deg) translateZ(70px); }
+        .face.top { transform: rotateX(90deg) translateZ(70px); }
+        .face.bottom { transform: rotateX(-90deg) translateZ(70px); }
+        .pips {
+            display: grid;
+            width: 100px;
+            height: 100px;
+            gap: 6px;
+            padding: 8px;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(3, 1fr);
+        }
+        .pip {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, .88);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, .4);
+        }
+        .dice-info {
+            font-size: 13px;
+            color: var(--color-text-secondary);
+            text-align: center;
+        }
+        .dice-result {
+            font-size: 15px;
+            font-weight: 500;
+            color: var(--color-text-primary);
+            min-height: 22px;
+            text-align: center;
+        }
+        .dice-btns {
+            display: flex;
+            gap: 10px;
+        }
+        .dice-btns button {
+            padding: 8px 20px;
+            border-radius: var(--border-radius-md);
+            border: 0.5px solid var(--color-border-secondary);
+            background: var(--color-background-primary);
+            font-size: 13px;
+            cursor: pointer;
+            color: var(--color-text-primary);
+        }
+        .dice-btns button:hover { background: var(--color-background-secondary); }
+        .divider {
+            width: 100%;
+            height: 0.5px;
+            background: var(--color-border-tertiary);
+        }
 
         /* ===== CLAN ===== */
         .clan-icon {
@@ -937,12 +958,12 @@
                 <div class="auth-title">CoinMine</div>
                 <div class="auth-sub" id="authSub">Войдите или создайте аккаунт</div>
                 <div class="auth-tabs">
-                    <button class="auth-tab on" onclick="setAuthMode('login')" id="tabLogin">Войти</button>
-                    <button class="auth-tab" onclick="setAuthMode('register')" id="tabRegister">Регистрация</button>
+                    <button class="auth-tab on" onclick="window.setAuthMode('login')">Войти</button>
+                    <button class="auth-tab" onclick="window.setAuthMode('register')">Регистрация</button>
                 </div>
-                <input class="inp" id="authUsername" type="text" placeholder="Логин (3-16 символов)" autocomplete="username">
-                <input class="inp" id="authPass" type="password" placeholder="Пароль (мин. 6 символов)" autocomplete="current-password">
-                <button class="btn bp" id="authBtn" onclick="handleAuth()">⚡ Войти</button>
+                <input class="inp" id="authUsername" type="text" placeholder="Логин (3-16 символов)">
+                <input class="inp" id="authPass" type="password" placeholder="Пароль (мин. 6 символов)">
+                <button class="btn bp" id="authBtn" onclick="window.handleAuth()">⚡ Войти</button>
                 <div class="astat" id="authStatus">Готово ко входу</div>
             </div>
         </div>
@@ -964,8 +985,8 @@
                             <div class="f1">
                                 <div class="fl" style="flex-wrap:wrap;gap:6px;margin-bottom:3px">
                                     <strong id="PNAME" style="font-size:15px">Шахтёр</strong>
-                                    <button class="logout-btn" onclick="logoutUser()">🚪 Выйти</button>
-                                    <button onclick="openNickMod()" style="background:none;border:1px solid var(--bd2);border-radius:4px;padding:2px 7px;color:var(--tx2);font-size:10px;cursor:pointer">✏️ ник</button>
+                                    <button class="logout-btn" onclick="window.logoutUser()">🚪 Выйти</button>
+                                    <button onclick="window.openNickMod()" style="background:none;border:1px solid var(--bd2);border-radius:4px;padding:2px 7px;color:var(--tx2);font-size:10px;cursor:pointer">✏️ ник</button>
                                 </div>
                                 <div id="NICK_L" style="font-size:11px;color:var(--tx2)">Стиль не выбран</div>
                             </div>
@@ -990,8 +1011,8 @@
                         </div>
                         <div style="font-size:11px;color:var(--tx2);margin-bottom:10px">Уровень: <b id="F_lv" style="color:var(--acc3)">1</b> · Множитель: <b id="F_mx" style="color:var(--gld)">×1.0</b> · Прокачка: <b id="F_uc" style="color:var(--tx)">50 монет</b></div>
                         <div class="g2">
-                            <button class="btn bp" id="F_btn" onclick="conf('Добыть монеты?','Кулдаун 1 час. Монеты = (1–5) × уровень-множитель.',doFarm)">⛏ Добыть</button>
-                            <button class="btn bs" onclick="conf('Улучшить шахту?','Стоимость: ' + getFarmCost() + ' монет. +20% к добыче за уровень.',upFarm)">⬆ Прокачать</button>
+                            <button class="btn bp" id="F_btn" onclick="window.conf('Добыть монеты?','Кулдаун 1 час. Монеты = (1–5) × уровень-множитель.',window.doFarm)">⛏ Добыть</button>
+                            <button class="btn bs" onclick="window.conf('Улучшить шахту?','Стоимость: ' + window.getFarmCost() + ' монет. +20% к добыче за уровень.',window.upFarm)">⬆ Прокачать</button>
                         </div>
                     </div>
 
@@ -999,8 +1020,8 @@
                         <div class="ct">🎁 реферальная программа</div>
                         <div class="irow mb8">
                             <input class="inp" id="REF_I" placeholder="Введите реф-код друга...">
-                            <button class="btn bp" style="width:auto;padding:0 12px" onclick="useRefCode()">Активировать</button>
-                            <button class="btn bs" style="width:auto;padding:0 12px" onclick="changeRefCode()">🔄 Сменить</button>
+                            <button class="btn bp" style="width:auto;padding:0 12px" onclick="window.useRefCode()">Активировать</button>
+                            <button class="btn bs" style="width:auto;padding:0 12px" onclick="window.changeRefCode()">🔄 Сменить</button>
                         </div>
                         <div class="tm">Ваш реф-код: <b style="color:var(--gld)" id="MY_REF">—</b></div>
                         <div class="tm">Активирован: <b id="ACT_REF" style="color:var(--gld)">—</b></div>
@@ -1013,67 +1034,51 @@
                     </div>
                 </div>
 
-                <!-- GAMES -->
+                <!-- GAMES — С НОВЫМИ АНИМАЦИЯМИ -->
                 <div class="sc" id="sc-games">
                     <div class="tab-r">
-                        <div class="tab on" id="GT_rl" onclick="gTab('rl',this)">🎰 Рулетка</div>
-                        <div class="tab" id="GT_dc" onclick="gTab('dc',this)">🎲 Кубик</div>
-                        <div class="tab" id="GT_au" onclick="gTab('au',this)">🏛 Аукцион</div>
+                        <div class="tab on" onclick="window.gTab('rl',this)">🎰 Рулетка</div>
+                        <div class="tab" onclick="window.gTab('dc',this)">🎲 Кубик</div>
+                        <div class="tab" onclick="window.gTab('au',this)">🏛 Аукцион</div>
                     </div>
 
                     <div id="G_rl">
                         <div class="card">
-                            <div class="ct">🎰 рулетка — выберите ставку и цвет</div>
-                            <div class="rl-wrap" style="margin-bottom:10px">
-                                <canvas id="RC" height="200" style="width:100%;display:block"></canvas>
-                                <div class="rl-marker"></div>
-                            </div>
-                            <div id="RL_r" style="font-size:14px;text-align:center;min-height:24px;color:var(--tx2);margin-bottom:10px;font-weight:600">Выберите цвет чтобы начать</div>
-                            <div class="g2" style="margin-bottom:10px">
-                                <div>
-                                    <div class="tm mb8">Ставка</div>
-                                    <select id="RL_b" class="inp" style="padding:8px;margin:0">
-                                        <option value="10">10 монет</option>
-                                        <option value="25" selected>25 монет</option>
-                                        <option value="50">50 монет</option>
-                                        <option value="100">100 монет</option>
-                                    </select>
+                            <div class="ct">🎰 рулетка — выберите цвет</div>
+                            <div class="rl-section">
+                                <div class="rl-canvas-wrap">
+                                    <canvas id="rouletteCanvas" width="320" height="320"></canvas>
                                 </div>
-                                <div>
-                                    <div class="tm mb8">Коэффициенты</div>
-                                    <div style="background:var(--bg4);border-radius:var(--r2);padding:8px;font-size:12px;color:var(--tx2);text-align:center">
-                                        <div>🔴 ×1.75</div>
-                                        <div>⚫ ×1.75</div>
-                                        <div>🟩 ×5.0</div>
-                                    </div>
+                                <div class="rl-result" id="rlResult">Выберите цвет</div>
+                                <div class="rl-btns">
+                                    <button class="btn-red" onclick="window.spinTo('red')">🔴 Красный</button>
+                                    <button class="btn-blk" onclick="window.spinTo('black')">⚫ Чёрный</button>
+                                    <button class="btn-grn" onclick="window.spinTo('green')">🟢 Зелёный</button>
                                 </div>
-                            </div>
-                            <div class="g3">
-                                <button class="btn" style="background:#7f1d1d;color:#fca5a5;border:1px solid #991b1b;font-size:14px;padding:14px 0" onclick="startRoul('red')">🔴 Красный</button>
-                                <button class="btn" style="background:#1c1c2e;color:#d1d5db;border:1px solid #374151;font-size:14px;padding:14px 0" onclick="startRoul('black')">⚫ Чёрный</button>
-                                <button class="btn" style="background:#052e16;color:#4ade80;border:1px solid #14532d;font-size:14px;padding:14px 0" onclick="startRoul('green')">🟩 Зелёный</button>
                             </div>
                         </div>
                     </div>
 
                     <div id="G_dc" style="display:none">
                         <div class="card">
-                            <div class="ct">🎲 3d кубик — ставка 50 монет</div>
-                            <div class="dice-scene" id="diceScene">
-                                <div id="diceCube" class="dice-cube">
-                                    <div class="dice-face df-front" id="d-f" style="background:#2a1a35;">⚀</div>
-                                    <div class="dice-face df-back" id="d-b" style="background:#1a2a2a;">⚅</div>
-                                    <div class="dice-face df-right" id="d-r" style="background:#2a2a1a;">⚂</div>
-                                    <div class="dice-face df-left" id="d-l" style="background:#1a2a2a;">⚃</div>
-                                    <div class="dice-face df-top" id="d-t" style="background:#2a1a2a;">⚁</div>
-                                    <div class="dice-face df-bottom" id="d-bo" style="background:#1a1a2a;">⚄</div>
+                            <div class="ct">🎲 3D кубик</div>
+                            <div class="dice-section">
+                                <div class="dice-scene" onclick="window.rollDice()">
+                                    <div class="dice-cube" id="diceCube">
+                                        <div class="face front" id="f1"><div class="pips" id="pip1"></div></div>
+                                        <div class="face back" id="f6"><div class="pips" id="pip6"></div></div>
+                                        <div class="face right" id="f3"><div class="pips" id="pip3"></div></div>
+                                        <div class="face left" id="f4"><div class="pips" id="pip4"></div></div>
+                                        <div class="face top" id="f2"><div class="pips" id="pip2"></div></div>
+                                        <div class="face bottom" id="f5"><div class="pips" id="pip5"></div></div>
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="tm tc dice-val" id="DC_r">Кидайте кубик!</div>
-                            <div class="tm tc" style="font-size:12px;margin-bottom:10px">Число × 10 + бонус за цвет (+10) — ставка 50</div>
-                            <div class="g2">
-                                <button class="btn" style="background:#7f1d1d;color:#fca5a5;border:1px solid #991b1b;font-size:14px;padding:14px 0" onclick="conf('Ставка 50 монет?','Вы выбираете красный. Число на кубике × 10 + 10 бонус если цвет совпал.',()=>playDice('red'))">🔴 Красный (50)</button>
-                                <button class="btn" style="background:#1c1c2e;color:#d1d5db;border:1px solid #374151;font-size:14px;padding:14px 0" onclick="conf('Ставка 50 монет?','Вы выбираете чёрный. Число на кубике × 10 + 10 бонус если цвет совпал.',()=>playDice('black'))">⚫ Чёрный (50)</button>
+                                <div class="dice-info">Нажмите на кубик</div>
+                                <div class="dice-result" id="diceResult"></div>
+                                <div class="dice-btns">
+                                    <button onclick="window.playDiceWithBet('red')">🔴 Красный (50)</button>
+                                    <button onclick="window.playDiceWithBet('black')">⚫ Чёрный (50)</button>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -1091,9 +1096,9 @@
                                 <div class="tm tc" style="padding:12px;">Пока нет ставок</div>
                             </div>
                             <div class="g3 mt8">
-                                <button class="btn bs" onclick="conf('+10 к ставке?','Ваши 10 монет зарезервируются.',()=>bid(10))">+10</button>
-                                <button class="btn bs" onclick="conf('+50 к ставке?','Ваши 50 монет зарезервируются. Победитель получает приз.',()=>bid(50))">+50</button>
-                                <button class="btn bs" onclick="conf('+100 к ставке?','Ваши 100 монет зарезервируются. Победитель определяется администратором.',()=>bid(100))">+100</button>
+                                <button class="btn bs" onclick="window.conf('+10 к ставке?','Ваши 10 монет зарезервируются.',()=>window.bid(10))">+10</button>
+                                <button class="btn bs" onclick="window.conf('+50 к ставке?','Ваши 50 монет зарезервируются. Победитель получает приз.',()=>window.bid(50))">+50</button>
+                                <button class="btn bs" onclick="window.conf('+100 к ставке?','Ваши 100 монет зарезервируются. Победитель определяется администратором.',()=>window.bid(100))">+100</button>
                             </div>
                         </div>
                     </div>
@@ -1113,8 +1118,8 @@
                             <span id="BS_rs"></span>
                         </div>
                         <div class="g2 mt8">
-                            <button class="btn bp" id="ATK_btn" onclick="conf('Атаковать Рябчика?','Стоимость: 20 монет. Урон 10–50. Шанс 20% получить сундук.',atkBoss)">⚔ Атаковать (20)</button>
-                            <button class="btn bs" id="CH_btn" onclick="conf('Открыть сундук?','Случайная награда: монеты, ключи или редкий осколок.',openChest)">📦 Сундук (<span id="CH_c">0</span>)</button>
+                            <button class="btn bp" id="ATK_btn" onclick="window.conf('Атаковать Рябчика?','Стоимость: 20 монет. Урон 10–50. Шанс 20% получить сундук.',window.atkBoss)">⚔ Атаковать (20)</button>
+                            <button class="btn bs" id="CH_btn" onclick="window.conf('Открыть сундук?','Случайная награда: монеты, ключи или редкий осколок.',window.openChest)">📦 Сундук (<span id="CH_c">0</span>)</button>
                         </div>
                         <div style="font-size:13px;color:var(--grn);margin-top:8px;min-height:20px;font-weight:600" id="ATK_l"></div>
                     </div>
@@ -1136,7 +1141,7 @@
                             <div class="clan-icon">🏰</div>
                             <div style="font-size:16px;font-weight:700;margin-bottom:6px">Вы не в клане</div>
                             <div class="tm mb8">Создайте клан за 1500 монет и добывайте алмазы командой</div>
-                            <button class="btn bp" onclick="conf('Создать клан за 1500 монет?','Вы получите случайное название. Можно пригласить до 4 участников и вместе добывать алмазы каждые 6 часов.',createClan)">➕ Создать клан</button>
+                            <button class="btn bp" onclick="window.conf('Создать клан за 1500 монет?','Вы получите случайное название. Можно пригласить до 4 участников и вместе добывать алмазы каждые 6 часов.',window.createClan)">➕ Создать клан</button>
                         </div>
                     </div>
                     <div id="CL_yes" style="display:none">
@@ -1150,9 +1155,9 @@
                             <div class="ct">участники (<span id="CL_m">1</span>/5)</div>
                             <div id="CL_ml"></div>
                         </div>
-                        <button class="btn bp mb8" onclick="conf('Добыть алмазы?','Клановый фарм раз в 6 часов. Алмазы идут в казну клана.',clanFarm)">⛏ Добыть алмазы</button>
-                        <button class="btn bs mb8" onclick="conf('Обменять 5 💎 → 25 монет?','5 алмазов из казны клана = 25 монет на ваш баланс.',()=>exDiam(5))">🔄 5 💎 → 25 монет</button>
-                        <button class="btn bred" onclick="conf('Распустить клан?','Клан удалится навсегда. Все алмазы сгорят.',disbandClan)">🗑 Распустить</button>
+                        <button class="btn bp mb8" onclick="window.conf('Добыть алмазы?','Клановый фарм раз в 6 часов. Алмазы идут в казну клана.',window.clanFarm)">⛏ Добыть алмазы</button>
+                        <button class="btn bs mb8" onclick="window.conf('Обменять 5 💎 → 25 монет?','5 алмазов из казны клана = 25 монет на ваш баланс.',()=>window.exDiam(5))">🔄 5 💎 → 25 монет</button>
+                        <button class="btn bred" onclick="window.conf('Распустить клан?','Клан удалится навсегда. Все алмазы сгорят.',window.disbandClan)">🗑 Распустить</button>
                     </div>
                 </div>
 
@@ -1161,24 +1166,24 @@
                     <div class="card">
                         <div class="ct">💰 купить монеты</div>
                         <div class="pkg-g">
-                            <div class="pkg" onclick="conf('Купить 500 монет за 30 ₽?','В демо-режиме монеты зачисляются бесплатно.',()=>buyCoins(500))">
+                            <div class="pkg" onclick="window.conf('Купить 500 монет за 30 ₽?','В демо-режиме монеты зачисляются бесплатно.',()=>window.buyCoins(500))">
                                 <div class="pkg-icon">🪙</div>
                                 <div style="font-size:18px;font-weight:700;color:var(--gld)">500</div>
                                 <div class="tm">30 ₽</div>
                             </div>
-                            <div class="pkg hot" onclick="conf('Купить 1700 монет за 79 ₽?','1500 + 200 бонусных монет. Самый выгодный стартовый набор!',()=>buyCoins(1700))">
+                            <div class="pkg hot" onclick="window.conf('Купить 1700 монет за 79 ₽?','1500 + 200 бонусных монет. Самый выгодный стартовый набор!',()=>window.buyCoins(1700))">
                                 <div class="pkg-icon">💰</div>
                                 <div style="font-size:18px;font-weight:700;color:var(--gld)">1500</div>
                                 <div class="tm">79 ₽</div>
                                 <div style="font-size:10px;color:var(--grn)">+200 бонус</div>
                             </div>
-                            <div class="pkg" onclick="conf('Купить 4500 монет за 149 ₽?','4000 + 500 бонусных монет.',()=>buyCoins(4500))">
+                            <div class="pkg" onclick="window.conf('Купить 4500 монет за 149 ₽?','4000 + 500 бонусных монет.',()=>window.buyCoins(4500))">
                                 <div class="pkg-icon">💎</div>
                                 <div style="font-size:18px;font-weight:700;color:var(--gld)">4000</div>
                                 <div class="tm">149 ₽</div>
                                 <div style="font-size:10px;color:var(--grn)">+500 бонус</div>
                             </div>
-                            <div class="pkg" onclick="conf('Купить 12000 монет за 299 ₽?','10000 + 2000 мега-бонус монет!',()=>buyCoins(12000))">
+                            <div class="pkg" onclick="window.conf('Купить 12000 монет за 299 ₽?','10000 + 2000 мега-бонус монет!',()=>window.buyCoins(12000))">
                                 <div class="pkg-icon">👑</div>
                                 <div style="font-size:18px;font-weight:700;color:var(--gld)">10000</div>
                                 <div class="tm">299 ₽</div>
@@ -1197,11 +1202,11 @@
                         <div class="ct">🎁 промокоды</div>
                         <div class="irow mb8">
                             <input class="inp" id="PR_i" placeholder="Введите промокод..." style="margin:0">
-                            <button class="btn bp" style="width:auto;padding:0 14px" onclick="usePromo()">OK</button>
+                            <button class="btn bp" style="width:auto;padding:0 14px" onclick="window.usePromo()">OK</button>
                         </div>
                         <div class="g2">
-                            <button class="btn bs" style="font-size:12px;padding:10px" onclick="activatePromo('free')">🎁 FREE — +15</button>
-                            <button class="btn bs" style="font-size:12px;padding:10px" onclick="activatePromo('denchak')">🎁 DENCHAK — +15</button>
+                            <button class="btn bs" style="font-size:12px;padding:10px" onclick="window.activatePromo('free')">🎁 FREE — +15</button>
+                            <button class="btn bs" style="font-size:12px;padding:10px" onclick="window.activatePromo('denchak')">🎁 DENCHAK — +15</button>
                         </div>
                     </div>
                 </div>
@@ -1209,9 +1214,10 @@
                 <!-- TOP -->
                 <div class="sc" id="sc-top">
                     <div class="tab-r">
-                        <div class="tab on" id="TT_b" onclick="topTab('b',this)">💰 Баланс</div>
-                        <div class="tab" id="TT_f" onclick="topTab('f',this)">⛏ Фармы</div>
-                        <div class="tab" id="TT_r" onclick="topTab('r',this)">👥 Рефералы</div>
+                        <div class="tab on" onclick="window.topTab('b',this)">💰 Баланс</div>
+                        <div class="tab" onclick="window.topTab('f',this)">⛏ Фармы</div>
+                        <div class="tab" onclick="window.topTab('r',this)">👥 Рефералы</div>
+                        <div class="tab" onclick="window.topTab('s',this)">💎 Осколки</div>
                     </div>
                     <div class="card">
                         <div class="fl" style="justify-content:space-between;margin-bottom:10px">
@@ -1225,20 +1231,19 @@
             </div>
 
             <nav class="nav">
-                <button class="nb on" onclick="goSc('home')" id="NB_home"><span>🏠</span>Главная</button>
-                <button class="nb" onclick="goSc('games')" id="NB_games"><span>🎲</span>Игры</button>
-                <button class="nb" onclick="goSc('arena')" id="NB_arena"><span>⚔️</span>Арена</button>
-                <button class="nb" onclick="goSc('clan')" id="NB_clan"><span>🛡️</span>Клан</button>
-                <button class="nb" onclick="goSc('shop')" id="NB_shop"><span>🛒</span>Магазин</button>
+                <button class="nb on" onclick="window.goSc('home')"><span>🏠</span>Главная</button>
+                <button class="nb" onclick="window.goSc('games')"><span>🎲</span>Игры</button>
+                <button class="nb" onclick="window.goSc('arena')"><span>⚔️</span>Арена</button>
+                <button class="nb" onclick="window.goSc('clan')"><span>🛡️</span>Клан</button>
+                <button class="nb" onclick="window.goSc('shop')"><span>🛒</span>Магазин</button>
+                <button class="nb" onclick="window.goSc('top')"><span>🏆</span>Топ</button>
             </nav>
 
         </div>
 
     </div>
 
-    <!-- ════════════════════════════════════════ -->
-    <!-- СТАТИЧНЫЙ БАННЕР — ВЫШЕ И В ЦЕНТРЕ -->
-    <!-- ════════════════════════════════════════ -->
+    <!-- БАННЕР — ОТДЕЛЁН ОТ НАВИГАЦИИ -->
     <div class="static-banner" onclick="window.open('https://t.me/minercoinsf', '_blank')">
         <img id="staticBannerImg" src="https://i.ibb.co/B5CTFj4c/Chat-GPT-Image-20-2026-14-52-25.png" alt="CoinMine Баннер" onerror="this.style.display='none';this.parentElement.querySelector('.placeholder').style.display='flex'">
         <div class="placeholder" style="display:none;">⛏ CoinMine</div>
@@ -1250,7 +1255,7 @@
             <div class="mod-title" id="M_t">Подтверждение</div>
             <div class="mod-body" id="M_b">Вы уверены?</div>
             <div class="mod-btns">
-                <button class="btn bs" onclick="closeMod()">Отмена</button>
+                <button class="btn bs" onclick="window.closeMod()">Отмена</button>
                 <button class="btn bp" id="M_ok">Подтвердить</button>
             </div>
         </div>
@@ -1262,8 +1267,8 @@
             <div class="mod-body">От 3 до 16 символов. Будет отображаться в топе.</div>
             <input class="inp" id="NK_i" maxlength="16" placeholder="Ваш никнейм...">
             <div class="mod-btns">
-                <button class="btn bs" onclick="closeNickMod()">Отмена</button>
-                <button class="btn bp" onclick="saveNick()">Сохранить</button>
+                <button class="btn bs" onclick="window.closeNickMod()">Отмена</button>
+                <button class="btn bp" onclick="window.saveNick()">Сохранить</button>
             </div>
         </div>
     </div>
@@ -1271,44 +1276,26 @@
     <div id="TOAST"></div>
 
     <script>
-        // ════════════════════════════════════════════════
-        // 1. КОНФИГУРАЦИЯ
-        // ════════════════════════════════════════════════
+        // ============================================================
+        // 1. КОНФИГУРАЦИЯ — ТОЛЬКО ПУБЛИЧНЫЙ КЛЮЧ
+        // ============================================================
         const SB_URL = 'https://mazccbkzurbryzusajqc.supabase.co';
-        const SB_KEY = 'sb_publishable_GLQvPbCZrDYgd7FCSp861g_poX1-Hwy';
+        const SB_ANON_KEY = 'sb_publishable_GLQvPbCZrDYgd7FCSp861g_poX1-Hwy';
 
-        // ════════════════════════════════════════════════
+        console.log('🔓 Публичный ключ');
+        console.log('📡 URL:', SB_URL);
+
+        // ============================================================
         // 2. СОСТОЯНИЕ
-        // ════════════════════════════════════════════════
+        // ============================================================
         let TOKEN = null;
         let UID = null;
         let authMode = 'login';
         let _pFn = null;
         let saveTimer = null;
         let currentUsername = '';
-
-        const G = {
-            coins: 150,
-            farms: 0,
-            refs: 0,
-            keys: 0,
-            lastFarm: 0,
-            farmLv: 1,
-            name: 'Шахтёр',
-            nicks: { p: [], a: null },
-            shards: {},
-            clan: null,
-            clanLF: 0,
-            promos: {},
-            missions: { active: null, lastReset: 0 },
-            auctionBid: 0,
-            auctionBidders: [],
-            chests: 0,
-            refCode: '',
-            activatedRef: null
-        };
-
-        const BOSS_STATE = { hp: 0, lastKill: 0 };
+        let isSaving = false;
+        let saveQueue = [];
 
         const NICK_S = {
             gold: { e: '🌟', n: 'Золотой' },
@@ -1341,21 +1328,38 @@
             { id: 'r3', nm: '👥 Вербовщик', d: '3 реферала', t: 3, rw: 1 }
         ];
 
-        const DEMO_TOP = [
-            { n: 'ВасяКоин', c: 9420, f: 312, r: 18 },
-            { n: 'МегаМайнер', c: 5100, f: 201, r: 9 },
-            { n: 'КоролькоинС', c: 3890, f: 145, r: 6 },
-            { n: 'АлмазДобытчик', c: 2100, f: 98, r: 3 }
+        let DEMO_TOP = [
+            { n: 'ВасяКоин', c: 9420, f: 312, r: 18, s: 6 },
+            { n: 'МегаМайнер', c: 5100, f: 201, r: 9, s: 5 },
+            { n: 'КоролькоинС', c: 3890, f: 145, r: 6, s: 4 },
+            { n: 'АлмазДобытчик', c: 2100, f: 98, r: 3, s: 3 },
+            { n: 'КриптоКинг', c: 1850, f: 87, r: 5, s: 3 },
+            { n: 'Шахтёр777', c: 1520, f: 76, r: 2, s: 2 },
+            { n: 'БлокХантер', c: 1340, f: 65, r: 4, s: 2 },
+            { n: 'НочнойМайнер', c: 1100, f: 54, r: 1, s: 1 },
+            { n: 'ЗолотойДракон', c: 980, f: 43, r: 3, s: 1 },
+            { n: 'СеребряныйЛис', c: 760, f: 32, r: 2, s: 0 }
         ];
 
         const FARM_COSTS = [50, 100, 250, 500, 1000];
 
-        // ════════════════════════════════════════════════
+        let G = {
+            coins: 0, farms: 0, refs: 0, keys: 0, lastFarm: 0, farmLv: 1,
+            name: 'Шахтёр', nicks: { p: [], a: null }, shards: {},
+            clan: null, clanLF: 0, promos: {},
+            missions: { active: null, lastReset: 0 },
+            auctionBid: 0, auctionBidders: [], chests: 0,
+            refCode: '', activatedRef: null
+        };
+
+        let BOSS_STATE = { hp: 0, lastKill: 0 };
+
+        // ============================================================
         // 3. ВСПОМОГАТЕЛЬНЫЕ
-        // ════════════════════════════════════════════════
+        // ============================================================
         function fmt(n) { return Math.round(n).toLocaleString('ru'); }
 
-        function toast(msg, t) {
+        window.toast = function(msg, t) {
             const e = document.getElementById('TOAST');
             if (!e) return;
             const colors = { ok: '#065f46', gld: '#92620a', err: '#7f1d1d', info: '#2e1065' };
@@ -1364,29 +1368,25 @@
             e.style.opacity = '1';
             clearTimeout(e._x);
             e._x = setTimeout(() => e.style.opacity = '0', 2400);
-        }
+        };
 
         function aStat(text, type) {
             const e = document.getElementById('authStatus');
-            if (e) { e.textContent = text;
-                e.className = 'astat ' + (type || ''); }
+            if (e) { e.textContent = text; e.className = 'astat ' + (type || ''); }
         }
 
-        function getFarmCost() { return FARM_COSTS[Math.min(G.farmLv - 1, 4)]; }
+        window.getFarmCost = function() { return FARM_COSTS[Math.min(G.farmLv - 1, 4)]; };
 
-        function openTelegram() { window.open('https://t.me/minercoinsf', '_blank'); }
+        function getShardCount() {
+            return Object.keys(G.shards).filter(k => G.shards[k] > 0).length;
+        }
 
-        // ════════════════════════════════════════════════
-        // 4. ОТПЕЧАТОК УСТРОЙСТВА
-        // ════════════════════════════════════════════════
         function getFingerprint() {
             let fp = localStorage.getItem('coinmine_fp');
             if (fp) return fp;
             const parts = [
-                navigator.userAgent,
-                navigator.language,
-                screen.width + 'x' + screen.height,
-                screen.colorDepth,
+                navigator.userAgent, navigator.language,
+                screen.width + 'x' + screen.height, screen.colorDepth,
                 navigator.hardwareConcurrency || 'unknown',
                 new Date().getTimezoneOffset()
             ];
@@ -1401,12 +1401,12 @@
         }
         const FINGERPRINT = getFingerprint();
 
-        // ════════════════════════════════════════════════
-        // 5. API
-        // ════════════════════════════════════════════════
+        // ============================================================
+        // 4. API
+        // ============================================================
         async function sbFetch(path, opts = {}) {
             const headers = {
-                'apikey': SB_KEY,
+                'apikey': SB_ANON_KEY,
                 'Content-Type': 'application/json',
                 ...(opts.headers || {})
             };
@@ -1420,9 +1420,9 @@
             return { ok: r.ok, status: r.status, data: d };
         }
 
-        // ════════════════════════════════════════════════
-        // 6. РЕГИСТРАЦИЯ, ВХОД И СМЕНА КОДА
-        // ════════════════════════════════════════════════
+        // ============================================================
+        // 5. АВТОРИЗАЦИЯ
+        // ============================================================
         async function authRegister(username, password, fingerprint) {
             const { data: existing } = await sbFetch(
                 `/rest/v1/users?fingerprint=eq.${encodeURIComponent(fingerprint)}&select=id`, { noAuth: true }
@@ -1439,11 +1439,16 @@
             }
 
             const newUser = {
-                username: username,
-                password: password,
-                fingerprint: fingerprint,
-                data: G,
-                boss: BOSS_STATE,
+                username, password, fingerprint,
+                data: {
+                    coins: 150, farms: 0, refs: 0, keys: 0, lastFarm: 0, farmLv: 1,
+                    name: username, nicks: { p: [], a: null }, shards: {},
+                    clan: null, clanLF: 0, promos: {},
+                    missions: { active: null, lastReset: 0 },
+                    auctionBid: 0, auctionBidders: [], chests: 0,
+                    refCode: '', activatedRef: null
+                },
+                boss: { hp: 0, lastKill: 0 },
                 created_at: new Date().toISOString(),
                 updated_at: new Date().toISOString()
             };
@@ -1492,6 +1497,8 @@
             }
             if (user.boss) Object.assign(BOSS_STATE, user.boss);
 
+            if (!G.refCode) G.refCode = user.id.slice(0, 8);
+
             TOKEN = 'temp_' + Date.now() + '_' + user.id;
             UID = user.id;
             currentUsername = username;
@@ -1503,49 +1510,71 @@
             return user;
         }
 
-        // Смена реферального кода
-        async function changeRefCode() {
-            if (!UID) { toast('Сначала войдите в аккаунт', 'err'); return; }
-            const newCode = prompt('Введите новый реферальный код (4-8 символов, только буквы и цифры):');
-            if (!newCode) return;
-            if (newCode.length < 4 || newCode.length > 8) {
-                toast('Код должен быть 4-8 символов', 'err');
-                return;
-            }
-            if (!/^[a-zA-Z0-9]+$/.test(newCode)) {
-                toast('Только буквы и цифры', 'err');
-                return;
-            }
+        // ============================================================
+        // 6. СОХРАНЕНИЕ
+        // ============================================================
+        async function saveUserData() {
+            if (!UID) return false;
+            if (isSaving) { saveQueue.push(Date.now()); return false; }
+            isSaving = true;
 
-            const { data: taken } = await sbFetch(
-                `/rest/v1/users?data->>refCode=eq.${encodeURIComponent(newCode)}&select=id`, { noAuth: true }
-            );
-            if (taken && taken.length > 0) {
-                toast('Этот код уже занят', 'err');
-                return;
-            }
+            try {
+                const payload = {
+                    data: G,
+                    boss: BOSS_STATE,
+                    updated_at: new Date().toISOString()
+                };
 
-            G.refCode = newCode;
-            scheduleSave();
-            renderUI();
-            toast('Реферальный код изменён на: ' + newCode, 'ok');
+                console.log('💾 Сохранение:', { coins: G.coins, farms: G.farms });
+
+                const { ok, status, data } = await sbFetch(`/rest/v1/users?id=eq.${UID}`, {
+                    method: 'PATCH',
+                    body: JSON.stringify(payload)
+                });
+
+                if (!ok) {
+                    console.error('❌ Ошибка сохранения:', status, data);
+                    return false;
+                }
+
+                console.log('✅ Сохранено');
+                return true;
+            } catch (e) {
+                console.error('❌ Ошибка:', e);
+                return false;
+            } finally {
+                isSaving = false;
+                if (saveQueue.length > 0) {
+                    saveQueue.pop();
+                    setTimeout(() => saveUserData(), 1000);
+                }
+            }
         }
 
-        // ════════════════════════════════════════════════
+        function scheduleSave() {
+            clearTimeout(saveTimer);
+            saveTimer = setTimeout(() => saveUserData(), 2000);
+        }
+
+        async function forceSave() {
+            clearTimeout(saveTimer);
+            return await saveUserData();
+        }
+
+        // ============================================================
         // 7. АВТОРИЗАЦИЯ UI
-        // ════════════════════════════════════════════════
-        function setAuthMode(m) {
+        // ============================================================
+        window.setAuthMode = function(m) {
             authMode = m;
             document.querySelectorAll('.auth-tab').forEach((el, i) => {
                 el.classList.toggle('on', (i === 0 && m === 'login') || (i === 1 && m === 'register'));
             });
             document.getElementById('authBtn').textContent = m === 'login' ? '⚡ Войти' : '🚀 Зарегистрироваться';
-            document.getElementById('authSub').textContent = m === 'login' ? 'Войдите в свой аккаунт' :
-                'Создайте новый аккаунт';
+            document.getElementById('authSub').textContent = m === 'login' ? 'Войдите в свой аккаунт' : 'Создайте новый аккаунт';
             aStat(m === 'login' ? 'Войдите в аккаунт' : 'Создайте аккаунт');
-        }
+        };
 
-        async function handleAuth() {
+        window.handleAuth = async function() {
             const username = document.getElementById('authUsername').value.trim();
             const pass = document.getElementById('authPass').value.trim();
 
@@ -1565,43 +1594,41 @@
                 if (authMode === 'register') {
                     user = await authRegister(username, pass, FINGERPRINT);
                     aStat('✅ Аккаунт создан!', 'ok');
-                    toast('Добро пожаловать, ' + username + '!');
+                    window.toast('Добро пожаловать, ' + username + '!');
                 } else {
                     user = await authLogin(username, pass);
                     aStat('✅ Вход выполнен!', 'ok');
-                    toast('С возвращением, ' + username + '!');
+                    window.toast('С возвращением, ' + username + '!');
                 }
-                if (!G.refCode) G.refCode = UID.slice(0, 8);
                 showApp();
             } catch (e) {
                 aStat('❌ ' + e.message, 'err');
                 console.error('Ошибка:', e);
             }
             document.getElementById('authBtn').disabled = false;
-        }
+        };
 
-        async function logoutUser() {
+        window.logoutUser = async function() {
             if (!confirm('Выйти из аккаунта?')) return;
-            await saveUserData();
+            await forceSave();
             localStorage.removeItem('cm_tok');
             localStorage.removeItem('cm_uid');
             localStorage.removeItem('cm_username');
-            TOKEN = null;
-            UID = null;
+            TOKEN = null; UID = null;
             document.getElementById('appWrap').classList.remove('on');
             document.getElementById('authWrap').style.display = 'flex';
             aStat('Вы вышли', 'ok');
-            toast('До встречи!', 'ok');
-        }
+            window.toast('До встречи!', 'ok');
+        };
 
         async function restoreSession() {
             const t = localStorage.getItem('cm_tok');
             const u = localStorage.getItem('cm_uid');
             const username = localStorage.getItem('cm_username');
             if (!t || !u || !username) return false;
-            TOKEN = t;
-            UID = u;
-            currentUsername = username;
+
+            TOKEN = t; UID = u; currentUsername = username;
+
             try {
                 const { data } = await sbFetch(
                     `/rest/v1/users?id=eq.${UID}&select=id,username,data,boss,fingerprint`, { noAuth: true }
@@ -1614,139 +1641,97 @@
                     }
                     if (user.boss) Object.assign(BOSS_STATE, user.boss);
                     if (!G.refCode) G.refCode = UID.slice(0, 8);
+                    console.log('✅ Данные загружены');
                     return true;
                 }
-            } catch (e) { console.error('Restore error:', e); }
+            } catch (e) { console.error('❌ Ошибка загрузки:', e); }
             return false;
         }
 
-        // ════════════════════════════════════════════════
-        // 8. СОХРАНЕНИЕ ДАННЫХ
-        // ════════════════════════════════════════════════
-        async function saveUserData() {
-            if (!UID) return;
-            try {
-                await sbFetch(`/rest/v1/users?id=eq.${UID}`, {
-                    method: 'PATCH',
-                    body: JSON.stringify({
-                        data: G,
-                        boss: BOSS_STATE,
-                        updated_at: new Date().toISOString()
-                    })
-                });
-            } catch (e) { console.error('Save error:', e); }
-        }
-
-        function scheduleSave() {
-            clearTimeout(saveTimer);
-            saveTimer = setTimeout(() => saveUserData(), 2000);
-        }
-
-        // ════════════════════════════════════════════════
-        // 9. ПОКАЗ ПРИЛОЖЕНИЯ
-        // ════════════════════════════════════════════════
+        // ============================================================
+        // 8. ПОКАЗ ПРИЛОЖЕНИЯ
+        // ============================================================
         function showApp() {
             document.getElementById('authWrap').style.display = 'none';
             document.getElementById('appWrap').classList.add('on');
-            if (!G.refCode) G.refCode = UID.slice(0, 8);
             initMissions();
             renderUI();
-            setTimeout(() => drawRoulette(0, null), 100);
+            setTimeout(() => window.drawRoulette(0, null), 100);
             setInterval(renderFarmTimer, 1000);
             setInterval(renderBoss, 30000);
-            setInterval(() => { if (document.getElementById('sc-top').classList.contains('on')) renderTop('b'); }, 600000);
+            setInterval(() => { if (UID) saveUserData(); }, 30000);
+            window.addEventListener('beforeunload', () => { if (UID) saveUserData(); });
+            window.toast('💾 Данные синхронизируются', 'info');
         }
 
         function initMissions() {
             const now = Date.now();
-            if (now - G.missions.lastReset > 86400000 || !G.missions.active) {
-                G.missions.active = {};
+            if (now - (G.missions?.lastReset || 0) > 86400000 || !G.missions?.active) {
+                G.missions = { active: {}, lastReset: now };
                 const picked = [...MISSIONS_DEF].sort(() => Math.random() - .5).slice(0, 3);
                 picked.forEach(m => { G.missions.active[m.id] = { ...m, prog: 0, claimed: false }; });
-                G.missions.lastReset = now;
             }
         }
 
-        // ════════════════════════════════════════════════
-        // 10. НАВИГАЦИЯ
-        // ════════════════════════════════════════════════
-        function goSc(nm) {
+        // ============================================================
+        // 9. НАВИГАЦИЯ И UI
+        // ============================================================
+        window.goSc = function(nm) {
             document.querySelectorAll('.sc').forEach(s => s.classList.remove('on'));
             document.querySelectorAll('.nb').forEach(b => b.classList.remove('on'));
             document.getElementById('sc-' + nm).classList.add('on');
             const nb = document.getElementById('NB_' + nm);
             if (nb) nb.classList.add('on');
-            if (nm === 'games') {
-                setTimeout(() => drawRoulette(0, null), 60);
-                renderPodium();
-            }
+            if (nm === 'games') { setTimeout(() => window.drawRoulette(0, null), 60); renderPodium(); }
             if (nm === 'top') renderTop('b');
             renderUI();
-        }
+        };
 
-        function gTab(t, el) {
+        window.gTab = function(t, el) {
             ['rl', 'dc', 'au'].forEach(x => {
                 const d = document.getElementById('G_' + x);
                 if (d) d.style.display = x === t ? 'block' : 'none';
                 const tb = document.getElementById('GT_' + x);
                 if (tb) tb.classList.toggle('on', x === t);
             });
-            if (t === 'rl') setTimeout(() => drawRoulette(0, null), 40);
-            if (t === 'dc') renderDiceIdle();
+            if (t === 'rl') setTimeout(() => window.drawRoulette(0, null), 40);
+            if (t === 'dc') window.renderDiceIdle();
             if (t === 'au') renderPodium();
-        }
+        };
 
-        function topTab(t, el) {
+        window.topTab = function(t, el) {
             document.querySelectorAll('#sc-top .tab').forEach(e => e.classList.remove('on'));
             if (el) el.classList.add('on');
             renderTop(t);
-        }
+        };
 
-        // ════════════════════════════════════════════════
-        // 11. МОДАЛЬНЫЕ ОКНА
-        // ════════════════════════════════════════════════
-        function conf(title, body, fn) {
+        window.conf = function(title, body, fn) {
             document.getElementById('M_t').textContent = title;
             document.getElementById('M_b').textContent = body;
             _pFn = fn;
             document.getElementById('M_conf').classList.add('on');
-            document.getElementById('M_ok').onclick = () => { closeMod(); if (_pFn) { _pFn();
-                    _pFn = null; } };
-        }
+            document.getElementById('M_ok').onclick = () => { window.closeMod(); if (_pFn) { _pFn(); _pFn = null; } };
+        };
 
-        function closeMod() { document.getElementById('M_conf').classList.remove('on'); }
-
-        function openNickMod() { document.getElementById('NK_i').value = G.name;
-            document.getElementById('M_nick').classList.add('on'); }
-
-        function closeNickMod() { document.getElementById('M_nick').classList.remove('on'); }
-
-        function saveNick() {
+        window.closeMod = function() { document.getElementById('M_conf').classList.remove('on'); };
+        window.openNickMod = function() { document.getElementById('NK_i').value = G.name; document.getElementById('M_nick').classList.add('on'); };
+        window.closeNickMod = function() { document.getElementById('M_nick').classList.remove('on'); };
+        window.saveNick = function() {
             const v = document.getElementById('NK_i').value.trim();
-            if (v.length < 3 || v.length > 16) { toast('3–16 символов', 'err'); return; }
-            G.name = v;
-            scheduleSave();
-            renderUI();
-            closeNickMod();
-            toast('Ник изменён!', 'ok');
-        }
+            if (v.length < 3 || v.length > 16) { window.toast('3–16 символов', 'err'); return; }
+            G.name = v; scheduleSave(); renderUI(); window.closeNickMod(); window.toast('Ник изменён!', 'ok');
+        };
 
-        // ════════════════════════════════════════════════
-        // 12. ОТРИСОВКА UI
-        // ════════════════════════════════════════════════
+        // ============================================================
+        // 10. ОТРИСОВКА
+        // ============================================================
         function renderUI() {
             const sets = {
-                H_c: G.coins,
-                S_c: G.coins,
-                S_f: G.farms,
-                S_r: G.refs,
-                S_k: G.keys,
-                PNAME: G.name,
-                F_lv: G.farmLv,
+                H_c: G.coins, S_c: G.coins, S_f: G.farms, S_r: G.refs, S_k: G.keys,
+                PNAME: G.name, F_lv: G.farmLv,
                 F_mx: '×' + (1 + (G.farmLv - 1) * .2).toFixed(1),
-                F_uc: G.farmLv >= 5 ? 'макс' : getFarmCost() + ' монет',
-                K_b: G.keys + ' 🔑',
-                CH_c: G.chests,
+                F_uc: G.farmLv >= 5 ? 'макс' : window.getFarmCost() + ' монет',
+                K_b: G.keys + ' 🔑', CH_c: G.chests,
                 MY_REF: G.refCode || UID?.slice(0, 8) || '—',
                 ACT_REF: G.activatedRef || '—'
             };
@@ -1762,37 +1747,19 @@
             const cb = document.getElementById('CH_btn');
             if (cb) cb.disabled = G.chests <= 0;
 
-            renderFarmTimer();
-            renderShards();
-            renderNicks();
-            renderMissions();
-            renderBoss();
-            renderClan();
-            renderTop('b');
-            renderPodium();
+            renderFarmTimer(); renderShards(); renderNicks(); renderMissions();
+            renderBoss(); renderClan(); renderTop('b'); renderPodium();
         }
 
         function renderFarmTimer() {
-            const now = Date.now(),
-                cd = 3600000,
-                el = now - G.lastFarm;
+            const now = Date.now(), cd = 3600000, el = now - G.lastFarm;
             const rdy = el >= cd || !G.lastFarm;
             const btn = document.getElementById('F_btn');
             if (btn) btn.disabled = !rdy;
-            const pb = document.getElementById('F_pb');
-            const st = document.getElementById('F_st');
-            const fc = document.getElementById('F_cd');
+            const pb = document.getElementById('F_pb'), st = document.getElementById('F_st'), fc = document.getElementById('F_cd');
             if (!pb) return;
-            if (rdy) {
-                st.textContent = 'Готово к добыче!';
-                pb.style.width = '100%';
-                fc.textContent = '';
-            } else {
-                const r = cd - el;
-                st.textContent = 'Перезарядка...';
-                pb.style.width = Math.round(el / cd * 100) + '%';
-                fc.textContent = Math.floor(r / 60000) + 'м ' + Math.floor((r % 60000) / 1000) + 'с';
-            }
+            if (rdy) { st.textContent = 'Готово к добыче!'; pb.style.width = '100%'; fc.textContent = ''; }
+            else { const r = cd - el; st.textContent = 'Перезарядка...'; pb.style.width = Math.round(el / cd * 100) + '%'; fc.textContent = Math.floor(r / 60000) + 'м ' + Math.floor((r % 60000) / 1000) + 'с'; }
         }
 
         function renderShards() {
@@ -1810,9 +1777,8 @@
             const g = document.getElementById('NK_g');
             if (!g) return;
             g.innerHTML = Object.entries(NICK_S).map(([id, s]) => {
-                const own = G.nicks.p.includes(id),
-                    act = G.nicks.a === id;
-                return `<div class="nc${own?' own':''}${act?' act':''}" onclick="nickAct('${id}',${own})">
+                const own = G.nicks.p.includes(id), act = G.nicks.a === id;
+                return `<div class="nc${own?' own':''}${act?' act':''}" onclick="window.nickAct('${id}',${own})">
                     <div style="font-size:22px">${s.e}</div>
                     <div style="font-size:11px;color:var(--tx2);margin-top:2px">${s.n}</div>
                     <div style="font-size:10px;color:var(--gld);margin-top:2px">${own?(act?'✓ Активен':'Выбрать'):'250 💰'}</div>
@@ -1822,14 +1788,13 @@
 
         function renderMissions() {
             const e = document.getElementById('MS_l');
-            if (!e || !G.missions.active) return;
+            if (!e || !G.missions?.active) return;
             e.innerHTML = Object.values(G.missions.active).map(m => {
-                const done = m.prog >= m.t,
-                    pct = Math.min(100, Math.round(m.prog / m.t * 100));
+                const done = m.prog >= m.t, pct = Math.min(100, Math.round(m.prog / m.t * 100));
                 return `<div style="margin-bottom:10px">
                     <div class="fl" style="justify-content:space-between;margin-bottom:3px">
                         <span style="font-size:12px;font-weight:600">${m.nm}</span>
-                        ${done&&!m.claimed?`<button class="btn bgld" style="width:auto;padding:3px 9px;font-size:10px" onclick="claimM('${m.id}')">Забрать +${m.rw}🔑</button>`:m.claimed?`<span class="bdg bdg-grn">✓</span>`:`<span class="bdg bdg-pur">+${m.rw}🔑</span>`}
+                        ${done&&!m.claimed?`<button class="btn bgld" style="width:auto;padding:3px 9px;font-size:10px" onclick="window.claimM('${m.id}')">Забрать +${m.rw}🔑</button>`:m.claimed?`<span class="bdg bdg-grn">✓</span>`:`<span class="bdg bdg-pur">+${m.rw}🔑</span>`}
                     </div>
                     <div class="tm" style="margin-bottom:4px">${m.d} — ${m.prog}/${m.t}</div>
                     <div class="pb"><div class="pf ${done?'pf-grn':'pf-acc'}" style="width:${pct}%"></div></div>
@@ -1838,15 +1803,12 @@
         }
 
         function renderBoss() {
-            const now = Date.now();
-            const msk = new Date(now + 3 * 3600000);
-            const h = msk.getUTCHours();
+            const now = Date.now(), msk = new Date(now + 3 * 3600000), h = msk.getUTCHours();
             const active = (h >= 16 && h < 22);
-
             if (active && BOSS_STATE.hp <= 0) {
                 const today = msk.toISOString().slice(0, 10);
                 const killDay = new Date(BOSS_STATE.lastKill + 3 * 3600000).toISOString().slice(0, 10);
-                if (today !== killDay) { BOSS_STATE.hp = 1000; }
+                if (today !== killDay) BOSS_STATE.hp = 1000;
             }
             if (!active && h >= 22) BOSS_STATE.hp = 0;
 
@@ -1864,14 +1826,11 @@
                 document.getElementById('BS_rs').textContent = 'Следующий в 16:00 МСК';
                 if (atkBtn) atkBtn.disabled = true;
             } else {
-                const next16 = new Date(msk);
-                next16.setUTCHours(16, 0, 0, 0);
+                const next16 = new Date(msk); next16.setUTCHours(16, 0, 0, 0);
                 if (h >= 22) next16.setUTCDate(next16.getUTCDate() + 1);
                 const rem = next16 - msk;
-                const rh = Math.floor(rem / 3600000),
-                    rm = Math.floor((rem % 3600000) / 60000);
                 document.getElementById('BS_s').textContent = `Появится в 16:00 МСК`;
-                document.getElementById('BS_rs').textContent = `Через ${rh}ч ${rm}м`;
+                document.getElementById('BS_rs').textContent = `Через ${Math.floor(rem/3600000)}ч ${Math.floor((rem%3600000)/60000)}м`;
                 if (atkBtn) atkBtn.disabled = true;
             }
         }
@@ -1883,312 +1842,534 @@
             document.getElementById('CL_n').textContent = G.clan.nm;
             document.getElementById('CL_d').textContent = G.clan.d + ' 💎';
             document.getElementById('CL_m').textContent = G.clan.m.length;
-            document.getElementById('CL_ml').innerHTML = G.clan.m.map(n =>
-                `<div class="row">👤 <span>${n}</span></div>`
-            ).join('');
-            const el = Date.now() - G.clanLF,
-                cd = 6 * 3600000;
-            document.getElementById('CL_cd').textContent = el >= cd ? 'Фарм доступен!' : 'Фарм через ' + Math.ceil((cd - el) /
-                3600000) + 'ч';
+            document.getElementById('CL_ml').innerHTML = G.clan.m.map(n => `<div class="row">👤 <span>${n}</span></div>`).join('');
+            const el = Date.now() - G.clanLF, cd = 6 * 3600000;
+            document.getElementById('CL_cd').textContent = el >= cd ? 'Фарм доступен!' : 'Фарм через ' + Math.ceil((cd - el) / 3600000) + 'ч';
             document.getElementById('CL_i').textContent = ['⚔️', '🛡️', '🏹', '🗡️', '🔮'][Math.floor(Math.random() * 5)];
         }
 
-        let topLastType = 'b',
-            topUpdated = 0;
+        let topLastType = 'b', topUpdated = 0;
 
         function renderTop(tp) {
             topLastType = tp;
             const now = Date.now();
             if (now - topUpdated > 600000) {
-                DEMO_TOP.forEach(p => { p.c = Math.max(0, p.c + Math.floor(Math.random() * 400 - 100));
-                    p.f += Math.floor(Math.random() * 6); });
+                DEMO_TOP.forEach(p => {
+                    p.c = Math.max(0, p.c + Math.floor(Math.random() * 400 - 100));
+                    p.f += Math.floor(Math.random() * 6);
+                    p.r += Math.floor(Math.random() * 2);
+                    p.s = Math.min(6, p.s + (Math.random() > 0.7 ? 1 : 0));
+                });
                 topUpdated = now;
             }
             const rem = Math.max(0, Math.ceil((topUpdated + 600000 - now) / 1000));
             document.getElementById('TOP_u').textContent = rem > 30 ? `обновление через ${Math.round(rem/60)}м` : 'только что';
-            const all = [...DEMO_TOP, { n: G.name, c: G.coins, f: G.farms, r: G.refs }];
-            const key = tp === 'b' ? 'c' : tp === 'f' ? 'f' : 'r';
-            const titles = { b: 'Топ по балансу', f: 'Топ по фармам', r: 'Топ по рефералам' };
+
+            const shardCount = getShardCount();
+            const all = [...DEMO_TOP, { n: G.name, c: G.coins, f: G.farms, r: G.refs, s: shardCount }];
+            const key = tp === 'b' ? 'c' : tp === 'f' ? 'f' : tp === 'r' ? 'r' : 's';
+            const titles = { b: 'Топ по балансу', f: 'Топ по фармам', r: 'Топ по рефералам', s: 'Топ по осколкам' };
+            const symbols = { b: '💰', f: '⛏', r: '👥', s: '💎' };
             document.getElementById('TOP_t').textContent = titles[tp];
             all.sort((a, b) => b[key] - a[key]);
+            const top10 = all.slice(0, 10);
             const clrs = ['var(--gld)', '#c0c0d0', '#cd7f32'];
-            document.getElementById('TOP_l').innerHTML = all.slice(0, 8).map((p, i) => {
-                const val = tp === 'b' ? fmt(p.c) + ' 💰' : tp === 'f' ? p.f + ' ⛏' : p.r + ' 👥';
-                return `<div class="top-row">
+            document.getElementById('TOP_l').innerHTML = top10.map((p, i) => {
+                const val = tp === 's' ? `${p.s} осколков` : fmt(p[key]) + ' ' + symbols[tp];
+                const isPlayer = p.n === G.name;
+                return `<div class="top-row" style="${isPlayer ? 'background:var(--bg4);border-radius:6px;' : ''}">
                     <div style="font-size:15px;font-weight:700;min-width:22px;color:${clrs[i]||'var(--tx2)'}">${i+1}</div>
-                    <div style="flex:1;font-size:13px">${p.n}</div>
+                    <div style="flex:1;font-size:13px">${p.n} ${isPlayer ? '👈' : ''}</div>
                     <div style="color:var(--gld);font-weight:700;font-size:13px">${val}</div>
                 </div>`;
             }).join('');
         }
 
-        // ════════════════════════════════════════════════
-        // 13. РУЛЕТКА
-        // ════════════════════════════════════════════════
-        const SEG_COUNT = 20;
-        const SEGS = (() => {
-            const s = [];
-            for (let i = 0; i < SEG_COUNT; i++) {
-                if (i === 0 || i === 10) s.push('green');
-                else { const blk = (i % 2 === 0) ? 'black' : 'red';
-                    s.push(blk); }
-            }
-            return s;
-        })();
+        // ============================================================
+        // 11. РУЛЕТКА — НОВАЯ АНИМАЦИЯ
+        // ============================================================
+        const RC = document.getElementById('rouletteCanvas');
+        const rctx = RC.getContext('2d');
+        const CX = 160,
+            CY = 160,
+            OR = 148,
+            IR = 28;
 
-        const SEG_COLORS = { red: '#7f1d1d', black: '#1a1a2e', green: '#052e16' };
-        const SEG_BORDER = { red: '#ef444460', black: '#6b728060', green: '#10b98160' };
-
-        function drawRoulette(angle, result) {
-            const cv = document.getElementById('RC');
-            if (!cv) return;
-            cv.width = cv.parentElement?.offsetWidth || 360;
-            cv.height = 200;
-            const ctx = cv.getContext('2d'),
-                w = cv.width,
-                h = 200,
-                cx = w / 2,
-                cy = h / 2,
-                R = Math.min(cx, cy) - 16;
-            ctx.clearRect(0, 0, w, h);
-            ctx.beginPath();
-            ctx.arc(cx, cy, R + 4, 0, Math.PI * 2);
-            ctx.fillStyle = '#1a1a2e';
-            ctx.fill();
-
-            const n = SEG_COUNT,
-                segAngle = Math.PI * 2 / n,
-                a0 = (angle || 0) - Math.PI / 2;
-
-            SEGS.forEach((c, i) => {
-                const a1 = a0 + i * segAngle,
-                    a2 = a0 + (i + 1) * segAngle;
-                ctx.beginPath();
-                ctx.moveTo(cx, cy);
-                ctx.arc(cx, cy, R, a1, a2);
-                ctx.closePath();
-                ctx.fillStyle = SEG_COLORS[c];
-                ctx.fill();
-                ctx.strokeStyle = SEG_BORDER[c];
-                ctx.lineWidth = 1.2;
-                ctx.stroke();
-            });
-
-            ctx.beginPath();
-            ctx.arc(cx, cy, R * .15, 0, Math.PI * 2);
-            const cg = ctx.createRadialGradient(cx, cy, 0, cx, cy, R * .15);
-            cg.addColorStop(0, '#fff');
-            cg.addColorStop(1, result ? { red: '#ef4444', black: '#6b7280', green: '#10b981' } [result] : '#d0d0e0');
-            ctx.fillStyle = cg;
-            ctx.fill();
-            ctx.strokeStyle = '#ffffff40';
-            ctx.lineWidth = 2;
-            ctx.stroke();
+        const SEGS = [];
+        for (let i = 0; i < 20; i++) {
+            if (i === 0 || i === 10) SEGS.push({ c: 'green', label: i === 0 ? '0' : '00' });
+            else SEGS.push({ c: i % 2 === 0 ? 'black' : 'red', label: String(i * 2 - 1 + ((i > 10) ? 1 : 0)) });
         }
 
-        let roulRunning = false;
-
-        function startRoul(col) {
-            if (roulRunning) { toast('Уже крутится!', 'err'); return; }
-            const bet = parseInt(document.getElementById('RL_b').value || 25);
-            if (G.coins < bet) { toast('Недостаточно монет', 'err'); return; }
-            const nm = { red: 'красный', black: 'чёрный', green: 'зелёный' } [col];
-            conf(`Ставка ${bet} монет на ${nm}?`, `Коэффициент: ${col==='green'?'×5.0':'×1.75'}`,
-                () => {
-                    G.coins -= bet;
-                    roulRunning = true;
-                    document.getElementById('RL_r').textContent = 'Крутим...';
-
-                    const r = Math.random();
-                    const landed = r < .4 ? 'red' : r < .8 ? 'black' : 'green';
-
-                    const possibleIdx = SEGS.map((c, i) => c === landed ? i : -1).filter(x => x >= 0);
-                    const targetIdx = possibleIdx[Math.floor(Math.random() * possibleIdx.length)];
-                    const segAngle = Math.PI * 2 / SEG_COUNT;
-                    const targetAngle = -Math.PI / 2 - (targetIdx + 0.5) * segAngle;
-                    const spins = 5 + Math.floor(Math.random() * 4);
-                    const finalAngle = targetAngle + spins * Math.PI * 2;
-
-                    const dur = 3200,
-                        t0 = Date.now();
-
-                    function anim() {
-                        const el = Date.now() - t0,
-                            prog = Math.min(1, el / dur);
-                        const ease = 1 - Math.pow(1 - prog, 4);
-                        drawRoulette(ease * finalAngle, prog >= 1 ? landed : null);
-                        if (prog < 1) {
-                            requestAnimationFrame(anim);
-                        } else {
-                            roulRunning = false;
-                            const win = col === landed ? Math.floor(bet * (landed === 'green' ? 5 : 1.75)) : 0;
-                            if (win) G.coins += win;
-                            const lbl = { red: 'Красное 🔴', black: 'Чёрное ⚫', green: 'Зелёное 🟩' } [landed];
-                            document.getElementById('RL_r').textContent = col === landed ?
-                                `✅ ${lbl}! +${win} монет` :
-                                `❌ ${lbl} — проигрыш`;
-                            scheduleSave();
-                            renderUI();
-                            toast(col === landed ? `+${win} монет!` : 'Не повезло', col === landed ? 'gld' : 'err');
-                        }
-                    }
-                    requestAnimationFrame(anim);
-                });
-        }
-
-        // ════════════════════════════════════════════════
-        // 14. КУБИК
-        // ════════════════════════════════════════════════
-        const DICE_FACES_STR = ['⚀', '⚁', '⚂', '⚃', '⚄', '⚅'];
-        const DICE_ROT = {
-            1: { x: 0, y: 0 },
-            2: { x: -90, y: 0 },
-            3: { x: 0, y: 90 },
-            4: { x: 0, y: -90 },
-            5: { x: 90, y: 0 },
-            6: { x: 0, y: 180 }
+        const SEG_FILL = {
+            red: ['#7f1d1d', '#991b1b', '#b91c1c'],
+            black: ['#18181b', '#27272a', '#3f3f46'],
+            green: ['#14532d', '#15803d', '#16a34a']
         };
 
+        let wheelAngle = 0;
+        let ballAngle = 0;
+        let ballR = OR - 14;
+        let spinning = false;
+        let raf = null;
+        let ballResult = null;
+
+        function drawRoulette(wAngle, bAngle, bR, landed) {
+            rctx.clearRect(0, 0, 320, 320);
+
+            const woodGrad = rctx.createRadialGradient(CX, CY, OR - 2, CX, CY, OR + 14);
+            woodGrad.addColorStop(0, '#5c3a1e');
+            woodGrad.addColorStop(.5, '#8b5e3c');
+            woodGrad.addColorStop(1, '#3d2109');
+            rctx.beginPath();
+            rctx.arc(CX, CY, OR + 14, 0, Math.PI * 2);
+            rctx.fillStyle = woodGrad;
+            rctx.fill();
+
+            rctx.beginPath();
+            rctx.arc(CX, CY, OR + 14, 0, Math.PI * 2);
+            rctx.strokeStyle = '#d4a017';
+            rctx.lineWidth = 2.5;
+            rctx.stroke();
+            rctx.beginPath();
+            rctx.arc(CX, CY, OR + 1, 0, Math.PI * 2);
+            rctx.strokeStyle = '#b8860b';
+            rctx.lineWidth = 1.5;
+            rctx.stroke();
+
+            rctx.beginPath();
+            rctx.arc(CX, CY, OR - 6, 0, Math.PI * 2);
+            rctx.strokeStyle = '#1a0a00';
+            rctx.lineWidth = 12;
+            rctx.stroke();
+            rctx.beginPath();
+            rctx.arc(CX, CY, OR - 6, 0, Math.PI * 2);
+            rctx.strokeStyle = '#4a2c10';
+            rctx.lineWidth = 10;
+            rctx.stroke();
+            rctx.beginPath();
+            rctx.arc(CX, CY, OR - 6, 0, Math.PI * 2);
+            rctx.strokeStyle = '#2a1505';
+            rctx.lineWidth = 8;
+            rctx.stroke();
+
+            const n = SEGS.length;
+            const sa = Math.PI * 2 / n;
+            for (let i = 0; i < n; i++) {
+                const a1 = wAngle + i * sa - Math.PI / 2;
+                const a2 = wAngle + (i + 1) * sa - Math.PI / 2;
+                const col = SEGS[i].c;
+                const fills = SEG_FILL[col];
+
+                rctx.beginPath();
+                rctx.moveTo(CX, CY);
+                rctx.arc(CX, CY, OR - 16, a1, a2);
+                rctx.closePath();
+                rctx.fillStyle = fills[1];
+                rctx.fill();
+
+                const mid = a1 + (a2 - a1) / 2;
+                const sheen = rctx.createLinearGradient(
+                    CX + Math.cos(mid) * (OR - 40), CY + Math.sin(mid) * (OR - 40),
+                    CX + Math.cos(mid) * (OR - 16), CY + Math.sin(mid) * (OR - 16)
+                );
+                sheen.addColorStop(0, 'transparent');
+                sheen.addColorStop(1, 'rgba(255,255,255,.12)');
+                rctx.beginPath();
+                rctx.moveTo(CX, CY);
+                rctx.arc(CX, CY, OR - 16, a1, a2);
+                rctx.closePath();
+                rctx.fillStyle = sheen;
+                rctx.fill();
+
+                rctx.beginPath();
+                rctx.moveTo(CX + Math.cos(a1) * (IR + 4), CY + Math.sin(a1) * (IR + 4));
+                rctx.lineTo(CX + Math.cos(a1) * (OR - 16), CY + Math.sin(a1) * (OR - 16));
+                rctx.strokeStyle = 'rgba(255,255,255,.22)';
+                rctx.lineWidth = 0.8;
+                rctx.stroke();
+
+                const tmid = a1 + (a2 - a1) / 2;
+                const tr = OR - 30;
+                rctx.save();
+                rctx.translate(CX + Math.cos(tmid) * tr, CY + Math.sin(tmid) * tr);
+                rctx.rotate(tmid + Math.PI / 2);
+                rctx.font = `bold ${n <= 20 ? 9 : 7}px sans-serif`;
+                rctx.fillStyle = 'rgba(255,255,255,.85)';
+                rctx.textAlign = 'center';
+                rctx.textBaseline = 'middle';
+                rctx.fillText(SEGS[i].label, 0, 0);
+                rctx.restore();
+            }
+
+            const coneGrad = rctx.createRadialGradient(CX, CY, 0, CX, CY, IR + 14);
+            coneGrad.addColorStop(0, '#5c3a1e');
+            coneGrad.addColorStop(.7, '#3d2109');
+            coneGrad.addColorStop(1, '#1a0a00');
+            rctx.beginPath();
+            rctx.arc(CX, CY, IR + 14, 0, Math.PI * 2);
+            rctx.fillStyle = coneGrad;
+            rctx.fill();
+
+            rctx.beginPath();
+            rctx.arc(CX, CY, IR + 4, 0, Math.PI * 2);
+            rctx.strokeStyle = '#d4a017';
+            rctx.lineWidth = 2;
+            rctx.stroke();
+
+            const hubGrad = rctx.createRadialGradient(CX - 4, CY - 4, 0, CX, CY, IR);
+            hubGrad.addColorStop(0, '#e8d060');
+            hubGrad.addColorStop(.5, '#c8a020');
+            hubGrad.addColorStop(1, '#6b4e0b');
+            rctx.beginPath();
+            rctx.arc(CX, CY, IR, 0, Math.PI * 2);
+            rctx.fillStyle = hubGrad;
+            rctx.fill();
+
+            rctx.strokeStyle = 'rgba(0,0,0,.35)';
+            rctx.lineWidth = 1.5;
+            rctx.beginPath();
+            rctx.moveTo(CX - IR + 4, CY);
+            rctx.lineTo(CX + IR - 4, CY);
+            rctx.stroke();
+            rctx.beginPath();
+            rctx.moveTo(CX, CY - IR + 4);
+            rctx.lineTo(CX, CY + IR - 4);
+            rctx.stroke();
+
+            rctx.beginPath();
+            rctx.moveTo(CX - 7, 12);
+            rctx.lineTo(CX + 7, 12);
+            rctx.lineTo(CX, 22);
+            rctx.closePath();
+            rctx.fillStyle = '#ffd700';
+            rctx.fill();
+            rctx.strokeStyle = '#b8860b';
+            rctx.lineWidth = 1;
+            rctx.stroke();
+
+            if (!spinning && ballResult === null) return;
+            const bx = CX + Math.cos(bAngle) * bR;
+            const by = CY + Math.sin(bAngle) * bR;
+
+            rctx.beginPath();
+            rctx.arc(bx + 2, by + 2, 8, 0, Math.PI * 2);
+            rctx.fillStyle = 'rgba(0,0,0,.4)';
+            rctx.fill();
+
+            const ballGrad = rctx.createRadialGradient(bx - 3, by - 3, 1, bx, by, 8);
+            ballGrad.addColorStop(0, '#ffffff');
+            ballGrad.addColorStop(.4, '#e0e0e0');
+            ballGrad.addColorStop(1, '#a0a0a0');
+            rctx.beginPath();
+            rctx.arc(bx, by, 8, 0, Math.PI * 2);
+            rctx.fillStyle = ballGrad;
+            rctx.fill();
+            rctx.strokeStyle = 'rgba(0,0,0,.3)';
+            rctx.lineWidth = 0.5;
+            rctx.stroke();
+        }
+
+        let spinTarget = 'red';
+        let spinStartW = 0,
+            spinStartB = 0;
+        let spinDur = 4500,
+            spinT0 = 0;
+        let finalWAngle = 0,
+            finalBAngle = 0;
+        let targetSegIdx = 0;
+
+        window.spinTo = function(col) {
+            if (spinning) return;
+            spinning = true;
+            ballResult = null;
+            spinTarget = col;
+            document.getElementById('rlResult').textContent = 'Крутим...';
+
+            const possible = SEGS.map((s, i) => s.c === col ? i : -1).filter(x => x >= 0);
+            targetSegIdx = possible[Math.floor(Math.random() * possible.length)];
+            const n = SEGS.length;
+            const segAngle = Math.PI * 2 / n;
+            const targetWAngle = -Math.PI / 2 - (targetSegIdx + 0.5) * segAngle + Math.PI * 2 * (5 + Math.floor(Math.random() *
+            3));
+            finalWAngle = targetWAngle;
+
+            const bSpins = 8 + Math.floor(Math.random() * 4);
+            finalBAngle = -Math.PI / 2 + Math.PI * 2 * bSpins + Math.random() * 0.3 - 0.15;
+            ballR = OR - 14;
+
+            spinStartW = wheelAngle;
+            spinStartB = ballAngle;
+            spinT0 = performance.now();
+
+            cancelAnimationFrame(raf);
+            animSpin();
+        };
+
+        function easeOut(t) { return 1 - Math.pow(1 - t, 3.5); }
+
+        function animSpin() {
+            const now = performance.now();
+            const t = Math.min(1, (now - spinT0) / spinDur);
+            const e = easeOut(t);
+            const ballE = easeOut(Math.min(1, t * 1.1));
+
+            wheelAngle = spinStartW + (finalWAngle - spinStartW) * e;
+            ballAngle = spinStartB - (finalBAngle - spinStartB) * ballE;
+
+            if (t > 0.8) {
+                const drop = (t - 0.8) / 0.2;
+                ballR = (OR - 14) - drop * (OR - 14 - (IR + 22));
+            }
+
+            drawRoulette(wheelAngle, ballAngle, ballR, null);
+
+            if (t < 1) {
+                raf = requestAnimationFrame(animSpin);
+            } else {
+                spinning = false;
+                ballResult = SEGS[targetSegIdx];
+                const colLabel = { red: '🔴 Красный', black: '⚫ Чёрный', green: '🟢 Зелёный' } [ballResult.c];
+                document.getElementById('rlResult').textContent = `Выпало: ${colLabel} (${ballResult.label})`;
+                drawRoulette(wheelAngle, -Math.PI / 2, ballR, ballResult.c);
+            }
+        }
+
+        let idleAngle = 0;
+
+        function idleSpin() {
+            if (!spinning) {
+                idleAngle += 0.003;
+                wheelAngle = idleAngle;
+                drawRoulette(wheelAngle, ballAngle, ballR, null);
+            }
+            requestAnimationFrame(idleSpin);
+        }
+        window.drawRoulette = drawRoulette;
+        window.drawRoulette(0, -Math.PI / 2, OR - 14, null);
+        idleSpin();
+
+        // ============================================================
+        // 12. КУБИК — НОВАЯ АНИМАЦИЯ
+        // ============================================================
+        const PIP_LAYOUTS = {
+            1: [
+                [1, 1]
+            ],
+            2: [
+                [0, 0],
+                [2, 2]
+            ],
+            3: [
+                [0, 0],
+                [1, 1],
+                [2, 2]
+            ],
+            4: [
+                [0, 0],
+                [0, 2],
+                [2, 0],
+                [2, 2]
+            ],
+            5: [
+                [0, 0],
+                [0, 2],
+                [1, 1],
+                [2, 0],
+                [2, 2]
+            ],
+            6: [
+                [0, 0],
+                [0, 2],
+                [1, 0],
+                [1, 2],
+                [2, 0],
+                [2, 2]
+            ]
+        };
+
+        const CUBE_PALETTES = [
+            { face: '#1a237e', pip: '#ffffff', border: 'rgba(255,255,255,.2)' },
+            { face: '#7f1d1d', pip: '#ffffff', border: 'rgba(255,255,255,.2)' },
+            { face: '#14532d', pip: '#ffffff', border: 'rgba(255,255,255,.2)' },
+            { face: '#4a044e', pip: '#ffffff', border: 'rgba(255,255,255,.2)' },
+            { face: '#0c4a6e', pip: '#ffffff', border: 'rgba(255,255,255,.2)' },
+            { face: '#422006', pip: '#ffffff', border: 'rgba(255,255,255,.2)' },
+        ];
+
+        let curPalette = 0;
         let diceRolling = false;
-        let diceAnimFrame = null;
-        let diceColors = ['#2a1a35', '#1a2a2a', '#2a2a1a', '#1a2a2a', '#2a1a2a', '#1a1a2a'];
+        let diceAnimId2 = null;
+        let diceRx = -20,
+            diceRy = 30;
 
-        function setDiceFace(val, col) {
-            const cube = document.getElementById('diceCube');
-            if (!cube) return;
-            const colors = {
-                red: ['#7f1d1d', '#991b1b', '#b91c1c', '#6b1a1a', '#8a1a1a', '#5a1515'],
-                black: ['#1c1c2e', '#1f2037', '#252540', '#15152a', '#1a1a35', '#12122a']
-            };
-            const c = colors[col] || colors.black;
-            const faceEls = cube.querySelectorAll('.dice-face');
-            faceEls.forEach((f, i) => {
-                f.style.background = c[i % 3] || c[0];
-                f.style.borderColor = col === 'red' ? '#ef444480' : '#ffffff30';
-                f.style.boxShadow = col === 'red' ? 'inset 0 0 30px #ef444433' : 'inset 0 0 30px #ffffff11';
-            });
-            document.getElementById('d-f').textContent = DICE_FACES_STR[val - 1] || '⚀';
-            document.getElementById('d-b').textContent = DICE_FACES_STR[6 - val] || '⚅';
-            document.getElementById('d-r').textContent = DICE_FACES_STR[2];
-            document.getElementById('d-l').textContent = DICE_FACES_STR[3];
-            document.getElementById('d-t').textContent = DICE_FACES_STR[1];
-            document.getElementById('d-bo').textContent = DICE_FACES_STR[4];
-            const rot = DICE_ROT[val] || { x: 0, y: 0 };
-            cube.style.transition = 'transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)';
-            cube.style.transform = `rotateX(${rot.x}deg) rotateY(${rot.y}deg)`;
+        function buildPips(el, n, pipColor) {
+            const g = document.createElement('div');
+            g.className = 'pips';
+            g.style.cssText =
+                `display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);width:100px;height:100px;gap:0;padding:8px`;
+            for (let r = 0; r < 3; r++)
+                for (let c = 0; c < 3; c++) {
+                    const cell = document.createElement('div');
+                    cell.style.cssText = 'display:flex;align-items:center;justify-content:center';
+                    const layout = PIP_LAYOUTS[n];
+                    const hasPip = layout.some(([pr, pc]) => pr === r && pc === c);
+                    if (hasPip) {
+                        const pip = document.createElement('div');
+                        pip.style.cssText =
+                            `width:16px;height:16px;border-radius:50%;background:${pipColor};box-shadow:0 1px 3px rgba(0,0,0,.4)`;
+                        cell.appendChild(pip);
+                    }
+                    g.appendChild(cell);
+                }
+            el.innerHTML = '';
+            el.appendChild(g);
         }
 
-        function renderDiceIdle() {
+        function applyPalette(p) {
+            document.querySelectorAll('.face').forEach(f => {
+                f.style.background = p.face;
+                f.style.borderColor = p.border;
+            });
+            [1, 2, 3, 4, 5, 6].forEach((v, i) => {
+                const ids = ['f1', 'f2', 'f3', 'f4', 'f5', 'f6'];
+                const el = document.getElementById(ids[i]);
+                if (el) {
+                    const wrap = el.querySelector('.pips') || el;
+                    buildPips(wrap, v, p.pip);
+                }
+            });
+        }
+
+        (function initFaces() {
+            const faces = ['f1', 'f2', 'f3', 'f4', 'f5', 'f6'];
+            const vals = [1, 2, 3, 4, 5, 6];
+            faces.forEach((id, i) => {
+                const f = document.getElementById(id);
+                if (!f) return;
+                const wrap = document.createElement('div');
+                wrap.className = 'pips';
+                wrap.style.cssText =
+                    'display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);width:100px;height:100px;gap:0;padding:8px';
+                f.innerHTML = '';
+                f.appendChild(wrap);
+                buildPips(wrap, vals[i], '#ffffff');
+            });
+            applyPalette(CUBE_PALETTES[0]);
+        })();
+
+        window.renderDiceIdle = function() {
             const cube = document.getElementById('diceCube');
             if (!cube) return;
-            const faceEls = cube.querySelectorAll('.dice-face');
-            faceEls.forEach((f, i) => {
-                f.style.background = diceColors[i % 6] || '#1e1e35';
-                f.style.borderColor = '#ffffff20';
-                f.style.boxShadow = 'none';
-            });
-            document.getElementById('d-f').textContent = '⚄';
-            document.getElementById('d-b').textContent = '⚁';
-            document.getElementById('d-r').textContent = '⚂';
-            document.getElementById('d-l').textContent = '⚃';
-            document.getElementById('d-t').textContent = '⚀';
-            document.getElementById('d-bo').textContent = '⚅';
             cube.style.transition = 'none';
-            cube.style.transform = 'rotateX(20deg) rotateY(30deg)';
-        }
+            cube.style.transform = 'rotateX(-20deg) rotateY(30deg)';
+            applyPalette(CUBE_PALETTES[0]);
+            document.getElementById('diceResult').textContent = '';
+        };
 
-        function playDice(col) {
+        window.rollDice = function() {
             if (diceRolling) return;
-            if (G.coins < 50) { toast('Нужно 50 монет', 'err'); return; }
-            G.coins -= 50;
             diceRolling = true;
-            document.getElementById('DC_r').textContent = 'Кидаем...';
+            document.getElementById('diceResult').textContent = '';
+
             const cube = document.getElementById('diceCube');
-            let ox = 20,
-                oy = 30;
             cube.style.transition = 'none';
-            if (diceAnimFrame) cancelAnimationFrame(diceAnimFrame);
 
-            const val = Math.floor(Math.random() * 6) + 1;
-            const resultCol = val % 2 === 1 ? 'red' : 'black';
+            let t = 0;
+            let paletteTimer = 0;
+            let rx = -20,
+                ry = 30;
 
-            const colorSets = [
-                ['#7f1d1d', '#991b1b', '#b91c1c', '#6b1a1a', '#8a1a1a', '#5a1515'],
-                ['#1c1c2e', '#1f2037', '#252540', '#15152a', '#1a1a35', '#12122a'],
-                ['#2a1a35', '#1a2a2a', '#2a2a1a', '#1a2a2a', '#2a1a2a', '#1a1a2a']
-            ];
-            const faceEls = cube.querySelectorAll('.dice-face');
-
-            const dur = 2000,
-                t0 = Date.now();
+            cancelAnimationFrame(diceAnimId2);
 
             function anim() {
-                const el = Date.now() - t0;
-                if (el < dur) {
-                    const prog = el / dur,
-                        spd = 1 - prog * 0.7;
-                    const rx = ox + el * 0.8 * spd,
-                        ry = oy + el * 1.0 * spd;
-                    cube.style.transform = `rotateX(${rx}deg) rotateY(${ry}deg)`;
+                t++;
+                rx += 7.3 * (1 - t / 45);
+                ry += 11.7 * (1 - t / 45);
 
-                    const cs = colorSets[Math.floor(Math.random() * colorSets.length)];
-                    faceEls.forEach((f, i) => {
-                        f.style.background = cs[i % cs.length] || '#1e1e35';
-                        f.style.borderColor = '#ffffff30';
-                    });
+                paletteTimer++;
+                if (paletteTimer % 6 === 0) {
+                    curPalette = (curPalette + 1) % CUBE_PALETTES.length;
+                    applyPalette(CUBE_PALETTES[curPalette]);
+                }
 
-                    document.getElementById('d-f').textContent = DICE_FACES_STR[Math.floor(Math.random() * 6)];
-                    document.getElementById('d-b').textContent = DICE_FACES_STR[Math.floor(Math.random() * 6)];
-                    document.getElementById('d-r').textContent = DICE_FACES_STR[Math.floor(Math.random() * 6)];
-                    document.getElementById('d-l').textContent = DICE_FACES_STR[Math.floor(Math.random() * 6)];
-                    document.getElementById('d-t').textContent = DICE_FACES_STR[Math.floor(Math.random() * 6)];
-                    document.getElementById('d-bo').textContent = DICE_FACES_STR[Math.floor(Math.random() * 6)];
+                cube.style.transform = `rotateX(${rx}deg) rotateY(${ry}deg)`;
 
-                    diceAnimFrame = requestAnimationFrame(anim);
+                if (t < 42) {
+                    diceAnimId2 = requestAnimationFrame(anim);
                 } else {
-                    setDiceFace(val, resultCol);
-                    const base = val * 10,
-                        bonus = col === resultCol ? 10 : 0,
-                        total = base + bonus;
-                    G.coins += total;
-                    const profit = total - 50;
-                    const colorName = resultCol === 'red' ? 'красный' : 'чёрный';
-                    document.getElementById('DC_r').textContent = profit > 0 ?
-                        `✅ Выпало ${val} (${colorName})! +${profit} монет` :
-                        `❌ Выпало ${val} (${colorName}) — получено ${total}`;
+                    const val = Math.floor(Math.random() * 6) + 1;
+                    const finalPalette = { face: '#18181b', pip: '#f5f5f5', border: 'rgba(255,255,255,.18)' };
+                    applyPalette(finalPalette);
+                    const faceRots = {
+                        1: 'rotateX(0deg) rotateY(0deg)',
+                        2: 'rotateX(-90deg) rotateY(0deg)',
+                        3: 'rotateX(0deg) rotateY(-90deg)',
+                        4: 'rotateX(0deg) rotateY(90deg)',
+                        5: 'rotateX(90deg) rotateY(0deg)',
+                        6: 'rotateX(0deg) rotateY(180deg)'
+                    };
+                    cube.style.transition = 'transform 0.6s cubic-bezier(.22,.61,.36,1)';
+                    cube.style.transform = faceRots[val] || 'rotateX(0deg) rotateY(0deg)';
+
+                    const resultEl = document.getElementById('diceResult');
+                    const names = ['', 'Один', 'Два', 'Три', 'Четыре', 'Пять', 'Шесть'];
+                    resultEl.textContent = `Выпало: ${val} — ${names[val]}`;
                     diceRolling = false;
-                    scheduleSave();
-                    renderUI();
-                    toast(profit > 0 ? `+${profit} монет!` : 'Не повезло', profit > 0 ? 'gld' : 'err');
+
+                    // Возвращаем значение для ставок
+                    window._lastDiceValue = val;
+                    window._lastDiceColor = val % 2 === 1 ? 'red' : 'black';
                 }
             }
             requestAnimationFrame(anim);
-        }
+        };
 
-        // ════════════════════════════════════════════════
-        // 15. АУКЦИОН
-        // ════════════════════════════════════════════════
+        window.playDiceWithBet = function(col) {
+            if (G.coins < 50) { window.toast('Нужно 50 монет', 'err'); return; }
+            if (diceRolling) { window.toast('Кубик уже крутится', 'err'); return; }
+
+            G.coins -= 50;
+            window.rollDice();
+
+            // Ждём окончания анимации
+            const checkResult = setInterval(() => {
+                if (!diceRolling) {
+                    clearInterval(checkResult);
+                    const val = window._lastDiceValue || Math.floor(Math.random() * 6) + 1;
+                    const resultCol = val % 2 === 1 ? 'red' : 'black';
+                    const base = val * 10;
+                    const bonus = col === resultCol ? 10 : 0;
+                    const total = base + bonus;
+                    G.coins += total;
+                    const profit = total - 50;
+                    const colorName = resultCol === 'red' ? 'красный' : 'чёрный';
+                    document.getElementById('diceResult').textContent = profit > 0 ?
+                        `✅ Выпало ${val} (${colorName})! +${profit} монет` :
+                        `❌ Выпало ${val} (${colorName}) — получено ${total}`;
+                    scheduleSave();
+                    renderUI();
+                    window.toast(profit > 0 ? `+${profit} монет!` : 'Не повезло', profit > 0 ? 'gld' : 'err');
+                }
+            }, 100);
+        };
+
+        // ============================================================
+        // 13. АУКЦИОН
+        // ============================================================
         function renderPodium() {
             const podiumEl = document.getElementById('podiumList');
             if (!podiumEl) return;
-
             const bidders = G.auctionBidders || [];
-
-            if (bidders.length === 0) {
-                podiumEl.innerHTML = `<div class="tm tc" style="padding:12px;">Пока нет ставок</div>`;
-                return;
-            }
-
+            if (bidders.length === 0) { podiumEl.innerHTML =
+                `<div class="tm tc" style="padding:12px;">Пока нет ставок</div>`; return; }
             const sorted = [...bidders].sort((a, b) => b.bid - a.bid);
             const top3 = sorted.slice(0, 3);
-
-            const medals = ['🥇', '🥈', '🥉'];
-            const ranks = ['gold', 'silver', 'bronze'];
-
+            const medals = ['🥇', '🥈', '🥉'],
+                ranks = ['gold', 'silver', 'bronze'];
             podiumEl.innerHTML = top3.map((bidder, index) => {
                 const rank = index + 1;
-                const isTop1 = rank === 1;
-                return `<div class="podium-item ${isTop1 ? 'top1' : rank === 2 ? 'top2' : 'top3'}">
+                return `<div class="podium-item ${rank === 1 ? 'top1' : rank === 2 ? 'top2' : 'top3'}">
                     <div class="podium-rank ${ranks[index]}">${medals[index]}</div>
                     <div class="podium-avatar">${bidder.avatar || '👤'}</div>
                     <div class="podium-name">${bidder.name || 'Игрок'}</div>
@@ -2197,49 +2378,36 @@
             }).join('');
         }
 
-        function bid(a) {
-            if (G.coins < a) { toast('Мало монет', 'err'); return; }
+        window.bid = function(a) {
+            if (G.coins < a) { window.toast('Мало монет', 'err'); return; }
             G.coins -= a;
             G.auctionBid = (G.auctionBid || 0) + a;
-
             const existing = G.auctionBidders.find(b => b.name === G.name);
-            if (existing) {
-                existing.bid += a;
-            } else {
-                G.auctionBidders.push({
-                    name: G.name,
-                    avatar: G.nicks.a ? NICK_S[G.nicks.a]?.e || '👤' : '👤',
-                    bid: G.auctionBid
-                });
-            }
-
+            if (existing) { existing.bid += a; } else { G.auctionBidders.push({ name: G.name, avatar: G.nicks.a ? NICK_S[
+                    G.nicks.a]?.e || '👤' : '👤', bid: G.auctionBid }); }
             G.auctionBidders.sort((a, b) => b.bid - a.bid);
-            if (G.auctionBidders.length > 10) {
-                G.auctionBidders = G.auctionBidders.slice(0, 10);
-            }
-
+            if (G.auctionBidders.length > 10) G.auctionBidders = G.auctionBidders.slice(0, 10);
             document.getElementById('AU_a').textContent = G.auctionBid;
             document.getElementById('MY_b').textContent = G.auctionBid;
             document.getElementById('AU_l').textContent = 'Вы лидируете!';
-
             renderPodium();
             scheduleSave();
             renderUI();
-            toast('Ставка: ' + G.auctionBid, 'gld');
-        }
+            window.toast('Ставка: ' + G.auctionBid, 'gld');
+        };
 
-        // ════════════════════════════════════════════════
-        // 16. ИГРОВЫЕ ДЕЙСТВИЯ
-        // ════════════════════════════════════════════════
-        function doFarm() {
+        // ============================================================
+        // 14. ИГРОВЫЕ ДЕЙСТВИЯ
+        // ============================================================
+        window.doFarm = function() {
             const now = Date.now();
-            if (now - G.lastFarm < 3600000 && G.lastFarm) { toast('Кулдаун ещё не прошёл!', 'err'); return; }
+            if (now - G.lastFarm < 3600000 && G.lastFarm) { window.toast('Кулдаун ещё не прошёл!', 'err'); return; }
             const mult = 1 + (G.farmLv - 1) * .2;
             const earned = Math.round((Math.floor(Math.random() * 5) + 1) * mult);
             G.coins += earned;
             G.farms++;
             G.lastFarm = now;
-            const m = G.missions.active;
+            const m = G.missions?.active;
             if (m?.f8) m.f8.prog = Math.min(m.f8.t, (m.f8.prog || 0) + 1);
             let sm = '';
             for (const [nm, info] of Object.entries(SHARDS_C)) {
@@ -2252,75 +2420,67 @@
             }
             scheduleSave();
             renderUI();
-            toast(`+${earned} монет!${sm}`, 'gld');
-        }
+            window.toast(`+${earned} монет!${sm}`, 'gld');
+        };
 
-        function upFarm() {
-            if (G.farmLv >= 5) { toast('Максимальный уровень!', 'err'); return; }
-            const cost = getFarmCost();
-            if (G.coins < cost) { toast(`Нужно ${cost} монет`, 'err'); return; }
+        window.upFarm = function() {
+            if (G.farmLv >= 5) { window.toast('Максимальный уровень!', 'err'); return; }
+            const cost = window.getFarmCost();
+            if (G.coins < cost) { window.toast(`Нужно ${cost} монет`, 'err'); return; }
             G.coins -= cost;
             G.farmLv++;
             scheduleSave();
             renderUI();
-            toast('Шахта ур. ' + G.farmLv + '!', 'ok');
-        }
+            window.toast('Шахта ур. ' + G.farmLv + '!', 'ok');
+        };
 
-        function atkBoss() {
-            if (G.coins < 20) { toast('Нужно 20 монет', 'err'); return; }
-            if (BOSS_STATE.hp <= 0) { toast('Босс мёртв, ждите 16:00', 'err'); return; }
+        window.atkBoss = function() {
+            if (G.coins < 20) { window.toast('Нужно 20 монет', 'err'); return; }
+            if (BOSS_STATE.hp <= 0) { window.toast('Босс мёртв, ждите 16:00', 'err'); return; }
             G.coins -= 20;
             const dmg = Math.floor(Math.random() * 41) + 10;
             BOSS_STATE.hp = Math.max(0, BOSS_STATE.hp - dmg);
             let msg = '⚔️ Урон: ' + dmg;
             if (Math.random() < .2) { G.chests++;
                 msg += ' 🎁 Сундук!'; }
-            if (BOSS_STATE.hp <= 0) {
-                msg += ' 🎉 Рябчик повержён!';
+            if (BOSS_STATE.hp <= 0) { msg += ' 🎉 Рябчик повержён!';
                 G.chests += 3;
-                BOSS_STATE.lastKill = Date.now();
-            }
+                BOSS_STATE.lastKill = Date.now(); }
             document.getElementById('ATK_l').textContent = msg;
             scheduleSave();
             renderUI();
-            toast(msg, 'gld');
-        }
+            window.toast(msg, 'gld');
+        };
 
-        function openChest() {
+        window.openChest = function() {
             if (G.chests <= 0) return;
             G.chests--;
             const r = Math.random();
             let rw;
-            if (r < .5) {
-                const a = Math.floor(Math.random() * 40) + 10;
+            if (r < .5) { const a = Math.floor(Math.random() * 40) + 10;
                 G.coins += a;
-                rw = `+${a} монет`;
-            } else if (r < .8) {
-                const k = Math.floor(Math.random() * 3) + 1;
+                rw = `+${a} монет`; } else if (r < .8) { const k = Math.floor(Math.random() * 3) + 1;
                 G.keys += k;
-                rw = `+${k} ключей`;
-            } else {
-                const sn = SHARDS_LIST[Math.floor(Math.random() * SHARDS_LIST.length)];
+                rw = `+${k} ключей`; } else { const sn = SHARDS_LIST[Math.floor(Math.random() * SHARDS_LIST.length)];
                 G.shards[sn] = (G.shards[sn] || 0) + 1;
-                rw = '✨ ' + sn;
-            }
+                rw = '✨ ' + sn; }
             scheduleSave();
             renderUI();
-            toast('🎁 Сундук: ' + rw, 'gld');
-        }
+            window.toast('🎁 Сундук: ' + rw, 'gld');
+        };
 
-        function claimM(id) {
-            const m = G.missions.active?.[id];
+        window.claimM = function(id) {
+            const m = G.missions?.active?.[id];
             if (!m || m.claimed || m.prog < m.t) return;
             m.claimed = true;
             G.keys += m.rw;
             scheduleSave();
             renderUI();
-            toast(`+${m.rw} ключ!`, 'gld');
-        }
+            window.toast(`+${m.rw} ключ!`, 'gld');
+        };
 
-        function createClan() {
-            if (G.coins < 1500) { toast('Нужно 1500 монет', 'err'); return; }
+        window.createClan = function() {
+            if (G.coins < 1500) { window.toast('Нужно 1500 монет', 'err'); return; }
             const names = ['Kingdom Squad', 'Empire Crew', 'Dragon Force', 'Shadow Order', 'Titan Clan', 'Neon Warriors',
                 'Phoenix Legion', 'Frost Giants'
             ];
@@ -2329,105 +2489,120 @@
             G.clanLF = 0;
             scheduleSave();
             renderUI();
-            toast('🏰 Клан создан!', 'ok');
-        }
+            window.toast('🏰 Клан создан!', 'ok');
+        };
 
-        function disbandClan() { G.clan = null;
+        window.disbandClan = function() { G.clan = null;
             scheduleSave();
             renderUI();
-            toast('Клан распущен', 'info'); }
-
-        function clanFarm() {
+            window.toast('Клан распущен', 'info'); };
+        window.clanFarm = function() {
             if (!G.clan) return;
-            if (Date.now() - G.clanLF < 6 * 3600000) { toast('6 часов кулдаун', 'err'); return; }
+            if (Date.now() - G.clanLF < 6 * 3600000) { window.toast('6 часов кулдаун', 'err'); return; }
             const m = Math.floor(Math.random() * 3) + 1;
             G.clan.d += m;
             G.clanLF = Date.now();
             scheduleSave();
             renderUI();
-            toast(`+${m} алмазов!`, 'gld');
-        }
-
-        function exDiam(n) {
-            if (!G.clan || G.clan.d < n) { toast('Нет алмазов', 'err'); return; }
+            window.toast(`+${m} алмазов!`, 'gld');
+        };
+        window.exDiam = function(n) {
+            if (!G.clan || G.clan.d < n) { window.toast('Нет алмазов', 'err'); return; }
             G.clan.d -= n;
             G.coins += n * 5;
             scheduleSave();
             renderUI();
-            toast(`+${n*5} монет!`, 'gld');
-        }
+            window.toast(`+${n*5} монет!`, 'gld');
+        };
 
-        async function useRefCode() {
+        window.useRefCode = async function() {
             const code = document.getElementById('REF_I').value.trim();
-            if (!code) { toast('Введите код', 'err'); return; }
-            if (code === G.refCode) { toast('Это ваш код', 'err'); return; }
-            if (G.activatedRef) { toast('Код уже активирован', 'err'); return; }
+            if (!code) { window.toast('Введите код', 'err'); return; }
+            if (code === G.refCode) { window.toast('Это ваш код', 'err'); return; }
+            if (G.activatedRef) { window.toast('Код уже активирован', 'err'); return; }
             try {
                 const { ok, data } = await sbFetch(
                     `/rest/v1/users?data->>refCode=eq.${encodeURIComponent(code)}&select=id`, { noAuth: true }
                 );
-                if (!ok || !data || data.length === 0) { toast('Код не найден', 'err'); return; }
+                if (!ok || !data || data.length === 0) { window.toast('Код не найден', 'err'); return; }
                 G.activatedRef = code;
                 G.coins += 25;
                 G.refs++;
                 document.getElementById('REF_I').value = '';
                 scheduleSave();
                 renderUI();
-                toast('🎁 Код активирован! +25 монет', 'gld');
-            } catch (e) { toast('Ошибка поиска', 'err'); }
-        }
+                window.toast('🎁 Код активирован! +25 монет', 'gld');
+            } catch (e) { window.toast('Ошибка поиска', 'err'); }
+        };
 
-        function nickAct(id, owned) {
+        window.changeRefCode = async function() {
+            if (!UID) { window.toast('Сначала войдите в аккаунт', 'err'); return; }
+            const newCode = prompt('Введите новый реферальный код (4-8 символов, только буквы и цифры):');
+            if (!newCode) return;
+            if (newCode.length < 4 || newCode.length > 8) { window.toast('Код должен быть 4-8 символов', 'err'); return; }
+            if (!/^[a-zA-Z0-9]+$/.test(newCode)) { window.toast('Только буквы и цифры', 'err'); return; }
+            const { data: taken } = await sbFetch(
+                `/rest/v1/users?data->>refCode=eq.${encodeURIComponent(newCode)}&select=id`, { noAuth: true }
+            );
+            if (taken && taken.length > 0) { window.toast('Этот код уже занят', 'err'); return; }
+            G.refCode = newCode;
+            scheduleSave();
+            renderUI();
+            window.toast('Реферальный код изменён на: ' + newCode, 'ok');
+        };
+
+        window.nickAct = function(id, owned) {
             if (owned) {
                 G.nicks.a = G.nicks.a === id ? null : id;
                 scheduleSave();
                 renderUI();
-                toast('Стиль изменён!', 'ok');
+                window.toast('Стиль изменён!', 'ok');
             } else {
-                if (G.coins < 250) { toast('Нужно 250 монет', 'err'); return; }
-                conf(`Купить стиль «${NICK_S[id].n}»?`, 'Стоимость 250 монет. Стиль сразу станет активным.', () => {
+                if (G.coins < 250) { window.toast('Нужно 250 монет', 'err'); return; }
+                window.conf(`Купить стиль «${NICK_S[id].n}»?`, 'Стоимость 250 монет. Стиль сразу станет активным.', () => {
                     G.coins -= 250;
                     G.nicks.p.push(id);
                     G.nicks.a = id;
                     scheduleSave();
                     renderUI();
-                    toast('Стиль куплен!', 'gld');
+                    window.toast('Стиль куплен!', 'gld');
                 });
             }
-        }
+        };
 
-        function buyCoins(amt) { G.coins += amt;
+        window.buyCoins = function(amt) { G.coins += amt;
             scheduleSave();
             renderUI();
-            toast(`+${fmt(amt)} монет!`, 'gld'); }
-
-        function usePromo() {
+            window.toast(`+${fmt(amt)} монет!`, 'gld'); };
+        window.usePromo = function() {
             const v = document.getElementById('PR_i').value.trim().toLowerCase();
-            if (v) activatePromo(v);
+            if (v) window.activatePromo(v);
             document.getElementById('PR_i').value = '';
-        }
-
-        function activatePromo(c) {
-            if (!PROMOS[c]) { toast('Промокод не найден', 'err'); return; }
-            if (G.promos[c]) { toast('Уже использован', 'err'); return; }
+        };
+        window.activatePromo = function(c) {
+            if (!PROMOS[c]) { window.toast('Промокод не найден', 'err'); return; }
+            if (G.promos[c]) { window.toast('Уже использован', 'err'); return; }
             G.coins += PROMOS[c];
             G.promos[c] = true;
             scheduleSave();
             renderUI();
-            toast(`+${PROMOS[c]} монет!`, 'gld');
-        }
+            window.toast(`+${PROMOS[c]} монет!`, 'gld');
+        };
 
-        // ════════════════════════════════════════════════
-        // 17. ЗАПУСК
-        // ════════════════════════════════════════════════
+        // ============================================================
+        // 15. ЗАПУСК
+        // ============================================================
         document.addEventListener('DOMContentLoaded', async () => {
             aStat('⏳ Проверка сессии...', 'ld');
-            renderDiceIdle();
+            window.renderDiceIdle();
+
             const restored = await restoreSession();
+
             if (restored) {
                 showApp();
                 aStat('✅ Сессия восстановлена', 'ok');
-                toast('Добро пожаловать, ' + currentUsername + '!', 'ok');
+                window.toast('Добро пожаловать, ' + currentUsername + '!', 'ok');
+                console.log('📊 Данные:', { coins: G.coins, farms: G.farms, shards: Object.keys(G.shards).length });
             } else {
                 aStat('Готово ко входу');
             }
@@ -2436,9 +2611,7 @@
         });
 
         console.log('✅ Скрипт загружен');
-        console.log('🆔 Отпечаток устройства:', FINGERPRINT);
-        console.log('🔑 Ключ:', SB_KEY ? 'установлен' : '❌ НЕ УСТАНОВЛЕН!');
-        console.log('🔗 URL:', SB_URL ? 'установлен' : '❌ НЕ УСТАНОВЛЕН!');
+        console.log('🆔 Отпечаток:', FINGERPRINT);
     </script>
 </body>
 </html>
