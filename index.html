@@ -105,6 +105,10 @@
         .rl-label { font-size: 13px; color: var(--color-text-secondary); font-weight: 500; text-align: center; }
         .rl-canvas-wrap { position: relative; width: 320px; height: 320px; max-width: 100%; margin: 0 auto; }
         #rouletteCanvas { border-radius: 50%; display: block; width: 100%; height: 100%; }
+        /* Скрываем баннер, пока не авторизованы */
+#authWrap:not(:empty) ~ .static-banner {
+    display: none;
+}
         .rl-result { font-size: 16px; font-weight: 600; text-align: center; min-height: 28px; color: var(--color-text-primary); padding: 4px 0; }
         .rl-result.win { color: var(--gld); }
         .rl-result.lose { color: var(--red); }
