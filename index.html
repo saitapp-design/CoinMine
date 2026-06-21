@@ -105,10 +105,7 @@
         .rl-label { font-size: 13px; color: var(--color-text-secondary); font-weight: 500; text-align: center; }
         .rl-canvas-wrap { position: relative; width: 320px; height: 320px; max-width: 100%; margin: 0 auto; }
         #rouletteCanvas { border-radius: 50%; display: block; width: 100%; height: 100%; }
-        /* Скрываем баннер, пока не авторизованы */
-#authWrap:not(:empty) ~ .static-banner {
-    display: none;
-}
+       
         .rl-result { font-size: 16px; font-weight: 600; text-align: center; min-height: 28px; color: var(--color-text-primary); padding: 4px 0; }
         .rl-result.win { color: var(--gld); }
         .rl-result.lose { color: var(--red); }
@@ -850,19 +847,39 @@ async function sbFetch(path, opts = {}) {
             document.getElementById('authBtn').disabled = false;
         };
 
-        window.logoutUser = async function() {
-            if (!confirm('Выйти из аккаунта?')) return;
-            await forceSave();
-            localStorage.removeItem('cm_tok');
-            localStorage.removeItem('cm_uid');
-            localStorage.removeItem('cm_username');
-            TOKEN = null;
-            UID = null;
-            document.getElementById('appWrap').classList.remove('on');
-            document.getElementById('authWrap').style.display = 'flex';
-            aStat('Вы вышли', 'ok');
-            window.toast('До встречи!', 'ok');
-        };
+        // ============================================================
+// ВЫХОД ИЗ АККАУНТА
+// ============================================================
+window.logoutUser = async function() {
+    if (!confirm('Выйти из аккаунта?')) return;
+    
+    // Сохраняем данные
+    await forceSave();
+    
+    // Очищаем localStorage
+    localStorage.removeItem('cm_tok');
+    localStorage.removeItem('cm_uid');
+    localStorage.removeItem('cm_username');
+    
+    // Сбрасываем переменные
+    TOKEN = null;
+    UID = null;
+    
+    // Скрываем приложение
+    document.getElementById('appWrap').classList.remove('on');
+    
+    // Показываем экран авторизации
+    document.getElementById('authWrap').style.display = 'flex';
+    
+    // ✅ СКРЫВАЕМ баннер при выходе
+    const banner = document.querySelector('.static-banner');
+    if (banner) {
+        banner.style.display = 'none';
+    }
+    
+    aStat('Вы вышли', 'ok');
+    window.toast('До встречи!', 'ok');
+};
 
         async function restoreSession() {
             const t = localStorage.getItem('cm_tok');
@@ -927,18 +944,57 @@ async function sbFetch(path, opts = {}) {
         // ============================================================
         // 9. ПОКАЗ ПРИЛОЖЕНИЯ
         // ============================================================
-        function showApp() {
-            document.getElementById('authWrap').style.display = 'none';
-            document.getElementById('appWrap').classList.add('on');
-            initMissions();
-            renderUI();
-            setTimeout(() => window.drawRoulette(0, null), 100);
-            setInterval(renderFarmTimer, 1000);
-            setInterval(renderBoss, 30000);
-            setInterval(() => { if (UID) saveUserData(); }, 30000);
-            window.addEventListener('beforeunload', () => { if (UID) saveUserData(); });
-            window.toast('💾 Данные синхронизируются', 'info');
+        // ============================================================
+// ПОКАЗ ПРИЛОЖЕНИЯ
+// ============================================================
+function showApp() {
+    // Скрываем экран авторизации
+    document.getElementById('authWrap').style.display = 'none';
+    
+    // Показываем основное приложение
+    document.getElementById('appWrap').classList.add('on');
+    
+    // ✅ ПОКАЗЫВАЕМ баннер (только в приложении)
+    const banner = document.querySelector('.static-banner');
+    if (banner) {
+        banner.style.display = 'block';
+    }
+    
+    // Устанавливаем реферальный код, если его нет
+    if (!G.refCode) {
+        G.refCode = UID.slice(0, 8);
+    }
+    
+    // Инициализируем миссии
+    initMissions();
+    
+    // Отрисовываем интерфейс
+    renderUI();
+    
+    // Запускаем рулетку
+    setTimeout(() => window.drawRoulette(0, null), 100);
+    
+    // Таймеры
+    setInterval(renderFarmTimer, 1000);
+    setInterval(renderBoss, 30000);
+    
+    // Автосохранение каждые 30 секунд
+    setInterval(() => {
+        if (UID) {
+            saveUserData();
         }
+    }, 30000);
+    
+    // Сохраняем при закрытии вкладки
+    window.addEventListener('beforeunload', () => {
+        if (UID) {
+            saveUserData();
+        }
+    });
+    
+    // Уведомление
+    window.toast('💾 Данные синхронизируются', 'info');
+}
 
         function initMissions() {
             const now = Date.now();
