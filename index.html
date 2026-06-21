@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>CoinMine</title>
     <style>
-        /* ===== ВЕСЬ ВАШ CSS ОСТАЁТСЯ БЕЗ ИЗМЕНЕНИЙ ===== */
+        /* ===== ВЕСЬ CSS ===== */
         * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
         :root { --bg: #07070f; --bg2: #0d0d1c; --bg3: #131328; --bg4: #1a1a35; --acc: #7c3aed; --acc2: #9d5cf0; --gld: #f0b429; --gld2: #ffd166; --grn: #10b981; --red: #ef4444; --tx: #f0f0ff; --tx2: #9090b8; --bd: #ffffff14; --bd2: #ffffff22; --r: 12px; --r2: 6px; --gold: #ffd700; --silver: #c0c0c0; --bronze: #cd7f32; --color-text-primary: #f0f0ff; --color-text-secondary: #9090b8; --color-border-secondary: #ffffff22; --border-radius-md: 8px; --color-background-primary: #131328; --color-background-secondary: #1a1a35; --color-border-tertiary: #ffffff14; }
         html, body { height: 100%; background: #07070f; color: var(--tx); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 14px; line-height: 1.4; overflow-x: hidden; }
@@ -14,11 +14,32 @@
         @media (max-width: 700px) { body::before, body::after { display: none !important; } }
         .app { max-width: 700px; margin: 0 auto; background: var(--bg); position: relative; z-index: 1; min-height: 100vh; box-shadow: 0 0 60px rgba(0,0,0,0.8); padding-bottom: 180px; padding-top: 10px; }
         @media (max-width: 700px) { .app { max-width: 100%; } }
-        .static-banner { position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%); z-index: 55; width: calc(100% - 20px); max-width: 680px; height: 90px; border-radius: 16px; overflow: hidden; cursor: pointer; border: 2px solid var(--bd2); box-shadow: 0 8px 40px rgba(0,0,0,0.6); transition: .3s; background: var(--bg2); }
+        
+        /* ===== БАННЕР — СКРЫТ ПО УМОЛЧАНИЮ ===== */
+        .static-banner { 
+            display: none;
+            position: fixed; 
+            bottom: 100px; 
+            left: 50%; 
+            transform: translateX(-50%); 
+            z-index: 55; 
+            width: calc(100% - 20px); 
+            max-width: 680px; 
+            height: 90px; 
+            border-radius: 16px; 
+            overflow: hidden; 
+            cursor: pointer; 
+            border: 2px solid var(--bd2); 
+            box-shadow: 0 8px 40px rgba(0,0,0,0.6); 
+            transition: .3s; 
+            background: var(--bg2); 
+        }
+        .static-banner.show { display: block; }
         .static-banner:hover { border-color: var(--acc2); transform: translateX(-50%) scale(1.03); }
         .static-banner img { width: 100%; height: 100%; object-fit: cover; display: block; }
         .static-banner .placeholder { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 700; color: var(--gld); background: var(--bg3); }
         @media (max-width: 700px) { .static-banner { max-width: 95%; height: 75px; bottom: 95px; } }
+
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
         @keyframes glow { 0%, 100% { box-shadow: 0 0 20px rgba(124,58,237,0.2); } 50% { box-shadow: 0 0 40px rgba(124,58,237,0.6); } }
@@ -105,7 +126,6 @@
         .rl-label { font-size: 13px; color: var(--color-text-secondary); font-weight: 500; text-align: center; }
         .rl-canvas-wrap { position: relative; width: 320px; height: 320px; max-width: 100%; margin: 0 auto; }
         #rouletteCanvas { border-radius: 50%; display: block; width: 100%; height: 100%; }
-       
         .rl-result { font-size: 16px; font-weight: 600; text-align: center; min-height: 28px; color: var(--color-text-primary); padding: 4px 0; }
         .rl-result.win { color: var(--gld); }
         .rl-result.lose { color: var(--red); }
@@ -480,8 +500,8 @@
 
     </div>
 
-    <!-- БАННЕР -->
-    <div class="static-banner" onclick="window.open('https://t.me/minercoinsf', '_blank')">
+    <!-- БАННЕР — СКРЫТ ПО УМОЛЧАНИЮ -->
+    <div class="static-banner" id="mainBanner" onclick="window.open('https://t.me/minercoinsf', '_blank')">
         <img id="staticBannerImg" src="https://i.ibb.co/B5CTFj4c/Chat-GPT-Image-20-2026-14-52-25.png" alt="CoinMine Баннер" onerror="this.style.display='none';this.parentElement.querySelector('.placeholder').style.display='flex'">
         <div class="placeholder" style="display:none;">⛏ CoinMine</div>
     </div>
@@ -520,7 +540,7 @@
         const SB_ANON_KEY = 'sb_publishable_GLQvPbCZrDYgd7FCSp861g_poX1-Hwy';
 
         // ============================================================
-        // 2. ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ (ДОЛЖНЫ БЫТЬ ОБЪЯВЛЕНЫ ПЕРВЫМИ)
+        // 2. ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ
         // ============================================================
         function aStat(text, type) {
             const e = document.getElementById('authStatus');
@@ -545,7 +565,7 @@
             localStorage.setItem('coinmine_fp', fp);
             return fp;
         }
-        
+
         const FINGERPRINT = getFingerprint();
 
         // ============================================================
@@ -607,35 +627,30 @@
         let BOSS_STATE = { hp: 0, lastKill: 0 };
 
         // ============================================================
-// 4. API — ИСПРАВЛЕННЫЙ
-// ============================================================
-async function sbFetch(path, opts = {}) {
-    const headers = {
-        'apikey': SB_ANON_KEY,
-        'Content-Type': 'application/json',
-        'Prefer': 'return=representation',
-        ...(opts.headers || {})
-    };
-    
-    // ❌ УБИРАЕМ ТОКЕН — он не нужен, так как используем ANON_KEY
-    // if (TOKEN && !opts.noAuth) {
-    //     headers['Authorization'] = 'Bearer ' + TOKEN;
-    // }
-    
-    const r = await fetch(SB_URL + path, { ...opts, headers });
-    const txt = await r.text();
-    let d;
-    try { d = JSON.parse(txt); } catch (e) { d = txt; }
-    return { ok: r.ok, status: r.status, data: d };
-}
+        // 4. API — БЕЗ ТОКЕНА
+        // ============================================================
+        async function sbFetch(path, opts = {}) {
+            const headers = {
+                'apikey': SB_ANON_KEY,
+                'Content-Type': 'application/json',
+                'Prefer': 'return=representation',
+                ...(opts.headers || {})
+            };
+            
+            const r = await fetch(SB_URL + path, { ...opts, headers });
+            const txt = await r.text();
+            let d;
+            try { d = JSON.parse(txt); } catch (e) { d = txt; }
+            return { ok: r.ok, status: r.status, data: d };
+        }
 
         // ============================================================
-        // 5. ЗАГРУЗКА ВСЕХ ИГРОКОВ
+        // 5. ЗАГРУЗКА ИГРОКОВ
         // ============================================================
         async function loadAllPlayers() {
             try {
                 const { data, ok } = await sbFetch(
-                    `/rest/v1/users?select=username,data`, { noAuth: true }
+                    `/rest/v1/users?select=username,data`
                 );
                 if (ok && data) {
                     REAL_PLAYERS = data
@@ -659,14 +674,14 @@ async function sbFetch(path, opts = {}) {
         // ============================================================
         async function authRegister(username, password, fingerprint) {
             const { data: existing } = await sbFetch(
-                `/rest/v1/users?fingerprint=eq.${encodeURIComponent(fingerprint)}&select=id`, { noAuth: true }
+                `/rest/v1/users?fingerprint=eq.${encodeURIComponent(fingerprint)}&select=id`
             );
             if (existing && existing.length > 0) {
                 throw new Error('На этом устройстве уже есть аккаунт');
             }
 
             const { data: taken } = await sbFetch(
-                `/rest/v1/users?username=eq.${encodeURIComponent(username)}&select=id`, { noAuth: true }
+                `/rest/v1/users?username=eq.${encodeURIComponent(username)}&select=id`
             );
             if (taken && taken.length > 0) {
                 throw new Error('Этот логин уже занят');
@@ -689,8 +704,6 @@ async function sbFetch(path, opts = {}) {
 
             const { ok, data, status } = await sbFetch('/rest/v1/users', {
                 method: 'POST',
-                headers: { 'Prefer': 'return=representation' },
-                noAuth: true,
                 body: JSON.stringify(newUser)
             });
 
@@ -704,7 +717,7 @@ async function sbFetch(path, opts = {}) {
 
         async function authLogin(username, password) {
             const { data, ok } = await sbFetch(
-                `/rest/v1/users?username=eq.${encodeURIComponent(username)}&password=eq.${encodeURIComponent(password)}&select=id,username,data,boss,fingerprint`, { noAuth: true }
+                `/rest/v1/users?username=eq.${encodeURIComponent(username)}&password=eq.${encodeURIComponent(password)}&select=id,username,data,boss,fingerprint`
             );
 
             if (!ok || !data || data.length === 0) {
@@ -720,7 +733,6 @@ async function sbFetch(path, opts = {}) {
             if (!user.fingerprint) {
                 await sbFetch(`/rest/v1/users?id=eq.${user.id}`, {
                     method: 'PATCH',
-                    noAuth: true,
                     body: JSON.stringify({ fingerprint: FINGERPRINT })
                 });
             }
@@ -733,11 +745,9 @@ async function sbFetch(path, opts = {}) {
 
             if (!G.refCode) G.refCode = user.id.slice(0, 8);
 
-            TOKEN = 'temp_' + Date.now() + '_' + user.id;
             UID = user.id;
             currentUsername = username;
 
-            localStorage.setItem('cm_tok', TOKEN);
             localStorage.setItem('cm_uid', UID);
             localStorage.setItem('cm_username', username);
 
@@ -801,7 +811,70 @@ async function sbFetch(path, opts = {}) {
         }
 
         // ============================================================
-        // 8. АВТОРИЗАЦИЯ UI (ВСЕ ФУНКЦИИ ВЫНЕСЕНЫ В window)
+        // 8. ВОССТАНОВЛЕНИЕ СЕССИИ
+        // ============================================================
+        async function restoreSession() {
+            const u = localStorage.getItem('cm_uid');
+            const username = localStorage.getItem('cm_username');
+            
+            if (!u || !username) {
+                console.log('❌ Нет сохранённой сессии');
+                return false;
+            }
+
+            UID = u;
+            currentUsername = username;
+
+            console.log('🔄 Загрузка данных для:', UID);
+
+            try {
+                const { data, ok } = await sbFetch(
+                    `/rest/v1/users?id=eq.${UID}&select=id,username,data,boss,fingerprint`
+                );
+                
+                if (ok && data && data.length > 0) {
+                    const user = data[0];
+                    if (user.data) {
+                        const p = user.data;
+                        Object.keys(G).forEach(k => { if (p[k] !== undefined) G[k] = p[k]; });
+                    }
+                    if (user.boss) Object.assign(BOSS_STATE, user.boss);
+                    if (!G.refCode) G.refCode = UID.slice(0, 8);
+                    console.log('✅ Данные загружены, монет:', G.coins);
+                    await loadAllPlayers();
+                    return true;
+                } else {
+                    console.log('❌ Пользователь не найден');
+                    return false;
+                }
+            } catch (e) { 
+                console.error('❌ Ошибка загрузки:', e); 
+                return false;
+            }
+        }
+
+        // ============================================================
+        // 9. УПРАВЛЕНИЕ БАННЕРОМ
+        // ============================================================
+        function toggleBanner(show) {
+            const banner = document.getElementById('mainBanner');
+            if (banner) {
+                banner.style.display = show ? 'block' : 'none';
+                console.log('📢 Баннер:', show ? 'ПОКАЗАН' : 'СКРЫТ');
+            }
+        }
+
+        // СКРЫВАЕМ баннер сразу при загрузке
+        (function() {
+            const banner = document.getElementById('mainBanner');
+            if (banner) {
+                banner.style.display = 'none';
+            }
+            console.log('📢 Баннер скрыт на экране входа');
+        })();
+
+        // ============================================================
+        // 10. АВТОРИЗАЦИЯ UI
         // ============================================================
         window.setAuthMode = function(m) {
             authMode = m;
@@ -847,154 +920,42 @@ async function sbFetch(path, opts = {}) {
             document.getElementById('authBtn').disabled = false;
         };
 
+        window.logoutUser = async function() {
+            if (!confirm('Выйти из аккаунта?')) return;
+            await forceSave();
+            localStorage.removeItem('cm_uid');
+            localStorage.removeItem('cm_username');
+            UID = null;
+            document.getElementById('appWrap').classList.remove('on');
+            document.getElementById('authWrap').style.display = 'flex';
+            
+            // ✅ СКРЫВАЕМ баннер при выходе
+            toggleBanner(false);
+            
+            aStat('Вы вышли', 'ok');
+            window.toast('До встречи!', 'ok');
+        };
+
         // ============================================================
-// ВЫХОД ИЗ АККАУНТА
-// ============================================================
-window.logoutUser = async function() {
-    if (!confirm('Выйти из аккаунта?')) return;
-    
-    // Сохраняем данные
-    await forceSave();
-    
-    // Очищаем localStorage
-    localStorage.removeItem('cm_tok');
-    localStorage.removeItem('cm_uid');
-    localStorage.removeItem('cm_username');
-    
-    // Сбрасываем переменные
-    TOKEN = null;
-    UID = null;
-    
-    // Скрываем приложение
-    document.getElementById('appWrap').classList.remove('on');
-    
-    // Показываем экран авторизации
-    document.getElementById('authWrap').style.display = 'flex';
-    
-    // ✅ СКРЫВАЕМ баннер при выходе
-    const banner = document.querySelector('.static-banner');
-    if (banner) {
-        banner.style.display = 'none';
-    }
-    
-    aStat('Вы вышли', 'ok');
-    window.toast('До встречи!', 'ok');
-};
-
-        async function restoreSession() {
-            const t = localStorage.getItem('cm_tok');
-            const u = localStorage.getItem('cm_uid');
-            const username = localStorage.getItem('cm_username');
-            if (!t || !u || !username) return false;
-
-            TOKEN = t;
-            UID = u;
-            currentUsername = username;
-
-            try {
-                console.log('🔄 Загрузка данных для:', UID);
-                
-                const { data, ok } = await sbFetch(
-                    `/rest/v1/users?id=eq.${UID}&select=id,username,data,boss,fingerprint`, { noAuth: true }
-                );
-                
-                if (ok && data && data.length > 0) {
-                    const user = data[0];
-                    if (user.data) {
-                        const p = user.data;
-                        Object.keys(G).forEach(k => { if (p[k] !== undefined) G[k] = p[k]; });
-                    }
-                    if (user.boss) Object.assign(BOSS_STATE, user.boss);
-                    if (!G.refCode) G.refCode = UID.slice(0, 8);
-                    console.log('✅ Данные загружены, монет:', G.coins);
-                    await loadAllPlayers();
-                    return true;
-                } else {
-                    console.log('❌ Пользователь не найден, создаём...');
-                    const newUser = {
-                        id: UID,
-                        username: currentUsername,
-                        password: 'temp',
-                        fingerprint: FINGERPRINT,
-                        data: G,
-                        boss: BOSS_STATE,
-                        created_at: new Date().toISOString(),
-                        updated_at: new Date().toISOString()
-                    };
-                    
-                    const { ok: created } = await sbFetch('/rest/v1/users', {
-                        method: 'POST',
-                        body: JSON.stringify(newUser),
-                        noAuth: true
-                    });
-                    
-                    if (created) {
-                        console.log('✅ Запись создана');
-                        await loadAllPlayers();
-                        return true;
-                    }
-                    return false;
-                }
-            } catch (e) { 
-                console.error('❌ Ошибка загрузки:', e); 
-                return false;
-            }
+        // 11. ПОКАЗ ПРИЛОЖЕНИЯ
+        // ============================================================
+        function showApp() {
+            document.getElementById('authWrap').style.display = 'none';
+            document.getElementById('appWrap').classList.add('on');
+            
+            // ✅ ПОКАЗЫВАЕМ баннер
+            toggleBanner(true);
+            
+            if (!G.refCode) G.refCode = UID.slice(0, 8);
+            initMissions();
+            renderUI();
+            setTimeout(() => window.drawRoulette(0, null), 100);
+            setInterval(renderFarmTimer, 1000);
+            setInterval(renderBoss, 30000);
+            setInterval(() => { if (UID) saveUserData(); }, 30000);
+            window.addEventListener('beforeunload', () => { if (UID) saveUserData(); });
+            window.toast('💾 Данные синхронизируются', 'info');
         }
-
-        // ============================================================
-        // 9. ПОКАЗ ПРИЛОЖЕНИЯ
-        // ============================================================
-        // ============================================================
-// ПОКАЗ ПРИЛОЖЕНИЯ
-// ============================================================
-function showApp() {
-    // Скрываем экран авторизации
-    document.getElementById('authWrap').style.display = 'none';
-    
-    // Показываем основное приложение
-    document.getElementById('appWrap').classList.add('on');
-    
-    // ✅ ПОКАЗЫВАЕМ баннер (только в приложении)
-    const banner = document.querySelector('.static-banner');
-    if (banner) {
-        banner.style.display = 'block';
-    }
-    
-    // Устанавливаем реферальный код, если его нет
-    if (!G.refCode) {
-        G.refCode = UID.slice(0, 8);
-    }
-    
-    // Инициализируем миссии
-    initMissions();
-    
-    // Отрисовываем интерфейс
-    renderUI();
-    
-    // Запускаем рулетку
-    setTimeout(() => window.drawRoulette(0, null), 100);
-    
-    // Таймеры
-    setInterval(renderFarmTimer, 1000);
-    setInterval(renderBoss, 30000);
-    
-    // Автосохранение каждые 30 секунд
-    setInterval(() => {
-        if (UID) {
-            saveUserData();
-        }
-    }, 30000);
-    
-    // Сохраняем при закрытии вкладки
-    window.addEventListener('beforeunload', () => {
-        if (UID) {
-            saveUserData();
-        }
-    });
-    
-    // Уведомление
-    window.toast('💾 Данные синхронизируются', 'info');
-}
 
         function initMissions() {
             const now = Date.now();
@@ -1006,7 +967,7 @@ function showApp() {
         }
 
         // ============================================================
-        // 10. ОСТАЛЬНЫЕ ФУНКЦИИ (ВЫНЕСЕНЫ В window)
+        // 12. ОСТАЛЬНЫЕ ФУНКЦИИ
         // ============================================================
         window.toast = function(msg, t) {
             const e = document.getElementById('TOAST');
@@ -1028,7 +989,7 @@ function showApp() {
         function fmt(n) { return Math.round(n).toLocaleString('ru'); }
 
         // ============================================================
-        // 11. НАВИГАЦИЯ И UI
+        // 13. НАВИГАЦИЯ И UI
         // ============================================================
         window.goSc = function(nm) {
             document.querySelectorAll('.sc').forEach(s => s.classList.remove('on'));
@@ -1083,7 +1044,7 @@ function showApp() {
         };
 
         // ============================================================
-        // 12. ОТРИСОВКА
+        // 14. ОТРИСОВКА
         // ============================================================
         function renderUI() {
             const sets = {
@@ -1290,7 +1251,7 @@ function showApp() {
         }
 
         // ============================================================
-        // 13. РУЛЕТКА
+        // 15. РУЛЕТКА
         // ============================================================
         const RC = document.getElementById('rouletteCanvas');
         const rctx = RC.getContext('2d');
@@ -1614,7 +1575,7 @@ function showApp() {
         idleSpin();
 
         // ============================================================
-        // 14. КУБИК
+        // 16. КУБИК
         // ============================================================
         const PIP_LAYOUTS = {
             1: [
@@ -1839,7 +1800,7 @@ function showApp() {
         };
 
         // ============================================================
-        // 15. ОСТАЛЬНЫЕ ИГРОВЫЕ ДЕЙСТВИЯ
+        // 17. ОСТАЛЬНЫЕ ИГРОВЫЕ ДЕЙСТВИЯ
         // ============================================================
         function renderPodium() {
             const podiumEl = document.getElementById('podiumList');
@@ -2003,7 +1964,7 @@ function showApp() {
             if (G.activatedRef) { window.toast('Код уже активирован', 'err'); return; }
             try {
                 const { ok, data } = await sbFetch(
-                    `/rest/v1/users?data->>refCode=eq.${encodeURIComponent(code)}&select=id`, { noAuth: true }
+                    `/rest/v1/users?data->>refCode=eq.${encodeURIComponent(code)}&select=id`
                 );
                 if (!ok || !data || data.length === 0) { window.toast('Код не найден', 'err'); return; }
                 G.activatedRef = code;
@@ -2023,7 +1984,7 @@ function showApp() {
             if (newCode.length < 4 || newCode.length > 8) { window.toast('Код должен быть 4-8 символов', 'err'); return; }
             if (!/^[a-zA-Z0-9]+$/.test(newCode)) { window.toast('Только буквы и цифры', 'err'); return; }
             const { data: taken } = await sbFetch(
-                `/rest/v1/users?data->>refCode=eq.${encodeURIComponent(newCode)}&select=id`, { noAuth: true }
+                `/rest/v1/users?data->>refCode=eq.${encodeURIComponent(newCode)}&select=id`
             );
             if (taken && taken.length > 0) { window.toast('Этот код уже занят', 'err'); return; }
             G.refCode = newCode;
@@ -2071,7 +2032,7 @@ function showApp() {
         };
 
         // ============================================================
-        // 16. ЗАПУСК
+        // 18. ЗАПУСК
         // ============================================================
         document.addEventListener('DOMContentLoaded', async () => {
             aStat('⏳ Проверка сессии...', 'ld');
