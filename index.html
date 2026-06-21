@@ -25,7 +25,7 @@
             z-index: 55; 
             width: calc(100% - 20px); 
             max-width: 660px; 
-            height: 110px; 
+            height: 100px; 
             border-radius: 16px; 
             overflow: hidden; 
             cursor: pointer; 
@@ -538,6 +538,13 @@
         // ============================================================
         const SB_URL = 'https://mazccbkzurbryzusajqc.supabase.co';
         const SB_ANON_KEY = 'sb_publishable_GLQvPbCZrDYgd7FCSp861g_poX1-Hwy';
+        
+        // ============================================================
+        // ОПТИМИЗИРОВАННЫЕ НАСТРОЙКИ
+        // ============================================================
+        const SAVE_INTERVAL = 5000; // 5 секунд между сохранениями (было 2)
+        const TOP_CACHE_TIME = 300000; // 5 минут кеш топа
+        const TOP_LIMIT = 10; // Показываем только топ-10
 
         // ============================================================
         // 2. ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ
@@ -579,6 +586,7 @@
         let currentUsername = '';
         let isSaving = false;
         let saveQueue = [];
+        let pendingChanges = false;
 
         const NICK_S = {
             gold: { e: '🌟', n: 'Золотой' },
@@ -613,7 +621,12 @@
 
         const FARM_COSTS = [50, 100, 250, 500, 1000];
 
-        let REAL_PLAYERS = [];
+        // ===== КЕШ ТОПА =====
+        let topCache = {
+            data: null,
+            timestamp: 0,
+            type: 'b'
+        };
 
         let G = {
             coins: 0, farms: 0, refs: 0, keys: 0, lastFarm: 0, farmLv: 1,
@@ -645,27 +658,65 @@
         }
 
         // ============================================================
-        // 5. ЗАГРУЗКА ИГРОКОВ
+        // 5. ЗАГРУЗКА ТОП-10 ИГРОКОВ (ОПТИМИЗИРОВАННАЯ)
         // ============================================================
-        async function loadAllPlayers() {
+        async function loadTopPlayers(tp = 'b') {
+            // Проверяем кеш
+            const now = Date.now();
+            if (topCache.data && topCache.type === tp && now - topCache.timestamp < TOP_CACHE_TIME) {
+                console.log('📊 Топ из кеша (', tp, ')');
+                return topCache.data;
+            }
+
             try {
-                const { data, ok } = await sbFetch(
-                    `/rest/v1/users?select=username,data`
+                // Загружаем только топ-10 с нужными полями
+                const fieldMap = {
+                    'b': 'coins',
+                    'f': 'farms',
+                    'r': 'refs',
+                    's': 'shards_count'
+                };
+                
+                // Для осколков считаем количество в JavaScript
+                let { data, ok } = await sbFetch(
+                    `/rest/v1/users?select=username,data&limit=${TOP_LIMIT + 5}`
                 );
+                
                 if (ok && data) {
-                    REAL_PLAYERS = data
+                    // Преобразуем данные
+                    let players = data
                         .filter(u => u.username && u.data)
-                        .map(u => ({
-                            n: u.username,
-                            c: u.data.coins || 0,
-                            f: u.data.farms || 0,
-                            r: u.data.refs || 0,
-                            s: u.data.shards ? Object.keys(u.data.shards).filter(k => u.data.shards[k] > 0).length : 0
-                        }));
-                    console.log('👥 Загружено игроков:', REAL_PLAYERS.length);
+                        .map(u => {
+                            const shardCount = u.data.shards ? 
+                                Object.keys(u.data.shards).filter(k => u.data.shards[k] > 0).length : 0;
+                            return {
+                                n: u.username,
+                                c: u.data.coins || 0,
+                                f: u.data.farms || 0,
+                                r: u.data.refs || 0,
+                                s: shardCount
+                            };
+                        });
+                    
+                    // Сортируем по нужному полю
+                    const sortKey = tp === 'b' ? 'c' : tp === 'f' ? 'f' : tp === 'r' ? 'r' : 's';
+                    players.sort((a, b) => (b[sortKey] || 0) - (a[sortKey] || 0));
+                    
+                    // Берём только топ-10
+                    players = players.slice(0, TOP_LIMIT);
+                    
+                    // Сохраняем в кеш
+                    topCache.data = players;
+                    topCache.timestamp = now;
+                    topCache.type = tp;
+                    
+                    console.log('📊 Загружено топ-10 (', tp, '):', players.length);
+                    return players;
                 }
+                return [];
             } catch (e) {
-                console.error('❌ Ошибка загрузки игроков:', e);
+                console.error('❌ Ошибка загрузки топа:', e);
+                return topCache.data || [];
             }
         }
 
@@ -751,14 +802,26 @@
             localStorage.setItem('cm_uid', UID);
             localStorage.setItem('cm_username', username);
 
-            await loadAllPlayers();
+            // Загружаем топ при входе
+            await loadTopPlayers('b');
 
             return user;
         }
 
         // ============================================================
-        // 7. СОХРАНЕНИЕ
+        // 7. СОХРАНЕНИЕ — ОПТИМИЗИРОВАННОЕ
         // ============================================================
+        function scheduleSave() {
+            pendingChanges = true;
+            clearTimeout(saveTimer);
+            saveTimer = setTimeout(() => {
+                if (pendingChanges) {
+                    saveUserData();
+                    pendingChanges = false;
+                }
+            }, SAVE_INTERVAL);
+        }
+
         async function saveUserData() {
             if (!UID) return false;
             if (isSaving) { saveQueue.push(Date.now()); return false; }
@@ -800,13 +863,9 @@
             }
         }
 
-        function scheduleSave() {
-            clearTimeout(saveTimer);
-            saveTimer = setTimeout(() => saveUserData(), 2000);
-        }
-
         async function forceSave() {
             clearTimeout(saveTimer);
+            pendingChanges = true;
             return await saveUserData();
         }
 
@@ -841,7 +900,7 @@
                     if (user.boss) Object.assign(BOSS_STATE, user.boss);
                     if (!G.refCode) G.refCode = UID.slice(0, 8);
                     console.log('✅ Данные загружены, монет:', G.coins);
-                    await loadAllPlayers();
+                    await loadTopPlayers('b');
                     return true;
                 } else {
                     console.log('❌ Пользователь не найден');
@@ -929,7 +988,7 @@
             document.getElementById('appWrap').classList.remove('on');
             document.getElementById('authWrap').style.display = 'flex';
             
-            // ✅ СКРЫВАЕМ баннер при выходе
+            // СКРЫВАЕМ баннер при выходе
             toggleBanner(false);
             
             aStat('Вы вышли', 'ok');
@@ -943,7 +1002,7 @@
             document.getElementById('authWrap').style.display = 'none';
             document.getElementById('appWrap').classList.add('on');
             
-            // ✅ ПОКАЗЫВАЕМ баннер
+            // ПОКАЗЫВАЕМ баннер
             toggleBanner(true);
             
             if (!G.refCode) G.refCode = UID.slice(0, 8);
@@ -1192,24 +1251,34 @@
             document.getElementById('CL_i').textContent = ['⚔️', '🛡️', '🏹', '🗡️', '🔮'][Math.floor(Math.random() * 5)];
         }
 
-        let topLastType = 'b',
-            topUpdated = 0;
+        // ============================================================
+        // 15. ОТРИСОВКА ТОПА — ТОЛЬКО ТОП-10
+        // ============================================================
+        let topLastType = 'b';
+        let topRenderTimestamp = 0;
 
-        function renderTop(tp) {
+        async function renderTop(tp) {
             topLastType = tp;
+            
+            // Показываем "обновляется" если кеш устарел
             const now = Date.now();
-            if (now - topUpdated > 600000) {
-                loadAllPlayers();
-                topUpdated = now;
+            const isCacheValid = topCache.data && topCache.type === tp && now - topCache.timestamp < TOP_CACHE_TIME;
+            
+            if (!isCacheValid) {
+                document.getElementById('TOP_u').textContent = '⏳ загрузка...';
+                await loadTopPlayers(tp);
             }
-
-            const rem = Math.max(0, Math.ceil((topUpdated + 600000 - now) / 1000));
+            
+            const rem = Math.max(0, Math.ceil((topCache.timestamp + TOP_CACHE_TIME - now) / 1000));
             document.getElementById('TOP_u').textContent = rem > 30 ? `обновление через ${Math.round(rem/60)}м` : 'только что';
 
             const shardCount = getShardCount();
-            const all = [...REAL_PLAYERS];
+            const topPlayers = topCache.data || [];
+            
+            // Добавляем текущего игрока в список, если его нет в топе
+            const all = [...topPlayers];
             const exists = all.some(p => p.n === G.name);
-            if (!exists) {
+            if (!exists && G.name) {
                 all.push({ n: G.name, c: G.coins, f: G.farms, r: G.refs, s: shardCount });
             }
 
@@ -1234,9 +1303,10 @@
             };
 
             document.getElementById('TOP_t').textContent = titles[tp];
+            
+            // Сортируем и показываем топ-10
             all.sort((a, b) => (b[key] || 0) - (a[key] || 0));
-
-            const top10 = all.slice(0, 10);
+            const top10 = all.slice(0, TOP_LIMIT);
             const clrs = ['var(--gld)', '#c0c0d0', '#cd7f32'];
 
             document.getElementById('TOP_l').innerHTML = top10.map((p, i) => {
@@ -1251,7 +1321,7 @@
         }
 
         // ============================================================
-        // 15. РУЛЕТКА
+        // 16. РУЛЕТКА
         // ============================================================
         const RC = document.getElementById('rouletteCanvas');
         const rctx = RC.getContext('2d');
@@ -1575,7 +1645,7 @@
         idleSpin();
 
         // ============================================================
-        // 16. КУБИК
+        // 17. КУБИК
         // ============================================================
         const PIP_LAYOUTS = {
             1: [
@@ -1800,7 +1870,7 @@
         };
 
         // ============================================================
-        // 17. ОСТАЛЬНЫЕ ИГРОВЫЕ ДЕЙСТВИЯ
+        // 18. ОСТАЛЬНЫЕ ИГРОВЫЕ ДЕЙСТВИЯ
         // ============================================================
         function renderPodium() {
             const podiumEl = document.getElementById('podiumList');
@@ -2032,7 +2102,7 @@
         };
 
         // ============================================================
-        // 18. ЗАПУСК
+        // 19. ЗАПУСК
         // ============================================================
         document.addEventListener('DOMContentLoaded', async () => {
             aStat('⏳ Проверка сессии...', 'ld');
