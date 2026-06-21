@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>CoinMine</title>
+    <!-- Подключаем howler.js для звука -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.3/howler.min.js"></script>
     <style>
         /* ===== ВЕСЬ CSS ===== */
         * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
@@ -71,8 +73,38 @@
         #appWrap.on { display: flex; }
         .hdr { background: var(--bg2); border-bottom: 1px solid var(--bd); padding: 10px 14px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 60; backdrop-filter: blur(10px); background: rgba(13,13,28,0.9); }
         .hdr-logo { font-size: 18px; font-weight: 800; background: linear-gradient(135deg, var(--gld), var(--gld2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .hdr-bal { display: flex; align-items: center; gap: 5px; background: var(--bg3); border: 1px solid #f0b42930; border-radius: 20px; padding: 5px 14px; font-size: 14px; font-weight: 700; color: var(--gld); transition: .3s; }
+        .hdr-bal { 
+            display: flex; 
+            align-items: center; 
+            gap: 8px; 
+            background: var(--bg3); 
+            border: 1px solid #f0b42930; 
+            border-radius: 20px; 
+            padding: 5px 14px; 
+            font-size: 14px; 
+            font-weight: 700; 
+            color: var(--gld); 
+            transition: .3s; 
+        }
         .hdr-bal:hover { border-color: var(--gld); box-shadow: 0 0 20px #f0b42922; }
+        .hdr-bal .music-btn {
+            background: none;
+            border: none;
+            color: var(--tx2);
+            font-size: 16px;
+            cursor: pointer;
+            padding: 0 4px;
+            transition: .3s;
+            display: flex;
+            align-items: center;
+        }
+        .hdr-bal .music-btn:hover {
+            color: var(--gld);
+            transform: scale(1.1);
+        }
+        .hdr-bal .music-btn.on {
+            color: var(--gld);
+        }
         .screens { flex: 1; padding: 10px 10px 0; display: flex; flex-direction: column; gap: 10px; }
         .sc { display: none; flex-direction: column; gap: 10px; padding-bottom: 10px; }
         .sc.on { display: flex; animation: fadeIn 0.3s ease; }
@@ -96,20 +128,8 @@
         .row { display: flex; align-items: center; gap: 9px; padding: 8px 0; border-bottom: 1px solid var(--bd); transition: .3s; }
         .row:last-child { border-bottom: none; }
         .row:hover { background: var(--bg4); margin: 0 -8px; padding: 8px 8px; border-radius: 6px; }
-        .pb { 
-            background: var(--bg4); 
-            border-radius: 20px; 
-            height: 6px; 
-            overflow: hidden; 
-            width: 100%; 
-            position: relative;
-        }
-        .pf { 
-            height: 100%; 
-            border-radius: 20px; 
-            transition: width .6s ease; 
-            width: 100%;
-        }
+        .pb { background: var(--bg4); border-radius: 20px; height: 6px; overflow: hidden; width: 100%; position: relative; }
+        .pf { height: 100%; border-radius: 20px; transition: width .6s ease; width: 100%; }
         .pf-gld { background: linear-gradient(90deg, #b87800, var(--gld)); }
         .pf-acc { background: linear-gradient(90deg, var(--acc), var(--acc2)); }
         .pf-grn { background: var(--grn); }
@@ -207,214 +227,42 @@
         .hl { color: var(--gld); font-weight: 700; }
         :root { --acc3: #c4a0ff; --r3: 4px; }
 
-        /* ===== АВАТАРКИ — ИСПРАВЛЕННАЯ МОБИЛЬНАЯ ВЕРСИЯ ===== */
-        .avatar-wrap {
-            position: relative;
-            cursor: pointer;
-            flex-shrink: 0;
-            display: inline-block;
-        }
-        .avatar-preview {
-            width: 52px;
-            height: 52px;
-            border-radius: 50%;
-            background: #190a35;
-            border: 2px solid var(--acc);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0;
-            transition: .3s;
-            overflow: hidden;
-            flex-shrink: 0;
-        }
-        .avatar-preview img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-        .avatar-preview:hover {
-            border-color: var(--gld);
-            transform: scale(1.05);
-        }
-
-        /* ПОДСКАЗКА — СМЕЩЕНА НИЖЕ */
-        .avatar-hint {
-            position: absolute;
-            bottom: -18px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(0,0,0,0.85);
-            color: var(--tx2);
-            font-size: 8px;
-            padding: 2px 8px;
-            border-radius: 10px;
-            white-space: nowrap;
-            opacity: 0;
-            transition: .3s;
-            pointer-events: none;
-            border: 1px solid var(--bd2);
-            z-index: 5;
-            width: auto;
-        }
-        .avatar-wrap:hover .avatar-hint {
-            opacity: 1;
-        }
-
-        /* СЕЛЕКТОР — ЦЕНТРИРОВАН */
-        .avatar-selector {
-            position: absolute;
-            top: 58px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: var(--bg3);
-            border: 1px solid var(--bd2);
-            border-radius: var(--r);
-            padding: 12px;
-            opacity: 0;
-            pointer-events: none;
-            transition: .3s;
-            z-index: 100;
-            width: 220px;
-            max-width: 85vw;
-            box-shadow: 0 8px 40px rgba(0,0,0,0.8);
-        }
-        .avatar-selector.show {
-            opacity: 1;
-            pointer-events: auto;
-        }
-        .avatar-selector-title {
-            text-align: center;
-            color: var(--tx2);
-            font-size: 11px;
-            margin-bottom: 8px;
-        }
-        .avatar-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 8px;
-            margin-bottom: 4px;
-        }
-        .avatar-option {
-            width: 100%;
-            aspect-ratio: 1/1;
-            border-radius: 12px;
-            border: 2px solid transparent;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: .3s;
-            background: var(--bg4);
-            overflow: hidden;
-            padding: 4px;
-        }
-        .avatar-option img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            border-radius: 8px;
-        }
-        .avatar-option:hover {
-            border-color: var(--acc2);
-            transform: scale(1.05);
-        }
-        .avatar-option.active {
-            border-color: var(--gld);
-            box-shadow: 0 0 20px #f0b42944;
-        }
+        /* ===== АВАТАРКИ ===== */
+        .avatar-wrap { position: relative; cursor: pointer; flex-shrink: 0; display: inline-block; }
+        .avatar-preview { width: 52px; height: 52px; border-radius: 50%; background: #190a35; border: 2px solid var(--acc); display: flex; align-items: center; justify-content: center; font-size: 0; transition: .3s; overflow: hidden; flex-shrink: 0; }
+        .avatar-preview img { width: 100%; height: 100%; object-fit: cover; }
+        .avatar-preview:hover { border-color: var(--gld); transform: scale(1.05); }
+        .avatar-hint { position: absolute; bottom: -18px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.85); color: var(--tx2); font-size: 8px; padding: 2px 8px; border-radius: 10px; white-space: nowrap; opacity: 0; transition: .3s; pointer-events: none; border: 1px solid var(--bd2); z-index: 5; width: auto; }
+        .avatar-wrap:hover .avatar-hint { opacity: 1; }
+        .avatar-selector { position: absolute; top: 58px; left: 50%; transform: translateX(-50%); background: var(--bg3); border: 1px solid var(--bd2); border-radius: var(--r); padding: 12px; opacity: 0; pointer-events: none; transition: .3s; z-index: 100; width: 220px; max-width: 85vw; box-shadow: 0 8px 40px rgba(0,0,0,0.8); }
+        .avatar-selector.show { opacity: 1; pointer-events: auto; }
+        .avatar-selector-title { text-align: center; color: var(--tx2); font-size: 11px; margin-bottom: 8px; }
+        .avatar-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 4px; }
+        .avatar-option { width: 100%; aspect-ratio: 1/1; border-radius: 12px; border: 2px solid transparent; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: .3s; background: var(--bg4); overflow: hidden; padding: 4px; }
+        .avatar-option img { width: 100%; height: 100%; object-fit: cover; border-radius: 8px; }
+        .avatar-option:hover { border-color: var(--acc2); transform: scale(1.05); }
+        .avatar-option.active { border-color: var(--gld); box-shadow: 0 0 20px #f0b42944; }
 
         /* ===== МОБИЛЬНАЯ АДАПТАЦИЯ ===== */
         @media (max-width: 500px) {
-            .avatar-selector {
-                width: 200px;
-                max-width: 92vw;
-                top: 54px;
-                left: 0;
-                transform: none;
-                padding: 10px;
-            }
-            .avatar-grid {
-                gap: 6px;
-            }
-            .avatar-option {
-                border-radius: 8px;
-                padding: 3px;
-            }
-            .avatar-hint {
-                font-size: 7px;
-                bottom: -16px;
-                padding: 1px 6px;
-            }
-            .avatar-preview {
-                width: 44px;
-                height: 44px;
-            }
+            .avatar-selector { width: 200px; max-width: 92vw; top: 54px; left: 0; transform: none; padding: 10px; }
+            .avatar-grid { gap: 6px; }
+            .avatar-option { border-radius: 8px; padding: 3px; }
+            .avatar-hint { font-size: 7px; bottom: -16px; padding: 1px 6px; }
+            .avatar-preview { width: 44px; height: 44px; }
+            .hdr-bal { font-size: 12px; padding: 4px 10px; gap: 4px; }
+            .hdr-bal .music-btn { font-size: 14px; }
         }
-
         @media (max-width: 380px) {
-            .avatar-selector {
-                width: 170px;
-                max-width: 95vw;
-                padding: 8px;
-                top: 50px;
-            }
-            .avatar-grid {
-                gap: 4px;
-            }
-            .avatar-option {
-                border-radius: 6px;
-                padding: 2px;
-            }
+            .avatar-selector { width: 170px; max-width: 95vw; padding: 8px; top: 50px; left: 0; transform: none; }
+            .avatar-grid { gap: 4px; }
+            .avatar-option { border-radius: 6px; padding: 2px; }
         }
 
-        /* ===== АВАТАРКИ В ТОПЕ ===== */
-        .top-avatar {
-            width: 28px;
-            height: 28px;
-            border-radius: 50%;
-            overflow: hidden;
-            flex-shrink: 0;
-            border: 1.5px solid var(--bd2);
-            background: #190a35;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .top-avatar img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-        .top-avatar .placeholder {
-            font-size: 14px;
-            color: var(--tx2);
-        }
-        @media (max-width: 500px) {
-            .top-avatar {
-                width: 24px;
-                height: 24px;
-            }
-            .top-avatar .placeholder {
-                font-size: 11px;
-            }
-        }
-
-        .top-row {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 8px 0;
-            border-bottom: 1px solid var(--bd);
-            transition: .3s;
-        }
-        .top-row:hover {
-            background: var(--bg4);
-            border-radius: 6px;
-            padding: 8px 10px;
-            margin: 0 -6px;
-        }
-        .top-row:last-child { border-bottom: none; }
+        .top-avatar { width: 28px; height: 28px; border-radius: 50%; overflow: hidden; flex-shrink: 0; border: 1.5px solid var(--bd2); background: #190a35; display: flex; align-items: center; justify-content: center; }
+        .top-avatar img { width: 100%; height: 100%; object-fit: cover; }
+        .top-avatar .placeholder { font-size: 14px; color: var(--tx2); }
+        @media (max-width: 500px) { .top-avatar { width: 24px; height: 24px; } .top-avatar .placeholder { font-size: 11px; } }
     </style>
 </head>
 <body>
@@ -445,7 +293,10 @@
         <div id="appWrap">
             <div class="hdr">
                 <div class="hdr-logo">⛏ CoinMine</div>
-                <div class="hdr-bal">💰 <span id="H_c">0</span></div>
+                <div class="hdr-bal">
+                    💰 <span id="H_c">0</span>
+                    <button class="music-btn" id="musicToggle" onclick="window.toggleMusic()" title="Включить/выключить музыку">🔇</button>
+                </div>
             </div>
 
             <div class="screens">
@@ -454,7 +305,6 @@
                 <div class="sc on" id="sc-home">
                     <div class="card">
                         <div class="fl" style="margin-bottom:14px">
-                            <!-- АВАТАРКА -->
                             <div class="avatar-wrap">
                                 <div class="avatar-preview" id="avatarPreview" onclick="toggleAvatarSelector()">
                                     <img id="avatarImg" src="https://i.postimg.cc/ydqnTq7J/1b5e1ca8f182156f9106095981de17b7.png" alt="Аватар">
@@ -488,9 +338,7 @@
                             <span style="font-size:20px">⛏</span>
                             <div class="f1">
                                 <div style="font-size:12px;color:var(--tx2)" id="F_st">Готово к добыче!</div>
-                                <div class="pb mt8">
-                                    <div class="pf pf-gld" id="F_pb" style="width:100%"></div>
-                                </div>
+                                <div class="pb mt8"><div class="pf pf-gld" id="F_pb" style="width:100%"></div></div>
                             </div>
                             <span style="font-size:11px;color:var(--tx2);min-width:42px;text-align:right" id="F_cd"></span>
                         </div>
@@ -840,6 +688,7 @@
         let pendingChanges = false;
         let offlineQueue = [];
         let saveTimer = null;
+        let musicPlaying = false;
 
         const NICK_S = {
             gold: { e: '🌟', n: 'Золотой' },
@@ -893,6 +742,9 @@
         };
 
         let BOSS_STATE = { hp: 0, lastKill: 0 };
+
+        // ===== ЗВУКИ =====
+        let music = null;
 
         // ============================================================
         // 6. API
@@ -1240,7 +1092,74 @@
         }
 
         // ============================================================
-        // 13. АВТОРИЗАЦИЯ UI
+        // 13. УПРАВЛЕНИЕ МУЗЫКОЙ
+        // ============================================================
+        function initMusic() {
+            try {
+                const musicUrl = 'https://mazccbkzurbryzusajqc.supabase.co/storage/v1/object/public/Music/2026-06-21%2013-13-41%20(online-video-cutter.com).mp3';
+                
+                music = new Howl({
+                    src: [musicUrl],
+                    volume: 0.3,
+                    loop: true,
+                    autoplay: false,
+                    onload: function() {
+                        console.log('🎵 Музыка загружена');
+                        updateMusicButton();
+                    },
+                    onloaderror: function(id, error) {
+                        console.warn('⚠️ Ошибка загрузки музыки:', error);
+                        document.getElementById('musicToggle').textContent = '🎵';
+                        document.getElementById('musicToggle').title = 'Ошибка загрузки музыки';
+                    },
+                    onplay: function() {
+                        musicPlaying = true;
+                        updateMusicButton();
+                    },
+                    onpause: function() {
+                        musicPlaying = false;
+                        updateMusicButton();
+                    }
+                });
+            } catch (e) {
+                console.warn('⚠️ Ошибка инициализации музыки:', e);
+                document.getElementById('musicToggle').textContent = '🎵';
+                document.getElementById('musicToggle').title = 'Ошибка';
+            }
+        }
+
+        function updateMusicButton() {
+            const btn = document.getElementById('musicToggle');
+            if (!btn) return;
+            
+            if (musicPlaying) {
+                btn.textContent = '🔊';
+                btn.title = 'Выключить музыку';
+                btn.classList.add('on');
+            } else {
+                btn.textContent = '🔇';
+                btn.title = 'Включить музыку';
+                btn.classList.remove('on');
+            }
+        }
+
+        window.toggleMusic = function() {
+            if (!music) {
+                window.toast('⏳ Загрузка музыки...', 'info');
+                return;
+            }
+            
+            if (musicPlaying) {
+                music.pause();
+                window.toast('🔇 Музыка выключена', 'info');
+            } else {
+                music.play();
+                window.toast('🔊 Музыка включена', 'ok');
+            }
+        };
+
+        // ============================================================
+        // 14. АВТОРИЗАЦИЯ UI
         // ============================================================
         window.setAuthMode = function(m) {
             authMode = m;
@@ -1300,7 +1219,7 @@
         };
 
         // ============================================================
-        // 14. ПОКАЗ ПРИЛОЖЕНИЯ
+        // 15. ПОКАЗ ПРИЛОЖЕНИЯ
         // ============================================================
         function showApp() {
             document.getElementById('authWrap').style.display = 'none';
@@ -1313,6 +1232,17 @@
             setTimeout(() => window.drawRoulette(0, null), 100);
             updateAvatarPreview();
             
+            // Инициализируем музыку
+            initMusic();
+            
+            // Запускаем музыку после первого клика пользователя (политика автозапуска)
+            document.addEventListener('click', function startMusicOnFirstClick() {
+                if (music && !musicPlaying) {
+                    music.play();
+                }
+                document.removeEventListener('click', startMusicOnFirstClick);
+            }, { once: true });
+            
             setInterval(renderFarmTimer, 1000);
             setInterval(renderBoss, 30000);
             setInterval(() => { if (UID) saveUserData(); }, CONFIG.AUTO_SAVE_INTERVAL);
@@ -1321,6 +1251,7 @@
             window.addEventListener('online', restoreOfflineQueue);
             
             window.toast('💾 Данные синхронизируются', 'info');
+            window.toast('🎵 Нажмите на колонку рядом с балансом, чтобы включить музыку', 'info');
         }
 
         function initMissions() {
@@ -1333,7 +1264,7 @@
         }
 
         // ============================================================
-        // 15. ОСТАЛЬНЫЕ ФУНКЦИИ
+        // 16. ОСТАЛЬНЫЕ ФУНКЦИИ
         // ============================================================
         window.toast = function(msg, t) {
             const e = document.getElementById('TOAST');
@@ -1355,7 +1286,7 @@
         function fmt(n) { return Math.round(n).toLocaleString('ru'); }
 
         // ============================================================
-        // 16. НАВИГАЦИЯ
+        // 17. НАВИГАЦИЯ
         // ============================================================
         window.goSc = function(nm) {
             document.querySelectorAll('.sc').forEach(s => s.classList.remove('on'));
@@ -1410,7 +1341,7 @@
         };
 
         // ============================================================
-        // 17. ОТРИСОВКА
+        // 18. ОТРИСОВКА
         // ============================================================
         function renderUI() {
             const sets = {
@@ -1560,7 +1491,7 @@
         }
 
         // ============================================================
-        // 18. ТОП С АВАТАРКАМИ
+        // 19. ТОП С АВАТАРКАМИ
         // ============================================================
         let topLastType = 'b';
 
@@ -1581,7 +1512,6 @@
             const shardCount = getShardCount();
             const topPlayers = topCache.data || [];
             
-            // Добавляем текущего игрока
             const all = [...topPlayers];
             const exists = all.some(p => p.n === G.name);
             if (!exists && G.name) {
@@ -1638,8 +1568,9 @@
         }
 
         // ============================================================
-        // 19. РУЛЕТКА (оставлена без изменений)
+        // 20-22. РУЛЕТКА, КУБИК, АУКЦИОН (полные версии)
         // ============================================================
+        // РУЛЕТКА
         const RC = document.getElementById('rouletteCanvas');
         const rctx = RC.getContext('2d');
         const CX = 160,
@@ -1962,15 +1893,42 @@
         idleSpin();
 
         // ============================================================
-        // 20. КУБИК (сокращён для экономии места)
+        // 21. КУБИК
         // ============================================================
         const PIP_LAYOUTS = {
-            1: [[1, 1]],
-            2: [[0, 0], [2, 2]],
-            3: [[0, 0], [1, 1], [2, 2]],
-            4: [[0, 0], [0, 2], [2, 0], [2, 2]],
-            5: [[0, 0], [0, 2], [1, 1], [2, 0], [2, 2]],
-            6: [[0, 0], [0, 2], [1, 0], [1, 2], [2, 0], [2, 2]]
+            1: [
+                [1, 1]
+            ],
+            2: [
+                [0, 0],
+                [2, 2]
+            ],
+            3: [
+                [0, 0],
+                [1, 1],
+                [2, 2]
+            ],
+            4: [
+                [0, 0],
+                [0, 2],
+                [2, 0],
+                [2, 2]
+            ],
+            5: [
+                [0, 0],
+                [0, 2],
+                [1, 1],
+                [2, 0],
+                [2, 2]
+            ],
+            6: [
+                [0, 0],
+                [0, 2],
+                [1, 0],
+                [1, 2],
+                [2, 0],
+                [2, 2]
+            ]
         };
 
         const CUBE_PALETTES = [
@@ -2160,7 +2118,7 @@
         };
 
         // ============================================================
-        // 21. ОСТАЛЬНЫЕ ИГРОВЫЕ ДЕЙСТВИЯ
+        // 22. АУКЦИОН И ОСТАЛЬНЫЕ ДЕЙСТВИЯ
         // ============================================================
         function renderPodium() {
             const podiumEl = document.getElementById('podiumList');
@@ -2392,7 +2350,7 @@
         };
 
         // ============================================================
-        // 22. ЗАПУСК
+        // 23. ЗАПУСК
         // ============================================================
         document.addEventListener('DOMContentLoaded', async () => {
             aStat('⏳ Проверка сессии...', 'ld');
