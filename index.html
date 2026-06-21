@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>CoinMine</title>
-    <!-- Подключаем howler.js для звука -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.3/howler.min.js"></script>
     <style>
         /* ===== ВЕСЬ CSS ===== */
@@ -17,7 +16,7 @@
         .app { max-width: 700px; margin: 0 auto; background: var(--bg); position: relative; z-index: 1; min-height: 100vh; box-shadow: 0 0 60px rgba(0,0,0,0.8); padding-bottom: 180px; padding-top: 10px; }
         @media (max-width: 700px) { .app { max-width: 100%; } }
         
-        /* ===== БАННЕР — СКРЫТ ПО УМОЛЧАНИЮ ===== */
+        /* ===== БАННЕР ===== */
         .static-banner { 
             display: none;
             position: fixed; 
@@ -46,7 +45,9 @@
         @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
         @keyframes glow { 0%, 100% { box-shadow: 0 0 20px rgba(124,58,237,0.2); } 50% { box-shadow: 0 0 40px rgba(124,58,237,0.6); } }
         @keyframes float { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-8px); } }
+        @keyframes musicPulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
         .animated { animation: fadeIn 0.4s ease forwards; } .pulse { animation: pulse 2s ease-in-out infinite; } .glow { animation: glow 2s ease-in-out infinite; } .float { animation: float 3s ease-in-out infinite; }
+        
         #authWrap { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; background: var(--bg); }
         .auth-box { width: 100%; max-width: 400px; background: var(--bg2); border: 1px solid var(--bd2); border-radius: 20px; padding: 28px 24px; position: relative; overflow: hidden; animation: fadeIn 0.5s ease; }
         .auth-box::before { content: ''; position: absolute; top: -60px; right: -60px; width: 200px; height: 200px; background: radial-gradient(circle, #7c3aed22, transparent 70%); pointer-events: none; }
@@ -71,40 +72,156 @@
         .astat.ok { color: var(--grn); } .astat.err { color: var(--red); } .astat.ld { color: var(--gld); } .astat.warn { color: var(--gld2); }
         #appWrap { display: none; flex-direction: column; min-height: 100vh; padding-bottom: 120px; }
         #appWrap.on { display: flex; }
-        .hdr { background: var(--bg2); border-bottom: 1px solid var(--bd); padding: 10px 14px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 60; backdrop-filter: blur(10px); background: rgba(13,13,28,0.9); }
-        .hdr-logo { font-size: 18px; font-weight: 800; background: linear-gradient(135deg, var(--gld), var(--gld2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        
+        /* ===== ХЕДЕР С БОЛЬШОЙ КНОПКОЙ МУЗЫКИ ===== */
+        .hdr { 
+            background: var(--bg2); 
+            border-bottom: 1px solid var(--bd); 
+            padding: 8px 14px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between; 
+            position: sticky; 
+            top: 0; 
+            z-index: 60; 
+            backdrop-filter: blur(10px); 
+            background: rgba(13,13,28,0.9); 
+            gap: 8px;
+        }
+        .hdr-logo { 
+            font-size: 18px; 
+            font-weight: 800; 
+            background: linear-gradient(135deg, var(--gld), var(--gld2)); 
+            -webkit-background-clip: text; 
+            -webkit-text-fill-color: transparent; 
+            flex-shrink: 0;
+        }
+        .hdr-right {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-shrink: 0;
+        }
         .hdr-bal { 
             display: flex; 
             align-items: center; 
-            gap: 8px; 
+            gap: 5px; 
             background: var(--bg3); 
             border: 1px solid #f0b42930; 
             border-radius: 20px; 
-            padding: 5px 14px; 
+            padding: 5px 12px; 
             font-size: 14px; 
             font-weight: 700; 
             color: var(--gld); 
             transition: .3s; 
         }
         .hdr-bal:hover { border-color: var(--gld); box-shadow: 0 0 20px #f0b42922; }
-        .hdr-bal .music-btn {
-            background: none;
-            border: none;
-            color: var(--tx2);
-            font-size: 16px;
-            cursor: pointer;
-            padding: 0 4px;
-            transition: .3s;
+
+        /* ===== БОЛЬШАЯ КНОПКА МУЗЫКИ ===== */
+        .music-control {
             display: flex;
             align-items: center;
+            gap: 8px;
+            background: var(--bg4);
+            border: 2px solid var(--bd2);
+            border-radius: 30px;
+            padding: 6px 14px 6px 10px;
+            cursor: pointer;
+            transition: .3s;
+            user-select: none;
+            flex-shrink: 0;
+            position: relative;
         }
-        .hdr-bal .music-btn:hover {
+        .music-control:hover {
+            border-color: var(--acc2);
+            background: var(--bg3);
+            transform: scale(1.03);
+            box-shadow: 0 0 30px #7c3aed22;
+        }
+        .music-control:active {
+            transform: scale(.95);
+        }
+        .music-control .icon {
+            font-size: 26px;
+            line-height: 1;
+            transition: .3s;
+            width: 34px;
+            text-align: center;
+        }
+        .music-control .icon.on {
+            animation: musicPulse 1.5s ease-in-out infinite;
+        }
+        .music-control .label {
+            font-size: 12px;
+            color: var(--tx2);
+            font-weight: 600;
+            white-space: nowrap;
+            transition: .3s;
+        }
+        .music-control .label.on {
             color: var(--gld);
-            transform: scale(1.1);
         }
-        .hdr-bal .music-btn.on {
-            color: var(--gld);
+        .music-control .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--red);
+            transition: .3s;
+            flex-shrink: 0;
+            box-shadow: 0 0 8px rgba(239,68,68,0.3);
         }
+        .music-control .status-dot.on {
+            background: var(--grn);
+            box-shadow: 0 0 16px #10b98166;
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+        .music-control .hint {
+            position: absolute;
+            bottom: -22px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.85);
+            color: var(--tx2);
+            font-size: 8px;
+            padding: 2px 8px;
+            border-radius: 10px;
+            white-space: nowrap;
+            opacity: 0;
+            transition: .3s;
+            pointer-events: none;
+            border: 1px solid var(--bd2);
+        }
+        .music-control:hover .hint {
+            opacity: 1;
+        }
+
+        @media (max-width: 500px) {
+            .music-control {
+                padding: 4px 10px 4px 8px;
+                gap: 5px;
+            }
+            .music-control .icon {
+                font-size: 20px;
+                width: 28px;
+            }
+            .music-control .label {
+                font-size: 10px;
+            }
+            .music-control .status-dot {
+                width: 6px;
+                height: 6px;
+            }
+            .music-control .hint {
+                display: none;
+            }
+            .hdr-logo { font-size: 15px; }
+            .hdr-bal { font-size: 12px; padding: 4px 10px; }
+        }
+        @media (max-width: 380px) {
+            .music-control .label { display: none; }
+            .music-control { padding: 4px 8px; }
+        }
+
         .screens { flex: 1; padding: 10px 10px 0; display: flex; flex-direction: column; gap: 10px; }
         .sc { display: none; flex-direction: column; gap: 10px; padding-bottom: 10px; }
         .sc.on { display: flex; animation: fadeIn 0.3s ease; }
@@ -243,15 +360,12 @@
         .avatar-option:hover { border-color: var(--acc2); transform: scale(1.05); }
         .avatar-option.active { border-color: var(--gld); box-shadow: 0 0 20px #f0b42944; }
 
-        /* ===== МОБИЛЬНАЯ АДАПТАЦИЯ ===== */
         @media (max-width: 500px) {
             .avatar-selector { width: 200px; max-width: 92vw; top: 54px; left: 0; transform: none; padding: 10px; }
             .avatar-grid { gap: 6px; }
             .avatar-option { border-radius: 8px; padding: 3px; }
             .avatar-hint { font-size: 7px; bottom: -16px; padding: 1px 6px; }
             .avatar-preview { width: 44px; height: 44px; }
-            .hdr-bal { font-size: 12px; padding: 4px 10px; gap: 4px; }
-            .hdr-bal .music-btn { font-size: 14px; }
         }
         @media (max-width: 380px) {
             .avatar-selector { width: 170px; max-width: 95vw; padding: 8px; top: 50px; left: 0; transform: none; }
@@ -291,11 +405,22 @@
 
         <!-- APP -->
         <div id="appWrap">
+
+            <!-- ХЕДЕР С БОЛЬШОЙ КНОПКОЙ МУЗЫКИ -->
             <div class="hdr">
                 <div class="hdr-logo">⛏ CoinMine</div>
-                <div class="hdr-bal">
-                    💰 <span id="H_c">0</span>
-                    <button class="music-btn" id="musicToggle" onclick="window.toggleMusic()" title="Включить/выключить музыку">🔇</button>
+                <div class="hdr-right">
+                    <!-- КНОПКА МУЗЫКИ — БОЛЬШАЯ И ЗАМЕТНАЯ -->
+                    <div class="music-control" id="musicControl" onclick="window.toggleMusic()" title="Включить/выключить музыку">
+                        <span class="icon" id="musicIcon">🔇</span>
+                        <span class="label" id="musicLabel">Музыка выкл</span>
+                        <span class="status-dot" id="musicDot"></span>
+                        <span class="hint">Нажмите для включения</span>
+                    </div>
+                    <!-- БАЛАНС -->
+                    <div class="hdr-bal">
+                        💰 <span id="H_c">0</span>
+                    </div>
                 </div>
             </div>
 
@@ -620,9 +745,6 @@
         const SB_URL = 'https://mazccbkzurbryzusajqc.supabase.co';
         const SB_ANON_KEY = 'sb_publishable_GLQvPbCZrDYgd7FCSp861g_poX1-Hwy';
         
-        // ============================================================
-        // 2. НАСТРОЙКИ ОПТИМИЗАЦИИ
-        // ============================================================
         const CONFIG = {
             SAVE_INTERVAL: 10000,
             TOP_CACHE_TIME: 600000,
@@ -633,7 +755,7 @@
         };
 
         // ============================================================
-        // 3. ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ
+        // 2. ВСПОМОГАТЕЛЬНЫЕ
         // ============================================================
         function aStat(text, type) {
             const e = document.getElementById('authStatus');
@@ -662,7 +784,7 @@
         const FINGERPRINT = getFingerprint();
 
         // ============================================================
-        // 4. СПИСОК ФИКСИРОВАННЫХ АВАТАРОК
+        // 3. АВАТАРКИ
         // ============================================================
         const AVATAR_LIST = [
             'https://i.postimg.cc/ydqnTq7J/1b5e1ca8f182156f9106095981de17b7.png',
@@ -678,7 +800,7 @@
         ];
 
         // ============================================================
-        // 5. СОСТОЯНИЕ
+        // 4. СОСТОЯНИЕ
         // ============================================================
         let UID = null;
         let authMode = 'login';
@@ -688,6 +810,7 @@
         let pendingChanges = false;
         let offlineQueue = [];
         let saveTimer = null;
+        let music = null;
         let musicPlaying = false;
 
         const NICK_S = {
@@ -723,14 +846,12 @@
 
         const FARM_COSTS = [50, 100, 250, 500, 1000];
 
-        // ===== КЕШ ТОПА =====
         let topCache = {
             data: null,
             timestamp: 0,
             type: 'b'
         };
 
-        // ===== СОСТОЯНИЕ ИГРОКА =====
         let G = {
             coins: 0, farms: 0, refs: 0, keys: 0, lastFarm: 0, farmLv: 1,
             name: 'Шахтёр', nicks: { p: [], a: null }, shards: {},
@@ -743,11 +864,8 @@
 
         let BOSS_STATE = { hp: 0, lastKill: 0 };
 
-        // ===== ЗВУКИ =====
-        let music = null;
-
         // ============================================================
-        // 6. API
+        // 5. API
         // ============================================================
         async function sbFetch(path, opts = {}) {
             const headers = {
@@ -775,7 +893,7 @@
         }
 
         // ============================================================
-        // 7. ТОП-10
+        // 6. ТОП-10
         // ============================================================
         async function loadTopPlayers(tp = 'b') {
             const now = Date.now();
@@ -822,7 +940,7 @@
         }
 
         // ============================================================
-        // 8. АВТОРИЗАЦИЯ
+        // 7. АВТОРИЗАЦИЯ
         // ============================================================
         async function authRegister(username, password, fingerprint) {
             const { data: existing } = await sbFetch(
@@ -912,7 +1030,7 @@
         }
 
         // ============================================================
-        // 9. СОХРАНЕНИЕ
+        // 8. СОХРАНЕНИЕ
         // ============================================================
         function scheduleSave() {
             pendingChanges = true;
@@ -975,7 +1093,7 @@
         }
 
         // ============================================================
-        // 10. ВОССТАНОВЛЕНИЕ
+        // 9. ВОССТАНОВЛЕНИЕ
         // ============================================================
         async function restoreOfflineQueue() {
             try {
@@ -1039,7 +1157,7 @@
         }
 
         // ============================================================
-        // 11. УПРАВЛЕНИЕ БАННЕРОМ
+        // 10. БАННЕР
         // ============================================================
         function toggleBanner(show) {
             const banner = document.getElementById('mainBanner');
@@ -1054,7 +1172,7 @@
         })();
 
         // ============================================================
-        // 12. УПРАВЛЕНИЕ АВАТАРКОЙ
+        // 11. АВАТАРКА
         // ============================================================
         function toggleAvatarSelector() {
             const sel = document.getElementById('avatarSelector');
@@ -1092,61 +1210,64 @@
         }
 
         // ============================================================
-        // 13. УПРАВЛЕНИЕ МУЗЫКОЙ
+        // 12. МУЗЫКА — БОЛЬШАЯ КНОПКА
         // ============================================================
         function initMusic() {
-    try {
-        const musicUrl = 'https://mazccbkzurbryzusajqc.supabase.co/storage/v1/object/public/Music/2026-06-21%2013-13-41%20(online-video-cutter.com).mp3';
-        
-        music = new Howl({
-            src: [musicUrl],
-            volume: 0.3,
-            loop: true,
-            autoplay: true,  // ← Пытаемся запустить сразу
-            onload: function() {
-                console.log('🎵 Музыка загружена');
-                updateMusicButton();
-                // Автоматически запускаем после загрузки
-                if (!musicPlaying) {
-                    music.play();
-                    window.toast('🎵 Музыка включена', 'ok');
-                }
-            },
-            onloaderror: function(id, error) {
-                console.warn('⚠️ Ошибка загрузки музыки:', error);
-                document.getElementById('musicToggle').textContent = '🎵';
-                document.getElementById('musicToggle').title = 'Ошибка загрузки музыки';
-            },
-            onplay: function() {
-                musicPlaying = true;
-                updateMusicButton();
-                console.log('🎵 Музыка играет');
-            },
-            onpause: function() {
-                musicPlaying = false;
-                updateMusicButton();
-                console.log('🔇 Музыка остановлена');
+            try {
+                const musicUrl = 'https://mazccbkzurbryzusajqc.supabase.co/storage/v1/object/public/Music/2026-06-21%2013-13-41%20(online-video-cutter.com).mp3';
+                
+                music = new Howl({
+                    src: [musicUrl],
+                    volume: 0.3,
+                    loop: true,
+                    autoplay: false,
+                    onload: function() {
+                        console.log('🎵 Музыка загружена');
+                        updateMusicUI();
+                    },
+                    onloaderror: function(id, error) {
+                        console.warn('⚠️ Ошибка загрузки музыки:', error);
+                        updateMusicUI();
+                    },
+                    onplay: function() {
+                        musicPlaying = true;
+                        updateMusicUI();
+                        console.log('🎵 Музыка играет');
+                    },
+                    onpause: function() {
+                        musicPlaying = false;
+                        updateMusicUI();
+                        console.log('🔇 Музыка остановлена');
+                    }
+                });
+            } catch (e) {
+                console.warn('⚠️ Ошибка инициализации музыки:', e);
+                updateMusicUI();
             }
-        });
-    } catch (e) {
-        console.warn('⚠️ Ошибка инициализации музыки:', e);
-        document.getElementById('musicToggle').textContent = '🎵';
-        document.getElementById('musicToggle').title = 'Ошибка';
-    }
-}
+        }
 
-        function updateMusicButton() {
-            const btn = document.getElementById('musicToggle');
-            if (!btn) return;
+        function updateMusicUI() {
+            const icon = document.getElementById('musicIcon');
+            const label = document.getElementById('musicLabel');
+            const dot = document.getElementById('musicDot');
+            const control = document.getElementById('musicControl');
+            
+            if (!icon || !label || !dot) return;
             
             if (musicPlaying) {
-                btn.textContent = '🔊';
-                btn.title = 'Выключить музыку';
-                btn.classList.add('on');
+                icon.textContent = '🔊';
+                icon.className = 'icon on';
+                label.textContent = 'Музыка вкл';
+                label.className = 'label on';
+                dot.className = 'status-dot on';
+                if (control) control.title = 'Выключить музыку';
             } else {
-                btn.textContent = '🔇';
-                btn.title = 'Включить музыку';
-                btn.classList.remove('on');
+                icon.textContent = '🔇';
+                icon.className = 'icon';
+                label.textContent = 'Музыка выкл';
+                label.className = 'label';
+                dot.className = 'status-dot';
+                if (control) control.title = 'Включить музыку';
             }
         }
 
@@ -1161,12 +1282,32 @@
                 window.toast('🔇 Музыка выключена', 'info');
             } else {
                 music.play();
-                window.toast('🔊 Музыка включена', 'ok');
+                // Проверяем, реально ли играет
+                setTimeout(() => {
+                    if (music.playing()) {
+                        window.toast('🔊 Музыка включена!', 'ok');
+                    } else {
+                        window.toast('⚠️ Нажмите на экран, чтобы разрешить звук', 'err');
+                        // Повторная попытка по клику
+                        const retry = function() {
+                            if (!musicPlaying && music) {
+                                music.play();
+                                if (music.playing()) {
+                                    window.toast('🔊 Музыка включена!', 'ok');
+                                }
+                            }
+                            document.removeEventListener('click', retry);
+                            document.removeEventListener('touchstart', retry);
+                        };
+                        document.addEventListener('click', retry, { once: true });
+                        document.addEventListener('touchstart', retry, { once: true });
+                    }
+                }, 300);
             }
         };
 
         // ============================================================
-        // 14. АВТОРИЗАЦИЯ UI
+        // 13. АВТОРИЗАЦИЯ UI
         // ============================================================
         window.setAuthMode = function(m) {
             authMode = m;
@@ -1226,50 +1367,46 @@
         };
 
         // ============================================================
-        // 15. ПОКАЗ ПРИЛОЖЕНИЯ
+        // 14. ПОКАЗ ПРИЛОЖЕНИЯ
         // ============================================================
         function showApp() {
-    document.getElementById('authWrap').style.display = 'none';
-    document.getElementById('appWrap').classList.add('on');
-    toggleBanner(true);
-    
-    if (!G.refCode) G.refCode = UID.slice(0, 8);
-    initMissions();
-    renderUI();
-    setTimeout(() => window.drawRoulette(0, null), 100);
-    updateAvatarPreview();
-    
-    // ===== ИНИЦИАЛИЗАЦИЯ МУЗЫКИ =====
-    initMusic();
-    
-    // ✅ ЗАПУСКАЕМ МУЗЫКУ СРАЗУ ПОСЛЕ ВХОДА
-    // Небольшая задержка, чтобы аудио-контекст успел инициализироваться
-    setTimeout(() => {
-        if (music && !musicPlaying) {
-            music.play();
-            window.toast('🎵 Музыка включена', 'ok');
+            document.getElementById('authWrap').style.display = 'none';
+            document.getElementById('appWrap').classList.add('on');
+            toggleBanner(true);
+            
+            if (!G.refCode) G.refCode = UID.slice(0, 8);
+            initMissions();
+            renderUI();
+            setTimeout(() => window.drawRoulette(0, null), 100);
+            updateAvatarPreview();
+            
+            // ИНИЦИАЛИЗАЦИЯ МУЗЫКИ
+            initMusic();
+            
+            // Подсказка для пользователя
+            window.toast('🎵 Нажмите на кнопку с колонкой, чтобы включить музыку', 'info');
+            
+            // Запуск по первому клику (для мобильных)
+            const startMusic = function() {
+                if (music && !musicPlaying) {
+                    music.play();
+                    window.toast('🎵 Музыка включена!', 'ok');
+                }
+                document.removeEventListener('click', startMusic);
+                document.removeEventListener('touchstart', startMusic);
+            };
+            document.addEventListener('click', startMusic, { once: true });
+            document.addEventListener('touchstart', startMusic, { once: true });
+            
+            setInterval(renderFarmTimer, 1000);
+            setInterval(renderBoss, 30000);
+            setInterval(() => { if (UID) saveUserData(); }, CONFIG.AUTO_SAVE_INTERVAL);
+            
+            window.addEventListener('beforeunload', () => { if (UID) saveUserData(); });
+            window.addEventListener('online', restoreOfflineQueue);
+            
+            window.toast('💾 Данные синхронизируются', 'info');
         }
-    }, 500);
-    
-    // Дублируем запуск по клику (на случай, если браузер заблокирует автозапуск)
-    document.addEventListener('click', function startMusicOnFirstClick() {
-        if (music && !musicPlaying) {
-            music.play();
-            window.toast('🎵 Музыка включена', 'ok');
-        }
-        document.removeEventListener('click', startMusicOnFirstClick);
-    }, { once: true });
-    
-    setInterval(renderFarmTimer, 1000);
-    setInterval(renderBoss, 30000);
-    setInterval(() => { if (UID) saveUserData(); }, CONFIG.AUTO_SAVE_INTERVAL);
-    
-    window.addEventListener('beforeunload', () => { if (UID) saveUserData(); });
-    window.addEventListener('online', restoreOfflineQueue);
-    
-    window.toast('💾 Данные синхронизируются', 'info');
-    window.toast('🎵 Нажмите на колонку рядом с балансом, чтобы управлять музыкой', 'info');
-}
 
         function initMissions() {
             const now = Date.now();
@@ -1281,7 +1418,7 @@
         }
 
         // ============================================================
-        // 16. ОСТАЛЬНЫЕ ФУНКЦИИ
+        // 15. ОСТАЛЬНЫЕ ФУНКЦИИ
         // ============================================================
         window.toast = function(msg, t) {
             const e = document.getElementById('TOAST');
@@ -1303,7 +1440,7 @@
         function fmt(n) { return Math.round(n).toLocaleString('ru'); }
 
         // ============================================================
-        // 17. НАВИГАЦИЯ
+        // 16. НАВИГАЦИЯ
         // ============================================================
         window.goSc = function(nm) {
             document.querySelectorAll('.sc').forEach(s => s.classList.remove('on'));
@@ -1358,43 +1495,40 @@
         };
 
         // ============================================================
-        // 18. ОТРИСОВКА
+        // 17. ОТРИСОВКА
         // ============================================================
         function renderUI() {
-    const sets = {
-        H_c: G.coins, S_c: G.coins, S_f: G.farms, S_r: G.refs, S_k: G.keys,
-        PNAME: G.name, F_lv: G.farmLv,
-        F_mx: '×' + (1 + (G.farmLv - 1) * .2).toFixed(1),
-        F_uc: G.farmLv >= 5 ? 'макс' : window.getFarmCost() + ' монет',
-        K_b: G.keys + ' 🔑', CH_c: G.chests,
-        MY_REF: G.refCode || UID?.slice(0, 8) || '—',
-        ACT_REF: G.activatedRef || '—'
-    };
-    Object.entries(sets).forEach(([id, v]) => {
-        const el = document.getElementById(id);
-        if (el) el.textContent = typeof v === 'number' ? fmt(v) : v;
-    });
+            const sets = {
+                H_c: G.coins, S_c: G.coins, S_f: G.farms, S_r: G.refs, S_k: G.keys,
+                PNAME: G.name, F_lv: G.farmLv,
+                F_mx: '×' + (1 + (G.farmLv - 1) * .2).toFixed(1),
+                F_uc: G.farmLv >= 5 ? 'макс' : window.getFarmCost() + ' монет',
+                K_b: G.keys + ' 🔑', CH_c: G.chests,
+                MY_REF: G.refCode || UID?.slice(0, 8) || '—',
+                ACT_REF: G.activatedRef || '—'
+            };
+            Object.entries(sets).forEach(([id, v]) => {
+                const el = document.getElementById(id);
+                if (el) el.textContent = typeof v === 'number' ? fmt(v) : v;
+            });
 
-    updateAvatarPreview();
+            updateAvatarPreview();
 
-    const an = G.nicks.a ? NICK_S[G.nicks.a] : null;
-    document.getElementById('NICK_L').textContent = an ? `${an.e} ${an.n}` : 'Стиль не выбран';
-    
-    // ❌ УБИРАЕМ ЭТУ СТРОКУ — #AV больше нет
-    // document.getElementById('AV').textContent = an ? an.e : '⛏';
+            const an = G.nicks.a ? NICK_S[G.nicks.a] : null;
+            document.getElementById('NICK_L').textContent = an ? `${an.e} ${an.n}` : 'Стиль не выбран';
 
-    const cb = document.getElementById('CH_btn');
-    if (cb) cb.disabled = G.chests <= 0;
+            const cb = document.getElementById('CH_btn');
+            if (cb) cb.disabled = G.chests <= 0;
 
-    renderFarmTimer();
-    renderShards();
-    renderNicks();
-    renderMissions();
-    renderBoss();
-    renderClan();
-    renderTop('b');
-    renderPodium();
-}
+            renderFarmTimer();
+            renderShards();
+            renderNicks();
+            renderMissions();
+            renderBoss();
+            renderClan();
+            renderTop('b');
+            renderPodium();
+        }
 
         function renderFarmTimer() {
             const now = Date.now(), cd = 3600000, el = now - G.lastFarm;
@@ -1510,7 +1644,7 @@
         }
 
         // ============================================================
-        // 19. ТОП С АВАТАРКАМИ
+        // 18. ТОП С АВАТАРКАМИ
         // ============================================================
         let topLastType = 'b';
 
@@ -1587,9 +1721,8 @@
         }
 
         // ============================================================
-        // 20-22. РУЛЕТКА, КУБИК, АУКЦИОН (полные версии)
+        // 19. РУЛЕТКА
         // ============================================================
-        // РУЛЕТКА
         const RC = document.getElementById('rouletteCanvas');
         const rctx = RC.getContext('2d');
         const CX = 160,
@@ -1912,7 +2045,7 @@
         idleSpin();
 
         // ============================================================
-        // 21. КУБИК
+        // 20. КУБИК
         // ============================================================
         const PIP_LAYOUTS = {
             1: [
@@ -2137,7 +2270,7 @@
         };
 
         // ============================================================
-        // 22. АУКЦИОН И ОСТАЛЬНЫЕ ДЕЙСТВИЯ
+        // 21. ОСТАЛЬНЫЕ ДЕЙСТВИЯ
         // ============================================================
         function renderPodium() {
             const podiumEl = document.getElementById('podiumList');
@@ -2369,7 +2502,7 @@
         };
 
         // ============================================================
-        // 23. ЗАПУСК
+        // 22. ЗАПУСК
         // ============================================================
         document.addEventListener('DOMContentLoaded', async () => {
             aStat('⏳ Проверка сессии...', 'ld');
