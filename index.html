@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>CoinMine — Исправленный чат</title>
+    <title>CoinMine — Чат исправлен</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.3/howler.min.js">
     </script>
     <style>
-        /* ===== ВЕСЬ CSS (основная часть без изменений) ===== */
+        /* ===== ВЕСЬ CSS (основная часть) ===== */
         * {
             box-sizing: border-box;
             margin: 0;
@@ -1429,7 +1429,7 @@
             }
         }
 
-        /* ===== ЧАТ (УЛУЧШЕННЫЙ) ===== */
+        /* ===== ЧАТ (ПОЛНОСТЬЮ ПЕРЕРАБОТАН) ===== */
         .chat-messages {
             flex: 1;
             overflow-y: auto;
@@ -1902,7 +1902,7 @@
                     </div>
                 </div>
 
-                <!-- CHAT (ИСПРАВЛЕННЫЙ) -->
+                <!-- CHAT (ПОЛНОСТЬЮ ПЕРЕРАБОТАН) -->
                 <div class="sc" id="sc-chat">
                     <div class="card" style="display:flex;flex-direction:column;height:75vh;max-height:650px;">
                         <div class="ct" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
@@ -2057,8 +2057,6 @@
         let chatTarget = null;
         let chatMessagesCache = [];
         let chatPollInterval = null;
-        let chatUnreadCount = 0;
-        let chatIsVisible = false;
 
         const NICK_S = {
             gold: { e: '🌟', n: 'Золотой' },
@@ -2124,7 +2122,7 @@
         let BOSS_STATE = { hp: 0, lastKill: 0 };
 
         // ============================================================
-        // 5. API (исправленный)
+        // 5. API
         // ============================================================
         async function sbFetch(path, opts = {}) {
             const headers = {
@@ -2151,7 +2149,7 @@
         }
 
         // ============================================================
-        // 6. ТОП-10 (ИСПРАВЛЕННЫЙ — с ID)
+        // 6. ТОП-10
         // ============================================================
         async function loadTopPlayers(tp = 'b') {
             const now = Date.now();
@@ -2582,7 +2580,7 @@
         };
 
         // ============================================================
-        // 13. ЧАТ (ИСПРАВЛЕННЫЙ — без ошибки 400)
+        // 13. ЧАТ (ПОЛНОСТЬЮ ПЕРЕРАБОТАН)
         // ============================================================
         function initChat() {
             if (!UID) return;
@@ -2598,7 +2596,7 @@
             if (chatPollInterval) clearInterval(chatPollInterval);
             chatPollInterval = setInterval(() => {
                 if (document.getElementById('sc-chat').classList.contains('on')) {
-                    loadChatMessages(false);
+                    loadChatMessages();
                     loadOnlineUsers();
                 }
             }, 5000);
@@ -2620,6 +2618,7 @@
                 document.getElementById('chatSearchResults').innerHTML = '';
                 document.getElementById('chatSearchResults').style.display = 'none';
             }
+            chatMessagesCache = [];
             loadChatMessages();
         };
 
@@ -2678,54 +2677,52 @@
             document.getElementById('chatSearchInput').value = name + ' (#' + id.slice(0, 6) + ')';
             document.getElementById('chatSearchResults').style.display = 'none';
             document.getElementById('chatPrivateInfo').textContent = '💬 ЛС с ' + name + ' (ID: ' + id.slice(0, 8) + ')';
+            chatMessagesCache = [];
             loadChatMessages();
         };
 
-        async function loadChatMessages(showLoader = true) {
+        async function loadChatMessages() {
             if (!UID) return;
 
             try {
-                let url;
-                
+                let data = [];
+
                 if (chatMode === 'private' && chatTarget) {
-                    // Для ЛС используем простой запрос без OR
-                    url = `/rest/v1/messages?select=*&order=created_at.desc&limit=50&is_private=eq.true&receiver_id=eq.${chatTarget.id}`;
-                    // Добавляем также сообщения, где мы отправитель
-                    const { data: sent } = await sbFetch(
-                        `/rest/v1/messages?select=*&order=created_at.desc&limit=50&is_private=eq.true&sender_id=eq.${UID}&receiver_id=eq.${chatTarget.id}`
-                    );
-                    
-                    // Получаем полученные сообщения
-                    const { data: received } = await sbFetch(url);
-                    
-                    // Объединяем и сортируем
-                    let all = [...(sent.data || []), ...(received.data || [])];
-                    all.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
-                    chatMessagesCache = all;
-                    renderChatMessages();
-                    return;
+                    // Загружаем ЛС - два простых запроса
+                    const [sentRes, receivedRes] = await Promise.all([
+                        sbFetch(
+                            `/rest/v1/messages?select=*&order=created_at.desc&limit=50&is_private=eq.true&sender_id=eq.${UID}&receiver_id=eq.${chatTarget.id}`
+                            ),
+                        sbFetch(
+                            `/rest/v1/messages?select=*&order=created_at.desc&limit=50&is_private=eq.true&sender_id=eq.${chatTarget.id}&receiver_id=eq.${UID}`
+                            )
+                    ]);
+
+                    const sent = sentRes.ok ? sentRes.data || [] : [];
+                    const received = receivedRes.ok ? receivedRes.data || [] : [];
+                    data = [...sent, ...received];
+                    data.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+
                 } else {
                     // Общий чат
-                    url = `/rest/v1/messages?select=*&order=created_at.desc&limit=50&is_private=eq.false`;
+                    const res = await sbFetch(
+                        `/rest/v1/messages?select=*&order=created_at.desc&limit=50&is_private=eq.false`
+                    );
+                    data = res.ok ? res.data || [] : [];
+                    data.reverse();
                 }
 
-                const { data, ok } = await sbFetch(url);
-
-                if (ok && data) {
-                    chatMessagesCache = data.reverse();
-                    renderChatMessages();
+                if (data.length > 0) {
+                    chatMessagesCache = data;
                 } else {
-                    if (showLoader) {
-                        document.getElementById('chatMessages').innerHTML =
-                            '<div class="tm tc" style="padding:20px;color:var(--tx2);font-size:14px;">Нет сообщений</div>';
-                    }
+                    chatMessagesCache = [];
                 }
+                renderChatMessages();
+
             } catch (e) {
                 console.warn('⚠️ Ошибка загрузки сообщений:', e);
-                if (showLoader) {
-                    document.getElementById('chatMessages').innerHTML =
-                        '<div class="tm tc" style="padding:20px;color:var(--red);font-size:14px;">Ошибка загрузки</div>';
-                }
+                document.getElementById('chatMessages').innerHTML =
+                    '<div class="tm tc" style="padding:20px;color:var(--red);font-size:14px;">Ошибка загрузки</div>';
             }
         }
 
@@ -2789,7 +2786,7 @@
                     input.value = '';
                     chatMessagesCache.push(msgData);
                     renderChatMessages();
-                    setTimeout(() => loadChatMessages(false), 1000);
+                    setTimeout(() => loadChatMessages(), 500);
                 } else {
                     window.toast('❌ Ошибка отправки', 'err');
                 }
@@ -2966,13 +2963,10 @@
             document.querySelectorAll('.sc').forEach(s => s.classList.remove('on'));
             document.querySelectorAll('.nb').forEach(b => b.classList.remove('on'));
             document.getElementById('sc-' + nm).classList.add('on');
-            const nb = document.getElementById('NB_' + nm);
-            if (nb) nb.classList.add('on');
             if (nm === 'games') { setTimeout(() => window.drawRoulette(0, null), 60);
                 renderPodium(); }
             if (nm === 'top') renderTop('b');
             if (nm === 'chat') {
-                chatIsVisible = true;
                 initChat();
             }
             renderUI();
@@ -3023,7 +3017,7 @@
         };
 
         // ============================================================
-        // 18. ОТРИСОВКА (сокращена для экономии места)
+        // 18. ОТРИСОВКА
         // ============================================================
         function renderUI() {
             const sets = {
@@ -3185,7 +3179,7 @@
         }
 
         // ============================================================
-        // 19. ТОП (ИСПРАВЛЕННЫЙ — с ID)
+        // 19. ТОП
         // ============================================================
         let topLastType = 'b';
 
@@ -3265,7 +3259,7 @@
         }
 
         // ============================================================
-        // 20. РУЛЕТКА (полная версия - сокращена)
+        // 20. РУЛЕТКА
         // ============================================================
         const RC = document.getElementById('rouletteCanvas');
         const rctx = RC.getContext('2d');
@@ -3589,7 +3583,7 @@
         idleSpin();
 
         // ============================================================
-        // 21. КУБИК (полная версия - сокращена)
+        // 21. КУБИК
         // ============================================================
         const PIP_LAYOUTS = {
             1: [
@@ -4073,11 +4067,11 @@
 
         console.log('✅ Скрипт загружен');
         console.log('🆔 Отпечаток:', FINGERPRINT);
-        console.log('🔧 Исправлено:');
-        console.log('  - Топ использует ID для уникальности');
-        console.log('  - Чат: исправлена ошибка 400 при загрузке ЛС');
-        console.log('  - Поиск в чате показывает ID');
-        console.log('  - Оптимизированы запросы к БД');
+        console.log('🔧 Чат полностью переработан:');
+        console.log('  - Использованы простые запросы без сложных условий');
+        console.log('  - ЛС загружается двумя отдельными запросами');
+        console.log('  - Добавлена обработка ошибок');
+        console.log('  - Улучшена производительность');
     </script>
 </body>
 </html>
