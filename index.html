@@ -1095,38 +1095,45 @@
         // 13. УПРАВЛЕНИЕ МУЗЫКОЙ
         // ============================================================
         function initMusic() {
-            try {
-                const musicUrl = 'https://mazccbkzurbryzusajqc.supabase.co/storage/v1/object/public/Music/2026-06-21%2013-13-41%20(online-video-cutter.com).mp3';
-                
-                music = new Howl({
-                    src: [musicUrl],
-                    volume: 0.3,
-                    loop: true,
-                    autoplay: false,
-                    onload: function() {
-                        console.log('🎵 Музыка загружена');
-                        updateMusicButton();
-                    },
-                    onloaderror: function(id, error) {
-                        console.warn('⚠️ Ошибка загрузки музыки:', error);
-                        document.getElementById('musicToggle').textContent = '🎵';
-                        document.getElementById('musicToggle').title = 'Ошибка загрузки музыки';
-                    },
-                    onplay: function() {
-                        musicPlaying = true;
-                        updateMusicButton();
-                    },
-                    onpause: function() {
-                        musicPlaying = false;
-                        updateMusicButton();
-                    }
-                });
-            } catch (e) {
-                console.warn('⚠️ Ошибка инициализации музыки:', e);
+    try {
+        const musicUrl = 'https://mazccbkzurbryzusajqc.supabase.co/storage/v1/object/public/Music/2026-06-21%2013-13-41%20(online-video-cutter.com).mp3';
+        
+        music = new Howl({
+            src: [musicUrl],
+            volume: 0.3,
+            loop: true,
+            autoplay: true,  // ← Пытаемся запустить сразу
+            onload: function() {
+                console.log('🎵 Музыка загружена');
+                updateMusicButton();
+                // Автоматически запускаем после загрузки
+                if (!musicPlaying) {
+                    music.play();
+                    window.toast('🎵 Музыка включена', 'ok');
+                }
+            },
+            onloaderror: function(id, error) {
+                console.warn('⚠️ Ошибка загрузки музыки:', error);
                 document.getElementById('musicToggle').textContent = '🎵';
-                document.getElementById('musicToggle').title = 'Ошибка';
+                document.getElementById('musicToggle').title = 'Ошибка загрузки музыки';
+            },
+            onplay: function() {
+                musicPlaying = true;
+                updateMusicButton();
+                console.log('🎵 Музыка играет');
+            },
+            onpause: function() {
+                musicPlaying = false;
+                updateMusicButton();
+                console.log('🔇 Музыка остановлена');
             }
-        }
+        });
+    } catch (e) {
+        console.warn('⚠️ Ошибка инициализации музыки:', e);
+        document.getElementById('musicToggle').textContent = '🎵';
+        document.getElementById('musicToggle').title = 'Ошибка';
+    }
+}
 
         function updateMusicButton() {
             const btn = document.getElementById('musicToggle');
@@ -1222,37 +1229,47 @@
         // 15. ПОКАЗ ПРИЛОЖЕНИЯ
         // ============================================================
         function showApp() {
-            document.getElementById('authWrap').style.display = 'none';
-            document.getElementById('appWrap').classList.add('on');
-            toggleBanner(true);
-            
-            if (!G.refCode) G.refCode = UID.slice(0, 8);
-            initMissions();
-            renderUI();
-            setTimeout(() => window.drawRoulette(0, null), 100);
-            updateAvatarPreview();
-            
-            // Инициализируем музыку
-            initMusic();
-            
-            // Запускаем музыку после первого клика пользователя (политика автозапуска)
-            document.addEventListener('click', function startMusicOnFirstClick() {
-                if (music && !musicPlaying) {
-                    music.play();
-                }
-                document.removeEventListener('click', startMusicOnFirstClick);
-            }, { once: true });
-            
-            setInterval(renderFarmTimer, 1000);
-            setInterval(renderBoss, 30000);
-            setInterval(() => { if (UID) saveUserData(); }, CONFIG.AUTO_SAVE_INTERVAL);
-            
-            window.addEventListener('beforeunload', () => { if (UID) saveUserData(); });
-            window.addEventListener('online', restoreOfflineQueue);
-            
-            window.toast('💾 Данные синхронизируются', 'info');
-            window.toast('🎵 Нажмите на колонку рядом с балансом, чтобы включить музыку', 'info');
+    document.getElementById('authWrap').style.display = 'none';
+    document.getElementById('appWrap').classList.add('on');
+    toggleBanner(true);
+    
+    if (!G.refCode) G.refCode = UID.slice(0, 8);
+    initMissions();
+    renderUI();
+    setTimeout(() => window.drawRoulette(0, null), 100);
+    updateAvatarPreview();
+    
+    // ===== ИНИЦИАЛИЗАЦИЯ МУЗЫКИ =====
+    initMusic();
+    
+    // ✅ ЗАПУСКАЕМ МУЗЫКУ СРАЗУ ПОСЛЕ ВХОДА
+    // Небольшая задержка, чтобы аудио-контекст успел инициализироваться
+    setTimeout(() => {
+        if (music && !musicPlaying) {
+            music.play();
+            window.toast('🎵 Музыка включена', 'ok');
         }
+    }, 500);
+    
+    // Дублируем запуск по клику (на случай, если браузер заблокирует автозапуск)
+    document.addEventListener('click', function startMusicOnFirstClick() {
+        if (music && !musicPlaying) {
+            music.play();
+            window.toast('🎵 Музыка включена', 'ok');
+        }
+        document.removeEventListener('click', startMusicOnFirstClick);
+    }, { once: true });
+    
+    setInterval(renderFarmTimer, 1000);
+    setInterval(renderBoss, 30000);
+    setInterval(() => { if (UID) saveUserData(); }, CONFIG.AUTO_SAVE_INTERVAL);
+    
+    window.addEventListener('beforeunload', () => { if (UID) saveUserData(); });
+    window.addEventListener('online', restoreOfflineQueue);
+    
+    window.toast('💾 Данные синхронизируются', 'info');
+    window.toast('🎵 Нажмите на колонку рядом с балансом, чтобы управлять музыкой', 'info');
+}
 
         function initMissions() {
             const now = Date.now();
@@ -1344,38 +1361,40 @@
         // 18. ОТРИСОВКА
         // ============================================================
         function renderUI() {
-            const sets = {
-                H_c: G.coins, S_c: G.coins, S_f: G.farms, S_r: G.refs, S_k: G.keys,
-                PNAME: G.name, F_lv: G.farmLv,
-                F_mx: '×' + (1 + (G.farmLv - 1) * .2).toFixed(1),
-                F_uc: G.farmLv >= 5 ? 'макс' : window.getFarmCost() + ' монет',
-                K_b: G.keys + ' 🔑', CH_c: G.chests,
-                MY_REF: G.refCode || UID?.slice(0, 8) || '—',
-                ACT_REF: G.activatedRef || '—'
-            };
-            Object.entries(sets).forEach(([id, v]) => {
-                const el = document.getElementById(id);
-                if (el) el.textContent = typeof v === 'number' ? fmt(v) : v;
-            });
+    const sets = {
+        H_c: G.coins, S_c: G.coins, S_f: G.farms, S_r: G.refs, S_k: G.keys,
+        PNAME: G.name, F_lv: G.farmLv,
+        F_mx: '×' + (1 + (G.farmLv - 1) * .2).toFixed(1),
+        F_uc: G.farmLv >= 5 ? 'макс' : window.getFarmCost() + ' монет',
+        K_b: G.keys + ' 🔑', CH_c: G.chests,
+        MY_REF: G.refCode || UID?.slice(0, 8) || '—',
+        ACT_REF: G.activatedRef || '—'
+    };
+    Object.entries(sets).forEach(([id, v]) => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = typeof v === 'number' ? fmt(v) : v;
+    });
 
-            updateAvatarPreview();
+    updateAvatarPreview();
 
-            const an = G.nicks.a ? NICK_S[G.nicks.a] : null;
-            document.getElementById('NICK_L').textContent = an ? `${an.e} ${an.n}` : 'Стиль не выбран';
-            document.getElementById('AV').textContent = an ? an.e : '⛏';
+    const an = G.nicks.a ? NICK_S[G.nicks.a] : null;
+    document.getElementById('NICK_L').textContent = an ? `${an.e} ${an.n}` : 'Стиль не выбран';
+    
+    // ❌ УБИРАЕМ ЭТУ СТРОКУ — #AV больше нет
+    // document.getElementById('AV').textContent = an ? an.e : '⛏';
 
-            const cb = document.getElementById('CH_btn');
-            if (cb) cb.disabled = G.chests <= 0;
+    const cb = document.getElementById('CH_btn');
+    if (cb) cb.disabled = G.chests <= 0;
 
-            renderFarmTimer();
-            renderShards();
-            renderNicks();
-            renderMissions();
-            renderBoss();
-            renderClan();
-            renderTop('b');
-            renderPodium();
-        }
+    renderFarmTimer();
+    renderShards();
+    renderNicks();
+    renderMissions();
+    renderBoss();
+    renderClan();
+    renderTop('b');
+    renderPodium();
+}
 
         function renderFarmTimer() {
             const now = Date.now(), cd = 3600000, el = now - G.lastFarm;
