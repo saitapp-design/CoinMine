@@ -96,8 +96,20 @@
         .row { display: flex; align-items: center; gap: 9px; padding: 8px 0; border-bottom: 1px solid var(--bd); transition: .3s; }
         .row:last-child { border-bottom: none; }
         .row:hover { background: var(--bg4); margin: 0 -8px; padding: 8px 8px; border-radius: 6px; }
-        .pb { background: var(--bg4); border-radius: 20px; height: 6px; overflow: hidden; }
-        .pf { height: 100%; border-radius: 20px; transition: width .6s ease; }
+        .pb { 
+            background: var(--bg4); 
+            border-radius: 20px; 
+            height: 6px; 
+            overflow: hidden; 
+            width: 100%; 
+            position: relative;
+        }
+        .pf { 
+            height: 100%; 
+            border-radius: 20px; 
+            transition: width .6s ease; 
+            width: 100%;
+        }
         .pf-gld { background: linear-gradient(90deg, #b87800, var(--gld)); }
         .pf-acc { background: linear-gradient(90deg, var(--acc), var(--acc2)); }
         .pf-grn { background: var(--grn); }
@@ -194,6 +206,115 @@
         #TOAST { position: fixed; top: 60px; left: 50%; transform: translateX(-50%); padding: 9px 18px; border-radius: 20px; font-size: 13px; font-weight: 600; z-index: 999; transition: opacity .3s; opacity: 0; pointer-events: none; max-width: 88%; text-align: center; box-shadow: 0 8px 30px rgba(0,0,0,0.5); }
         .hl { color: var(--gld); font-weight: 700; }
         :root { --acc3: #c4a0ff; --r3: 4px; }
+
+        /* ===== АВАТАРКИ ===== */
+        .avatar-wrap {
+            position: relative;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+        .avatar-wrap:hover .avatar-hint {
+            opacity: 1;
+        }
+        .avatar-preview {
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            background: #190a35;
+            border: 2px solid var(--acc);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0;
+            transition: .3s;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+        .avatar-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .avatar-preview:hover {
+            border-color: var(--gld);
+            transform: scale(1.05);
+        }
+        .avatar-hint {
+            position: absolute;
+            bottom: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.8);
+            color: var(--tx2);
+            font-size: 9px;
+            padding: 2px 8px;
+            border-radius: 10px;
+            white-space: nowrap;
+            opacity: 0;
+            transition: .3s;
+            pointer-events: none;
+            border: 1px solid var(--bd2);
+        }
+        .avatar-selector {
+            position: absolute;
+            top: 58px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--bg3);
+            border: 1px solid var(--bd2);
+            border-radius: var(--r);
+            padding: 12px;
+            opacity: 0;
+            pointer-events: none;
+            transition: .3s;
+            z-index: 10;
+            width: 220px;
+            max-width: 90vw;
+        }
+        .avatar-selector.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .avatar-selector-title {
+            text-align: center;
+            color: var(--tx2);
+            font-size: 11px;
+            margin-bottom: 8px;
+        }
+        .avatar-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+        .avatar-option {
+            width: 60px;
+            height: 60px;
+            border-radius: 12px;
+            border: 2px solid transparent;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: .3s;
+            background: var(--bg4);
+            overflow: hidden;
+            padding: 4px;
+        }
+        .avatar-option img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+        .avatar-option:hover {
+            border-color: var(--acc2);
+            transform: scale(1.05);
+        }
+        .avatar-option.active {
+            border-color: var(--gld);
+            box-shadow: 0 0 20px #f0b42944;
+        }
     </style>
 </head>
 <body>
@@ -233,7 +354,17 @@
                 <div class="sc on" id="sc-home">
                     <div class="card">
                         <div class="fl" style="margin-bottom:14px">
-                            <div id="AV" style="font-size:40px;width:52px;height:52px;border-radius:50%;background:#190a35;border:2px solid var(--acc);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:.3s;animation:float 3s ease-in-out infinite;">⛏</div>
+                            <!-- АВАТАРКА С ВЫБОРОМ КАРТИНОК -->
+                            <div class="avatar-wrap">
+                                <div class="avatar-preview" id="avatarPreview" onclick="toggleAvatarSelector()">
+                                    <img id="avatarImg" src="https://i.postimg.cc/ydqnTq7J/1b5e1ca8f182156f9106095981de17b7.png" alt="Аватар">
+                                </div>
+                                <div class="avatar-hint">👆 Выбрать аватар</div>
+                                <div class="avatar-selector" id="avatarSelector">
+                                    <div class="avatar-selector-title">Выберите аватар</div>
+                                    <div class="avatar-grid" id="avatarGrid"></div>
+                                </div>
+                            </div>
                             <div class="f1">
                                 <div class="fl" style="flex-wrap:wrap;gap:6px;margin-bottom:3px">
                                     <strong id="PNAME" style="font-size:15px">Шахтёр</strong>
@@ -257,7 +388,9 @@
                             <span style="font-size:20px">⛏</span>
                             <div class="f1">
                                 <div style="font-size:12px;color:var(--tx2)" id="F_st">Готово к добыче!</div>
-                                <div class="pb mt8"><div class="pf pf-gld" id="F_pb" style="width:100%"></div></div>
+                                <div class="pb mt8">
+                                    <div class="pf pf-gld" id="F_pb" style="width:100%"></div>
+                                </div>
                             </div>
                             <span style="font-size:11px;color:var(--tx2);min-width:42px;text-align:right" id="F_cd"></span>
                         </div>
@@ -543,12 +676,12 @@
         // 2. НАСТРОЙКИ ОПТИМИЗАЦИИ
         // ============================================================
         const CONFIG = {
-            SAVE_INTERVAL: 10000,        // 10 секунд между сохранениями
-            TOP_CACHE_TIME: 600000,      // 10 минут кеш топа
-            TOP_LIMIT: 10,               // Показываем только топ-10
-            AUTO_SAVE_INTERVAL: 60000,   // Автосохранение каждую минуту
-            MAX_RETRIES: 3,              // Количество попыток при ошибке
-            BATCH_SIZE: 10               // Максимум записей в батче
+            SAVE_INTERVAL: 10000,
+            TOP_CACHE_TIME: 600000,
+            TOP_LIMIT: 10,
+            AUTO_SAVE_INTERVAL: 60000,
+            MAX_RETRIES: 3,
+            BATCH_SIZE: 10
         };
 
         // ============================================================
@@ -581,7 +714,23 @@
         const FINGERPRINT = getFingerprint();
 
         // ============================================================
-        // 4. СОСТОЯНИЕ
+        // 4. СПИСОК ФИКСИРОВАННЫХ АВАТАРОК
+        // ============================================================
+        const AVATAR_LIST = [
+            'https://i.postimg.cc/ydqnTq7J/1b5e1ca8f182156f9106095981de17b7.png',
+            'https://i.postimg.cc/cHZwHdsh/Skrinsot-21-06-2026-121235.jpg',
+            'https://i.postimg.cc/QMDHgSRZ/Skrinsot-21-06-2026-121524.jpg',
+            'https://i.postimg.cc/4NhdrrGx/image.png',
+            'https://i.postimg.cc/RFFCGYdk/image.png',
+            'https://i.postimg.cc/zD4WbwXL/image.png',
+            'https://i.postimg.cc/x13b4WG3/image.png',
+            'https://i.postimg.cc/Y9hGj05V/image.png',
+            'https://i.postimg.cc/yNrWqBDs/image.png',
+            'https://i.postimg.cc/sD9Xj5BF/image.png'
+        ];
+
+        // ============================================================
+        // 5. СОСТОЯНИЕ
         // ============================================================
         let UID = null;
         let authMode = 'login';
@@ -639,13 +788,14 @@
             clan: null, clanLF: 0, promos: {},
             missions: { active: null, lastReset: 0 },
             auctionBid: 0, auctionBidders: [], chests: 0,
-            refCode: '', activatedRef: null
+            refCode: '', activatedRef: null,
+            avatar: AVATAR_LIST[0]
         };
 
         let BOSS_STATE = { hp: 0, lastKill: 0 };
 
         // ============================================================
-        // 5. API — С ПОВТОРНЫМИ ПОПЫТКАМИ
+        // 6. API — С ПОВТОРНЫМИ ПОПЫТКАМИ
         // ============================================================
         async function sbFetch(path, opts = {}) {
             const headers = {
@@ -673,7 +823,7 @@
         }
 
         // ============================================================
-        // 6. ТОП-10 — ОПТИМИЗИРОВАННЫЙ
+        // 7. ТОП-10 — ОПТИМИЗИРОВАННЫЙ
         // ============================================================
         async function loadTopPlayers(tp = 'b') {
             const now = Date.now();
@@ -719,7 +869,7 @@
         }
 
         // ============================================================
-        // 7. АВТОРИЗАЦИЯ
+        // 8. АВТОРИЗАЦИЯ
         // ============================================================
         async function authRegister(username, password, fingerprint) {
             const { data: existing } = await sbFetch(
@@ -744,7 +894,8 @@
                     clan: null, clanLF: 0, promos: {},
                     missions: { active: null, lastReset: 0 },
                     auctionBid: 0, auctionBidders: [], chests: 0,
-                    refCode: '', activatedRef: null
+                    refCode: '', activatedRef: null,
+                    avatar: AVATAR_LIST[0]
                 },
                 boss: { hp: 0, lastKill: 0 },
                 created_at: new Date().toISOString(),
@@ -789,6 +940,8 @@
             if (user.data) {
                 const p = user.data;
                 Object.keys(G).forEach(k => { if (p[k] !== undefined) G[k] = p[k]; });
+                // Загружаем аватар
+                if (p.avatar) G.avatar = p.avatar;
             }
             if (user.boss) Object.assign(BOSS_STATE, user.boss);
 
@@ -801,12 +954,13 @@
             localStorage.setItem('cm_username', username);
 
             await loadTopPlayers('b');
+            updateAvatarPreview();
 
             return user;
         }
 
         // ============================================================
-        // 8. СОХРАНЕНИЕ — ОПТИМИЗИРОВАННОЕ
+        // 9. СОХРАНЕНИЕ — ОПТИМИЗИРОВАННОЕ
         // ============================================================
         function scheduleSave() {
             pendingChanges = true;
@@ -869,7 +1023,7 @@
         }
 
         // ============================================================
-        // 9. ВОССТАНОВЛЕНИЕ ОФЛАЙН-ДАННЫХ
+        // 10. ВОССТАНОВЛЕНИЕ ОФЛАЙН-ДАННЫХ
         // ============================================================
         async function restoreOfflineQueue() {
             try {
@@ -895,7 +1049,7 @@
         }
 
         // ============================================================
-        // 10. ВОССТАНОВЛЕНИЕ СЕССИИ
+        // 11. ВОССТАНОВЛЕНИЕ СЕССИИ
         // ============================================================
         async function restoreSession() {
             const u = localStorage.getItem('cm_uid');
@@ -918,12 +1072,14 @@
                     if (user.data) {
                         const p = user.data;
                         Object.keys(G).forEach(k => { if (p[k] !== undefined) G[k] = p[k]; });
+                        if (p.avatar) G.avatar = p.avatar;
                     }
                     if (user.boss) Object.assign(BOSS_STATE, user.boss);
                     if (!G.refCode) G.refCode = UID.slice(0, 8);
                     
                     await restoreOfflineQueue();
                     await loadTopPlayers('b');
+                    updateAvatarPreview();
                     return true;
                 }
                 return false;
@@ -934,7 +1090,7 @@
         }
 
         // ============================================================
-        // 11. УПРАВЛЕНИЕ БАННЕРОМ
+        // 12. УПРАВЛЕНИЕ БАННЕРОМ
         // ============================================================
         function toggleBanner(show) {
             const banner = document.getElementById('mainBanner');
@@ -949,7 +1105,45 @@
         })();
 
         // ============================================================
-        // 12. АВТОРИЗАЦИЯ UI
+        // 13. УПРАВЛЕНИЕ АВАТАРКОЙ
+        // ============================================================
+        function toggleAvatarSelector() {
+            const sel = document.getElementById('avatarSelector');
+            if (sel) {
+                sel.classList.toggle('show');
+                renderAvatarGrid();
+            }
+        }
+
+        function renderAvatarGrid() {
+            const grid = document.getElementById('avatarGrid');
+            if (!grid) return;
+            
+            grid.innerHTML = AVATAR_LIST.map(url => 
+                `<div class="avatar-option ${G.avatar === url ? 'active' : ''}" onclick="selectAvatar('${url}')">
+                    <img src="${url}" alt="Аватар" loading="lazy">
+                </div>`
+            ).join('');
+        }
+
+        function selectAvatar(url) {
+            G.avatar = url;
+            updateAvatarPreview();
+            document.getElementById('avatarSelector').classList.remove('show');
+            scheduleSave();
+            window.toast('✅ Аватарка изменена!', 'ok');
+        }
+
+        function updateAvatarPreview() {
+            const preview = document.getElementById('avatarPreview');
+            const img = document.getElementById('avatarImg');
+            if (preview && img) {
+                img.src = G.avatar || AVATAR_LIST[0];
+            }
+        }
+
+        // ============================================================
+        // 14. АВТОРИЗАЦИЯ UI
         // ============================================================
         window.setAuthMode = function(m) {
             authMode = m;
@@ -1009,7 +1203,7 @@
         };
 
         // ============================================================
-        // 13. ПОКАЗ ПРИЛОЖЕНИЯ
+        // 15. ПОКАЗ ПРИЛОЖЕНИЯ
         // ============================================================
         function showApp() {
             document.getElementById('authWrap').style.display = 'none';
@@ -1020,6 +1214,7 @@
             initMissions();
             renderUI();
             setTimeout(() => window.drawRoulette(0, null), 100);
+            updateAvatarPreview();
             
             setInterval(renderFarmTimer, 1000);
             setInterval(renderBoss, 30000);
@@ -1041,7 +1236,7 @@
         }
 
         // ============================================================
-        // 14. ОСТАЛЬНЫЕ ФУНКЦИИ
+        // 16. ОСТАЛЬНЫЕ ФУНКЦИИ
         // ============================================================
         window.toast = function(msg, t) {
             const e = document.getElementById('TOAST');
@@ -1063,7 +1258,7 @@
         function fmt(n) { return Math.round(n).toLocaleString('ru'); }
 
         // ============================================================
-        // 15. НАВИГАЦИЯ И UI
+        // 17. НАВИГАЦИЯ И UI
         // ============================================================
         window.goSc = function(nm) {
             document.querySelectorAll('.sc').forEach(s => s.classList.remove('on'));
@@ -1118,7 +1313,7 @@
         };
 
         // ============================================================
-        // 16. ОТРИСОВКА
+        // 18. ОТРИСОВКА
         // ============================================================
         function renderUI() {
             const sets = {
@@ -1134,6 +1329,9 @@
                 const el = document.getElementById(id);
                 if (el) el.textContent = typeof v === 'number' ? fmt(v) : v;
             });
+
+            // Обновляем аватар
+            updateAvatarPreview();
 
             const an = G.nicks.a ? NICK_S[G.nicks.a] : null;
             document.getElementById('NICK_L').textContent = an ? `${an.e} ${an.n}` : 'Стиль не выбран';
@@ -1157,16 +1355,22 @@
             const rdy = el >= cd || !G.lastFarm;
             const btn = document.getElementById('F_btn');
             if (btn) btn.disabled = !rdy;
-            const pb = document.getElementById('F_pb'),
-                st = document.getElementById('F_st'),
-                fc = document.getElementById('F_cd');
+            const pb = document.getElementById('F_pb');
+            const st = document.getElementById('F_st');
+            const fc = document.getElementById('F_cd');
             if (!pb) return;
-            if (rdy) { st.textContent = 'Готово к добыче!';
+            
+            if (rdy) {
+                st.textContent = 'Готово к добыче!';
                 pb.style.width = '100%';
-                fc.textContent = ''; } else { const r = cd - el;
+                fc.textContent = '';
+            } else {
+                const r = cd - el;
                 st.textContent = 'Перезарядка...';
-                pb.style.width = Math.round(el / cd * 100) + '%';
-                fc.textContent = Math.floor(r / 60000) + 'м ' + Math.floor((r % 60000) / 1000) + 'с'; }
+                const progress = Math.min(100, Math.round(el / cd * 100));
+                pb.style.width = progress + '%';
+                fc.textContent = Math.floor(r / 60000) + 'м ' + Math.floor((r % 60000) / 1000) + 'с';
+            }
         }
 
         function renderShards() {
@@ -1260,7 +1464,7 @@
         }
 
         // ============================================================
-        // 17. ТОП — ОПТИМИЗИРОВАННЫЙ
+        // 19. ТОП — ОПТИМИЗИРОВАННЫЙ
         // ============================================================
         let topLastType = 'b';
 
@@ -1325,7 +1529,7 @@
         }
 
         // ============================================================
-        // 18. РУЛЕТКА
+        // 20. РУЛЕТКА
         // ============================================================
         const RC = document.getElementById('rouletteCanvas');
         const rctx = RC.getContext('2d');
@@ -1649,7 +1853,7 @@
         idleSpin();
 
         // ============================================================
-        // 19. КУБИК
+        // 21. КУБИК
         // ============================================================
         const PIP_LAYOUTS = {
             1: [
@@ -1874,7 +2078,7 @@
         };
 
         // ============================================================
-        // 20. ОСТАЛЬНЫЕ ИГРОВЫЕ ДЕЙСТВИЯ
+        // 22. ОСТАЛЬНЫЕ ИГРОВЫЕ ДЕЙСТВИЯ
         // ============================================================
         function renderPodium() {
             const podiumEl = document.getElementById('podiumList');
@@ -2106,7 +2310,7 @@
         };
 
         // ============================================================
-        // 21. ЗАПУСК
+        // 23. ЗАПУСК
         // ============================================================
         document.addEventListener('DOMContentLoaded', async () => {
             aStat('⏳ Проверка сессии...', 'ld');
