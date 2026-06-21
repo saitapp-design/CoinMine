@@ -615,7 +615,7 @@
             border-radius: 10px;
         }
 
-        /* ===== ROULETTE — НОВАЯ АНИМАЦИЯ ===== */
+        /* ===== ROULETTE ===== */
         .rl-section {
             display: flex;
             flex-direction: column;
@@ -643,12 +643,15 @@
             height: 100%;
         }
         .rl-result {
-            font-size: 14px;
-            font-weight: 500;
+            font-size: 16px;
+            font-weight: 600;
             text-align: center;
-            min-height: 22px;
+            min-height: 28px;
             color: var(--color-text-primary);
+            padding: 4px 0;
         }
+        .rl-result.win { color: var(--gld); }
+        .rl-result.lose { color: var(--red); }
         .rl-btns {
             display: flex;
             gap: 8px;
@@ -670,7 +673,7 @@
         .btn-blk { border-color: #555 !important; }
         .btn-grn { border-color: #15803d !important; color: #15803d !important; }
 
-        /* ===== DICE — НОВАЯ АНИМАЦИЯ ===== */
+        /* ===== DICE ===== */
         .dice-section {
             display: flex;
             flex-direction: column;
@@ -703,7 +706,7 @@
             justify-content: center;
             border: 2px solid rgba(255, 255, 255, .18);
             backface-visibility: hidden;
-            transition: background .4s;
+            transition: background .4s, border-color .4s;
         }
         .face.front { transform: translateZ(70px); }
         .face.back { transform: rotateY(180deg) translateZ(70px); }
@@ -726,6 +729,7 @@
             border-radius: 50%;
             background: rgba(255, 255, 255, .88);
             box-shadow: 0 1px 3px rgba(0, 0, 0, .4);
+            transition: background .4s;
         }
         .dice-info {
             font-size: 13px;
@@ -733,12 +737,15 @@
             text-align: center;
         }
         .dice-result {
-            font-size: 15px;
-            font-weight: 500;
+            font-size: 16px;
+            font-weight: 600;
             color: var(--color-text-primary);
-            min-height: 22px;
+            min-height: 28px;
             text-align: center;
+            padding: 4px 0;
         }
+        .dice-result.win { color: var(--gld); }
+        .dice-result.lose { color: var(--red); }
         .dice-btns {
             display: flex;
             gap: 10px;
@@ -1034,7 +1041,7 @@
                     </div>
                 </div>
 
-                <!-- GAMES — С НОВЫМИ АНИМАЦИЯМИ -->
+                <!-- GAMES -->
                 <div class="sc" id="sc-games">
                     <div class="tab-r">
                         <div class="tab on" onclick="window.gTab('rl',this)">🎰 Рулетка</div>
@@ -1243,7 +1250,7 @@
 
     </div>
 
-    <!-- БАННЕР — ОТДЕЛЁН ОТ НАВИГАЦИИ -->
+    <!-- БАННЕР -->
     <div class="static-banner" onclick="window.open('https://t.me/minercoinsf', '_blank')">
         <img id="staticBannerImg" src="https://i.ibb.co/B5CTFj4c/Chat-GPT-Image-20-2026-14-52-25.png" alt="CoinMine Баннер" onerror="this.style.display='none';this.parentElement.querySelector('.placeholder').style.display='flex'">
         <div class="placeholder" style="display:none;">⛏ CoinMine</div>
@@ -1277,7 +1284,7 @@
 
     <script>
         // ============================================================
-        // 1. КОНФИГУРАЦИЯ — ТОЛЬКО ПУБЛИЧНЫЙ КЛЮЧ
+        // 1. КОНФИГУРАЦИЯ
         // ============================================================
         const SB_URL = 'https://mazccbkzurbryzusajqc.supabase.co';
         const SB_ANON_KEY = 'sb_publishable_GLQvPbCZrDYgd7FCSp861g_poX1-Hwy';
@@ -1328,20 +1335,10 @@
             { id: 'r3', nm: '👥 Вербовщик', d: '3 реферала', t: 3, rw: 1 }
         ];
 
-        let DEMO_TOP = [
-            { n: 'ВасяКоин', c: 9420, f: 312, r: 18, s: 6 },
-            { n: 'МегаМайнер', c: 5100, f: 201, r: 9, s: 5 },
-            { n: 'КоролькоинС', c: 3890, f: 145, r: 6, s: 4 },
-            { n: 'АлмазДобытчик', c: 2100, f: 98, r: 3, s: 3 },
-            { n: 'КриптоКинг', c: 1850, f: 87, r: 5, s: 3 },
-            { n: 'Шахтёр777', c: 1520, f: 76, r: 2, s: 2 },
-            { n: 'БлокХантер', c: 1340, f: 65, r: 4, s: 2 },
-            { n: 'НочнойМайнер', c: 1100, f: 54, r: 1, s: 1 },
-            { n: 'ЗолотойДракон', c: 980, f: 43, r: 3, s: 1 },
-            { n: 'СеребряныйЛис', c: 760, f: 32, r: 2, s: 0 }
-        ];
-
         const FARM_COSTS = [50, 100, 250, 500, 1000];
+
+        // РЕАЛЬНЫЕ ИГРОКИ (без демо-данных)
+        let REAL_PLAYERS = [];
 
         let G = {
             coins: 0, farms: 0, refs: 0, keys: 0, lastFarm: 0, farmLv: 1,
@@ -1507,11 +1504,39 @@
             localStorage.setItem('cm_uid', UID);
             localStorage.setItem('cm_username', username);
 
+            // Загружаем всех игроков для топа
+            await loadAllPlayers();
+
             return user;
         }
 
         // ============================================================
-        // 6. СОХРАНЕНИЕ
+        // 6. ЗАГРУЗКА ВСЕХ ИГРОКОВ ДЛЯ ТОПА
+        // ============================================================
+        async function loadAllPlayers() {
+            try {
+                const { data, ok } = await sbFetch(
+                    `/rest/v1/users?select=username,data`, { noAuth: true }
+                );
+                if (ok && data) {
+                    REAL_PLAYERS = data
+                        .filter(u => u.username && u.data)
+                        .map(u => ({
+                            n: u.username,
+                            c: u.data.coins || 0,
+                            f: u.data.farms || 0,
+                            r: u.data.refs || 0,
+                            s: u.data.shards ? Object.keys(u.data.shards).filter(k => u.data.shards[k] > 0).length : 0
+                        }));
+                    console.log('👥 Загружено игроков для топа:', REAL_PLAYERS.length);
+                }
+            } catch (e) {
+                console.error('❌ Ошибка загрузки игроков:', e);
+            }
+        }
+
+        // ============================================================
+        // 7. СОХРАНЕНИЕ
         // ============================================================
         async function saveUserData() {
             if (!UID) return false;
@@ -1525,8 +1550,6 @@
                     updated_at: new Date().toISOString()
                 };
 
-                console.log('💾 Сохранение:', { coins: G.coins, farms: G.farms });
-
                 const { ok, status, data } = await sbFetch(`/rest/v1/users?id=eq.${UID}`, {
                     method: 'PATCH',
                     body: JSON.stringify(payload)
@@ -1537,7 +1560,8 @@
                     return false;
                 }
 
-                console.log('✅ Сохранено');
+                // После сохранения обновляем топ
+                await loadAllPlayers();
                 return true;
             } catch (e) {
                 console.error('❌ Ошибка:', e);
@@ -1562,7 +1586,7 @@
         }
 
         // ============================================================
-        // 7. АВТОРИЗАЦИЯ UI
+        // 8. АВТОРИЗАЦИЯ UI
         // ============================================================
         window.setAuthMode = function(m) {
             authMode = m;
@@ -1614,7 +1638,8 @@
             localStorage.removeItem('cm_tok');
             localStorage.removeItem('cm_uid');
             localStorage.removeItem('cm_username');
-            TOKEN = null; UID = null;
+            TOKEN = null;
+            UID = null;
             document.getElementById('appWrap').classList.remove('on');
             document.getElementById('authWrap').style.display = 'flex';
             aStat('Вы вышли', 'ok');
@@ -1627,7 +1652,9 @@
             const username = localStorage.getItem('cm_username');
             if (!t || !u || !username) return false;
 
-            TOKEN = t; UID = u; currentUsername = username;
+            TOKEN = t;
+            UID = u;
+            currentUsername = username;
 
             try {
                 const { data } = await sbFetch(
@@ -1641,7 +1668,7 @@
                     }
                     if (user.boss) Object.assign(BOSS_STATE, user.boss);
                     if (!G.refCode) G.refCode = UID.slice(0, 8);
-                    console.log('✅ Данные загружены');
+                    await loadAllPlayers();
                     return true;
                 }
             } catch (e) { console.error('❌ Ошибка загрузки:', e); }
@@ -1649,7 +1676,7 @@
         }
 
         // ============================================================
-        // 8. ПОКАЗ ПРИЛОЖЕНИЯ
+        // 9. ПОКАЗ ПРИЛОЖЕНИЯ
         // ============================================================
         function showApp() {
             document.getElementById('authWrap').style.display = 'none';
@@ -1674,7 +1701,7 @@
         }
 
         // ============================================================
-        // 9. НАВИГАЦИЯ И UI
+        // 10. НАВИГАЦИЯ И UI
         // ============================================================
         window.goSc = function(nm) {
             document.querySelectorAll('.sc').forEach(s => s.classList.remove('on'));
@@ -1710,20 +1737,26 @@
             document.getElementById('M_b').textContent = body;
             _pFn = fn;
             document.getElementById('M_conf').classList.add('on');
-            document.getElementById('M_ok').onclick = () => { window.closeMod(); if (_pFn) { _pFn(); _pFn = null; } };
+            document.getElementById('M_ok').onclick = () => { window.closeMod(); if (_pFn) { _pFn();
+                    _pFn = null; } };
         };
 
         window.closeMod = function() { document.getElementById('M_conf').classList.remove('on'); };
-        window.openNickMod = function() { document.getElementById('NK_i').value = G.name; document.getElementById('M_nick').classList.add('on'); };
+        window.openNickMod = function() { document.getElementById('NK_i').value = G.name; document.getElementById('M_nick')
+                .classList.add('on'); };
         window.closeNickMod = function() { document.getElementById('M_nick').classList.remove('on'); };
         window.saveNick = function() {
             const v = document.getElementById('NK_i').value.trim();
             if (v.length < 3 || v.length > 16) { window.toast('3–16 символов', 'err'); return; }
-            G.name = v; scheduleSave(); renderUI(); window.closeNickMod(); window.toast('Ник изменён!', 'ok');
+            G.name = v;
+            scheduleSave();
+            renderUI();
+            window.closeNickMod();
+            window.toast('Ник изменён!', 'ok');
         };
 
         // ============================================================
-        // 10. ОТРИСОВКА
+        // 11. ОТРИСОВКА
         // ============================================================
         function renderUI() {
             const sets = {
@@ -1747,19 +1780,33 @@
             const cb = document.getElementById('CH_btn');
             if (cb) cb.disabled = G.chests <= 0;
 
-            renderFarmTimer(); renderShards(); renderNicks(); renderMissions();
-            renderBoss(); renderClan(); renderTop('b'); renderPodium();
+            renderFarmTimer();
+            renderShards();
+            renderNicks();
+            renderMissions();
+            renderBoss();
+            renderClan();
+            renderTop('b');
+            renderPodium();
         }
 
         function renderFarmTimer() {
-            const now = Date.now(), cd = 3600000, el = now - G.lastFarm;
+            const now = Date.now(),
+                cd = 3600000,
+                el = now - G.lastFarm;
             const rdy = el >= cd || !G.lastFarm;
             const btn = document.getElementById('F_btn');
             if (btn) btn.disabled = !rdy;
-            const pb = document.getElementById('F_pb'), st = document.getElementById('F_st'), fc = document.getElementById('F_cd');
+            const pb = document.getElementById('F_pb'),
+                st = document.getElementById('F_st'),
+                fc = document.getElementById('F_cd');
             if (!pb) return;
-            if (rdy) { st.textContent = 'Готово к добыче!'; pb.style.width = '100%'; fc.textContent = ''; }
-            else { const r = cd - el; st.textContent = 'Перезарядка...'; pb.style.width = Math.round(el / cd * 100) + '%'; fc.textContent = Math.floor(r / 60000) + 'м ' + Math.floor((r % 60000) / 1000) + 'с'; }
+            if (rdy) { st.textContent = 'Готово к добыче!';
+                pb.style.width = '100%';
+                fc.textContent = ''; } else { const r = cd - el;
+                st.textContent = 'Перезарядка...';
+                pb.style.width = Math.round(el / cd * 100) + '%';
+                fc.textContent = Math.floor(r / 60000) + 'м ' + Math.floor((r % 60000) / 1000) + 'с'; }
         }
 
         function renderShards() {
@@ -1777,7 +1824,8 @@
             const g = document.getElementById('NK_g');
             if (!g) return;
             g.innerHTML = Object.entries(NICK_S).map(([id, s]) => {
-                const own = G.nicks.p.includes(id), act = G.nicks.a === id;
+                const own = G.nicks.p.includes(id),
+                    act = G.nicks.a === id;
                 return `<div class="nc${own?' own':''}${act?' act':''}" onclick="window.nickAct('${id}',${own})">
                     <div style="font-size:22px">${s.e}</div>
                     <div style="font-size:11px;color:var(--tx2);margin-top:2px">${s.n}</div>
@@ -1790,7 +1838,8 @@
             const e = document.getElementById('MS_l');
             if (!e || !G.missions?.active) return;
             e.innerHTML = Object.values(G.missions.active).map(m => {
-                const done = m.prog >= m.t, pct = Math.min(100, Math.round(m.prog / m.t * 100));
+                const done = m.prog >= m.t,
+                    pct = Math.min(100, Math.round(m.prog / m.t * 100));
                 return `<div style="margin-bottom:10px">
                     <div class="fl" style="justify-content:space-between;margin-bottom:3px">
                         <span style="font-size:12px;font-weight:600">${m.nm}</span>
@@ -1803,7 +1852,9 @@
         }
 
         function renderBoss() {
-            const now = Date.now(), msk = new Date(now + 3 * 3600000), h = msk.getUTCHours();
+            const now = Date.now(),
+                msk = new Date(now + 3 * 3600000),
+                h = msk.getUTCHours();
             const active = (h >= 16 && h < 22);
             if (active && BOSS_STATE.hp <= 0) {
                 const today = msk.toISOString().slice(0, 10);
@@ -1826,11 +1877,13 @@
                 document.getElementById('BS_rs').textContent = 'Следующий в 16:00 МСК';
                 if (atkBtn) atkBtn.disabled = true;
             } else {
-                const next16 = new Date(msk); next16.setUTCHours(16, 0, 0, 0);
+                const next16 = new Date(msk);
+                next16.setUTCHours(16, 0, 0, 0);
                 if (h >= 22) next16.setUTCDate(next16.getUTCDate() + 1);
                 const rem = next16 - msk;
                 document.getElementById('BS_s').textContent = `Появится в 16:00 МСК`;
-                document.getElementById('BS_rs').textContent = `Через ${Math.floor(rem/3600000)}ч ${Math.floor((rem%3600000)/60000)}м`;
+                document.getElementById('BS_rs').textContent =
+                    `Через ${Math.floor(rem/3600000)}ч ${Math.floor((rem%3600000)/60000)}м`;
                 if (atkBtn) atkBtn.disabled = true;
             }
         }
@@ -1842,40 +1895,72 @@
             document.getElementById('CL_n').textContent = G.clan.nm;
             document.getElementById('CL_d').textContent = G.clan.d + ' 💎';
             document.getElementById('CL_m').textContent = G.clan.m.length;
-            document.getElementById('CL_ml').innerHTML = G.clan.m.map(n => `<div class="row">👤 <span>${n}</span></div>`).join('');
-            const el = Date.now() - G.clanLF, cd = 6 * 3600000;
-            document.getElementById('CL_cd').textContent = el >= cd ? 'Фарм доступен!' : 'Фарм через ' + Math.ceil((cd - el) / 3600000) + 'ч';
+            document.getElementById('CL_ml').innerHTML = G.clan.m.map(n => `<div class="row">👤 <span>${n}</span></div>`)
+            .join('');
+            const el = Date.now() - G.clanLF,
+                cd = 6 * 3600000;
+            document.getElementById('CL_cd').textContent = el >= cd ? 'Фарм доступен!' : 'Фарм через ' + Math.ceil((cd - el) /
+                3600000) + 'ч';
             document.getElementById('CL_i').textContent = ['⚔️', '🛡️', '🏹', '🗡️', '🔮'][Math.floor(Math.random() * 5)];
         }
 
-        let topLastType = 'b', topUpdated = 0;
+        let topLastType = 'b',
+            topUpdated = 0;
 
         function renderTop(tp) {
             topLastType = tp;
             const now = Date.now();
             if (now - topUpdated > 600000) {
-                DEMO_TOP.forEach(p => {
-                    p.c = Math.max(0, p.c + Math.floor(Math.random() * 400 - 100));
-                    p.f += Math.floor(Math.random() * 6);
-                    p.r += Math.floor(Math.random() * 2);
-                    p.s = Math.min(6, p.s + (Math.random() > 0.7 ? 1 : 0));
-                });
+                loadAllPlayers();
                 topUpdated = now;
             }
+
             const rem = Math.max(0, Math.ceil((topUpdated + 600000 - now) / 1000));
             document.getElementById('TOP_u').textContent = rem > 30 ? `обновление через ${Math.round(rem/60)}м` : 'только что';
 
+            // Только реальные игроки + текущий
             const shardCount = getShardCount();
-            const all = [...DEMO_TOP, { n: G.name, c: G.coins, f: G.farms, r: G.refs, s: shardCount }];
+            const all = [...REAL_PLAYERS];
+            // Добавляем текущего игрока, если его нет в списке
+            const exists = all.some(p => p.n === G.name);
+            if (!exists) {
+                all.push({ n: G.name, c: G.coins, f: G.farms, r: G.refs, s: shardCount });
+            }
+
+            if (all.length === 0) {
+                document.getElementById('TOP_l').innerHTML =
+                    `<div class="tm tc" style="padding:16px;">Нет игроков для отображения</div>`;
+                return;
+            }
+
             const key = tp === 'b' ? 'c' : tp === 'f' ? 'f' : tp === 'r' ? 'r' : 's';
-            const titles = { b: 'Топ по балансу', f: 'Топ по фармам', r: 'Топ по рефералам', s: 'Топ по осколкам' };
-            const symbols = { b: '💰', f: '⛏', r: '👥', s: '💎' };
+            const titles = {
+                b: 'Топ по балансу',
+                f: 'Топ по фармам',
+                r: 'Топ по рефералам',
+                s: 'Топ по осколкам'
+            };
+            const symbols = {
+                b: '💰',
+                f: '⛏',
+                r: '👥',
+                s: '💎'
+            };
+            const valLabels = {
+                b: 'монет',
+                f: 'фармов',
+                r: 'рефералов',
+                s: 'осколков'
+            };
+
             document.getElementById('TOP_t').textContent = titles[tp];
-            all.sort((a, b) => b[key] - a[key]);
+            all.sort((a, b) => (b[key] || 0) - (a[key] || 0));
+
             const top10 = all.slice(0, 10);
             const clrs = ['var(--gld)', '#c0c0d0', '#cd7f32'];
+
             document.getElementById('TOP_l').innerHTML = top10.map((p, i) => {
-                const val = tp === 's' ? `${p.s} осколков` : fmt(p[key]) + ' ' + symbols[tp];
+                const val = tp === 's' ? `${p.s} ${valLabels[tp]}` : fmt(p[key] || 0) + ' ' + symbols[tp];
                 const isPlayer = p.n === G.name;
                 return `<div class="top-row" style="${isPlayer ? 'background:var(--bg4);border-radius:6px;' : ''}">
                     <div style="font-size:15px;font-weight:700;min-width:22px;color:${clrs[i]||'var(--tx2)'}">${i+1}</div>
@@ -1886,7 +1971,7 @@
         }
 
         // ============================================================
-        // 11. РУЛЕТКА — НОВАЯ АНИМАЦИЯ
+        // 12. РУЛЕТКА
         // ============================================================
         const RC = document.getElementById('rouletteCanvas');
         const rctx = RC.getContext('2d');
@@ -1912,7 +1997,8 @@
         let ballR = OR - 14;
         let spinning = false;
         let raf = null;
-        let ballResult = null;
+        let lastRouletteResult = null;
+        let resultDisplayed = false;
 
         function drawRoulette(wAngle, bAngle, bR, landed) {
             rctx.clearRect(0, 0, 320, 320);
@@ -2048,26 +2134,33 @@
             rctx.lineWidth = 1;
             rctx.stroke();
 
-            if (!spinning && ballResult === null) return;
-            const bx = CX + Math.cos(bAngle) * bR;
-            const by = CY + Math.sin(bAngle) * bR;
+            // Рисуем шарик ТОЛЬКО если идёт анимация или результат ещё не показан
+            if (!spinning && resultDisplayed && lastRouletteResult) {
+                // Показываем результат на кубе — шарик не рисуем
+                return;
+            }
 
-            rctx.beginPath();
-            rctx.arc(bx + 2, by + 2, 8, 0, Math.PI * 2);
-            rctx.fillStyle = 'rgba(0,0,0,.4)';
-            rctx.fill();
+            if (spinning || !resultDisplayed) {
+                const bx = CX + Math.cos(bAngle) * bR;
+                const by = CY + Math.sin(bAngle) * bR;
 
-            const ballGrad = rctx.createRadialGradient(bx - 3, by - 3, 1, bx, by, 8);
-            ballGrad.addColorStop(0, '#ffffff');
-            ballGrad.addColorStop(.4, '#e0e0e0');
-            ballGrad.addColorStop(1, '#a0a0a0');
-            rctx.beginPath();
-            rctx.arc(bx, by, 8, 0, Math.PI * 2);
-            rctx.fillStyle = ballGrad;
-            rctx.fill();
-            rctx.strokeStyle = 'rgba(0,0,0,.3)';
-            rctx.lineWidth = 0.5;
-            rctx.stroke();
+                rctx.beginPath();
+                rctx.arc(bx + 2, by + 2, 8, 0, Math.PI * 2);
+                rctx.fillStyle = 'rgba(0,0,0,.4)';
+                rctx.fill();
+
+                const ballGrad = rctx.createRadialGradient(bx - 3, by - 3, 1, bx, by, 8);
+                ballGrad.addColorStop(0, '#ffffff');
+                ballGrad.addColorStop(.4, '#e0e0e0');
+                ballGrad.addColorStop(1, '#a0a0a0');
+                rctx.beginPath();
+                rctx.arc(bx, by, 8, 0, Math.PI * 2);
+                rctx.fillStyle = ballGrad;
+                rctx.fill();
+                rctx.strokeStyle = 'rgba(0,0,0,.3)';
+                rctx.lineWidth = 0.5;
+                rctx.stroke();
+            }
         }
 
         let spinTarget = 'red';
@@ -2081,10 +2174,15 @@
 
         window.spinTo = function(col) {
             if (spinning) return;
+
+            // Сбрасываем предыдущий результат
+            lastRouletteResult = null;
+            resultDisplayed = false;
+
             spinning = true;
-            ballResult = null;
             spinTarget = col;
             document.getElementById('rlResult').textContent = 'Крутим...';
+            document.getElementById('rlResult').className = 'rl-result';
 
             const possible = SEGS.map((s, i) => s.c === col ? i : -1).filter(x => x >= 0);
             targetSegIdx = possible[Math.floor(Math.random() * possible.length)];
@@ -2128,17 +2226,24 @@
                 raf = requestAnimationFrame(animSpin);
             } else {
                 spinning = false;
-                ballResult = SEGS[targetSegIdx];
-                const colLabel = { red: '🔴 Красный', black: '⚫ Чёрный', green: '🟢 Зелёный' } [ballResult.c];
-                document.getElementById('rlResult').textContent = `Выпало: ${colLabel} (${ballResult.label})`;
-                drawRoulette(wheelAngle, -Math.PI / 2, ballR, ballResult.c);
+                resultDisplayed = true;
+                lastRouletteResult = SEGS[targetSegIdx];
+                const colLabel = { red: '🔴 Красный', black: '⚫ Чёрный', green: '🟢 Зелёный' } [lastRouletteResult.c];
+                const resultEl = document.getElementById('rlResult');
+                const win = col === lastRouletteResult.c;
+                resultEl.textContent = win ? `✅ Выпало: ${colLabel} (${lastRouletteResult.label}) — ВЫ ВЫИГРАЛИ!` :
+                    `❌ Выпало: ${colLabel} (${lastRouletteResult.label}) — ПРОИГРЫШ`;
+                resultEl.className = 'rl-result ' + (win ? 'win' : 'lose');
+
+                // Отрисовываем финальный результат без шарика
+                drawRoulette(wheelAngle, -Math.PI / 2, ballR, lastRouletteResult.c);
             }
         }
 
         let idleAngle = 0;
 
         function idleSpin() {
-            if (!spinning) {
+            if (!spinning && !resultDisplayed) {
                 idleAngle += 0.003;
                 wheelAngle = idleAngle;
                 drawRoulette(wheelAngle, ballAngle, ballR, null);
@@ -2150,7 +2255,7 @@
         idleSpin();
 
         // ============================================================
-        // 12. КУБИК — НОВАЯ АНИМАЦИЯ
+        // 13. КУБИК
         // ============================================================
         const PIP_LAYOUTS = {
             1: [
@@ -2197,17 +2302,24 @@
             { face: '#422006', pip: '#ffffff', border: 'rgba(255,255,255,.2)' },
         ];
 
+        const DICE_FINAL_COLORS = {
+            red: { face: '#7f1d1d', pip: '#ffffff', border: 'rgba(255,255,255,.3)' },
+            black: { face: '#18181b', pip: '#f5f5f5', border: 'rgba(255,255,255,.18)' }
+        };
+
         let curPalette = 0;
         let diceRolling = false;
         let diceAnimId2 = null;
         let diceRx = -20,
             diceRy = 30;
+        let lastDiceValue = null;
+        let lastDiceColor = null;
 
         function buildPips(el, n, pipColor) {
             const g = document.createElement('div');
             g.className = 'pips';
             g.style.cssText =
-                `display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);width:100px;height:100px;gap:0;padding:8px`;
+                'display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);width:100px;height:100px;gap:0;padding:8px';
             for (let r = 0; r < 3; r++)
                 for (let c = 0; c < 3; c++) {
                     const cell = document.createElement('div');
@@ -2226,7 +2338,7 @@
             el.appendChild(g);
         }
 
-        function applyPalette(p) {
+        function applyDicePalette(p) {
             document.querySelectorAll('.face').forEach(f => {
                 f.style.background = p.face;
                 f.style.borderColor = p.border;
@@ -2255,7 +2367,7 @@
                 f.appendChild(wrap);
                 buildPips(wrap, vals[i], '#ffffff');
             });
-            applyPalette(CUBE_PALETTES[0]);
+            applyDicePalette(CUBE_PALETTES[0]);
         })();
 
         window.renderDiceIdle = function() {
@@ -2263,14 +2375,18 @@
             if (!cube) return;
             cube.style.transition = 'none';
             cube.style.transform = 'rotateX(-20deg) rotateY(30deg)';
-            applyPalette(CUBE_PALETTES[0]);
+            applyDicePalette(CUBE_PALETTES[0]);
             document.getElementById('diceResult').textContent = '';
+            document.getElementById('diceResult').className = 'dice-result';
+            lastDiceValue = null;
+            lastDiceColor = null;
         };
 
         window.rollDice = function() {
             if (diceRolling) return;
             diceRolling = true;
-            document.getElementById('diceResult').textContent = '';
+            document.getElementById('diceResult').textContent = '...';
+            document.getElementById('diceResult').className = 'dice-result';
 
             const cube = document.getElementById('diceCube');
             cube.style.transition = 'none';
@@ -2290,7 +2406,7 @@
                 paletteTimer++;
                 if (paletteTimer % 6 === 0) {
                     curPalette = (curPalette + 1) % CUBE_PALETTES.length;
-                    applyPalette(CUBE_PALETTES[curPalette]);
+                    applyDicePalette(CUBE_PALETTES[curPalette]);
                 }
 
                 cube.style.transform = `rotateX(${rx}deg) rotateY(${ry}deg)`;
@@ -2299,8 +2415,13 @@
                     diceAnimId2 = requestAnimationFrame(anim);
                 } else {
                     const val = Math.floor(Math.random() * 6) + 1;
-                    const finalPalette = { face: '#18181b', pip: '#f5f5f5', border: 'rgba(255,255,255,.18)' };
-                    applyPalette(finalPalette);
+                    lastDiceValue = val;
+                    lastDiceColor = val % 2 === 1 ? 'red' : 'black';
+
+                    // В конце — красный или чёрный
+                    const finalColor = DICE_FINAL_COLORS[lastDiceColor];
+                    applyDicePalette(finalColor);
+
                     const faceRots = {
                         1: 'rotateX(0deg) rotateY(0deg)',
                         2: 'rotateX(-90deg) rotateY(0deg)',
@@ -2314,12 +2435,11 @@
 
                     const resultEl = document.getElementById('diceResult');
                     const names = ['', 'Один', 'Два', 'Три', 'Четыре', 'Пять', 'Шесть'];
-                    resultEl.textContent = `Выпало: ${val} — ${names[val]}`;
-                    diceRolling = false;
+                    const colorName = lastDiceColor === 'red' ? '🔴 Красный' : '⚫ Чёрный';
+                    resultEl.textContent = `Выпало: ${val} — ${names[val]} (${colorName})`;
+                    resultEl.className = 'dice-result';
 
-                    // Возвращаем значение для ставок
-                    window._lastDiceValue = val;
-                    window._lastDiceColor = val % 2 === 1 ? 'red' : 'black';
+                    diceRolling = false;
                 }
             }
             requestAnimationFrame(anim);
@@ -2332,30 +2452,32 @@
             G.coins -= 50;
             window.rollDice();
 
-            // Ждём окончания анимации
             const checkResult = setInterval(() => {
-                if (!diceRolling) {
+                if (!diceRolling && lastDiceValue !== null) {
                     clearInterval(checkResult);
-                    const val = window._lastDiceValue || Math.floor(Math.random() * 6) + 1;
-                    const resultCol = val % 2 === 1 ? 'red' : 'black';
+                    const val = lastDiceValue;
+                    const resultCol = lastDiceColor;
                     const base = val * 10;
                     const bonus = col === resultCol ? 10 : 0;
                     const total = base + bonus;
                     G.coins += total;
                     const profit = total - 50;
-                    const colorName = resultCol === 'red' ? 'красный' : 'чёрный';
-                    document.getElementById('diceResult').textContent = profit > 0 ?
+                    const colorName = resultCol === 'red' ? '🔴 красный' : '⚫ чёрный';
+                    const resultEl = document.getElementById('diceResult');
+                    const win = col === resultCol;
+                    resultEl.textContent = win ?
                         `✅ Выпало ${val} (${colorName})! +${profit} монет` :
                         `❌ Выпало ${val} (${colorName}) — получено ${total}`;
+                    resultEl.className = 'dice-result ' + (win ? 'win' : 'lose');
                     scheduleSave();
                     renderUI();
-                    window.toast(profit > 0 ? `+${profit} монет!` : 'Не повезло', profit > 0 ? 'gld' : 'err');
+                    window.toast(win ? `+${profit} монет!` : 'Не повезло', win ? 'gld' : 'err');
                 }
             }, 100);
         };
 
         // ============================================================
-        // 13. АУКЦИОН
+        // 14. АУКЦИОН
         // ============================================================
         function renderPodium() {
             const podiumEl = document.getElementById('podiumList');
@@ -2397,7 +2519,7 @@
         };
 
         // ============================================================
-        // 14. ИГРОВЫЕ ДЕЙСТВИЯ
+        // 15. ИГРОВЫЕ ДЕЙСТВИЯ
         // ============================================================
         window.doFarm = function() {
             const now = Date.now();
@@ -2590,7 +2712,7 @@
         };
 
         // ============================================================
-        // 15. ЗАПУСК
+        // 16. ЗАПУСК
         // ============================================================
         document.addEventListener('DOMContentLoaded', async () => {
             aStat('⏳ Проверка сессии...', 'ld');
