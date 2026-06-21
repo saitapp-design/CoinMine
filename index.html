@@ -315,6 +315,169 @@
             border-color: var(--gld);
             box-shadow: 0 0 20px #f0b42944;
         }
+        /* ===== АВАТАРКИ — МОБИЛЬНАЯ ВЕРСИЯ ===== */
+.avatar-wrap {
+    position: relative;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+.avatar-preview {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background: #190a35;
+    border: 2px solid var(--acc);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0;
+    transition: .3s;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+.avatar-preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+.avatar-preview:hover {
+    border-color: var(--gld);
+    transform: scale(1.05);
+}
+
+/* ПОДСКАЗКА — СМЕЩЕНА НИЖЕ */
+.avatar-hint {
+    position: absolute;
+    bottom: -18px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0,0,0,0.85);
+    color: var(--tx2);
+    font-size: 8px;
+    padding: 2px 8px;
+    border-radius: 10px;
+    white-space: nowrap;
+    opacity: 0;
+    transition: .3s;
+    pointer-events: none;
+    border: 1px solid var(--bd2);
+    z-index: 5;
+}
+.avatar-wrap:hover .avatar-hint {
+    opacity: 1;
+}
+
+/* СЕЛЕКТОР — ЦЕНТРИРОВАН */
+.avatar-selector {
+    position: absolute;
+    top: 58px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--bg3);
+    border: 1px solid var(--bd2);
+    border-radius: var(--r);
+    padding: 12px;
+    opacity: 0;
+    pointer-events: none;
+    transition: .3s;
+    z-index: 100;
+    width: 220px;
+    max-width: 85vw;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.8);
+}
+.avatar-selector.show {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.avatar-selector-title {
+    text-align: center;
+    color: var(--tx2);
+    font-size: 11px;
+    margin-bottom: 8px;
+}
+
+/* СЕТКА АВАТАРОК */
+.avatar-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-bottom: 4px;
+}
+
+.avatar-option {
+    width: 100%;
+    aspect-ratio: 1/1;
+    border-radius: 12px;
+    border: 2px solid transparent;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: .3s;
+    background: var(--bg4);
+    overflow: hidden;
+    padding: 4px;
+}
+.avatar-option img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 8px;
+}
+.avatar-option:hover {
+    border-color: var(--acc2);
+    transform: scale(1.05);
+}
+.avatar-option.active {
+    border-color: var(--gld);
+    box-shadow: 0 0 20px #f0b42944;
+}
+
+/* ===== МОБИЛЬНАЯ АДАПТАЦИЯ ===== */
+@media (max-width: 500px) {
+    .avatar-selector {
+        width: 200px;
+        max-width: 92vw;
+        top: 56px;
+        left: 50%;
+        transform: translateX(-50%);
+        padding: 10px;
+    }
+    .avatar-grid {
+        gap: 6px;
+    }
+    .avatar-option {
+        border-radius: 8px;
+        padding: 3px;
+    }
+    .avatar-hint {
+        font-size: 7px;
+        bottom: -16px;
+        padding: 1px 6px;
+    }
+    .avatar-preview {
+        width: 44px;
+        height: 44px;
+    }
+}
+
+/* ===== ДЛЯ ОЧЕНЬ МАЛЕНЬКИХ ЭКРАНОВ ===== */
+@media (max-width: 380px) {
+    .avatar-selector {
+        width: 170px;
+        max-width: 95vw;
+        padding: 8px;
+    }
+    .avatar-grid {
+        gap: 4px;
+    }
+    .avatar-option {
+        border-radius: 6px;
+        padding: 2px;
+    }
+}
     </style>
 </head>
 <body>
