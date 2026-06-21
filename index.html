@@ -606,26 +606,27 @@
         let BOSS_STATE = { hp: 0, lastKill: 0 };
 
         // ============================================================
-        // 4. API
-        // ============================================================
-        async function sbFetch(path, opts = {}) {
-            const headers = {
-                'apikey': SB_ANON_KEY,
-                'Content-Type': 'application/json',
-                'Prefer': 'return=representation',
-                ...(opts.headers || {})
-            };
-            
-            if (TOKEN && !opts.noAuth) {
-                headers['Authorization'] = 'Bearer ' + TOKEN;
-            }
-            
-            const r = await fetch(SB_URL + path, { ...opts, headers });
-            const txt = await r.text();
-            let d;
-            try { d = JSON.parse(txt); } catch (e) { d = txt; }
-            return { ok: r.ok, status: r.status, data: d };
-        }
+// 4. API — ИСПРАВЛЕННЫЙ
+// ============================================================
+async function sbFetch(path, opts = {}) {
+    const headers = {
+        'apikey': SB_ANON_KEY,
+        'Content-Type': 'application/json',
+        'Prefer': 'return=representation',
+        ...(opts.headers || {})
+    };
+    
+    // ❌ УБИРАЕМ ТОКЕН — он не нужен, так как используем ANON_KEY
+    // if (TOKEN && !opts.noAuth) {
+    //     headers['Authorization'] = 'Bearer ' + TOKEN;
+    // }
+    
+    const r = await fetch(SB_URL + path, { ...opts, headers });
+    const txt = await r.text();
+    let d;
+    try { d = JSON.parse(txt); } catch (e) { d = txt; }
+    return { ok: r.ok, status: r.status, data: d };
+}
 
         // ============================================================
         // 5. ЗАГРУЗКА ВСЕХ ИГРОКОВ
