@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>CoinMine</title>
     <style>
-        /* ===== ВЕСЬ CSS ===== */
+        /* ===== ВЕСЬ ВАШ CSS ОСТАЁТСЯ БЕЗ ИЗМЕНЕНИЙ ===== */
         * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
         :root { --bg: #07070f; --bg2: #0d0d1c; --bg3: #131328; --bg4: #1a1a35; --acc: #7c3aed; --acc2: #9d5cf0; --gld: #f0b429; --gld2: #ffd166; --grn: #10b981; --red: #ef4444; --tx: #f0f0ff; --tx2: #9090b8; --bd: #ffffff14; --bd2: #ffffff22; --r: 12px; --r2: 6px; --gold: #ffd700; --silver: #c0c0c0; --bronze: #cd7f32; --color-text-primary: #f0f0ff; --color-text-secondary: #9090b8; --color-border-secondary: #ffffff22; --border-radius-md: 8px; --color-background-primary: #131328; --color-background-secondary: #1a1a35; --color-border-tertiary: #ffffff14; }
         html, body { height: 100%; background: #07070f; color: var(--tx); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 14px; line-height: 1.4; overflow-x: hidden; }
@@ -513,304 +513,293 @@
 
     <script>
         // ============================================================
-// 1. КОНФИГУРАЦИЯ
-// ============================================================
-const SB_URL = 'https://mazccbkzurbryzusajqc.supabase.co';
-const SB_ANON_KEY = 'sb_publishable_GLQvPbCZrDYgd7FCSp861g_poX1-Hwy';
+        // 1. КОНФИГУРАЦИЯ
+        // ============================================================
+        const SB_URL = 'https://mazccbkzurbryzusajqc.supabase.co';
+        const SB_ANON_KEY = 'sb_publishable_GLQvPbCZrDYgd7FCSp861g_poX1-Hwy';
 
-// ============================================================
-// 2. API — ИСПРАВЛЕННЫЙ
-// ============================================================
-async function sbFetch(path, opts = {}) {
-    const headers = {
-        'apikey': SB_ANON_KEY,
-        'Content-Type': 'application/json',
-        'Prefer': 'return=representation',
-        ...(opts.headers || {})
-    };
-    
-    if (TOKEN && !opts.noAuth) {
-        headers['Authorization'] = 'Bearer ' + TOKEN;
-    }
-    
-    const r = await fetch(SB_URL + path, { ...opts, headers });
-    const txt = await r.text();
-    let d;
-    try { d = JSON.parse(txt); } catch (e) { d = txt; }
-    return { ok: r.ok, status: r.status, data: d };
-}
+        // ============================================================
+        // 2. ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ (ДОЛЖНЫ БЫТЬ ОБЪЯВЛЕНЫ ПЕРВЫМИ)
+        // ============================================================
+        function aStat(text, type) {
+            const e = document.getElementById('authStatus');
+            if (e) { e.textContent = text; e.className = 'astat ' + (type || ''); }
+        }
 
-// ============================================================
-// 3. СОХРАНЕНИЕ — С ПРОВЕРКОЙ
-// ============================================================
-async function saveUserData() {
-    if (!UID) {
-        console.warn('❌ Нет UID');
-        return false;
-    }
+        function getFingerprint() {
+            let fp = localStorage.getItem('coinmine_fp');
+            if (fp) return fp;
+            const parts = [
+                navigator.userAgent, navigator.language,
+                screen.width + 'x' + screen.height, screen.colorDepth,
+                navigator.hardwareConcurrency || 'unknown',
+                new Date().getTimezoneOffset()
+            ];
+            let hash = 0;
+            for (let c of parts.join('|')) {
+                hash = ((hash << 5) - hash) + c.charCodeAt(0);
+                hash = hash & hash;
+            }
+            fp = 'fp_' + Math.abs(hash).toString(36);
+            localStorage.setItem('coinmine_fp', fp);
+            return fp;
+        }
+        
+        const FINGERPRINT = getFingerprint();
 
-    if (isSaving) {
-        saveQueue.push(Date.now());
-        return false;
-    }
+        // ============================================================
+        // 3. СОСТОЯНИЕ
+        // ============================================================
+        let TOKEN = null;
+        let UID = null;
+        let authMode = 'login';
+        let _pFn = null;
+        let saveTimer = null;
+        let currentUsername = '';
+        let isSaving = false;
+        let saveQueue = [];
 
-    isSaving = true;
-
-    try {
-        // Копируем данные, чтобы не было ссылок
-        const dataToSave = JSON.parse(JSON.stringify(G));
-        const bossToSave = JSON.parse(JSON.stringify(BOSS_STATE));
-
-        const payload = {
-            data: dataToSave,
-            boss: bossToSave,
-            updated_at: new Date().toISOString()
+        const NICK_S = {
+            gold: { e: '🌟', n: 'Золотой' },
+            diamond: { e: '💎', n: 'Алмазный' },
+            fire: { e: '🔥', n: 'Огненный' },
+            vip: { e: '👑', n: 'VIP' },
+            star: { e: '⭐', n: 'Звёздный' },
+            ice: { e: '❄️', n: 'Ледяной' },
+            shadow: { e: '🌑', n: 'Теневой' },
+            ninja: { e: '🥷', n: 'Ниндзя' },
+            galaxy: { e: '🌌', n: 'Галактический' },
+            mystic: { e: '🔮', n: 'Мистический' }
         };
 
-        console.log('💾 Сохранение:', { 
-            coins: G.coins, 
-            farms: G.farms,
-            shards: Object.keys(G.shards).length,
-            uid: UID
-        });
+        const SHARDS_C = {
+            'Осколок Вечности': { l: 1, c: .001 },
+            'Кристалл Света': { l: 1, c: .001 },
+            'Обсидиановая Слеза': { l: 2, c: .003 },
+            'Ледяное Сердце': { l: 3, c: .006 },
+            'Свет Луны': { l: 5, c: .015 },
+            'Ткань Реальности': { l: 5, c: .015 }
+        };
+        const SHARDS_LIST = Object.keys(SHARDS_C);
+        const PROMOS = { free: 15, denchak: 15 };
 
-        // Пробуем сохранить с явным указанием ID
-        const { ok, status, data } = await sbFetch(`/rest/v1/users?id=eq.${UID}`, {
-            method: 'PATCH',
-            body: JSON.stringify(payload),
-            headers: {
-                'Prefer': 'return=representation'
-            }
-        });
+        const MISSIONS_DEF = [
+            { id: 'f8', nm: '🌾 Шахтёр', d: 'Добыть 8 раз', t: 8, rw: 1 },
+            { id: 's1', nm: '💎 Коллекционер', d: 'Найти осколок', t: 1, rw: 2 },
+            { id: 'w5', nm: '⚒️ Трудоголик', d: '5 профессий', t: 5, rw: 2 },
+            { id: 'r3', nm: '👥 Вербовщик', d: '3 реферала', t: 3, rw: 1 }
+        ];
 
-        if (!ok) {
-            console.error('❌ Ошибка сохранения:', status, data);
+        const FARM_COSTS = [50, 100, 250, 500, 1000];
+
+        let REAL_PLAYERS = [];
+
+        let G = {
+            coins: 0, farms: 0, refs: 0, keys: 0, lastFarm: 0, farmLv: 1,
+            name: 'Шахтёр', nicks: { p: [], a: null }, shards: {},
+            clan: null, clanLF: 0, promos: {},
+            missions: { active: null, lastReset: 0 },
+            auctionBid: 0, auctionBidders: [], chests: 0,
+            refCode: '', activatedRef: null
+        };
+
+        let BOSS_STATE = { hp: 0, lastKill: 0 };
+
+        // ============================================================
+        // 4. API
+        // ============================================================
+        async function sbFetch(path, opts = {}) {
+            const headers = {
+                'apikey': SB_ANON_KEY,
+                'Content-Type': 'application/json',
+                'Prefer': 'return=representation',
+                ...(opts.headers || {})
+            };
             
-            // Если записи нет — создаём новую
-            if (status === 404) {
-                console.log('🔄 Запись не найдена, создаём новую...');
-                const newUser = {
-                    id: UID,
-                    username: currentUsername,
-                    password: 'temp',
-                    fingerprint: FINGERPRINT,
-                    data: dataToSave,
-                    boss: bossToSave,
-                    created_at: new Date().toISOString(),
-                    updated_at: new Date().toISOString()
-                };
-                
-                const { ok: created, data: newData } = await sbFetch('/rest/v1/users', {
-                    method: 'POST',
-                    body: JSON.stringify(newUser),
-                    noAuth: true
-                });
-                
-                if (created) {
-                    console.log('✅ Новая запись создана');
-                    return true;
+            if (TOKEN && !opts.noAuth) {
+                headers['Authorization'] = 'Bearer ' + TOKEN;
+            }
+            
+            const r = await fetch(SB_URL + path, { ...opts, headers });
+            const txt = await r.text();
+            let d;
+            try { d = JSON.parse(txt); } catch (e) { d = txt; }
+            return { ok: r.ok, status: r.status, data: d };
+        }
+
+        // ============================================================
+        // 5. ЗАГРУЗКА ВСЕХ ИГРОКОВ
+        // ============================================================
+        async function loadAllPlayers() {
+            try {
+                const { data, ok } = await sbFetch(
+                    `/rest/v1/users?select=username,data`, { noAuth: true }
+                );
+                if (ok && data) {
+                    REAL_PLAYERS = data
+                        .filter(u => u.username && u.data)
+                        .map(u => ({
+                            n: u.username,
+                            c: u.data.coins || 0,
+                            f: u.data.farms || 0,
+                            r: u.data.refs || 0,
+                            s: u.data.shards ? Object.keys(u.data.shards).filter(k => u.data.shards[k] > 0).length : 0
+                        }));
+                    console.log('👥 Загружено игроков:', REAL_PLAYERS.length);
                 }
+            } catch (e) {
+                console.error('❌ Ошибка загрузки игроков:', e);
             }
-            return false;
         }
 
-        console.log('✅ Сохранено успешно');
-        return true;
-
-    } catch (e) {
-        console.error('❌ Критическая ошибка:', e);
-        return false;
-    } finally {
-        isSaving = false;
-        if (saveQueue.length > 0) {
-            saveQueue.pop();
-            setTimeout(() => saveUserData(), 1000);
-        }
-    }
-}
-
-// ============================================================
-// 4. ЗАГРУЗКА — С ПРОВЕРКОЙ
-// ============================================================
-async function restoreSession() {
-    const t = localStorage.getItem('cm_tok');
-    const u = localStorage.getItem('cm_uid');
-    const username = localStorage.getItem('cm_username');
-    
-    if (!t || !u || !username) {
-        console.log('❌ Нет сохранённой сессии');
-        return false;
-    }
-
-    TOKEN = t;
-    UID = u;
-    currentUsername = username;
-
-    console.log('🔄 Загрузка данных для:', UID);
-
-    try {
-        // Пробуем загрузить данные
-        const { data, ok, status } = await sbFetch(
-            `/rest/v1/users?id=eq.${UID}&select=id,username,data,boss,fingerprint`,
-            { noAuth: true }
-        );
-
-        if (ok && data && data.length > 0) {
-            const user = data[0];
-            console.log('📥 Данные загружены:', {
-                username: user.username,
-                hasData: !!user.data,
-                hasBoss: !!user.boss
-            });
-
-            if (user.data) {
-                // Обновляем G только теми полями, которые есть
-                const p = user.data;
-                Object.keys(G).forEach(k => { 
-                    if (p[k] !== undefined && p[k] !== null) {
-                        G[k] = p[k];
-                    }
-                });
-            }
-            
-            if (user.boss) {
-                Object.assign(BOSS_STATE, user.boss);
-            }
-            
-            if (!G.refCode) {
-                G.refCode = UID.slice(0, 8);
+        // ============================================================
+        // 6. АВТОРИЗАЦИЯ
+        // ============================================================
+        async function authRegister(username, password, fingerprint) {
+            const { data: existing } = await sbFetch(
+                `/rest/v1/users?fingerprint=eq.${encodeURIComponent(fingerprint)}&select=id`, { noAuth: true }
+            );
+            if (existing && existing.length > 0) {
+                throw new Error('На этом устройстве уже есть аккаунт');
             }
 
-            console.log('📊 Текущие данные:', {
-                coins: G.coins,
-                farms: G.farms,
-                shards: Object.keys(G.shards).length,
-                refs: G.refs
-            });
+            const { data: taken } = await sbFetch(
+                `/rest/v1/users?username=eq.${encodeURIComponent(username)}&select=id`, { noAuth: true }
+            );
+            if (taken && taken.length > 0) {
+                throw new Error('Этот логин уже занят');
+            }
 
-            await loadAllPlayers();
-            return true;
-        } else {
-            console.log('❌ Пользователь не найден в базе, статус:', status);
-            
-            // Пробуем создать запись
-            console.log('🔄 Создаём запись для пользователя...');
             const newUser = {
-                id: UID,
-                username: currentUsername,
-                password: 'temp',
-                fingerprint: FINGERPRINT,
-                data: G,
-                boss: BOSS_STATE,
+                username, password, fingerprint,
+                data: {
+                    coins: 150, farms: 0, refs: 0, keys: 0, lastFarm: 0, farmLv: 1,
+                    name: username, nicks: { p: [], a: null }, shards: {},
+                    clan: null, clanLF: 0, promos: {},
+                    missions: { active: null, lastReset: 0 },
+                    auctionBid: 0, auctionBidders: [], chests: 0,
+                    refCode: '', activatedRef: null
+                },
+                boss: { hp: 0, lastKill: 0 },
                 created_at: new Date().toISOString(),
                 updated_at: new Date().toISOString()
             };
-            
-            const { ok: created, data: newData } = await sbFetch('/rest/v1/users', {
+
+            const { ok, data, status } = await sbFetch('/rest/v1/users', {
                 method: 'POST',
-                body: JSON.stringify(newUser),
+                headers: { 'Prefer': 'return=representation' },
                 noAuth: true,
-                headers: {
-                    'Prefer': 'return=representation'
-                }
+                body: JSON.stringify(newUser)
             });
-            
-            if (created) {
-                console.log('✅ Запись создана');
-                await loadAllPlayers();
-                return true;
+
+            if (!ok) {
+                const msg = data?.details || data?.message || 'Ошибка регистрации';
+                throw new Error(msg);
             }
-            return false;
+
+            return await authLogin(username, password);
         }
-    } catch (e) {
-        console.error('❌ Ошибка загрузки:', e);
-        return false;
-    }
-}
 
-// ============================================================
-// 5. ПРОВЕРКА СВЯЗИ С БАЗОЙ
-// ============================================================
-async function testConnection() {
-    try {
-        console.log('🔍 Проверка подключения к Supabase...');
-        const { ok, data } = await sbFetch('/rest/v1/users?limit=1', { noAuth: true });
-        if (ok) {
-            console.log('✅ Подключение к Supabase работает');
-            console.log('📊 Всего пользователей:', data?.length || 0);
-            return true;
-        } else {
-            console.error('❌ Ошибка подключения:', data);
-            return false;
+        async function authLogin(username, password) {
+            const { data, ok } = await sbFetch(
+                `/rest/v1/users?username=eq.${encodeURIComponent(username)}&password=eq.${encodeURIComponent(password)}&select=id,username,data,boss,fingerprint`, { noAuth: true }
+            );
+
+            if (!ok || !data || data.length === 0) {
+                throw new Error('Неверный логин или пароль');
+            }
+
+            const user = data[0];
+
+            if (user.fingerprint && user.fingerprint !== FINGERPRINT) {
+                throw new Error('Этот аккаунт привязан к другому устройству');
+            }
+
+            if (!user.fingerprint) {
+                await sbFetch(`/rest/v1/users?id=eq.${user.id}`, {
+                    method: 'PATCH',
+                    noAuth: true,
+                    body: JSON.stringify({ fingerprint: FINGERPRINT })
+                });
+            }
+
+            if (user.data) {
+                const p = user.data;
+                Object.keys(G).forEach(k => { if (p[k] !== undefined) G[k] = p[k]; });
+            }
+            if (user.boss) Object.assign(BOSS_STATE, user.boss);
+
+            if (!G.refCode) G.refCode = user.id.slice(0, 8);
+
+            TOKEN = 'temp_' + Date.now() + '_' + user.id;
+            UID = user.id;
+            currentUsername = username;
+
+            localStorage.setItem('cm_tok', TOKEN);
+            localStorage.setItem('cm_uid', UID);
+            localStorage.setItem('cm_username', username);
+
+            await loadAllPlayers();
+
+            return user;
         }
-    } catch (e) {
-        console.error('❌ Критическая ошибка:', e);
-        return false;
-    }
-}
-
-// ============================================================
-// 6. КОМАНДА ДЛЯ ПРОСМОТРА ДАННЫХ В КОНСОЛИ
-// ============================================================
-window.showMyData = async function() {
-    if (!UID) {
-        console.log('❌ Вы не авторизованы');
-        return;
-    }
-    
-    console.log('📊 ВАШИ ДАННЫЕ В ПАМЯТИ:');
-    console.log('💰 Монеты:', G.coins);
-    console.log('⛏ Фармы:', G.farms);
-    console.log('👥 Рефералы:', G.refs);
-    console.log('🔑 Ключи:', G.keys);
-    console.log('💎 Осколки:', Object.keys(G.shards).length);
-    console.log('📦 Сундуки:', G.chests);
-    console.log('🏰 Клан:', G.clan?.nm || 'нет');
-    console.log('👹 Босс ХП:', BOSS_STATE.hp);
-    
-    console.log('🔄 Загружаю данные с сервера...');
-    const { data, ok } = await sbFetch(
-        `/rest/v1/users?id=eq.${UID}&select=id,username,data,boss`,
-        { noAuth: true }
-    );
-    
-    if (ok && data && data.length > 0) {
-        const user = data[0];
-        console.log('📦 ДАННЫЕ НА СЕРВЕРЕ:');
-        console.log('👤 Логин:', user.username);
-        console.log('💰 Монеты:', user.data?.coins || 0);
-        console.log('⛏ Фармы:', user.data?.farms || 0);
-        console.log('👥 Рефералы:', user.data?.refs || 0);
-        console.log('💎 Осколки:', user.data?.shards ? Object.keys(user.data.shards).length : 0);
-        console.log('👹 Босс ХП:', user.boss?.hp || 0);
-        console.log('🕐 Обновлено:', user.updated_at);
-        
-        // Проверяем совпадение
-        const serverCoins = user.data?.coins || 0;
-        const localCoins = G.coins || 0;
-        console.log('🔍 Совпадение монет:', serverCoins === localCoins ? '✅ ДА' : '❌ НЕТ');
-    } else {
-        console.log('❌ Не удалось загрузить данные с сервера');
-    }
-};
-
-// ============================================================
-// 7. ПРИНУДИТЕЛЬНОЕ СОХРАНЕНИЕ (для теста)
-// ============================================================
-window.forceSave = async function() {
-    console.log('💾 Принудительное сохранение...');
-    const result = await saveUserData();
-    if (result) {
-        console.log('✅ Сохранено');
-        await window.showMyData();
-    } else {
-        console.log('❌ Ошибка сохранения');
-    }
-    return result;
-};
 
         // ============================================================
-        // 8. АВТОРИЗАЦИЯ UI
+        // 7. СОХРАНЕНИЕ
+        // ============================================================
+        async function saveUserData() {
+            if (!UID) return false;
+            if (isSaving) { saveQueue.push(Date.now()); return false; }
+            isSaving = true;
+
+            try {
+                const dataToSave = JSON.parse(JSON.stringify(G));
+                const bossToSave = JSON.parse(JSON.stringify(BOSS_STATE));
+
+                const payload = {
+                    data: dataToSave,
+                    boss: bossToSave,
+                    updated_at: new Date().toISOString()
+                };
+
+                console.log('💾 Сохранение:', { coins: G.coins, farms: G.farms, uid: UID });
+
+                const { ok, status, data } = await sbFetch(`/rest/v1/users?id=eq.${UID}`, {
+                    method: 'PATCH',
+                    body: JSON.stringify(payload)
+                });
+
+                if (!ok) {
+                    console.error('❌ Ошибка сохранения:', status, data);
+                    return false;
+                }
+
+                console.log('✅ Сохранено');
+                return true;
+            } catch (e) {
+                console.error('❌ Ошибка:', e);
+                return false;
+            } finally {
+                isSaving = false;
+                if (saveQueue.length > 0) {
+                    saveQueue.pop();
+                    setTimeout(() => saveUserData(), 1000);
+                }
+            }
+        }
+
+        function scheduleSave() {
+            clearTimeout(saveTimer);
+            saveTimer = setTimeout(() => saveUserData(), 2000);
+        }
+
+        async function forceSave() {
+            clearTimeout(saveTimer);
+            return await saveUserData();
+        }
+
+        // ============================================================
+        // 8. АВТОРИЗАЦИЯ UI (ВСЕ ФУНКЦИИ ВЫНЕСЕНЫ В window)
         // ============================================================
         window.setAuthMode = function(m) {
             authMode = m;
@@ -881,10 +870,13 @@ window.forceSave = async function() {
             currentUsername = username;
 
             try {
-                const { data } = await sbFetch(
+                console.log('🔄 Загрузка данных для:', UID);
+                
+                const { data, ok } = await sbFetch(
                     `/rest/v1/users?id=eq.${UID}&select=id,username,data,boss,fingerprint`, { noAuth: true }
                 );
-                if (data && data.length > 0) {
+                
+                if (ok && data && data.length > 0) {
                     const user = data[0];
                     if (user.data) {
                         const p = user.data;
@@ -892,11 +884,39 @@ window.forceSave = async function() {
                     }
                     if (user.boss) Object.assign(BOSS_STATE, user.boss);
                     if (!G.refCode) G.refCode = UID.slice(0, 8);
+                    console.log('✅ Данные загружены, монет:', G.coins);
                     await loadAllPlayers();
                     return true;
+                } else {
+                    console.log('❌ Пользователь не найден, создаём...');
+                    const newUser = {
+                        id: UID,
+                        username: currentUsername,
+                        password: 'temp',
+                        fingerprint: FINGERPRINT,
+                        data: G,
+                        boss: BOSS_STATE,
+                        created_at: new Date().toISOString(),
+                        updated_at: new Date().toISOString()
+                    };
+                    
+                    const { ok: created } = await sbFetch('/rest/v1/users', {
+                        method: 'POST',
+                        body: JSON.stringify(newUser),
+                        noAuth: true
+                    });
+                    
+                    if (created) {
+                        console.log('✅ Запись создана');
+                        await loadAllPlayers();
+                        return true;
+                    }
+                    return false;
                 }
-            } catch (e) { console.error('❌ Ошибка загрузки:', e); }
-            return false;
+            } catch (e) { 
+                console.error('❌ Ошибка загрузки:', e); 
+                return false;
+            }
         }
 
         // ============================================================
@@ -925,7 +945,29 @@ window.forceSave = async function() {
         }
 
         // ============================================================
-        // 10. НАВИГАЦИЯ И UI
+        // 10. ОСТАЛЬНЫЕ ФУНКЦИИ (ВЫНЕСЕНЫ В window)
+        // ============================================================
+        window.toast = function(msg, t) {
+            const e = document.getElementById('TOAST');
+            if (!e) return;
+            const colors = { ok: '#065f46', gld: '#92620a', err: '#7f1d1d', info: '#2e1065' };
+            e.style.background = colors[t] || colors.info;
+            e.textContent = msg;
+            e.style.opacity = '1';
+            clearTimeout(e._x);
+            e._x = setTimeout(() => e.style.opacity = '0', 2400);
+        };
+
+        window.getFarmCost = function() { return FARM_COSTS[Math.min(G.farmLv - 1, 4)]; };
+
+        function getShardCount() {
+            return Object.keys(G.shards).filter(k => G.shards[k] > 0).length;
+        }
+
+        function fmt(n) { return Math.round(n).toLocaleString('ru'); }
+
+        // ============================================================
+        // 11. НАВИГАЦИЯ И UI
         // ============================================================
         window.goSc = function(nm) {
             document.querySelectorAll('.sc').forEach(s => s.classList.remove('on'));
@@ -980,7 +1022,7 @@ window.forceSave = async function() {
         };
 
         // ============================================================
-        // 11. ОТРИСОВКА
+        // 12. ОТРИСОВКА
         // ============================================================
         function renderUI() {
             const sets = {
@@ -1187,7 +1229,7 @@ window.forceSave = async function() {
         }
 
         // ============================================================
-        // 12. РУЛЕТКА — ИСПРАВЛЕННАЯ
+        // 13. РУЛЕТКА
         // ============================================================
         const RC = document.getElementById('rouletteCanvas');
         const rctx = RC.getContext('2d');
@@ -1196,7 +1238,6 @@ window.forceSave = async function() {
             OR = 148,
             IR = 28;
 
-        // 20 секторов: 10 чёрных, 10 красных, 2 зелёных (0 и 00)
         const SEGS = [];
         for (let i = 0; i < 20; i++) {
             if (i === 0 || i === 10) SEGS.push({ c: 'green', label: i === 0 ? '0' : '00', num: i === 0 ? 0 : 00 });
@@ -1219,10 +1260,14 @@ window.forceSave = async function() {
         let resultDisplayed = false;
         let spinCol = 'red';
         let spinBet = 25;
-        let currentWinAmount = 0;
-        let currentBetAmount = 0;
 
-        function drawRoulette(wAngle, bAngle, bR, landed) {
+        const ROULETTE_MULTIPLIERS = {
+            red: 1.75,
+            black: 1.75,
+            green: 5.0
+        };
+
+        window.drawRoulette = function(wAngle, bAngle, bR, landed) {
             rctx.clearRect(0, 0, 320, 320);
 
             const validR = OR + 14;
@@ -1357,7 +1402,6 @@ window.forceSave = async function() {
             rctx.lineWidth = 1;
             rctx.stroke();
 
-            // Шарик — показываем только если идёт анимация или результат не показан
             if (!spinning && resultDisplayed && lastRouletteResult) {
                 return;
             }
@@ -1385,7 +1429,7 @@ window.forceSave = async function() {
                     rctx.stroke();
                 }
             }
-        }
+        };
 
         let spinStartW = 0,
             spinStartB = 0;
@@ -1394,12 +1438,6 @@ window.forceSave = async function() {
         let finalWAngle = 0,
             finalBAngle = 0;
         let targetSegIdx = 0;
-
-        const ROULETTE_MULTIPLIERS = {
-            red: 1.75,
-            black: 1.75,
-            green: 5.0
-        };
 
         window.spinTo = function(col) {
             if (spinning) return;
@@ -1412,9 +1450,7 @@ window.forceSave = async function() {
             spinCol = col;
             lastRouletteResult = null;
             resultDisplayed = false;
-            currentBetAmount = spinBet;
 
-            // Списываем ставку
             G.coins -= spinBet;
 
             spinning = true;
@@ -1422,22 +1458,15 @@ window.forceSave = async function() {
             resultEl.textContent = 'Крутим...';
             resultEl.className = 'rl-result';
 
-            // Выбираем случайный сектор нужного цвета
             const possible = SEGS.map((s, i) => s.c === col ? i : -1).filter(x => x >= 0);
             targetSegIdx = possible[Math.floor(Math.random() * possible.length)];
 
             const n = SEGS.length;
             const segAngle = Math.PI * 2 / n;
-
-            // Рассчитываем угол, чтобы сектор оказался ровно под указателем (вверху)
-            // Указатель вверху = -π/2
             const targetWAngle = -Math.PI / 2 - (targetSegIdx + 0.5) * segAngle;
-
-            // Добавляем несколько полных оборотов для красоты
             const extraSpins = 5 + Math.floor(Math.random() * 3);
             finalWAngle = targetWAngle + extraSpins * Math.PI * 2;
 
-            // Шарик движется в противоположную сторону
             const bSpins = 8 + Math.floor(Math.random() * 4);
             finalBAngle = -Math.PI / 2 + Math.PI * 2 * bSpins + Math.random() * 0.3 - 0.15;
             ballR = OR - 14;
@@ -1446,7 +1475,6 @@ window.forceSave = async function() {
             spinStartB = ballAngle;
             spinT0 = performance.now();
 
-            // Блокируем кнопки
             document.querySelectorAll('.rl-btns button').forEach(b => b.disabled = true);
             betInput.disabled = true;
 
@@ -1470,7 +1498,7 @@ window.forceSave = async function() {
                 ballR = (OR - 14) - drop * (OR - 14 - (IR + 22));
             }
 
-            drawRoulette(wheelAngle, ballAngle, ballR, null);
+            window.drawRoulette(wheelAngle, ballAngle, ballR, null);
 
             if (t < 1) {
                 raf = requestAnimationFrame(animSpin);
@@ -1479,16 +1507,15 @@ window.forceSave = async function() {
                 resultDisplayed = true;
                 lastRouletteResult = SEGS[targetSegIdx];
 
-                // Разблокируем кнопки
                 document.querySelectorAll('.rl-btns button').forEach(b => b.disabled = false);
                 document.getElementById('rlBetInput').disabled = false;
 
                 const win = spinCol === lastRouletteResult.c;
                 const multiplier = ROULETTE_MULTIPLIERS[spinCol] || 1;
-                currentWinAmount = win ? Math.floor(spinBet * multiplier) : 0;
+                const winAmount = win ? Math.floor(spinBet * multiplier) : 0;
 
                 if (win) {
-                    G.coins += currentWinAmount;
+                    G.coins += winAmount;
                 }
 
                 const colLabel = { red: '🔴 Красный', black: '⚫ Чёрный', green: '🟢 Зелёный' } [lastRouletteResult.c];
@@ -1496,9 +1523,9 @@ window.forceSave = async function() {
 
                 if (win) {
                     resultEl.textContent =
-                        `✅ Выпало: ${colLabel} (${lastRouletteResult.label}) — ВЫИГРЫШ +${currentWinAmount} монет! (×${multiplier})`;
+                        `✅ Выпало: ${colLabel} (${lastRouletteResult.label}) — ВЫИГРЫШ +${winAmount} монет! (×${multiplier})`;
                     resultEl.className = 'rl-result win';
-                    window.toast(`🎉 +${currentWinAmount} монет!`, 'gld');
+                    window.toast(`🎉 +${winAmount} монет!`, 'gld');
                 } else {
                     resultEl.textContent =
                     `❌ Выпало: ${colLabel} (${lastRouletteResult.label}) — ПРОИГРЫШ -${spinBet} монет`;
@@ -1506,7 +1533,7 @@ window.forceSave = async function() {
                     window.toast(`😞 -${spinBet} монет`, 'err');
                 }
 
-                drawRoulette(wheelAngle, -Math.PI / 2, ballR, lastRouletteResult.c);
+                window.drawRoulette(wheelAngle, -Math.PI / 2, ballR, lastRouletteResult.c);
                 scheduleSave();
                 renderUI();
             }
@@ -1518,16 +1545,15 @@ window.forceSave = async function() {
             if (!spinning && !resultDisplayed) {
                 idleAngle += 0.003;
                 wheelAngle = idleAngle;
-                drawRoulette(wheelAngle, ballAngle, ballR, null);
+                window.drawRoulette(wheelAngle, ballAngle, ballR, null);
             }
             requestAnimationFrame(idleSpin);
         }
-        window.drawRoulette = drawRoulette;
         window.drawRoulette(0, -Math.PI / 2, OR - 14, null);
         idleSpin();
 
         // ============================================================
-        // 13. КУБИК — ТОЛЬКО ПО КНОПКАМ
+        // 14. КУБИК
         // ============================================================
         const PIP_LAYOUTS = {
             1: [
@@ -1654,7 +1680,6 @@ window.forceSave = async function() {
             lastDiceColor = null;
         };
 
-        // Внутренняя функция броска кубика (без ставки, только анимация)
         function rollDiceInternal() {
             if (diceRolling) return;
             diceRolling = true;
@@ -1721,15 +1746,11 @@ window.forceSave = async function() {
             if (G.coins < 50) { window.toast('Нужно 50 монет', 'err'); return; }
             if (diceRolling) { window.toast('Кубик уже крутится', 'err'); return; }
 
-            // Блокируем кнопки
             document.querySelectorAll('.dice-btns button').forEach(b => b.disabled = true);
 
             G.coins -= 50;
-
-            // Запускаем анимацию
             rollDiceInternal();
 
-            // Ждём окончания анимации
             const checkResult = setInterval(() => {
                 if (!diceRolling && lastDiceValue !== null) {
                     clearInterval(checkResult);
@@ -1751,14 +1772,13 @@ window.forceSave = async function() {
                     renderUI();
                     window.toast(win ? `+${profit} монет!` : 'Не повезло', win ? 'gld' : 'err');
 
-                    // Разблокируем кнопки
                     document.querySelectorAll('.dice-btns button').forEach(b => b.disabled = false);
                 }
             }, 100);
         };
 
         // ============================================================
-        // 14. АУКЦИОН
+        // 15. ОСТАЛЬНЫЕ ИГРОВЫЕ ДЕЙСТВИЯ
         // ============================================================
         function renderPodium() {
             const podiumEl = document.getElementById('podiumList');
@@ -1799,9 +1819,6 @@ window.forceSave = async function() {
             window.toast('Ставка: ' + G.auctionBid, 'gld');
         };
 
-        // ============================================================
-        // 15. ИГРОВЫЕ ДЕЙСТВИЯ
-        // ============================================================
         window.doFarm = function() {
             const now = Date.now();
             if (now - G.lastFarm < 3600000 && G.lastFarm) { window.toast('Кулдаун ещё не прошёл!', 'err'); return; }
