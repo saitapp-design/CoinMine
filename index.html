@@ -937,8 +937,8 @@
                 <div class="auth-title">CoinMine</div>
                 <div class="auth-sub" id="authSub">Войдите или создайте аккаунт</div>
                 <div class="auth-tabs">
-                    <button class="auth-tab on" onclick="setAuthMode('login')" id="tabLogin">Войти</button>
-                    <button class="auth-tab" onclick="setAuthMode('register')" id="tabRegister">Регистрация</button>
+                    <button class="auth-tab on" id="tabLogin" onclick="setAuthMode('login')">Войти</button>
+                    <button class="auth-tab" id="tabRegister" onclick="setAuthMode('register')">Регистрация</button>
                 </div>
                 <input class="inp" id="authUsername" type="text" placeholder="Логин (3-16 символов)" autocomplete="username">
                 <input class="inp" id="authPass" type="password" placeholder="Пароль (мин. 6 символов)" autocomplete="current-password">
@@ -1227,12 +1227,12 @@
 
             <!-- НАВИГАЦИЯ -->
             <nav class="nav">
-                <button class="nb on" onclick="goSc('home')" id="NB_home"><span>🏠</span>Главная</button>
-                <button class="nb" onclick="goSc('games')" id="NB_games"><span>🎲</span>Игры</button>
-                <button class="nb" onclick="goSc('arena')" id="NB_arena"><span>⚔️</span>Арена</button>
-                <button class="nb" onclick="goSc('clan')" id="NB_clan"><span>🛡️</span>Клан</button>
-                <button class="nb" onclick="goSc('shop')" id="NB_shop"><span>🛒</span>Магазин</button>
-                <button class="nb" onclick="goSc('top')" id="NB_top"><span>🏆</span>Топ</button>
+                <button class="nb on" id="NB_home" onclick="goSc('home')"><span>🏠</span>Главная</button>
+                <button class="nb" id="NB_games" onclick="goSc('games')"><span>🎲</span>Игры</button>
+                <button class="nb" id="NB_arena" onclick="goSc('arena')"><span>⚔️</span>Арена</button>
+                <button class="nb" id="NB_clan" onclick="goSc('clan')"><span>🛡️</span>Клан</button>
+                <button class="nb" id="NB_shop" onclick="goSc('shop')"><span>🛒</span>Магазин</button>
+                <button class="nb" id="NB_top" onclick="goSc('top')"><span>🏆</span>Топ</button>
             </nav>
 
         </div>
@@ -1276,21 +1276,15 @@
         // 1. КОНФИГУРАЦИЯ — берём из Vercel через import.meta.env
         // ============================================================
         
-        // Эти переменные подставляются Vite на этапе сборки
-        // В Vercel они хранятся в Environment Variables
         const SB_URL = import.meta.env.VITE_SUPABASE_URL;
         const SB_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-        // Проверка, что переменные загружены
-        if (!SB_URL) {
-            console.error('❌ VITE_SUPABASE_URL не задан! Проверьте переменные окружения в Vercel.');
-        }
-        if (!SB_ANON_KEY) {
-            console.error('❌ VITE_SUPABASE_ANON_KEY не задан! Проверьте переменные окружения в Vercel.');
-        }
+        // Если переменные не загружены — используем значения по умолчанию (для локальной разработки)
+        const FINAL_URL = SB_URL || 'https://mazccbkzurbryzusajqc.supabase.co';
+        const FINAL_KEY = SB_ANON_KEY || 'sb_publishable_GLQvPbCZrDYgd7FCSp861g_poX1-Hwy';
 
-        console.log('🔓 Используется ANON_KEY (публичный)');
-        console.log('📡 URL:', SB_URL);
+        console.log('🔓 Используется ANON_KEY');
+        console.log('📡 URL:', FINAL_URL);
 
         // ============================================================
         // 2. СОСТОЯНИЕ
@@ -1378,7 +1372,7 @@
         // ============================================================
         function fmt(n) { return Math.round(n).toLocaleString('ru'); }
 
-        function toast(msg, t) {
+        window.toast = function(msg, t) {
             const e = document.getElementById('TOAST');
             if (!e) return;
             const colors = { ok: '#065f46', gld: '#92620a', err: '#7f1d1d', info: '#2e1065' };
@@ -1387,7 +1381,7 @@
             e.style.opacity = '1';
             clearTimeout(e._x);
             e._x = setTimeout(() => e.style.opacity = '0', 2400);
-        }
+        };
 
         function aStat(text, type) {
             const e = document.getElementById('authStatus');
@@ -1427,21 +1421,20 @@
         const FINGERPRINT = getFingerprint();
 
         // ============================================================
-        // 5. API — используем ANON_KEY из переменных окружения
+        // 5. API
         // ============================================================
         async function sbFetch(path, opts = {}) {
             const headers = {
-                'apikey': SB_ANON_KEY,
+                'apikey': FINAL_KEY,
                 'Content-Type': 'application/json',
                 ...(opts.headers || {})
             };
 
-            // Если у нас есть токен пользователя — используем его
             if (TOKEN && !opts.noAuth) {
                 headers['Authorization'] = 'Bearer ' + TOKEN;
             }
 
-            const r = await fetch(SB_URL + path, { ...opts, headers });
+            const r = await fetch(FINAL_URL + path, { ...opts, headers });
             const txt = await r.text();
             let d;
             try { d = JSON.parse(txt); } catch (e) { d = txt; }
@@ -1452,7 +1445,6 @@
         // 6. РЕГИСТРАЦИЯ, ВХОД
         // ============================================================
         async function authRegister(username, password, fingerprint) {
-            // Проверяем, есть ли уже аккаунт на этом устройстве
             const { data: existing } = await sbFetch(
                 `/rest/v1/users?fingerprint=eq.${encodeURIComponent(fingerprint)}&select=id`, { noAuth: true }
             );
@@ -1460,7 +1452,6 @@
                 throw new Error('На этом устройстве уже есть аккаунт');
             }
 
-            // Проверяем, занят ли логин
             const { data: taken } = await sbFetch(
                 `/rest/v1/users?username=eq.${encodeURIComponent(username)}&select=id`, { noAuth: true }
             );
@@ -1468,7 +1459,6 @@
                 throw new Error('Этот логин уже занят');
             }
 
-            // Создаём пользователя с начальными данными
             const newUser = {
                 username: username,
                 password: password,
@@ -1524,12 +1514,10 @@
 
             const user = data[0];
 
-            // Проверка привязки к устройству
             if (user.fingerprint && user.fingerprint !== FINGERPRINT) {
                 throw new Error('Этот аккаунт привязан к другому устройству');
             }
 
-            // Если устройство не привязано — привязываем
             if (!user.fingerprint) {
                 await sbFetch(`/rest/v1/users?id=eq.${user.id}`, {
                     method: 'PATCH',
@@ -1538,14 +1526,12 @@
                 });
             }
 
-            // ЗАГРУЖАЕМ ДАННЫЕ С СЕРВЕРА В ОПЕРАТИВНУЮ ПАМЯТЬ
             if (user.data) {
                 const p = user.data;
                 Object.keys(G).forEach(k => { if (p[k] !== undefined) G[k] = p[k]; });
             }
             if (user.boss) Object.assign(BOSS_STATE, user.boss);
 
-            // Устанавливаем реф-код, если его нет
             if (!G.refCode) G.refCode = user.id.slice(0, 8);
 
             TOKEN = 'temp_' + Date.now() + '_' + user.id;
@@ -1559,37 +1545,10 @@
             return user;
         }
 
-        async function changeRefCode() {
-            if (!UID) { toast('Сначала войдите в аккаунт', 'err'); return; }
-            const newCode = prompt('Введите новый реферальный код (4-8 символов, только буквы и цифры):');
-            if (!newCode) return;
-            if (newCode.length < 4 || newCode.length > 8) {
-                toast('Код должен быть 4-8 символов', 'err');
-                return;
-            }
-            if (!/^[a-zA-Z0-9]+$/.test(newCode)) {
-                toast('Только буквы и цифры', 'err');
-                return;
-            }
-
-            const { data: taken } = await sbFetch(
-                `/rest/v1/users?data->>refCode=eq.${encodeURIComponent(newCode)}&select=id`, { noAuth: true }
-            );
-            if (taken && taken.length > 0) {
-                toast('Этот код уже занят', 'err');
-                return;
-            }
-
-            G.refCode = newCode;
-            scheduleSave();
-            renderUI();
-            toast('Реферальный код изменён на: ' + newCode, 'ok');
-        }
-
         // ============================================================
         // 7. АВТОРИЗАЦИЯ UI
         // ============================================================
-        function setAuthMode(m) {
+        window.setAuthMode = function(m) {
             authMode = m;
             document.querySelectorAll('.auth-tab').forEach((el, i) => {
                 el.classList.toggle('on', (i === 0 && m === 'login') || (i === 1 && m === 'register'));
@@ -1598,9 +1557,9 @@
             document.getElementById('authSub').textContent = m === 'login' ? 'Войдите в свой аккаунт' :
                 'Создайте новый аккаунт';
             aStat(m === 'login' ? 'Войдите в аккаунт' : 'Создайте аккаунт');
-        }
+        };
 
-        async function handleAuth() {
+        window.handleAuth = async function() {
             const username = document.getElementById('authUsername').value.trim();
             const pass = document.getElementById('authPass').value.trim();
 
@@ -1620,11 +1579,11 @@
                 if (authMode === 'register') {
                     user = await authRegister(username, pass, FINGERPRINT);
                     aStat('✅ Аккаунт создан!', 'ok');
-                    toast('Добро пожаловать, ' + username + '!');
+                    window.toast('Добро пожаловать, ' + username + '!');
                 } else {
                     user = await authLogin(username, pass);
                     aStat('✅ Вход выполнен!', 'ok');
-                    toast('С возвращением, ' + username + '!');
+                    window.toast('С возвращением, ' + username + '!');
                 }
                 showApp();
             } catch (e) {
@@ -1632,25 +1591,21 @@
                 console.error('Ошибка:', e);
             }
             document.getElementById('authBtn').disabled = false;
-        }
+        };
 
-        async function logoutUser() {
+        window.logoutUser = async function() {
             if (!confirm('Выйти из аккаунта?')) return;
-
-            // Сохраняем данные перед выходом
             await forceSave();
-
             localStorage.removeItem('cm_tok');
             localStorage.removeItem('cm_uid');
             localStorage.removeItem('cm_username');
             TOKEN = null;
             UID = null;
-
             document.getElementById('appWrap').classList.remove('on');
             document.getElementById('authWrap').style.display = 'flex';
             aStat('Вы вышли', 'ok');
-            toast('До встречи!', 'ok');
-        }
+            window.toast('До встречи!', 'ok');
+        };
 
         async function restoreSession() {
             const t = localStorage.getItem('cm_tok');
@@ -1727,17 +1682,17 @@
 
                 if (!ok) {
                     console.error('❌ Ошибка сохранения:', status, data);
-                    toast('⚠️ Ошибка сохранения!', 'err');
+                    window.toast('⚠️ Ошибка сохранения!', 'err');
                     return false;
                 }
 
                 console.log('✅ Данные сохранены успешно');
-                toast('💾 Сохранено!', 'ok');
+                window.toast('💾 Сохранено!', 'ok');
                 return true;
 
             } catch (e) {
                 console.error('❌ Критическая ошибка сохранения:', e);
-                toast('❌ Ошибка соединения!', 'err');
+                window.toast('❌ Ошибка соединения!', 'err');
                 return false;
             } finally {
                 isSaving = false;
@@ -1772,21 +1727,19 @@
             setInterval(renderFarmTimer, 1000);
             setInterval(renderBoss, 30000);
 
-            // Автосохранение каждые 30 секунд
             setInterval(() => {
                 if (UID) {
                     saveUserData();
                 }
             }, 30000);
 
-            // Сохраняем при закрытии вкладки
             window.addEventListener('beforeunload', () => {
                 if (UID) {
                     saveUserData();
                 }
             });
 
-            toast('💾 Данные автоматически сохраняются', 'info');
+            window.toast('💾 Данные автоматически сохраняются', 'info');
         }
 
         function initMissions() {
@@ -1802,7 +1755,7 @@
         // ============================================================
         // 10. НАВИГАЦИЯ
         // ============================================================
-        function goSc(nm) {
+        window.goSc = function(nm) {
             document.querySelectorAll('.sc').forEach(s => s.classList.remove('on'));
             document.querySelectorAll('.nb').forEach(b => b.classList.remove('on'));
             document.getElementById('sc-' + nm).classList.add('on');
@@ -1814,9 +1767,9 @@
             }
             if (nm === 'top') renderTop('b');
             renderUI();
-        }
+        };
 
-        function gTab(t, el) {
+        window.gTab = function(t, el) {
             ['rl', 'dc', 'au'].forEach(x => {
                 const d = document.getElementById('G_' + x);
                 if (d) d.style.display = x === t ? 'block' : 'none';
@@ -1826,42 +1779,42 @@
             if (t === 'rl') setTimeout(() => drawRoulette(0, null), 40);
             if (t === 'dc') renderDiceIdle();
             if (t === 'au') renderPodium();
-        }
+        };
 
-        function topTab(t, el) {
+        window.topTab = function(t, el) {
             document.querySelectorAll('#sc-top .tab').forEach(e => e.classList.remove('on'));
             if (el) el.classList.add('on');
             renderTop(t);
-        }
+        };
 
         // ============================================================
         // 11. МОДАЛЬНЫЕ ОКНА
         // ============================================================
-        function conf(title, body, fn) {
+        window.conf = function(title, body, fn) {
             document.getElementById('M_t').textContent = title;
             document.getElementById('M_b').textContent = body;
             _pFn = fn;
             document.getElementById('M_conf').classList.add('on');
             document.getElementById('M_ok').onclick = () => { closeMod(); if (_pFn) { _pFn();
                     _pFn = null; } };
-        }
+        };
 
         function closeMod() { document.getElementById('M_conf').classList.remove('on'); }
 
-        function openNickMod() { document.getElementById('NK_i').value = G.name;
-            document.getElementById('M_nick').classList.add('on'); }
+        window.openNickMod = function() { document.getElementById('NK_i').value = G.name;
+            document.getElementById('M_nick').classList.add('on'); };
 
-        function closeNickMod() { document.getElementById('M_nick').classList.remove('on'); }
+        window.closeNickMod = function() { document.getElementById('M_nick').classList.remove('on'); };
 
-        function saveNick() {
+        window.saveNick = function() {
             const v = document.getElementById('NK_i').value.trim();
-            if (v.length < 3 || v.length > 16) { toast('3–16 символов', 'err'); return; }
+            if (v.length < 3 || v.length > 16) { window.toast('3–16 символов', 'err'); return; }
             G.name = v;
             scheduleSave();
             renderUI();
             closeNickMod();
-            toast('Ник изменён!', 'ok');
-        }
+            window.toast('Ник изменён!', 'ok');
+        };
 
         // ============================================================
         // 12. ОТРИСОВКА UI
@@ -2144,12 +2097,12 @@
 
         let roulRunning = false;
 
-        function startRoul(col) {
-            if (roulRunning) { toast('Уже крутится!', 'err'); return; }
+        window.startRoul = function(col) {
+            if (roulRunning) { window.toast('Уже крутится!', 'err'); return; }
             const bet = parseInt(document.getElementById('RL_b').value || 25);
-            if (G.coins < bet) { toast('Недостаточно монет', 'err'); return; }
+            if (G.coins < bet) { window.toast('Недостаточно монет', 'err'); return; }
             const nm = { red: 'красный', black: 'чёрный', green: 'зелёный' } [col];
-            conf(`Ставка ${bet} монет на ${nm}?`, `Коэффициент: ${col==='green'?'×5.0':'×1.75'}`,
+            window.conf(`Ставка ${bet} монет на ${nm}?`, `Коэффициент: ${col==='green'?'×5.0':'×1.75'}`,
                 () => {
                     G.coins -= bet;
                     roulRunning = true;
@@ -2185,12 +2138,12 @@
                                 `❌ ${lbl} — проигрыш`;
                             scheduleSave();
                             renderUI();
-                            toast(col === landed ? `+${win} монет!` : 'Не повезло', col === landed ? 'gld' : 'err');
+                            window.toast(col === landed ? `+${win} монет!` : 'Не повезло', col === landed ? 'gld' : 'err');
                         }
                     }
                     requestAnimationFrame(anim);
                 });
-        }
+        };
 
         // ============================================================
         // 14. КУБИК
@@ -2253,9 +2206,9 @@
             cube.style.transform = 'rotateX(20deg) rotateY(30deg)';
         }
 
-        function playDice(col) {
+        window.playDice = function(col) {
             if (diceRolling) return;
-            if (G.coins < 50) { toast('Нужно 50 монет', 'err'); return; }
+            if (G.coins < 50) { window.toast('Нужно 50 монет', 'err'); return; }
             G.coins -= 50;
             diceRolling = true;
             document.getElementById('DC_r').textContent = 'Кидаем...';
@@ -2315,11 +2268,11 @@
                     diceRolling = false;
                     scheduleSave();
                     renderUI();
-                    toast(profit > 0 ? `+${profit} монет!` : 'Не повезло', profit > 0 ? 'gld' : 'err');
+                    window.toast(profit > 0 ? `+${profit} монет!` : 'Не повезло', profit > 0 ? 'gld' : 'err');
                 }
             }
             requestAnimationFrame(anim);
-        }
+        };
 
         // ============================================================
         // 15. АУКЦИОН
@@ -2353,8 +2306,8 @@
             }).join('');
         }
 
-        function bid(a) {
-            if (G.coins < a) { toast('Мало монет', 'err'); return; }
+        window.bid = function(a) {
+            if (G.coins < a) { window.toast('Мало монет', 'err'); return; }
             G.coins -= a;
             G.auctionBid = (G.auctionBid || 0) + a;
 
@@ -2381,15 +2334,15 @@
             renderPodium();
             scheduleSave();
             renderUI();
-            toast('Ставка: ' + G.auctionBid, 'gld');
-        }
+            window.toast('Ставка: ' + G.auctionBid, 'gld');
+        };
 
         // ============================================================
         // 16. ИГРОВЫЕ ДЕЙСТВИЯ
         // ============================================================
-        function doFarm() {
+        window.doFarm = function() {
             const now = Date.now();
-            if (now - G.lastFarm < 3600000 && G.lastFarm) { toast('Кулдаун ещё не прошёл!', 'err'); return; }
+            if (now - G.lastFarm < 3600000 && G.lastFarm) { window.toast('Кулдаун ещё не прошёл!', 'err'); return; }
             const mult = 1 + (G.farmLv - 1) * .2;
             const earned = Math.round((Math.floor(Math.random() * 5) + 1) * mult);
             G.coins += earned;
@@ -2408,23 +2361,23 @@
             }
             scheduleSave();
             renderUI();
-            toast(`+${earned} монет!${sm}`, 'gld');
-        }
+            window.toast(`+${earned} монет!${sm}`, 'gld');
+        };
 
-        function upFarm() {
-            if (G.farmLv >= 5) { toast('Максимальный уровень!', 'err'); return; }
+        window.upFarm = function() {
+            if (G.farmLv >= 5) { window.toast('Максимальный уровень!', 'err'); return; }
             const cost = getFarmCost();
-            if (G.coins < cost) { toast(`Нужно ${cost} монет`, 'err'); return; }
+            if (G.coins < cost) { window.toast(`Нужно ${cost} монет`, 'err'); return; }
             G.coins -= cost;
             G.farmLv++;
             scheduleSave();
             renderUI();
-            toast('Шахта ур. ' + G.farmLv + '!', 'ok');
-        }
+            window.toast('Шахта ур. ' + G.farmLv + '!', 'ok');
+        };
 
-        function atkBoss() {
-            if (G.coins < 20) { toast('Нужно 20 монет', 'err'); return; }
-            if (BOSS_STATE.hp <= 0) { toast('Босс мёртв, ждите 16:00', 'err'); return; }
+        window.atkBoss = function() {
+            if (G.coins < 20) { window.toast('Нужно 20 монет', 'err'); return; }
+            if (BOSS_STATE.hp <= 0) { window.toast('Босс мёртв, ждите 16:00', 'err'); return; }
             G.coins -= 20;
             const dmg = Math.floor(Math.random() * 41) + 10;
             BOSS_STATE.hp = Math.max(0, BOSS_STATE.hp - dmg);
@@ -2439,10 +2392,10 @@
             document.getElementById('ATK_l').textContent = msg;
             scheduleSave();
             renderUI();
-            toast(msg, 'gld');
-        }
+            window.toast(msg, 'gld');
+        };
 
-        function openChest() {
+        window.openChest = function() {
             if (G.chests <= 0) return;
             G.chests--;
             const r = Math.random();
@@ -2462,21 +2415,21 @@
             }
             scheduleSave();
             renderUI();
-            toast('🎁 Сундук: ' + rw, 'gld');
-        }
+            window.toast('🎁 Сундук: ' + rw, 'gld');
+        };
 
-        function claimM(id) {
+        window.claimM = function(id) {
             const m = G.missions.active?.[id];
             if (!m || m.claimed || m.prog < m.t) return;
             m.claimed = true;
             G.keys += m.rw;
             scheduleSave();
             renderUI();
-            toast(`+${m.rw} ключ!`, 'gld');
-        }
+            window.toast(`+${m.rw} ключ!`, 'gld');
+        };
 
-        function createClan() {
-            if (G.coins < 1500) { toast('Нужно 1500 монет', 'err'); return; }
+        window.createClan = function() {
+            if (G.coins < 1500) { window.toast('Нужно 1500 монет', 'err'); return; }
             const names = ['Kingdom Squad', 'Empire Crew', 'Dragon Force', 'Shadow Order', 'Titan Clan', 'Neon Warriors',
                 'Phoenix Legion', 'Frost Giants'
             ];
@@ -2485,93 +2438,122 @@
             G.clanLF = 0;
             scheduleSave();
             renderUI();
-            toast('🏰 Клан создан!', 'ok');
-        }
+            window.toast('🏰 Клан создан!', 'ok');
+        };
 
-        function disbandClan() { G.clan = null;
+        window.disbandClan = function() { G.clan = null;
             scheduleSave();
             renderUI();
-            toast('Клан распущен', 'info'); }
+            window.toast('Клан распущен', 'info'); };
 
-        function clanFarm() {
+        window.clanFarm = function() {
             if (!G.clan) return;
-            if (Date.now() - G.clanLF < 6 * 3600000) { toast('6 часов кулдаун', 'err'); return; }
+            if (Date.now() - G.clanLF < 6 * 3600000) { window.toast('6 часов кулдаун', 'err'); return; }
             const m = Math.floor(Math.random() * 3) + 1;
             G.clan.d += m;
             G.clanLF = Date.now();
             scheduleSave();
             renderUI();
-            toast(`+${m} алмазов!`, 'gld');
-        }
+            window.toast(`+${m} алмазов!`, 'gld');
+        };
 
-        function exDiam(n) {
-            if (!G.clan || G.clan.d < n) { toast('Нет алмазов', 'err'); return; }
+        window.exDiam = function(n) {
+            if (!G.clan || G.clan.d < n) { window.toast('Нет алмазов', 'err'); return; }
             G.clan.d -= n;
             G.coins += n * 5;
             scheduleSave();
             renderUI();
-            toast(`+${n*5} монет!`, 'gld');
-        }
+            window.toast(`+${n*5} монет!`, 'gld');
+        };
 
-        async function useRefCode() {
+        window.useRefCode = async function() {
             const code = document.getElementById('REF_I').value.trim();
-            if (!code) { toast('Введите код', 'err'); return; }
-            if (code === G.refCode) { toast('Это ваш код', 'err'); return; }
-            if (G.activatedRef) { toast('Код уже активирован', 'err'); return; }
+            if (!code) { window.toast('Введите код', 'err'); return; }
+            if (code === G.refCode) { window.toast('Это ваш код', 'err'); return; }
+            if (G.activatedRef) { window.toast('Код уже активирован', 'err'); return; }
             try {
                 const { ok, data } = await sbFetch(
                     `/rest/v1/users?data->>refCode=eq.${encodeURIComponent(code)}&select=id`, { noAuth: true }
                 );
-                if (!ok || !data || data.length === 0) { toast('Код не найден', 'err'); return; }
+                if (!ok || !data || data.length === 0) { window.toast('Код не найден', 'err'); return; }
                 G.activatedRef = code;
                 G.coins += 25;
                 G.refs++;
                 document.getElementById('REF_I').value = '';
                 scheduleSave();
                 renderUI();
-                toast('🎁 Код активирован! +25 монет', 'gld');
-            } catch (e) { toast('Ошибка поиска', 'err'); }
-        }
+                window.toast('🎁 Код активирован! +25 монет', 'gld');
+            } catch (e) { window.toast('Ошибка поиска', 'err'); }
+        };
 
-        function nickAct(id, owned) {
+        window.nickAct = function(id, owned) {
             if (owned) {
                 G.nicks.a = G.nicks.a === id ? null : id;
                 scheduleSave();
                 renderUI();
-                toast('Стиль изменён!', 'ok');
+                window.toast('Стиль изменён!', 'ok');
             } else {
-                if (G.coins < 250) { toast('Нужно 250 монет', 'err'); return; }
-                conf(`Купить стиль «${NICK_S[id].n}»?`, 'Стоимость 250 монет. Стиль сразу станет активным.', () => {
+                if (G.coins < 250) { window.toast('Нужно 250 монет', 'err'); return; }
+                window.conf(`Купить стиль «${NICK_S[id].n}»?`, 'Стоимость 250 монет. Стиль сразу станет активным.', () => {
                     G.coins -= 250;
                     G.nicks.p.push(id);
                     G.nicks.a = id;
                     scheduleSave();
                     renderUI();
-                    toast('Стиль куплен!', 'gld');
+                    window.toast('Стиль куплен!', 'gld');
                 });
             }
-        }
+        };
 
-        function buyCoins(amt) { G.coins += amt;
+        window.buyCoins = function(amt) { G.coins += amt;
             scheduleSave();
             renderUI();
-            toast(`+${fmt(amt)} монет!`, 'gld'); }
+            window.toast(`+${fmt(amt)} монет!`, 'gld'); };
 
-        function usePromo() {
+        window.usePromo = function() {
             const v = document.getElementById('PR_i').value.trim().toLowerCase();
             if (v) activatePromo(v);
             document.getElementById('PR_i').value = '';
-        }
+        };
 
         function activatePromo(c) {
-            if (!PROMOS[c]) { toast('Промокод не найден', 'err'); return; }
-            if (G.promos[c]) { toast('Уже использован', 'err'); return; }
+            if (!PROMOS[c]) { window.toast('Промокод не найден', 'err'); return; }
+            if (G.promos[c]) { window.toast('Уже использован', 'err'); return; }
             G.coins += PROMOS[c];
             G.promos[c] = true;
             scheduleSave();
             renderUI();
-            toast(`+${PROMOS[c]} монет!`, 'gld');
+            window.toast(`+${PROMOS[c]} монет!`, 'gld');
         }
+
+        window.activatePromo = activatePromo;
+
+        window.changeRefCode = async function() {
+            if (!UID) { window.toast('Сначала войдите в аккаунт', 'err'); return; }
+            const newCode = prompt('Введите новый реферальный код (4-8 символов, только буквы и цифры):');
+            if (!newCode) return;
+            if (newCode.length < 4 || newCode.length > 8) {
+                window.toast('Код должен быть 4-8 символов', 'err');
+                return;
+            }
+            if (!/^[a-zA-Z0-9]+$/.test(newCode)) {
+                window.toast('Только буквы и цифры', 'err');
+                return;
+            }
+
+            const { data: taken } = await sbFetch(
+                `/rest/v1/users?data->>refCode=eq.${encodeURIComponent(newCode)}&select=id`, { noAuth: true }
+            );
+            if (taken && taken.length > 0) {
+                window.toast('Этот код уже занят', 'err');
+                return;
+            }
+
+            G.refCode = newCode;
+            scheduleSave();
+            renderUI();
+            window.toast('Реферальный код изменён на: ' + newCode, 'ok');
+        };
 
         // ============================================================
         // 17. ЗАПУСК
@@ -2585,7 +2567,7 @@
             if (restored) {
                 showApp();
                 aStat('✅ Сессия восстановлена', 'ok');
-                toast('Добро пожаловать, ' + currentUsername + '!', 'ok');
+                window.toast('Добро пожаловать, ' + currentUsername + '!', 'ok');
                 console.log('📊 Текущие данные:', {
                     coins: G.coins,
                     farms: G.farms,
