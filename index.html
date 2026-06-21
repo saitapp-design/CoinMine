@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>CoinMine</title>
     <style>
-        /* ===== СБРОС И БАЗА ===== */
+        /* ===== ВЕСЬ CSS ОСТАЁТСЯ БЕЗ ИЗМЕНЕНИЙ ===== */
         * {
             box-sizing: border-box;
             margin: 0;
@@ -652,6 +652,32 @@
         }
         .rl-result.win { color: var(--gld); }
         .rl-result.lose { color: var(--red); }
+        .rl-bet-row {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex-wrap: wrap;
+            justify-content: center;
+            width: 100%;
+        }
+        .rl-bet-row label {
+            font-size: 13px;
+            color: var(--color-text-secondary);
+        }
+        .rl-bet-row input {
+            width: 80px;
+            padding: 6px 10px;
+            border-radius: var(--border-radius-md);
+            border: 0.5px solid var(--color-border-secondary);
+            background: var(--color-background-primary);
+            color: var(--color-text-primary);
+            font-size: 13px;
+            text-align: center;
+        }
+        .rl-bet-row input:focus {
+            outline: none;
+            border-color: var(--acc2);
+        }
         .rl-btns {
             display: flex;
             gap: 8px;
@@ -669,9 +695,20 @@
             transition: background .15s;
         }
         .rl-btns button:hover { background: var(--color-background-secondary); }
+        .rl-btns button:disabled {
+            opacity: .5;
+            cursor: not-allowed;
+        }
         .btn-red { border-color: #b91c1c !important; color: #b91c1c !important; }
         .btn-blk { border-color: #555 !important; }
         .btn-grn { border-color: #15803d !important; color: #15803d !important; }
+
+        .rl-coeff {
+            font-size: 12px;
+            color: var(--color-text-secondary);
+            text-align: center;
+            padding: 4px 0;
+        }
 
         /* ===== DICE ===== */
         .dice-section {
@@ -1051,10 +1088,15 @@
 
                     <div id="G_rl">
                         <div class="card">
-                            <div class="ct">🎰 рулетка — выберите цвет</div>
+                            <div class="ct">🎰 рулетка</div>
                             <div class="rl-section">
                                 <div class="rl-canvas-wrap">
                                     <canvas id="rouletteCanvas" width="320" height="320"></canvas>
+                                </div>
+                                <div class="rl-coeff">🔴 Красный ×1.75 | ⚫ Чёрный ×1.75 | 🟢 Зелёный ×5.0</div>
+                                <div class="rl-bet-row">
+                                    <label>💰 Ставка:</label>
+                                    <input type="number" id="rlBetInput" value="25" min="1" step="1">
                                 </div>
                                 <div class="rl-result" id="rlResult">Выберите цвет</div>
                                 <div class="rl-btns">
@@ -1550,11 +1592,9 @@
 
                 console.log('💾 Сохранение:', { coins: G.coins, farms: G.farms });
 
-                // Используем PATCH с правильной авторизацией
                 const { ok, status, data } = await sbFetch(`/rest/v1/users?id=eq.${UID}`, {
                     method: 'PATCH',
-                    body: JSON.stringify(payload),
-                    noAuth: false // Используем токен
+                    body: JSON.stringify(payload)
                 });
 
                 if (!ok) {
@@ -1993,11 +2033,11 @@
         let lastRouletteResult = null;
         let resultDisplayed = false;
         let spinCol = 'red';
+        let spinBet = 25;
 
         function drawRoulette(wAngle, bAngle, bR, landed) {
             rctx.clearRect(0, 0, 320, 320);
 
-            // Проверяем валидность значений
             const validR = OR + 14;
             const woodGrad = rctx.createRadialGradient(CX, CY, 0, CX, CY, validR);
             woodGrad.addColorStop(0, '#5c3a1e');
@@ -2138,7 +2178,7 @@
                 const bx = CX + Math.cos(bAngle) * bR;
                 const by = CY + Math.sin(bAngle) * bR;
 
-                if (!isNaN(bx) && !isNaN(by)) {
+                if (!isNaN(bx) && !isNaN(by) && isFinite(bx) && isFinite(by)) {
                     rctx.beginPath();
                     rctx.arc(bx + 2, by + 2, 8, 0, Math.PI * 2);
                     rctx.fillStyle = 'rgba(0,0,0,.4)';
@@ -2167,16 +2207,33 @@
             finalBAngle = 0;
         let targetSegIdx = 0;
 
+        // Коэффициенты выигрыша
+        const ROULETTE_MULTIPLIERS = {
+            red: 1.75,
+            black: 1.75,
+            green: 5.0
+        };
+
         window.spinTo = function(col) {
             if (spinning) return;
+
+            // Получаем ставку
+            const betInput = document.getElementById('rlBetInput');
+            spinBet = parseInt(betInput.value) || 25;
+            if (spinBet < 1) { window.toast('Минимальная ставка 1 монета', 'err'); return; }
+            if (spinBet > G.coins) { window.toast('Недостаточно монет!', 'err'); return; }
 
             spinCol = col;
             lastRouletteResult = null;
             resultDisplayed = false;
 
+            // Списываем ставку
+            G.coins -= spinBet;
+
             spinning = true;
-            document.getElementById('rlResult').textContent = 'Крутим...';
-            document.getElementById('rlResult').className = 'rl-result';
+            const resultEl = document.getElementById('rlResult');
+            resultEl.textContent = 'Крутим...';
+            resultEl.className = 'rl-result';
 
             const possible = SEGS.map((s, i) => s.c === col ? i : -1).filter(x => x >= 0);
             targetSegIdx = possible[Math.floor(Math.random() * possible.length)];
@@ -2193,6 +2250,10 @@
             spinStartW = wheelAngle;
             spinStartB = ballAngle;
             spinT0 = performance.now();
+
+            // Блокируем кнопки
+            document.querySelectorAll('.rl-btns button').forEach(b => b.disabled = true);
+            betInput.disabled = true;
 
             cancelAnimationFrame(raf);
             animSpin();
@@ -2222,14 +2283,35 @@
                 spinning = false;
                 resultDisplayed = true;
                 lastRouletteResult = SEGS[targetSegIdx];
+
+                // Разблокируем кнопки
+                document.querySelectorAll('.rl-btns button').forEach(b => b.disabled = false);
+                document.getElementById('rlBetInput').disabled = false;
+
+                const win = spinCol === lastRouletteResult.c;
+                const multiplier = ROULETTE_MULTIPLIERS[spinCol] || 1;
+                const winAmount = win ? Math.floor(spinBet * multiplier) : 0;
+
+                if (win) {
+                    G.coins += winAmount;
+                }
+
                 const colLabel = { red: '🔴 Красный', black: '⚫ Чёрный', green: '🟢 Зелёный' } [lastRouletteResult.c];
                 const resultEl = document.getElementById('rlResult');
-                const win = spinCol === lastRouletteResult.c;
-                resultEl.textContent = win ? `✅ Выпало: ${colLabel} (${lastRouletteResult.label}) — ВЫ ВЫИГРАЛИ!` :
-                    `❌ Выпало: ${colLabel} (${lastRouletteResult.label}) — ПРОИГРЫШ`;
-                resultEl.className = 'rl-result ' + (win ? 'win' : 'lose');
+
+                if (win) {
+                    resultEl.textContent = `✅ Выпало: ${colLabel} (${lastRouletteResult.label}) — ВЫИГРЫШ +${winAmount} монет! (×${multiplier})`;
+                    resultEl.className = 'rl-result win';
+                    window.toast(`🎉 +${winAmount} монет!`, 'gld');
+                } else {
+                    resultEl.textContent = `❌ Выпало: ${colLabel} (${lastRouletteResult.label}) — ПРОИГРЫШ -${spinBet} монет`;
+                    resultEl.className = 'rl-result lose';
+                    window.toast(`😞 -${spinBet} монет`, 'err');
+                }
 
                 drawRoulette(wheelAngle, -Math.PI / 2, ballR, lastRouletteResult.c);
+                scheduleSave();
+                renderUI();
             }
         }
 
