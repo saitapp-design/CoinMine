@@ -90,7 +90,7 @@
             .app { max-width: 100%; }
         }
 
-        /* ===== БАННЕР — ОТДЕЛЁН ОТ НАВИГАЦИИ ===== */
+        /* ===== БАННЕР ===== */
         .static-banner {
             position: fixed;
             bottom: 100px;
@@ -1337,7 +1337,6 @@
 
         const FARM_COSTS = [50, 100, 250, 500, 1000];
 
-        // РЕАЛЬНЫЕ ИГРОКИ (без демо-данных)
         let REAL_PLAYERS = [];
 
         let G = {
@@ -1504,14 +1503,13 @@
             localStorage.setItem('cm_uid', UID);
             localStorage.setItem('cm_username', username);
 
-            // Загружаем всех игроков для топа
             await loadAllPlayers();
 
             return user;
         }
 
         // ============================================================
-        // 6. ЗАГРУЗКА ВСЕХ ИГРОКОВ ДЛЯ ТОПА
+        // 6. ЗАГРУЗКА ВСЕХ ИГРОКОВ
         // ============================================================
         async function loadAllPlayers() {
             try {
@@ -1528,7 +1526,7 @@
                             r: u.data.refs || 0,
                             s: u.data.shards ? Object.keys(u.data.shards).filter(k => u.data.shards[k] > 0).length : 0
                         }));
-                    console.log('👥 Загружено игроков для топа:', REAL_PLAYERS.length);
+                    console.log('👥 Загружено игроков:', REAL_PLAYERS.length);
                 }
             } catch (e) {
                 console.error('❌ Ошибка загрузки игроков:', e);
@@ -1550,9 +1548,13 @@
                     updated_at: new Date().toISOString()
                 };
 
+                console.log('💾 Сохранение:', { coins: G.coins, farms: G.farms });
+
+                // Используем PATCH с правильной авторизацией
                 const { ok, status, data } = await sbFetch(`/rest/v1/users?id=eq.${UID}`, {
                     method: 'PATCH',
-                    body: JSON.stringify(payload)
+                    body: JSON.stringify(payload),
+                    noAuth: false // Используем токен
                 });
 
                 if (!ok) {
@@ -1560,8 +1562,7 @@
                     return false;
                 }
 
-                // После сохранения обновляем топ
-                await loadAllPlayers();
+                console.log('✅ Сохранено');
                 return true;
             } catch (e) {
                 console.error('❌ Ошибка:', e);
@@ -1918,10 +1919,8 @@
             const rem = Math.max(0, Math.ceil((topUpdated + 600000 - now) / 1000));
             document.getElementById('TOP_u').textContent = rem > 30 ? `обновление через ${Math.round(rem/60)}м` : 'только что';
 
-            // Только реальные игроки + текущий
             const shardCount = getShardCount();
             const all = [...REAL_PLAYERS];
-            // Добавляем текущего игрока, если его нет в списке
             const exists = all.some(p => p.n === G.name);
             if (!exists) {
                 all.push({ n: G.name, c: G.coins, f: G.farms, r: G.refs, s: shardCount });
@@ -1946,12 +1945,6 @@
                 r: '👥',
                 s: '💎'
             };
-            const valLabels = {
-                b: 'монет',
-                f: 'фармов',
-                r: 'рефералов',
-                s: 'осколков'
-            };
 
             document.getElementById('TOP_t').textContent = titles[tp];
             all.sort((a, b) => (b[key] || 0) - (a[key] || 0));
@@ -1960,7 +1953,7 @@
             const clrs = ['var(--gld)', '#c0c0d0', '#cd7f32'];
 
             document.getElementById('TOP_l').innerHTML = top10.map((p, i) => {
-                const val = tp === 's' ? `${p.s} ${valLabels[tp]}` : fmt(p[key] || 0) + ' ' + symbols[tp];
+                const val = tp === 's' ? `${p.s} осколков` : fmt(p[key] || 0) + ' ' + symbols[tp];
                 const isPlayer = p.n === G.name;
                 return `<div class="top-row" style="${isPlayer ? 'background:var(--bg4);border-radius:6px;' : ''}">
                     <div style="font-size:15px;font-weight:700;min-width:22px;color:${clrs[i]||'var(--tx2)'}">${i+1}</div>
@@ -1971,7 +1964,7 @@
         }
 
         // ============================================================
-        // 12. РУЛЕТКА
+        // 12. РУЛЕТКА — ИСПРАВЛЕННАЯ
         // ============================================================
         const RC = document.getElementById('rouletteCanvas');
         const rctx = RC.getContext('2d');
@@ -1999,16 +1992,19 @@
         let raf = null;
         let lastRouletteResult = null;
         let resultDisplayed = false;
+        let spinCol = 'red';
 
         function drawRoulette(wAngle, bAngle, bR, landed) {
             rctx.clearRect(0, 0, 320, 320);
 
-            const woodGrad = rctx.createRadialGradient(CX, CY, OR - 2, CX, CY, OR + 14);
+            // Проверяем валидность значений
+            const validR = OR + 14;
+            const woodGrad = rctx.createRadialGradient(CX, CY, 0, CX, CY, validR);
             woodGrad.addColorStop(0, '#5c3a1e');
             woodGrad.addColorStop(.5, '#8b5e3c');
             woodGrad.addColorStop(1, '#3d2109');
             rctx.beginPath();
-            rctx.arc(CX, CY, OR + 14, 0, Math.PI * 2);
+            rctx.arc(CX, CY, validR, 0, Math.PI * 2);
             rctx.fillStyle = woodGrad;
             rctx.fill();
 
@@ -2134,9 +2130,7 @@
             rctx.lineWidth = 1;
             rctx.stroke();
 
-            // Рисуем шарик ТОЛЬКО если идёт анимация или результат ещё не показан
             if (!spinning && resultDisplayed && lastRouletteResult) {
-                // Показываем результат на кубе — шарик не рисуем
                 return;
             }
 
@@ -2144,26 +2138,27 @@
                 const bx = CX + Math.cos(bAngle) * bR;
                 const by = CY + Math.sin(bAngle) * bR;
 
-                rctx.beginPath();
-                rctx.arc(bx + 2, by + 2, 8, 0, Math.PI * 2);
-                rctx.fillStyle = 'rgba(0,0,0,.4)';
-                rctx.fill();
+                if (!isNaN(bx) && !isNaN(by)) {
+                    rctx.beginPath();
+                    rctx.arc(bx + 2, by + 2, 8, 0, Math.PI * 2);
+                    rctx.fillStyle = 'rgba(0,0,0,.4)';
+                    rctx.fill();
 
-                const ballGrad = rctx.createRadialGradient(bx - 3, by - 3, 1, bx, by, 8);
-                ballGrad.addColorStop(0, '#ffffff');
-                ballGrad.addColorStop(.4, '#e0e0e0');
-                ballGrad.addColorStop(1, '#a0a0a0');
-                rctx.beginPath();
-                rctx.arc(bx, by, 8, 0, Math.PI * 2);
-                rctx.fillStyle = ballGrad;
-                rctx.fill();
-                rctx.strokeStyle = 'rgba(0,0,0,.3)';
-                rctx.lineWidth = 0.5;
-                rctx.stroke();
+                    const ballGrad = rctx.createRadialGradient(bx - 3, by - 3, 1, bx, by, 8);
+                    ballGrad.addColorStop(0, '#ffffff');
+                    ballGrad.addColorStop(.4, '#e0e0e0');
+                    ballGrad.addColorStop(1, '#a0a0a0');
+                    rctx.beginPath();
+                    rctx.arc(bx, by, 8, 0, Math.PI * 2);
+                    rctx.fillStyle = ballGrad;
+                    rctx.fill();
+                    rctx.strokeStyle = 'rgba(0,0,0,.3)';
+                    rctx.lineWidth = 0.5;
+                    rctx.stroke();
+                }
             }
         }
 
-        let spinTarget = 'red';
         let spinStartW = 0,
             spinStartB = 0;
         let spinDur = 4500,
@@ -2175,12 +2170,11 @@
         window.spinTo = function(col) {
             if (spinning) return;
 
-            // Сбрасываем предыдущий результат
+            spinCol = col;
             lastRouletteResult = null;
             resultDisplayed = false;
 
             spinning = true;
-            spinTarget = col;
             document.getElementById('rlResult').textContent = 'Крутим...';
             document.getElementById('rlResult').className = 'rl-result';
 
@@ -2230,12 +2224,11 @@
                 lastRouletteResult = SEGS[targetSegIdx];
                 const colLabel = { red: '🔴 Красный', black: '⚫ Чёрный', green: '🟢 Зелёный' } [lastRouletteResult.c];
                 const resultEl = document.getElementById('rlResult');
-                const win = col === lastRouletteResult.c;
+                const win = spinCol === lastRouletteResult.c;
                 resultEl.textContent = win ? `✅ Выпало: ${colLabel} (${lastRouletteResult.label}) — ВЫ ВЫИГРАЛИ!` :
                     `❌ Выпало: ${colLabel} (${lastRouletteResult.label}) — ПРОИГРЫШ`;
                 resultEl.className = 'rl-result ' + (win ? 'win' : 'lose');
 
-                // Отрисовываем финальный результат без шарика
                 drawRoulette(wheelAngle, -Math.PI / 2, ballR, lastRouletteResult.c);
             }
         }
@@ -2418,7 +2411,6 @@
                     lastDiceValue = val;
                     lastDiceColor = val % 2 === 1 ? 'red' : 'black';
 
-                    // В конце — красный или чёрный
                     const finalColor = DICE_FINAL_COLORS[lastDiceColor];
                     applyDicePalette(finalColor);
 
