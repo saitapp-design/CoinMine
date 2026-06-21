@@ -534,20 +534,25 @@
 
     <script>
         // ============================================================
-        // 1. КОНФИГУРАЦИЯ
+        // 1. КОНФИГУРАЦИЯ — ОПТИМИЗИРОВАННАЯ
         // ============================================================
         const SB_URL = 'https://mazccbkzurbryzusajqc.supabase.co';
         const SB_ANON_KEY = 'sb_publishable_GLQvPbCZrDYgd7FCSp861g_poX1-Hwy';
         
         // ============================================================
-        // ОПТИМИЗИРОВАННЫЕ НАСТРОЙКИ
+        // 2. НАСТРОЙКИ ОПТИМИЗАЦИИ
         // ============================================================
-        const SAVE_INTERVAL = 5000; // 5 секунд между сохранениями (было 2)
-        const TOP_CACHE_TIME = 300000; // 5 минут кеш топа
-        const TOP_LIMIT = 10; // Показываем только топ-10
+        const CONFIG = {
+            SAVE_INTERVAL: 10000,        // 10 секунд между сохранениями
+            TOP_CACHE_TIME: 600000,      // 10 минут кеш топа
+            TOP_LIMIT: 10,               // Показываем только топ-10
+            AUTO_SAVE_INTERVAL: 60000,   // Автосохранение каждую минуту
+            MAX_RETRIES: 3,              // Количество попыток при ошибке
+            BATCH_SIZE: 10               // Максимум записей в батче
+        };
 
         // ============================================================
-        // 2. ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ
+        // 3. ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ
         // ============================================================
         function aStat(text, type) {
             const e = document.getElementById('authStatus');
@@ -576,17 +581,16 @@
         const FINGERPRINT = getFingerprint();
 
         // ============================================================
-        // 3. СОСТОЯНИЕ
+        // 4. СОСТОЯНИЕ
         // ============================================================
-        let TOKEN = null;
         let UID = null;
         let authMode = 'login';
         let _pFn = null;
-        let saveTimer = null;
         let currentUsername = '';
         let isSaving = false;
-        let saveQueue = [];
         let pendingChanges = false;
+        let offlineQueue = [];
+        let saveTimer = null;
 
         const NICK_S = {
             gold: { e: '🌟', n: 'Золотой' },
@@ -628,6 +632,7 @@
             type: 'b'
         };
 
+        // ===== СОСТОЯНИЕ ИГРОКА =====
         let G = {
             coins: 0, farms: 0, refs: 0, keys: 0, lastFarm: 0, farmLv: 1,
             name: 'Шахтёр', nicks: { p: [], a: null }, shards: {},
@@ -640,50 +645,48 @@
         let BOSS_STATE = { hp: 0, lastKill: 0 };
 
         // ============================================================
-        // 4. API — БЕЗ ТОКЕНА
+        // 5. API — С ПОВТОРНЫМИ ПОПЫТКАМИ
         // ============================================================
         async function sbFetch(path, opts = {}) {
             const headers = {
                 'apikey': SB_ANON_KEY,
                 'Content-Type': 'application/json',
                 'Prefer': 'return=representation',
+                'Accept-Encoding': 'gzip, deflate',
                 ...(opts.headers || {})
             };
             
-            const r = await fetch(SB_URL + path, { ...opts, headers });
-            const txt = await r.text();
-            let d;
-            try { d = JSON.parse(txt); } catch (e) { d = txt; }
-            return { ok: r.ok, status: r.status, data: d };
+            let attempts = 0;
+            while (attempts < CONFIG.MAX_RETRIES) {
+                try {
+                    const r = await fetch(SB_URL + path, { ...opts, headers });
+                    const txt = await r.text();
+                    let d;
+                    try { d = JSON.parse(txt); } catch (e) { d = txt; }
+                    return { ok: r.ok, status: r.status, data: d };
+                } catch (e) {
+                    attempts++;
+                    if (attempts >= CONFIG.MAX_RETRIES) throw e;
+                    await new Promise(r => setTimeout(r, 1000 * attempts));
+                }
+            }
         }
 
         // ============================================================
-        // 5. ЗАГРУЗКА ТОП-10 ИГРОКОВ (ОПТИМИЗИРОВАННАЯ)
+        // 6. ТОП-10 — ОПТИМИЗИРОВАННЫЙ
         // ============================================================
         async function loadTopPlayers(tp = 'b') {
-            // Проверяем кеш
             const now = Date.now();
-            if (topCache.data && topCache.type === tp && now - topCache.timestamp < TOP_CACHE_TIME) {
-                console.log('📊 Топ из кеша (', tp, ')');
+            if (topCache.data && topCache.type === tp && now - topCache.timestamp < CONFIG.TOP_CACHE_TIME) {
                 return topCache.data;
             }
 
             try {
-                // Загружаем только топ-10 с нужными полями
-                const fieldMap = {
-                    'b': 'coins',
-                    'f': 'farms',
-                    'r': 'refs',
-                    's': 'shards_count'
-                };
-                
-                // Для осколков считаем количество в JavaScript
-                let { data, ok } = await sbFetch(
-                    `/rest/v1/users?select=username,data&limit=${TOP_LIMIT + 5}`
+                const { data, ok } = await sbFetch(
+                    `/rest/v1/users?select=username,data&limit=${CONFIG.TOP_LIMIT + 5}`
                 );
                 
                 if (ok && data) {
-                    // Преобразуем данные
                     let players = data
                         .filter(u => u.username && u.data)
                         .map(u => {
@@ -698,22 +701,17 @@
                             };
                         });
                     
-                    // Сортируем по нужному полю
                     const sortKey = tp === 'b' ? 'c' : tp === 'f' ? 'f' : tp === 'r' ? 'r' : 's';
                     players.sort((a, b) => (b[sortKey] || 0) - (a[sortKey] || 0));
+                    players = players.slice(0, CONFIG.TOP_LIMIT);
                     
-                    // Берём только топ-10
-                    players = players.slice(0, TOP_LIMIT);
-                    
-                    // Сохраняем в кеш
                     topCache.data = players;
                     topCache.timestamp = now;
                     topCache.type = tp;
                     
-                    console.log('📊 Загружено топ-10 (', tp, '):', players.length);
                     return players;
                 }
-                return [];
+                return topCache.data || [];
             } catch (e) {
                 console.error('❌ Ошибка загрузки топа:', e);
                 return topCache.data || [];
@@ -721,7 +719,7 @@
         }
 
         // ============================================================
-        // 6. АВТОРИЗАЦИЯ
+        // 7. АВТОРИЗАЦИЯ
         // ============================================================
         async function authRegister(username, password, fingerprint) {
             const { data: existing } = await sbFetch(
@@ -802,14 +800,13 @@
             localStorage.setItem('cm_uid', UID);
             localStorage.setItem('cm_username', username);
 
-            // Загружаем топ при входе
             await loadTopPlayers('b');
 
             return user;
         }
 
         // ============================================================
-        // 7. СОХРАНЕНИЕ — ОПТИМИЗИРОВАННОЕ
+        // 8. СОХРАНЕНИЕ — ОПТИМИЗИРОВАННОЕ
         // ============================================================
         function scheduleSave() {
             pendingChanges = true;
@@ -819,12 +816,12 @@
                     saveUserData();
                     pendingChanges = false;
                 }
-            }, SAVE_INTERVAL);
+            }, CONFIG.SAVE_INTERVAL);
         }
 
         async function saveUserData() {
             if (!UID) return false;
-            if (isSaving) { saveQueue.push(Date.now()); return false; }
+            if (isSaving) return false;
             isSaving = true;
 
             try {
@@ -837,8 +834,6 @@
                     updated_at: new Date().toISOString()
                 };
 
-                console.log('💾 Сохранение:', { coins: G.coins, farms: G.farms, uid: UID });
-
                 const { ok, status, data } = await sbFetch(`/rest/v1/users?id=eq.${UID}`, {
                     method: 'PATCH',
                     body: JSON.stringify(payload)
@@ -846,20 +841,24 @@
 
                 if (!ok) {
                     console.error('❌ Ошибка сохранения:', status, data);
+                    offlineQueue.push({
+                        uid: UID,
+                        data: payload,
+                        timestamp: Date.now()
+                    });
+                    localStorage.setItem('offline_queue', JSON.stringify(offlineQueue));
                     return false;
                 }
 
-                console.log('✅ Сохранено');
+                offlineQueue = offlineQueue.filter(item => item.uid !== UID);
+                localStorage.setItem('offline_queue', JSON.stringify(offlineQueue));
+                
                 return true;
             } catch (e) {
                 console.error('❌ Ошибка:', e);
                 return false;
             } finally {
                 isSaving = false;
-                if (saveQueue.length > 0) {
-                    saveQueue.pop();
-                    setTimeout(() => saveUserData(), 1000);
-                }
             }
         }
 
@@ -870,21 +869,44 @@
         }
 
         // ============================================================
-        // 8. ВОССТАНОВЛЕНИЕ СЕССИИ
+        // 9. ВОССТАНОВЛЕНИЕ ОФЛАЙН-ДАННЫХ
+        // ============================================================
+        async function restoreOfflineQueue() {
+            try {
+                const saved = localStorage.getItem('offline_queue');
+                if (!saved) return;
+                
+                const queue = JSON.parse(saved);
+                if (!queue.length) return;
+                
+                for (const item of queue) {
+                    if (item.uid === UID) {
+                        await sbFetch(`/rest/v1/users?id=eq.${item.uid}`, {
+                            method: 'PATCH',
+                            body: JSON.stringify(item.data)
+                        });
+                    }
+                }
+                
+                localStorage.removeItem('offline_queue');
+            } catch (e) {
+                console.error('❌ Ошибка восстановления офлайн-данных:', e);
+            }
+        }
+
+        // ============================================================
+        // 10. ВОССТАНОВЛЕНИЕ СЕССИИ
         // ============================================================
         async function restoreSession() {
             const u = localStorage.getItem('cm_uid');
             const username = localStorage.getItem('cm_username');
             
             if (!u || !username) {
-                console.log('❌ Нет сохранённой сессии');
                 return false;
             }
 
             UID = u;
             currentUsername = username;
-
-            console.log('🔄 Загрузка данных для:', UID);
 
             try {
                 const { data, ok } = await sbFetch(
@@ -899,13 +921,12 @@
                     }
                     if (user.boss) Object.assign(BOSS_STATE, user.boss);
                     if (!G.refCode) G.refCode = UID.slice(0, 8);
-                    console.log('✅ Данные загружены, монет:', G.coins);
+                    
+                    await restoreOfflineQueue();
                     await loadTopPlayers('b');
                     return true;
-                } else {
-                    console.log('❌ Пользователь не найден');
-                    return false;
                 }
+                return false;
             } catch (e) { 
                 console.error('❌ Ошибка загрузки:', e); 
                 return false;
@@ -913,27 +934,22 @@
         }
 
         // ============================================================
-        // 9. УПРАВЛЕНИЕ БАННЕРОМ
+        // 11. УПРАВЛЕНИЕ БАННЕРОМ
         // ============================================================
         function toggleBanner(show) {
             const banner = document.getElementById('mainBanner');
             if (banner) {
                 banner.style.display = show ? 'block' : 'none';
-                console.log('📢 Баннер:', show ? 'ПОКАЗАН' : 'СКРЫТ');
             }
         }
 
-        // СКРЫВАЕМ баннер сразу при загрузке
         (function() {
             const banner = document.getElementById('mainBanner');
-            if (banner) {
-                banner.style.display = 'none';
-            }
-            console.log('📢 Баннер скрыт на экране входа');
+            if (banner) banner.style.display = 'none';
         })();
 
         // ============================================================
-        // 10. АВТОРИЗАЦИЯ UI
+        // 12. АВТОРИЗАЦИЯ UI
         // ============================================================
         window.setAuthMode = function(m) {
             authMode = m;
@@ -987,32 +1003,31 @@
             UID = null;
             document.getElementById('appWrap').classList.remove('on');
             document.getElementById('authWrap').style.display = 'flex';
-            
-            // СКРЫВАЕМ баннер при выходе
             toggleBanner(false);
-            
             aStat('Вы вышли', 'ok');
             window.toast('До встречи!', 'ok');
         };
 
         // ============================================================
-        // 11. ПОКАЗ ПРИЛОЖЕНИЯ
+        // 13. ПОКАЗ ПРИЛОЖЕНИЯ
         // ============================================================
         function showApp() {
             document.getElementById('authWrap').style.display = 'none';
             document.getElementById('appWrap').classList.add('on');
-            
-            // ПОКАЗЫВАЕМ баннер
             toggleBanner(true);
             
             if (!G.refCode) G.refCode = UID.slice(0, 8);
             initMissions();
             renderUI();
             setTimeout(() => window.drawRoulette(0, null), 100);
+            
             setInterval(renderFarmTimer, 1000);
             setInterval(renderBoss, 30000);
-            setInterval(() => { if (UID) saveUserData(); }, 30000);
+            setInterval(() => { if (UID) saveUserData(); }, CONFIG.AUTO_SAVE_INTERVAL);
+            
             window.addEventListener('beforeunload', () => { if (UID) saveUserData(); });
+            window.addEventListener('online', restoreOfflineQueue);
+            
             window.toast('💾 Данные синхронизируются', 'info');
         }
 
@@ -1026,7 +1041,7 @@
         }
 
         // ============================================================
-        // 12. ОСТАЛЬНЫЕ ФУНКЦИИ
+        // 14. ОСТАЛЬНЫЕ ФУНКЦИИ
         // ============================================================
         window.toast = function(msg, t) {
             const e = document.getElementById('TOAST');
@@ -1048,7 +1063,7 @@
         function fmt(n) { return Math.round(n).toLocaleString('ru'); }
 
         // ============================================================
-        // 13. НАВИГАЦИЯ И UI
+        // 15. НАВИГАЦИЯ И UI
         // ============================================================
         window.goSc = function(nm) {
             document.querySelectorAll('.sc').forEach(s => s.classList.remove('on'));
@@ -1103,7 +1118,7 @@
         };
 
         // ============================================================
-        // 14. ОТРИСОВКА
+        // 16. ОТРИСОВКА
         // ============================================================
         function renderUI() {
             const sets = {
@@ -1138,9 +1153,7 @@
         }
 
         function renderFarmTimer() {
-            const now = Date.now(),
-                cd = 3600000,
-                el = now - G.lastFarm;
+            const now = Date.now(), cd = 3600000, el = now - G.lastFarm;
             const rdy = el >= cd || !G.lastFarm;
             const btn = document.getElementById('F_btn');
             if (btn) btn.disabled = !rdy;
@@ -1171,8 +1184,7 @@
             const g = document.getElementById('NK_g');
             if (!g) return;
             g.innerHTML = Object.entries(NICK_S).map(([id, s]) => {
-                const own = G.nicks.p.includes(id),
-                    act = G.nicks.a === id;
+                const own = G.nicks.p.includes(id), act = G.nicks.a === id;
                 return `<div class="nc${own?' own':''}${act?' act':''}" onclick="window.nickAct('${id}',${own})">
                     <div style="font-size:22px">${s.e}</div>
                     <div style="font-size:11px;color:var(--tx2);margin-top:2px">${s.n}</div>
@@ -1185,8 +1197,7 @@
             const e = document.getElementById('MS_l');
             if (!e || !G.missions?.active) return;
             e.innerHTML = Object.values(G.missions.active).map(m => {
-                const done = m.prog >= m.t,
-                    pct = Math.min(100, Math.round(m.prog / m.t * 100));
+                const done = m.prog >= m.t, pct = Math.min(100, Math.round(m.prog / m.t * 100));
                 return `<div style="margin-bottom:10px">
                     <div class="fl" style="justify-content:space-between;margin-bottom:3px">
                         <span style="font-size:12px;font-weight:600">${m.nm}</span>
@@ -1199,9 +1210,7 @@
         }
 
         function renderBoss() {
-            const now = Date.now(),
-                msk = new Date(now + 3 * 3600000),
-                h = msk.getUTCHours();
+            const now = Date.now(), msk = new Date(now + 3 * 3600000), h = msk.getUTCHours();
             const active = (h >= 16 && h < 22);
             if (active && BOSS_STATE.hp <= 0) {
                 const today = msk.toISOString().slice(0, 10);
@@ -1244,38 +1253,34 @@
             document.getElementById('CL_m').textContent = G.clan.m.length;
             document.getElementById('CL_ml').innerHTML = G.clan.m.map(n => `<div class="row">👤 <span>${n}</span></div>`)
             .join('');
-            const el = Date.now() - G.clanLF,
-                cd = 6 * 3600000;
+            const el = Date.now() - G.clanLF, cd = 6 * 3600000;
             document.getElementById('CL_cd').textContent = el >= cd ? 'Фарм доступен!' : 'Фарм через ' + Math.ceil((cd - el) /
                 3600000) + 'ч';
             document.getElementById('CL_i').textContent = ['⚔️', '🛡️', '🏹', '🗡️', '🔮'][Math.floor(Math.random() * 5)];
         }
 
         // ============================================================
-        // 15. ОТРИСОВКА ТОПА — ТОЛЬКО ТОП-10
+        // 17. ТОП — ОПТИМИЗИРОВАННЫЙ
         // ============================================================
         let topLastType = 'b';
-        let topRenderTimestamp = 0;
 
         async function renderTop(tp) {
             topLastType = tp;
             
-            // Показываем "обновляется" если кеш устарел
             const now = Date.now();
-            const isCacheValid = topCache.data && topCache.type === tp && now - topCache.timestamp < TOP_CACHE_TIME;
+            const isCacheValid = topCache.data && topCache.type === tp && now - topCache.timestamp < CONFIG.TOP_CACHE_TIME;
             
             if (!isCacheValid) {
                 document.getElementById('TOP_u').textContent = '⏳ загрузка...';
                 await loadTopPlayers(tp);
             }
             
-            const rem = Math.max(0, Math.ceil((topCache.timestamp + TOP_CACHE_TIME - now) / 1000));
+            const rem = Math.max(0, Math.ceil((topCache.timestamp + CONFIG.TOP_CACHE_TIME - now) / 1000));
             document.getElementById('TOP_u').textContent = rem > 30 ? `обновление через ${Math.round(rem/60)}м` : 'только что';
 
             const shardCount = getShardCount();
             const topPlayers = topCache.data || [];
             
-            // Добавляем текущего игрока в список, если его нет в топе
             const all = [...topPlayers];
             const exists = all.some(p => p.n === G.name);
             if (!exists && G.name) {
@@ -1304,9 +1309,8 @@
 
             document.getElementById('TOP_t').textContent = titles[tp];
             
-            // Сортируем и показываем топ-10
             all.sort((a, b) => (b[key] || 0) - (a[key] || 0));
-            const top10 = all.slice(0, TOP_LIMIT);
+            const top10 = all.slice(0, CONFIG.TOP_LIMIT);
             const clrs = ['var(--gld)', '#c0c0d0', '#cd7f32'];
 
             document.getElementById('TOP_l').innerHTML = top10.map((p, i) => {
@@ -1321,7 +1325,7 @@
         }
 
         // ============================================================
-        // 16. РУЛЕТКА
+        // 18. РУЛЕТКА
         // ============================================================
         const RC = document.getElementById('rouletteCanvas');
         const rctx = RC.getContext('2d');
@@ -1645,7 +1649,7 @@
         idleSpin();
 
         // ============================================================
-        // 17. КУБИК
+        // 19. КУБИК
         // ============================================================
         const PIP_LAYOUTS = {
             1: [
@@ -1870,7 +1874,7 @@
         };
 
         // ============================================================
-        // 18. ОСТАЛЬНЫЕ ИГРОВЫЕ ДЕЙСТВИЯ
+        // 20. ОСТАЛЬНЫЕ ИГРОВЫЕ ДЕЙСТВИЯ
         // ============================================================
         function renderPodium() {
             const podiumEl = document.getElementById('podiumList');
@@ -2102,7 +2106,7 @@
         };
 
         // ============================================================
-        // 19. ЗАПУСК
+        // 21. ЗАПУСК
         // ============================================================
         document.addEventListener('DOMContentLoaded', async () => {
             aStat('⏳ Проверка сессии...', 'ld');
@@ -2115,6 +2119,11 @@
                 aStat('✅ Сессия восстановлена', 'ok');
                 window.toast('Добро пожаловать, ' + currentUsername + '!', 'ok');
                 console.log('📊 Данные:', { coins: G.coins, farms: G.farms, shards: Object.keys(G.shards).length });
+                console.log('⚡ Оптимизация включена:',
+                    `Сохранение=${CONFIG.SAVE_INTERVAL/1000}с, ` +
+                    `Кеш=${CONFIG.TOP_CACHE_TIME/60000}мин, ` +
+                    `Топ=${CONFIG.TOP_LIMIT} игроков`
+                );
             } else {
                 aStat('Готово ко входу');
             }
