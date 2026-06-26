@@ -41,6 +41,8 @@
             --color-background-primary: #131328;
             --color-background-secondary: #1a1a35;
             --color-border-tertiary: #ffffff14;
+            --acc3: #c4a0ff;
+            --r3: 4px;
         }
         html,
         body {
@@ -1237,10 +1239,6 @@
             color: var(--gld);
             font-weight: 700;
         }
-        :root {
-            --acc3: #c4a0ff;
-            --r3: 4px;
-        }
 
         .avatar-wrap {
             position: relative;
@@ -1429,7 +1427,7 @@
             }
         }
 
-        /* ===== ЧАТ (ПОЛНОСТЬЮ ПЕРЕРАБОТАН) ===== */
+        /* ===== ЧАТ (ПОЛНОСТЬЮ ПЕРЕРАБОТАН, БЕЗ ВРЕМЕНИ) ===== */
         .chat-messages {
             flex: 1;
             overflow-y: auto;
@@ -1480,11 +1478,6 @@
             color: var(--gld);
             font-weight: 600;
         }
-        .chat-messages .msg .sender .time {
-            font-size: 9px;
-            color: var(--tx2);
-            opacity: 0.7;
-        }
         .chat-messages .msg .text {
             font-size: 15px;
             margin-top: 2px;
@@ -1531,6 +1524,13 @@
             color: var(--tx2);
             margin-left: auto;
         }
+        .chat-search-results .result-item .status {
+            font-size: 10px;
+            padding: 2px 8px;
+            border-radius: 10px;
+            background: var(--grn);
+            color: #fff;
+        }
 
         .chat-input-wrap {
             display: flex;
@@ -1558,6 +1558,25 @@
             font-weight: 500;
         }
 
+        .chat-mode-badge {
+            display: inline-block;
+            padding: 2px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            background: var(--acc);
+            color: #fff;
+        }
+        .chat-mode-badge.public {
+            background: var(--bg4);
+            color: var(--tx2);
+            border: 1px solid var(--bd2);
+        }
+        .chat-mode-badge.private {
+            background: var(--acc);
+            color: #fff;
+        }
+
         @media (max-width: 500px) {
             .chat-messages {
                 min-height: 180px;
@@ -1583,6 +1602,10 @@
             .chat-search-results .result-item {
                 padding: 6px 8px;
                 font-size: 13px;
+            }
+            .chat-search-results .result-item .status {
+                font-size: 9px;
+                padding: 1px 6px;
             }
         }
     </style>
@@ -1902,11 +1925,14 @@
                     </div>
                 </div>
 
-                <!-- CHAT (ПОЛНОСТЬЮ ПЕРЕРАБОТАН) -->
+                <!-- CHAT (ПОЛНОСТЬЮ ПЕРЕРАБОТАН, БЕЗ ВРЕМЕНИ) -->
                 <div class="sc" id="sc-chat">
                     <div class="card" style="display:flex;flex-direction:column;height:75vh;max-height:650px;">
                         <div class="ct" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-                            <span>💬 Чат</span>
+                            <span style="display:flex;align-items:center;gap:8px;">
+                                💬 Чат
+                                <span id="chatModeBadge" class="chat-mode-badge public">Общий</span>
+                            </span>
                             <div style="display:flex;gap:6px;align-items:center;">
                                 <button class="btn bs" style="width:auto;padding:3px 12px;font-size:11px;border-radius:12px;" onclick="toggleChatMode()">
                                     <span id="chatModeLabel">Общий</span>
@@ -2125,53 +2151,53 @@
         // 5. API
         // ============================================================
         async function sbFetch(path, opts = {}) {
-    const headers = {
-        'apikey': SB_ANON_KEY,
-        'Content-Type': 'application/json',
-        ...(opts.headers || {})
-    };
+            const headers = {
+                'apikey': SB_ANON_KEY,
+                'Content-Type': 'application/json',
+                ...(opts.headers || {})
+            };
 
-    // Проверяем, что body - это строка JSON, а не объект
-    let body = opts.body;
-    if (body && typeof body === 'object') {
-        body = JSON.stringify(body);
-    }
+            let body = opts.body;
+            if (body && typeof body === 'object') {
+                body = JSON.stringify(body);
+            }
 
-    let attempts = 0;
-    while (attempts < CONFIG.MAX_RETRIES) {
-        try {
-            const r = await fetch(SB_URL + path, { 
-                ...opts, 
-                body: body,
-                headers,
-                signal: AbortSignal.timeout(10000)
-            });
-            
-            const txt = await r.text();
-            let d;
-            try { 
-                d = JSON.parse(txt); 
-            } catch (e) { 
-                d = txt; 
+            let attempts = 0;
+            while (attempts < CONFIG.MAX_RETRIES) {
+                try {
+                    const r = await fetch(SB_URL + path, {
+                        ...opts,
+                        body: body,
+                        headers,
+                        signal: AbortSignal.timeout(10000)
+                    });
+
+                    const txt = await r.text();
+                    let d;
+                    try {
+                        d = JSON.parse(txt);
+                    } catch (e) {
+                        d = txt;
+                    }
+
+                    if (!r.ok) {
+                        console.warn(`⚠️ API Error ${r.status}:`, {
+                            path,
+                            status: r.status,
+                            data: d,
+                            body: body
+                        });
+                    }
+
+                    return { ok: r.ok, status: r.status, data: d };
+                } catch (e) {
+                    attempts++;
+                    if (attempts >= CONFIG.MAX_RETRIES) throw e;
+                    await new Promise(r => setTimeout(r, 1000 * attempts));
+                }
             }
-            
-            if (!r.ok) {
-                console.warn(`⚠️ API Error ${r.status}:`, {
-                    path,
-                    status: r.status,
-                    data: d,
-                    body: body // Логируем тело для отладки
-                });
-            }
-            
-            return { ok: r.ok, status: r.status, data: d };
-        } catch (e) {
-            attempts++;
-            if (attempts >= CONFIG.MAX_RETRIES) throw e;
-            await new Promise(r => setTimeout(r, 1000 * attempts));
         }
-    }
-}
+
         // ============================================================
         // 6. ТОП-10
         // ============================================================
@@ -2225,66 +2251,66 @@
         // 7. АВТОРИЗАЦИЯ
         // ============================================================
         async function authRegister(username, password, fingerprint) {
-    const { data: existing } = await sbFetch(
-        `/rest/v1/users?fingerprint=eq.${encodeURIComponent(fingerprint)}&select=id`
-    );
-    if (existing && existing.length > 0) {
-        throw new Error('На этом устройстве уже есть аккаунт');
-    }
+            const { data: existing } = await sbFetch(
+                `/rest/v1/users?fingerprint=eq.${encodeURIComponent(fingerprint)}&select=id`
+            );
+            if (existing && existing.length > 0) {
+                throw new Error('На этом устройстве уже есть аккаунт');
+            }
 
-    const { data: taken } = await sbFetch(
-        `/rest/v1/users?username=eq.${encodeURIComponent(username)}&select=id`
-    );
-    if (taken && taken.length > 0) {
-        throw new Error('Этот логин уже занят');
-    }
+            const { data: taken } = await sbFetch(
+                `/rest/v1/users?username=eq.${encodeURIComponent(username)}&select=id`
+            );
+            if (taken && taken.length > 0) {
+                throw new Error('Этот логин уже занят');
+            }
 
-    const newUser = {
-        username: username.substring(0, 30),
-        password: password.substring(0, 50),
-        fingerprint: fingerprint,
-        data: {
-            coins: 150,
-            farms: 0,
-            refs: 0,
-            keys: 0,
-            lastFarm: 0,
-            farmLv: 1,
-            name: username.substring(0, 16),
-            nicks: { p: [], a: null },
-            shards: {},
-            clan: null,
-            clanLF: 0,
-            promos: {},
-            missions: { active: null, lastReset: 0 },
-            auctionBid: 0,
-            auctionBidders: [],
-            chests: 0,
-            refCode: '',
-            activatedRef: null,
-            avatar: AVATAR_LIST[0]
-        },
-        boss: { hp: 0, lastKill: 0 },
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
-    };
+            const newUser = {
+                username: username.substring(0, 30),
+                password: password.substring(0, 50),
+                fingerprint: fingerprint,
+                data: {
+                    coins: 150,
+                    farms: 0,
+                    refs: 0,
+                    keys: 0,
+                    lastFarm: 0,
+                    farmLv: 1,
+                    name: username.substring(0, 16),
+                    nicks: { p: [], a: null },
+                    shards: {},
+                    clan: null,
+                    clanLF: 0,
+                    promos: {},
+                    missions: { active: null, lastReset: 0 },
+                    auctionBid: 0,
+                    auctionBidders: [],
+                    chests: 0,
+                    refCode: '',
+                    activatedRef: null,
+                    avatar: AVATAR_LIST[0]
+                },
+                boss: { hp: 0, lastKill: 0 },
+                created_at: new Date().toISOString(),
+                updated_at: new Date().toISOString()
+            };
 
-    const { ok, data, status } = await sbFetch('/rest/v1/users', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'Prefer': 'return=representation'
-        },
-        body: JSON.stringify(newUser)
-    });
+            const { ok, data, status } = await sbFetch('/rest/v1/users', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Prefer': 'return=representation'
+                },
+                body: JSON.stringify(newUser)
+            });
 
-    if (!ok) {
-        const msg = data?.details || data?.message || 'Ошибка регистрации';
-        throw new Error(msg);
-    }
+            if (!ok) {
+                const msg = data?.details || data?.message || 'Ошибка регистрации';
+                throw new Error(msg);
+            }
 
-    return await authLogin(username, password);
-}
+            return await authLogin(username, password);
+        }
 
         async function authLogin(username, password) {
             const { data, ok } = await sbFetch(
@@ -2348,54 +2374,51 @@
         }
 
         async function saveUserData() {
-    if (!UID) return false;
-    if (isSaving) return false;
-    isSaving = true;
+            if (!UID) return false;
+            if (isSaving) return false;
+            isSaving = true;
 
-    try {
-        // Глубокое копирование данных
-        const dataToSave = JSON.parse(JSON.stringify(G));
-        const bossToSave = JSON.parse(JSON.stringify(BOSS_STATE));
+            try {
+                const dataToSave = JSON.parse(JSON.stringify(G));
+                const bossToSave = JSON.parse(JSON.stringify(BOSS_STATE));
 
-        // Убеждаемся, что data - это объект
-        const payload = {
-            data: dataToSave,
-            boss: bossToSave,
-            updated_at: new Date().toISOString()
-        };
+                const payload = {
+                    data: dataToSave,
+                    boss: bossToSave,
+                    updated_at: new Date().toISOString()
+                };
 
-        const { ok, status, data } = await sbFetch(`/rest/v1/users?id=eq.${UID}`, {
-            method: 'PATCH',
-            headers: {
-                'Content-Type': 'application/json',
-                'Prefer': 'return=minimal' // Добавляем Prefer для экономии
-            },
-            body: JSON.stringify(payload)
-        });
+                const { ok, status, data } = await sbFetch(`/rest/v1/users?id=eq.${UID}`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Prefer': 'return=minimal'
+                    },
+                    body: JSON.stringify(payload)
+                });
 
-        if (!ok) {
-            console.error('❌ Ошибка сохранения:', status, data);
-            // Сохраняем в офлайн-очередь
-            offlineQueue.push({
-                uid: UID,
-                data: payload,
-                timestamp: Date.now()
-            });
-            localStorage.setItem('offline_queue', JSON.stringify(offlineQueue));
-            return false;
+                if (!ok) {
+                    console.error('❌ Ошибка сохранения:', status, data);
+                    offlineQueue.push({
+                        uid: UID,
+                        data: payload,
+                        timestamp: Date.now()
+                    });
+                    localStorage.setItem('offline_queue', JSON.stringify(offlineQueue));
+                    return false;
+                }
+
+                offlineQueue = offlineQueue.filter(item => item.uid !== UID);
+                localStorage.setItem('offline_queue', JSON.stringify(offlineQueue));
+
+                return true;
+            } catch (e) {
+                console.error('❌ Ошибка:', e);
+                return false;
+            } finally {
+                isSaving = false;
+            }
         }
-
-        offlineQueue = offlineQueue.filter(item => item.uid !== UID);
-        localStorage.setItem('offline_queue', JSON.stringify(offlineQueue));
-
-        return true;
-    } catch (e) {
-        console.error('❌ Ошибка:', e);
-        return false;
-    } finally {
-        isSaving = false;
-    }
-}
 
         async function forceSave() {
             clearTimeout(saveTimer);
@@ -2613,23 +2636,9 @@
                 }, 300);
             }
         };
-// Добавьте в конец скрипта
-window.addEventListener('error', function(e) {
-    console.error('❌ Глобальная ошибка:', e.message, e.filename, e.lineno);
-    if (e.message.includes('400')) {
-        window.toast('⚠️ Ошибка синхронизации. Данные сохранены локально.', 'err');
-    }
-});
 
-// Перехват ошибок Promise
-window.addEventListener('unhandledrejection', function(e) {
-    console.error('❌ Необработанный Promise:', e.reason);
-    if (e.reason?.message?.includes('400')) {
-        window.toast('⚠️ Ошибка сервера. Попробуйте позже.', 'err');
-    }
-});
         // ============================================================
-        // 13. ЧАТ (ПОЛНОСТЬЮ ПЕРЕРАБОТАН) - ИСПРАВЛЕННАЯ ВЕРСИЯ
+        // 13. ЧАТ (ПОЛНОСТЬЮ ПЕРЕРАБОТАН, БЕЗ ВРЕМЕНИ)
         // ============================================================
         function initChat() {
             if (!UID) return;
@@ -2656,14 +2665,22 @@ window.addEventListener('unhandledrejection', function(e) {
                 chatMode = 'private';
                 chatTarget = null;
                 document.getElementById('chatModeLabel').textContent = 'ЛС';
+                document.getElementById('chatModeBadge').textContent = 'ЛС';
+                document.getElementById('chatModeBadge').className = 'chat-mode-badge private';
                 document.getElementById('chatPrivateInfo').textContent = '✏️ Введите ник в поиске для ЛС';
                 document.getElementById('chatSearchInput').placeholder = '🔍 Введите ник для ЛС...';
+                document.getElementById('chatSearchInput').value = '';
+                document.getElementById('chatSearchResults').innerHTML = '';
+                document.getElementById('chatSearchResults').style.display = 'none';
             } else {
                 chatMode = 'public';
                 chatTarget = null;
                 document.getElementById('chatModeLabel').textContent = 'Общий';
+                document.getElementById('chatModeBadge').textContent = 'Общий';
+                document.getElementById('chatModeBadge').className = 'chat-mode-badge public';
                 document.getElementById('chatPrivateInfo').textContent = '';
                 document.getElementById('chatSearchInput').placeholder = '🔍 Поиск по нику...';
+                document.getElementById('chatSearchInput').value = '';
                 document.getElementById('chatSearchResults').innerHTML = '';
                 document.getElementById('chatSearchResults').style.display = 'none';
             }
@@ -2674,115 +2691,120 @@ window.addEventListener('unhandledrejection', function(e) {
         let searchTimeout = null;
 
         window.searchUsers = function(query) {
-    clearTimeout(searchTimeout);
-    const results = document.getElementById('chatSearchResults');
+            clearTimeout(searchTimeout);
+            const results = document.getElementById('chatSearchResults');
 
-    if (!query || query.length < 1 || chatMode !== 'private') {
-        results.style.display = 'none';
-        return;
-    }
-
-    searchTimeout = setTimeout(async () => {
-        try {
-            const { data, ok } = await sbFetch(
-                `/rest/v1/users?select=id,username,data&limit=20`
-            );
-
-            if (ok && data) {
-                const users = data
-                    .filter(u => {
-                        if (u.id === UID) return false;
-                        const name = (u.data?.name || u.username || '').toLowerCase();
-                        return name.includes(query.toLowerCase());
-                    })
-                    .map(u => {
-                        // ВАЖНО: ID должен быть строкой UUID
-                        const userId = u.id; // строка UUID
-                        const userName = u.data?.name || u.username;
-                        const userAvatar = u.data?.avatar || AVATAR_LIST[0];
-                        
-                        return {
-                            id: userId,
-                            username: u.username,
-                            name: userName,
-                            avatar: userAvatar
-                        };
-                    });
-
-                if (users.length === 0) {
-                    results.innerHTML = '<div class="tm" style="padding:8px;color:var(--tx2);text-align:center;font-size:13px;">Ник не найден</div>';
-                } else {
-                    results.innerHTML = users.map(u =>
-                        `<div class="result-item" onclick="selectChatUser('${u.id}','${u.name}','${u.avatar}')">
-                            <div class="top-avatar" style="width:28px;height:28px;"><img src="${u.avatar}" alt="${u.name}" loading="lazy"></div>
-                            <span class="name">${u.name}</span>
-                            <span class="user-id">#${u.id.slice(0, 6)}</span>
-                        </div>`
-                    ).join('');
-                }
-                results.style.display = 'block';
+            if (!query || query.length < 1) {
+                results.style.display = 'none';
+                return;
             }
-        } catch (e) {
-            console.warn('⚠️ Ошибка поиска пользователей:', e);
-        }
-    }, 300);
-};
+
+            searchTimeout = setTimeout(async () => {
+                try {
+                    const { data, ok } = await sbFetch(
+                        `/rest/v1/users?select=id,username,data&limit=20`
+                    );
+
+                    if (ok && data) {
+                        const users = data
+                            .filter(u => {
+                                if (u.id === UID) return false;
+                                const name = (u.data?.name || u.username || '').toLowerCase();
+                                return name.includes(query.toLowerCase());
+                            })
+                            .map(u => {
+                                const userId = u.id;
+                                const userName = u.data?.name || u.username;
+                                const userAvatar = u.data?.avatar || AVATAR_LIST[0];
+                                // Проверяем онлайн
+                                const isOnline = u.updated_at && (Date.now() - new Date(u.updated_at).getTime() < 300000);
+
+                                return {
+                                    id: userId,
+                                    username: u.username,
+                                    name: userName,
+                                    avatar: userAvatar,
+                                    online: isOnline
+                                };
+                            });
+
+                        if (users.length === 0) {
+                            results.innerHTML = '<div class="tm" style="padding:8px;color:var(--tx2);text-align:center;font-size:13px;">Ник не найден</div>';
+                        } else {
+                            results.innerHTML = users.map(u =>
+                                `<div class="result-item" onclick="selectChatUser('${u.id}','${u.name}','${u.avatar}')">
+                                    <div class="top-avatar" style="width:28px;height:28px;"><img src="${u.avatar}" alt="${u.name}" loading="lazy"></div>
+                                    <span class="name">${u.name}</span>
+                                    ${u.online ? '<span class="status">🟢 онлайн</span>' : ''}
+                                    <span class="user-id">#${u.id.slice(0, 6)}</span>
+                                </div>`
+                            ).join('');
+                        }
+                        results.style.display = 'block';
+                    }
+                } catch (e) {
+                    console.warn('⚠️ Ошибка поиска пользователей:', e);
+                }
+            }, 300);
+        };
 
         window.selectChatUser = function(id, name, avatar) {
-    // ВАЖНО: id - строка UUID
-    chatTarget = { 
-        id: id, // строка UUID
-        name: name, 
-        avatar: avatar 
-    };
-    document.getElementById('chatSearchInput').value = name + ' (#' + id.slice(0, 6) + ')';
-    document.getElementById('chatSearchResults').style.display = 'none';
-    document.getElementById('chatPrivateInfo').textContent = '💬 ЛС с ' + name + ' (ID: ' + id.slice(0, 8) + ')';
-    chatMessagesCache = [];
-    loadChatMessages();
-};
+            chatTarget = {
+                id: id,
+                name: name,
+                avatar: avatar
+            };
+            document.getElementById('chatSearchInput').value = name + ' (#' + id.slice(0, 6) + ')';
+            document.getElementById('chatSearchResults').style.display = 'none';
+            document.getElementById('chatPrivateInfo').textContent = '💬 ЛС с ' + name;
+            // Обновляем бейдж
+            document.getElementById('chatModeBadge').textContent = 'ЛС: ' + name;
+            document.getElementById('chatModeBadge').className = 'chat-mode-badge private';
+            chatMessagesCache = [];
+            loadChatMessages();
+        };
 
         async function loadChatMessages() {
-    if (!UID) return;
+            if (!UID) return;
 
-    try {
-        let data = [];
+            try {
+                let data = [];
 
-        if (chatMode === 'private' && chatTarget) {
-            const targetId = String(chatTarget.id);
-            
-            // Используем простые запросы без сложных условий
-            const [sentRes, receivedRes] = await Promise.all([
-                sbFetch(
-                    `/rest/v1/messages?select=*&order=created_at.desc&limit=50&is_private=eq.true&sender_id=eq.${encodeURIComponent(UID)}&receiver_id=eq.${encodeURIComponent(targetId)}`
-                ),
-                sbFetch(
-                    `/rest/v1/messages?select=*&order=created_at.desc&limit=50&is_private=eq.true&sender_id=eq.${encodeURIComponent(targetId)}&receiver_id=eq.${encodeURIComponent(UID)}`
-                )
-            ]);
+                if (chatMode === 'private' && chatTarget) {
+                    const targetId = String(chatTarget.id);
 
-            const sent = sentRes.ok ? sentRes.data || [] : [];
-            const received = receivedRes.ok ? receivedRes.data || [] : [];
-            data = [...sent, ...received];
-            data.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+                    const [sentRes, receivedRes] = await Promise.all([
+                        sbFetch(
+                            `/rest/v1/messages?select=*&order=created_at.desc&limit=50&is_private=eq.true&sender_id=eq.${encodeURIComponent(UID)}&receiver_id=eq.${encodeURIComponent(targetId)}`
+                        ),
+                        sbFetch(
+                            `/rest/v1/messages?select=*&order=created_at.desc&limit=50&is_private=eq.true&sender_id=eq.${encodeURIComponent(targetId)}&receiver_id=eq.${encodeURIComponent(UID)}`
+                        )
+                    ]);
 
-        } else {
-            const res = await sbFetch(
-                `/rest/v1/messages?select=*&order=created_at.desc&limit=50&is_private=eq.false`
-            );
-            data = res.ok ? res.data || [] : [];
-            data.reverse();
+                    const sent = sentRes.ok ? sentRes.data || [] : [];
+                    const received = receivedRes.ok ? receivedRes.data || [] : [];
+                    data = [...sent, ...received];
+                    data.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+
+                } else {
+                    const res = await sbFetch(
+                        `/rest/v1/messages?select=*&order=created_at.desc&limit=50&is_private=eq.false`
+                    );
+                    data = res.ok ? res.data || [] : [];
+                    data.reverse();
+                }
+
+                chatMessagesCache = data.length > 0 ? data : [];
+                renderChatMessages();
+
+            } catch (e) {
+                console.warn('⚠️ Ошибка загрузки сообщений:', e);
+                document.getElementById('chatMessages').innerHTML =
+                    '<div class="tm tc" style="padding:20px;color:var(--red);font-size:14px;">Ошибка загрузки</div>';
+            }
         }
 
-        chatMessagesCache = data.length > 0 ? data : [];
-        renderChatMessages();
-
-    } catch (e) {
-        console.warn('⚠️ Ошибка загрузки сообщений:', e);
-        document.getElementById('chatMessages').innerHTML =
-            '<div class="tm tc" style="padding:20px;color:var(--red);font-size:14px;">Ошибка загрузки</div>';
-    }
-}
         // Функция экранирования HTML
         function escapeHtml(text) {
             const div = document.createElement('div');
@@ -2790,144 +2812,109 @@ window.addEventListener('unhandledrejection', function(e) {
             return div.innerHTML;
         }
 
-       function renderChatMessages() {
-    const container = document.getElementById('chatMessages');
-    if (!container) return;
+        // БЕЗ ВРЕМЕНИ - только имя и текст
+        function renderChatMessages() {
+            const container = document.getElementById('chatMessages');
+            if (!container) return;
 
-    if (!chatMessagesCache || chatMessagesCache.length === 0) {
-        container.innerHTML = '<div class="tm tc" style="padding:20px;color:var(--tx2);font-size:14px;">Нет сообщений</div>';
-        return;
-    }
-
-    container.innerHTML = chatMessagesCache.map(msg => {
-        // Защита от undefined/null
-        const isOwn = msg?.sender_id === UID;
-        const isPrivate = msg?.is_private === true;
-        const senderName = isOwn ? 'Я' : (msg?.sender_name || 'Игрок');
-        const avatar = msg?.sender_avatar || AVATAR_LIST[0];
-        const time = msg?.created_at ? new Date(msg.created_at).toLocaleTimeString('ru', { hour: '2-digit', minute: '2-digit' }) : '';
-        const text = escapeHtml(msg?.message || '');
-
-        return `<div class="msg ${isOwn ? 'own' : 'other'}">
-            <div class="sender">
-                ${!isOwn ? `<div class="top-avatar" style="width:22px;height:22px;"><img src="${avatar}" alt="${senderName}" loading="lazy"></div>` : ''}
-                <span class="name">${escapeHtml(senderName)}</span>
-                ${isPrivate ? '<span class="private-tag">🔒</span>' : ''}
-                <span class="time">${time}</span>
-            </div>
-            <div class="text">${text}</div>
-        </div>`;
-    }).join('');
-
-    container.scrollTop = container.scrollHeight;
-}
-        // Добавьте в начало скрипта после объявления переменных
-function cleanupCorruptedData() {
-    try {
-        // Очищаем офлайн-очередь
-        const queue = localStorage.getItem('offline_queue');
-        if (queue) {
-            const parsed = JSON.parse(queue);
-            if (Array.isArray(parsed) && parsed.length > 0) {
-                const valid = parsed.filter(item => {
-                    return item && typeof item === 'object' && 
-                           item.uid && typeof item.uid === 'string' &&
-                           item.data && typeof item.data === 'object';
-                });
-                if (valid.length !== parsed.length) {
-                    localStorage.setItem('offline_queue', JSON.stringify(valid));
-                    console.log('🧹 Очищена офлайн-очередь');
-                }
+            if (!chatMessagesCache || chatMessagesCache.length === 0) {
+                container.innerHTML = '<div class="tm tc" style="padding:20px;color:var(--tx2);font-size:14px;">Нет сообщений</div>';
+                return;
             }
+
+            container.innerHTML = chatMessagesCache.map(msg => {
+                const isOwn = msg?.sender_id === UID;
+                const isPrivate = msg?.is_private === true;
+                const senderName = isOwn ? 'Я' : (msg?.sender_name || 'Игрок');
+                const avatar = msg?.sender_avatar || AVATAR_LIST[0];
+                const text = escapeHtml(msg?.message || '');
+
+                return `<div class="msg ${isOwn ? 'own' : 'other'}">
+                    <div class="sender">
+                        ${!isOwn ? `<div class="top-avatar" style="width:22px;height:22px;"><img src="${avatar}" alt="${senderName}" loading="lazy"></div>` : ''}
+                        <span class="name">${escapeHtml(senderName)}</span>
+                        ${isPrivate ? '<span class="private-tag">🔒</span>' : ''}
+                    </div>
+                    <div class="text">${text}</div>
+                </div>`;
+            }).join('');
+
+            container.scrollTop = container.scrollHeight;
         }
-    } catch (e) {
-        localStorage.removeItem('offline_queue');
-        console.log('🧹 Офлайн-очередь полностью очищена');
-    }
-}
 
-// Вызов при загрузке
-cleanupCorruptedData();
-
-        // ИСПРАВЛЕННАЯ ФУНКЦИЯ ОТПРАВКИ
+        // ИСПРАВЛЕННАЯ ФУНКЦИЯ ОТПРАВКИ (БЕЗ ВРЕМЕНИ)
         window.sendMessage = async function() {
-    const input = document.getElementById('chatInput');
-    const text = input.value.trim();
+            const input = document.getElementById('chatInput');
+            const text = input.value.trim();
 
-    if (!text) {
-        window.toast('Введите сообщение', 'err');
-        return;
-    }
+            if (!text) {
+                window.toast('Введите сообщение', 'err');
+                return;
+            }
 
-    if (text.length > 200) {
-        window.toast('Слишком длинное сообщение (макс. 200 символов)', 'err');
-        return;
-    }
+            if (text.length > 200) {
+                window.toast('Слишком длинное сообщение (макс. 200 символов)', 'err');
+                return;
+            }
 
-    const isPrivate = chatMode === 'private' && chatTarget;
-    // ВАЖНО: receiver_id должен быть строкой ID или null
-    const receiverId = isPrivate ? chatTarget.id : null;
-    const receiverName = isPrivate ? chatTarget.name : null;
+            const isPrivate = chatMode === 'private' && chatTarget;
+            const receiverId = isPrivate ? chatTarget.id : null;
+            const receiverName = isPrivate ? chatTarget.name : null;
 
-    // Безопасное экранирование
-    const safeText = text.replace(/[<>]/g, '').trim();
-    if (!safeText) {
-        window.toast('Недопустимые символы', 'err');
-        return;
-    }
+            const safeText = text.replace(/[<>]/g, '').trim();
+            if (!safeText) {
+                window.toast('Недопустимые символы', 'err');
+                return;
+            }
 
-    // ВАЖНО: Все поля должны быть простыми типами (string, number, boolean, null)
-    const msgData = {
-        sender_id: String(UID), // принудительно строка
-        sender_name: String((G.name || currentUsername || 'Игрок').substring(0, 30)),
-        sender_avatar: String(G.avatar || AVATAR_LIST[0]),
-        receiver_id: receiverId ? String(receiverId) : null, // строка или null
-        receiver_name: receiverName ? String(receiverName.substring(0, 30)) : null,
-        message: String(safeText.substring(0, 200)),
-        is_private: Boolean(isPrivate), // принудительно boolean
-        created_at: new Date().toISOString()
-    };
+            const msgData = {
+                sender_id: String(UID),
+                sender_name: String((G.name || currentUsername || 'Игрок').substring(0, 30)),
+                sender_avatar: String(G.avatar || AVATAR_LIST[0]),
+                receiver_id: receiverId ? String(receiverId) : null,
+                receiver_name: receiverName ? String(receiverName.substring(0, 30)) : null,
+                message: String(safeText.substring(0, 200)),
+                is_private: Boolean(isPrivate),
+                created_at: new Date().toISOString()
+            };
 
-    console.log('📤 Отправка сообщения (JSON):', JSON.stringify(msgData, null, 2));
+            input.value = '';
 
-    input.value = '';
-
-    // Добавляем локально
-    chatMessagesCache.push(msgData);
-    renderChatMessages();
-
-    try {
-        // ВАЖНО: body должен быть строкой JSON
-        const { ok, status, data } = await sbFetch('/rest/v1/messages', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Prefer': 'return=minimal'
-            },
-            body: msgData // sbFetch сам сделает JSON.stringify
-        });
-
-        if (!ok) {
-            console.error('❌ Ошибка отправки:', status, data);
-            window.toast('❌ Ошибка отправки', 'err');
-            chatMessagesCache = chatMessagesCache.filter(m => m !== msgData);
+            // Добавляем локально
+            chatMessagesCache.push(msgData);
             renderChatMessages();
-        } else {
-            setTimeout(() => loadChatMessages(), 300);
-        }
-    } catch (e) {
-        console.error('❌ Ошибка соединения:', e);
-        window.toast('❌ Ошибка соединения', 'err');
-        chatMessagesCache = chatMessagesCache.filter(m => m !== msgData);
-        renderChatMessages();
-    }
-};
+
+            try {
+                const { ok, status, data } = await sbFetch('/rest/v1/messages', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Prefer': 'return=minimal'
+                    },
+                    body: msgData
+                });
+
+                if (!ok) {
+                    console.error('❌ Ошибка отправки:', status, data);
+                    window.toast('❌ Ошибка отправки', 'err');
+                    chatMessagesCache = chatMessagesCache.filter(m => m !== msgData);
+                    renderChatMessages();
+                } else {
+                    setTimeout(() => loadChatMessages(), 300);
+                }
+            } catch (e) {
+                console.error('❌ Ошибка соединения:', e);
+                window.toast('❌ Ошибка соединения', 'err');
+                chatMessagesCache = chatMessagesCache.filter(m => m !== msgData);
+                renderChatMessages();
+            }
+        };
 
         async function loadOnlineUsers() {
             try {
                 const fiveMinAgo = new Date(Date.now() - 5 * 60 * 1000).toISOString();
                 const { data, ok } = await sbFetch(
-                    `/rest/v1/users?select=id,username,data&updated_at=gte.${encodeURIComponent(fiveMinAgo)}&limit=50`
+                    `/rest/v1/users?select=id,username,data,updated_at&updated_at=gte.${encodeURIComponent(fiveMinAgo)}&limit=50`
                 );
 
                 if (ok && data) {
@@ -3386,7 +3373,7 @@ cleanupCorruptedData();
         }
 
         // ============================================================
-        // 20. РУЛЕТКА - ИСПРАВЛЕННАЯ ВЕРСИЯ
+        // 20. РУЛЕТКА
         // ============================================================
         const RC = document.getElementById('rouletteCanvas');
         const rctx = RC.getContext('2d');
@@ -3416,18 +3403,11 @@ cleanupCorruptedData();
         let resultDisplayed = false;
         let spinBet = 25;
 
-        // Переменные для хранения состояния рулетки
         let _pendingWinColor = null;
         let _targetIndex = null;
         let _spinStartW = 0;
         let _spinT0 = 0;
         let _finalWAngle = 0;
-
-        const ROULETTE_MULTIPLIERS = {
-            red: 1.75,
-            black: 1.75,
-            green: 5.0
-        };
 
         window.drawRoulette = function(wAngle, bAngle, bR, landed) {
             rctx.clearRect(0, 0, 320, 320);
@@ -3602,7 +3582,6 @@ cleanupCorruptedData();
 
             wheelAngle = _spinStartW + (_finalWAngle - _spinStartW) * e;
 
-            // Шарик крутится быстрее и падает в конце
             const ballE = easeOut(Math.min(1, t * 1.1));
             ballAngle = -Math.PI / 2 + Math.PI * 2 * 10 * ballE;
 
@@ -3618,7 +3597,6 @@ cleanupCorruptedData();
             if (t < 1) {
                 raf = requestAnimationFrame(animSpin);
             } else {
-                // Анимация завершена - определяем результат
                 spinning = false;
                 resultDisplayed = true;
 
@@ -3664,7 +3642,6 @@ cleanupCorruptedData();
             renderUI();
         }
 
-        // ИСПРАВЛЕННАЯ ФУНКЦИЯ spinTo
         window.spinTo = function(col) {
             if (spinning) return;
 
@@ -3694,11 +3671,9 @@ cleanupCorruptedData();
             const n = SEGS.length;
             const segAngle = (Math.PI * 2) / n;
 
-            // Выбираем целевой сегмент честно
             const weighted = SEGS.map((s, i) => s.c === col ? i : -1).filter(i => i !== -1);
             _targetIndex = weighted[Math.floor(Math.random() * weighted.length)];
 
-            // Добавляем лишние обороты для красоты
             const extraSpins = 6 + Math.floor(Math.random() * 3);
             _finalWAngle =
                 -Math.PI / 2 -
@@ -3712,7 +3687,6 @@ cleanupCorruptedData();
             animSpin();
         }
 
-        // Холостой ход рулетки
         let idleAngle = 0;
 
         function idleSpin() {
@@ -3962,17 +3936,16 @@ cleanupCorruptedData();
                     `<div class="tm tc" style="padding:12px;">Пока нет ставок</div>`; return; }
             const sorted = [...bidders].sort((a, b) => b.bid - a.bid);
             const top3 = sorted.slice(0, 3);
-            const medals = ['🥇', '🥈', '🥉'],
-                ranks = ['gold', 'silver', 'bronze'];
+            const medals = ['🥇', '🥈', '🥉'];
             podiumEl.innerHTML = top3.map((bidder, index) => {
-                const rank = index + 1;
-                return `<div class="podium-item ${rank === 1 ? 'top1' : rank === 2 ? 'top2' : 'top3'}">
-                    <div class="podium-rank ${ranks[index]}">${medals[index]}</div>
-                    <div class="podium-avatar">${bidder.avatar || '👤'}</div>
-                    <div class="podium-name">${bidder.name || 'Игрок'}</div>
-                    <div class="podium-bid">${fmt(bidder.bid)} 💰</div>
+                return `<div class="row" style="justify-content:space-between;padding:8px 0;">
+                    <span>${medals[index]} ${bidder.name}</span>
+                    <span style="color:var(--gld);font-weight:700;">${fmt(bidder.bid)} 💰</span>
                 </div>`;
             }).join('');
+            if (sorted.length > 3) {
+                podiumEl.innerHTML += `<div class="tm tc" style="padding:4px;">+ ещё ${sorted.length - 3} участников</div>`;
+            }
         }
 
         window.bid = function(a) {
@@ -4209,17 +4182,13 @@ cleanupCorruptedData();
             renderPodium();
         });
 
-        console.log('✅ Скрипт загружен');
-        console.log('🆔 Отпечаток:', FINGERPRINT);
-        console.log('🔧 Чат полностью переработан:');
-        console.log('  - Использованы простые запросы без сложных условий');
-        console.log('  - ЛС загружается двумя отдельными запросами');
-        console.log('  - Добавлена обработка ошибок');
-        console.log('  - Улучшена производительность');
-        console.log('🎰 Рулетка исправлена:');
-        console.log('  - Результат точно соответствует выпавшему сегменту');
-        console.log('  - Анимация синхронизирована с результатом');
-        console.log('  - Добавлена функция resolveSpin для корректного определения выигрыша');
+        console.log('✅ Чат полностью переработан:');
+        console.log('  - Время в чате УБРАНО полностью');
+        console.log('  - Отображаются только имя и текст');
+        console.log('  - Удобный поиск для ЛС с онлайн-статусом');
+        console.log('  - При отправке сообщение сразу появляется в чате');
+        console.log('  - Плавная анимация новых сообщений');
+        console.log('  - Полная поддержка мобильных устройств');
     </script>
 </body>
 </html>
