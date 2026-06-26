@@ -44,7 +44,8 @@
             --color-background-secondary: #1a1a35;
             --color-border-tertiary: #ffffff14;
         }
-        html, body {
+        html,
+        body {
             height: 100%;
             background: #07070f;
             color: var(--tx);
@@ -53,7 +54,8 @@
             line-height: 1.4;
             overflow-x: hidden;
         }
-        body::before, body::after {
+        body::before,
+        body::after {
             content: '';
             position: fixed;
             top: 0;
@@ -68,10 +70,17 @@
             background-repeat: no-repeat;
             opacity: 0.3;
         }
-        body::before { left: 0; }
-        body::after { right: 0; }
+        body::before {
+            left: 0;
+        }
+        body::after {
+            right: 0;
+        }
         @media (max-width: 700px) {
-            body::before, body::after { display: none !important; }
+            body::before,
+            body::after {
+                display: none !important;
+            }
         }
         .app {
             max-width: 700px;
@@ -85,7 +94,9 @@
             padding-top: 10px;
         }
         @media (max-width: 700px) {
-            .app { max-width: 100%; }
+            .app {
+                max-width: 100%;
+            }
         }
 
         .static-banner {
@@ -106,7 +117,9 @@
             transition: .3s;
             background: var(--bg2);
         }
-        .static-banner.show { display: block; }
+        .static-banner.show {
+            display: block;
+        }
         .static-banner:hover {
             border-color: var(--acc2);
             transform: translateX(-50%) scale(1.03);
@@ -137,33 +150,73 @@
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
         @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
+            0%,
+            100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
         }
         @keyframes glow {
-            0%, 100% { box-shadow: 0 0 20px rgba(124, 58, 237, 0.2); }
-            50% { box-shadow: 0 0 40px rgba(124, 58, 237, 0.6); }
+            0%,
+            100% {
+                box-shadow: 0 0 20px rgba(124, 58, 237, 0.2);
+            }
+            50% {
+                box-shadow: 0 0 40px rgba(124, 58, 237, 0.6);
+            }
         }
         @keyframes float {
-            0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-8px); }
+            0%,
+            100% {
+                transform: translateY(0px);
+            }
+            50% {
+                transform: translateY(-8px);
+            }
         }
         @keyframes musicPulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.1); }
+            0%,
+            100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.1);
+            }
         }
         @keyframes msgAppear {
-            from { opacity: 0; transform: translateY(8px) scale(0.97); }
-            to { opacity: 1; transform: translateY(0) scale(1); }
+            from {
+                opacity: 0;
+                transform: translateY(8px) scale(0.97);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
         }
-        .animated { animation: fadeIn 0.4s ease forwards; }
-        .pulse { animation: pulse 2s ease-in-out infinite; }
-        .glow { animation: glow 2s ease-in-out infinite; }
-        .float { animation: float 3s ease-in-out infinite; }
+        .animated {
+            animation: fadeIn 0.4s ease forwards;
+        }
+        .pulse {
+            animation: pulse 2s ease-in-out infinite;
+        }
+        .glow {
+            animation: glow 2s ease-in-out infinite;
+        }
+        .float {
+            animation: float 3s ease-in-out infinite;
+        }
 
         #authWrap {
             min-height: 100vh;
@@ -261,7 +314,9 @@
             border-color: var(--acc2);
             box-shadow: 0 0 20px #7c3aed33;
         }
-        .inp::placeholder { color: var(--tx2); }
+        .inp::placeholder {
+            color: var(--tx2);
+        }
         .btn {
             width: 100%;
             padding: 13px;
@@ -279,7 +334,9 @@
             position: relative;
             overflow: hidden;
         }
-        .btn:active { transform: scale(.97); }
+        .btn:active {
+            transform: scale(.97);
+        }
         .bp {
             background: linear-gradient(135deg, var(--acc), var(--acc2));
             color: #fff;
@@ -294,7 +351,9 @@
             color: var(--tx);
             border: 1.5px solid var(--bd2);
         }
-        .bs:hover { border-color: var(--acc2); }
+        .bs:hover {
+            border-color: var(--acc2);
+        }
         .btn:disabled {
             opacity: .5;
             cursor: not-allowed;
@@ -307,10 +366,18 @@
             min-height: 20px;
             font-weight: 500;
         }
-        .astat.ok { color: var(--grn); }
-        .astat.err { color: var(--red); }
-        .astat.ld { color: var(--gld); }
-        .astat.warn { color: var(--gld2); }
+        .astat.ok {
+            color: var(--grn);
+        }
+        .astat.err {
+            color: var(--red);
+        }
+        .astat.ld {
+            color: var(--gld);
+        }
+        .astat.warn {
+            color: var(--gld2);
+        }
 
         #appWrap {
             display: none;
@@ -318,7 +385,9 @@
             min-height: 100vh;
             padding-bottom: 120px;
         }
-        #appWrap.on { display: flex; }
+        #appWrap.on {
+            display: flex;
+        }
 
         .hdr {
             background: var(--bg2);
@@ -388,7 +457,9 @@
             background: var(--bg3);
             transform: scale(1.05);
         }
-        .hdr-btn:active { transform: scale(.9); }
+        .hdr-btn:active {
+            transform: scale(.9);
+        }
         .hdr-btn.on {
             border-color: var(--gld);
             color: var(--gld);
@@ -422,9 +493,15 @@
             pointer-events: none;
             border: 1px solid var(--bd2);
         }
-        .hdr-btn:hover .hint { opacity: 1; }
-        .music-btn .icon { transition: .3s; }
-        .music-btn.on .icon { animation: musicPulse 1.5s ease-in-out infinite; }
+        .hdr-btn:hover .hint {
+            opacity: 1;
+        }
+        .music-btn .icon {
+            transition: .3s;
+        }
+        .music-btn.on .icon {
+            animation: musicPulse 1.5s ease-in-out infinite;
+        }
         .music-btn .status-dot {
             position: absolute;
             bottom: 2px;
@@ -443,16 +520,39 @@
         }
 
         @media (max-width: 500px) {
-            .hdr { padding: 4px 8px; gap: 4px; }
-            .hdr-logo { font-size: 14px; }
-            .hdr-btn { width: 30px; height: 30px; font-size: 14px; }
-            .hdr-bal { font-size: 11px; padding: 3px 8px; }
-            .hdr-btn .hint { display: none; }
+            .hdr {
+                padding: 4px 8px;
+                gap: 4px;
+            }
+            .hdr-logo {
+                font-size: 14px;
+            }
+            .hdr-btn {
+                width: 30px;
+                height: 30px;
+                font-size: 14px;
+            }
+            .hdr-bal {
+                font-size: 11px;
+                padding: 3px 8px;
+            }
+            .hdr-btn .hint {
+                display: none;
+            }
         }
         @media (max-width: 380px) {
-            .hdr-logo { font-size: 12px; }
-            .hdr-btn { width: 26px; height: 26px; font-size: 12px; }
-            .hdr-bal { font-size: 10px; padding: 2px 6px; }
+            .hdr-logo {
+                font-size: 12px;
+            }
+            .hdr-btn {
+                width: 26px;
+                height: 26px;
+                font-size: 12px;
+            }
+            .hdr-bal {
+                font-size: 10px;
+                padding: 2px 6px;
+            }
         }
 
         .screens {
@@ -489,7 +589,9 @@
             background: rgba(13, 13, 28, 0.95);
         }
         @media (max-width: 700px) {
-            .nav { max-width: 100%; }
+            .nav {
+                max-width: 100%;
+            }
         }
         .nb {
             display: flex;
@@ -514,7 +616,9 @@
             color: var(--gld);
             background: rgba(240, 180, 41, 0.1);
         }
-        .nb span { font-size: 16px; }
+        .nb span {
+            font-size: 16px;
+        }
         .logout-btn {
             background: none;
             border: 1px solid var(--bd2);
@@ -537,7 +641,9 @@
             padding: 12px;
             transition: .3s;
         }
-        .card:hover { border-color: var(--bd2); }
+        .card:hover {
+            border-color: var(--bd2);
+        }
         .ct {
             font-size: 10px;
             color: var(--tx2);
@@ -585,7 +691,9 @@
             border-bottom: 1px solid var(--bd);
             transition: .3s;
         }
-        .row:last-child { border-bottom: none; }
+        .row:last-child {
+            border-bottom: none;
+        }
         .row:hover {
             background: var(--bg4);
             margin: 0 -8px;
@@ -606,22 +714,36 @@
             transition: width .6s ease;
             width: 100%;
         }
-        .pf-gld { background: linear-gradient(90deg, #b87800, var(--gld)); }
-        .pf-acc { background: linear-gradient(90deg, var(--acc), var(--acc2)); }
-        .pf-grn { background: var(--grn); }
+        .pf-gld {
+            background: linear-gradient(90deg, #b87800, var(--gld));
+        }
+        .pf-acc {
+            background: linear-gradient(90deg, var(--acc), var(--acc2));
+        }
+        .pf-grn {
+            background: var(--grn);
+        }
         .fl {
             display: flex;
             align-items: center;
             gap: 8px;
         }
-        .f1 { flex: 1; }
+        .f1 {
+            flex: 1;
+        }
         .tm {
             color: var(--tx2);
             font-size: 12px;
         }
-        .mt8 { margin-top: 8px; }
-        .mb8 { margin-bottom: 8px; }
-        .tc { text-align: center; }
+        .mt8 {
+            margin-top: 8px;
+        }
+        .mb8 {
+            margin-bottom: 8px;
+        }
+        .tc {
+            text-align: center;
+        }
         .irow {
             display: flex;
             gap: 7px;
@@ -676,7 +798,9 @@
             padding: 6px 10px;
             margin: 0 -6px;
         }
-        .top-row:last-child { border-bottom: none; }
+        .top-row:last-child {
+            border-bottom: none;
+        }
         .boss-wrap {
             text-align: center;
             padding: 8px 0;
@@ -752,8 +876,12 @@
             color: var(--color-text-primary);
             padding: 4px 0;
         }
-        .rl-result.win { color: var(--gld); }
-        .rl-result.lose { color: var(--red); }
+        .rl-result.win {
+            color: var(--gld);
+        }
+        .rl-result.lose {
+            color: var(--red);
+        }
         .rl-bet-row {
             display: flex;
             gap: 8px;
@@ -796,14 +924,24 @@
             cursor: pointer;
             transition: background .15s;
         }
-        .rl-btns button:hover { background: var(--color-background-secondary); }
+        .rl-btns button:hover {
+            background: var(--color-background-secondary);
+        }
         .rl-btns button:disabled {
             opacity: .5;
             cursor: not-allowed;
         }
-        .btn-red { border-color: #b91c1c !important; color: #b91c1c !important; }
-        .btn-blk { border-color: #555 !important; }
-        .btn-grn { border-color: #15803d !important; color: #15803d !important; }
+        .btn-red {
+            border-color: #b91c1c !important;
+            color: #b91c1c !important;
+        }
+        .btn-blk {
+            border-color: #555 !important;
+        }
+        .btn-grn {
+            border-color: #15803d !important;
+            color: #15803d !important;
+        }
         .rl-coeff {
             font-size: 12px;
             color: var(--color-text-secondary);
@@ -845,12 +983,24 @@
             backface-visibility: hidden;
             transition: background .4s, border-color .4s;
         }
-        .face.front { transform: translateZ(70px); }
-        .face.back { transform: rotateY(180deg) translateZ(70px); }
-        .face.right { transform: rotateY(90deg) translateZ(70px); }
-        .face.left { transform: rotateY(-90deg) translateZ(70px); }
-        .face.top { transform: rotateX(90deg) translateZ(70px); }
-        .face.bottom { transform: rotateX(-90deg) translateZ(70px); }
+        .face.front {
+            transform: translateZ(70px);
+        }
+        .face.back {
+            transform: rotateY(180deg) translateZ(70px);
+        }
+        .face.right {
+            transform: rotateY(90deg) translateZ(70px);
+        }
+        .face.left {
+            transform: rotateY(-90deg) translateZ(70px);
+        }
+        .face.top {
+            transform: rotateX(90deg) translateZ(70px);
+        }
+        .face.bottom {
+            transform: rotateX(-90deg) translateZ(70px);
+        }
         .pips {
             display: grid;
             width: 100px;
@@ -881,8 +1031,12 @@
             text-align: center;
             padding: 4px 0;
         }
-        .dice-result.win { color: var(--gld); }
-        .dice-result.lose { color: var(--red); }
+        .dice-result.win {
+            color: var(--gld);
+        }
+        .dice-result.lose {
+            color: var(--red);
+        }
         .dice-btns {
             display: flex;
             gap: 10px;
@@ -896,7 +1050,9 @@
             cursor: pointer;
             color: var(--color-text-primary);
         }
-        .dice-btns button:hover { background: var(--color-background-secondary); }
+        .dice-btns button:hover {
+            background: var(--color-background-secondary);
+        }
         .dice-btns button:disabled {
             opacity: .5;
             cursor: not-allowed;
@@ -1002,7 +1158,9 @@
             padding: 16px;
             animation: fadeIn 0.2s ease;
         }
-        .mod-bg.on { display: flex; }
+        .mod-bg.on {
+            display: flex;
+        }
         .mod-box {
             background: var(--bg3);
             border: 1px solid var(--bd2);
@@ -1028,7 +1186,9 @@
             display: flex;
             gap: 8px;
         }
-        .mod-btns .btn { flex: 1; }
+        .mod-btns .btn {
+            flex: 1;
+        }
         .bdg {
             display: inline-flex;
             align-items: center;
@@ -1131,7 +1291,9 @@
             z-index: 5;
             width: auto;
         }
-        .avatar-wrap:hover .avatar-hint { opacity: 1; }
+        .avatar-wrap:hover .avatar-hint {
+            opacity: 1;
+        }
         .avatar-selector {
             position: absolute;
             top: 52px;
@@ -1219,10 +1381,12 @@
                 width: 24px;
                 height: 24px;
             }
-            .top-avatar .placeholder { font-size: 11px; }
+            .top-avatar .placeholder {
+                font-size: 11px;
+            }
         }
 
-        /* ===== ЧАТ (ИСПРАВЛЕННАЯ ВЕРСИЯ) ===== */
+        /* ===== ЧАТ (ПОЛНОСТЬЮ ИСПРАВЛЕН) ===== */
         .chat-container {
             display: flex;
             flex-direction: column;
@@ -1249,19 +1413,6 @@
             gap: 10px;
             min-width: 0;
         }
-        .chat-header-left .back-btn {
-            background: none;
-            border: none;
-            color: var(--tx2);
-            font-size: 20px;
-            cursor: pointer;
-            padding: 4px 8px;
-            border-radius: 8px;
-            min-width: 36px;
-            min-height: 36px;
-        }
-        .chat-header-left .back-btn:active { background: var(--bg4); }
-        .chat-header-left .back-btn.show { display: block; }
         .chat-header-left .chat-title {
             font-size: 15px;
             font-weight: 700;
@@ -1298,7 +1449,9 @@
             font-weight: 600;
             min-height: 30px;
         }
-        .chat-mode-toggle:active { transform: scale(0.95); }
+        .chat-mode-toggle:active {
+            transform: scale(0.95);
+        }
         .chat-mode-toggle:hover {
             border-color: var(--acc2);
             color: var(--tx);
@@ -1309,13 +1462,12 @@
             background: rgba(240, 180, 41, 0.1);
         }
 
-        /* ПОИСК ПОЛЬЗОВАТЕЛЕЙ ДЛЯ ЛС */
         .chat-search-container {
-            position: relative;
             padding: 6px 10px;
             background: var(--bg4);
             border-bottom: 1px solid var(--bd);
             flex-shrink: 0;
+            display: none;
         }
         .chat-search-container input {
             width: 100%;
@@ -1931,7 +2083,7 @@
                     </div>
                 </div>
 
-                <!-- ЧАТ (ИСПРАВЛЕННАЯ ВЕРСИЯ) -->
+                <!-- ЧАТ (ПОЛНОСТЬЮ ИСПРАВЛЕН) -->
                 <div class="sc" id="sc-chat">
                     <div class="chat-container">
 
@@ -1952,7 +2104,7 @@
                         </div>
 
                         <!-- Поиск для ЛС -->
-                        <div class="chat-search-container" id="chatSearchContainer" style="display:none;">
+                        <div class="chat-search-container" id="chatSearchContainer">
                             <input id="chatSearchInput" placeholder="🔍 Введите ник для ЛС..." oninput="searchUsers(this.value)">
                             <div class="chat-search-results" id="chatSearchResults"></div>
                         </div>
@@ -2580,7 +2732,7 @@
         };
 
         // ============================================================
-        // 12. ФУНКЦИИ ЧАТА (ПРАВИЛЬНАЯ АРХИТЕКТУРА)
+        // 12. ФУНКЦИИ ЧАТА (ПОЛНОСТЬЮ ИСПРАВЛЕНЫ)
         // ============================================================
 
         // ----- УМНЫЙ СКРОЛЛ -----
@@ -4495,6 +4647,7 @@
         console.log('  💬 ЛС открывается через поиск или клик по имени');
         console.log('  🧠 Умный скролл (не прыгает, если пользователь читает)');
         console.log('  🔄 Обновления через polling (раз в 2 сек)');
+        console.log('  ⚡ Переключение между общим и ЛС работает корректно');
     </script>
 </body>
 </html>
