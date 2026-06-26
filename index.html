@@ -1785,23 +1785,21 @@
     <div class="app" id="appRoot">
 
         <!-- AUTH -->
-        <div id="authWrap">
-            <div class="auth-box">
-                <div class="auth-banner">
-                    <img src="https://i.ibb.co/B2ZWmtHJ/image.png" alt="CoinMine Banner">
-                </div>
-                <div class="auth-title">CoinMine</div>
-                <div class="auth-sub" id="authSub">Войдите или создайте аккаунт</div>
-                <div class="auth-tabs">
-                    <button class="auth-tab on" onclick="window.setAuthMode('login')">Войти</button>
-                    <button class="auth-tab" onclick="window.setAuthMode('register')">Регистрация</button>
-                </div>
-                <input class="inp" id="authUsername" type="text" placeholder="Логин (3-16 символов)">
-                <input class="inp" id="authPass" type="password" placeholder="Пароль (мин. 6 символов)">
-                <button class="btn bp" id="authBtn" onclick="window.handleAuth()">⚡ Войти</button>
-                <div class="astat" id="authStatus">Готово ко входу</div>
-            </div>
+       <div id="authWrap">
+    <div class="auth-box">
+        <!-- Баннер удалён -->
+        <div class="auth-title">CoinMine</div>
+        <div class="auth-sub" id="authSub">Войдите или создайте аккаунт</div>
+        <div class="auth-tabs">
+            <button class="auth-tab on" onclick="window.setAuthMode('login')">Войти</button>
+            <button class="auth-tab" onclick="window.setAuthMode('register')">Регистрация</button>
         </div>
+        <input class="inp" id="authUsername" type="text" placeholder="Логин (3-16 символов)">
+        <input class="inp" id="authPass" type="password" placeholder="Пароль (мин. 6 символов)">
+        <button class="btn bp" id="authBtn" onclick="window.handleAuth()">⚡ Войти</button>
+        <div class="astat" id="authStatus">Готово ко входу</div>
+    </div>
+</div>
 
         <!-- APP -->
         <div id="appWrap">
