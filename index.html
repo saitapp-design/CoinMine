@@ -2832,7 +2832,6 @@ async function loadMessages() {
         // Переменная для хранения ID последнего отрисованного сообщения, чтобы не перерисовывать всё подряд
 // Переменные для контроля состояния чата
 let lastRenderedChatType = null;
-let lastMessagesCount = 0; // Будем следить за реальным количеством сообщений
 
 function renderChatMessages() {
     const container = document.getElementById('chatMessages');
@@ -2841,10 +2840,7 @@ function renderChatMessages() {
     const currentChatId = currentChat === 'global' ? 'global' : String(currentChatTarget?.id || '');
     const isAtBottom = container.scrollTop + container.clientHeight >= container.scrollHeight - 150;
 
-    // Считаем, сколько сообщений сейчас фактически отображается на экране
-    const DOMMessagesCount = container.getElementsByClassName('message').length; 
-
-    // Условие 1: Сменился чат или экран абсолютно пуст
+    // 1. Если сменилась комната чата — полная очистка
     if (lastRenderedChatType !== currentChatId || container.innerHTML === "") {
         let fullHtml = '';
         chatMessagesCache.forEach(msg => {
@@ -2852,98 +2848,56 @@ function renderChatMessages() {
         });
         container.innerHTML = fullHtml;
         container.scrollTop = container.scrollHeight;
-        
         lastRenderedChatType = currentChatId;
-        lastMessagesCount = chatMessagesCache.length;
         return;
     }
 
-    // Условие 2: Синхронизация между ПК и телефоном.
-    // Если в кэше прилетело БОЛЬШЕ сообщений, чем было, или длина массивов разошлась — 
-    // значит, кто-то написал с другого устройства. Перерисовываем полностью во избежание багов.
-    if (chatMessagesCache.length !== lastMessagesCount || chatMessagesCache.length !== DOMMessagesCount) {
-        let fullHtml = '';
-        chatMessagesCache.forEach(msg => {
-            fullHtml += generateMessageHtml(msg);
-        });
-        container.innerHTML = fullHtml;
-        
-        // Обновляем счетчики
-        lastMessagesCount = chatMessagesCache.length;
-
-        // Если это мы сами отправили или были внизу — докручиваем
-        if (isAtBottom) {
-            container.scrollTop = container.scrollHeight;
-        }
-        return;
-    }
-
-    // Условие 3: Обычное фоновое добавление одиночных сообщений (без дубликатов)
+    // 2. Умное обновление элементов
     chatMessagesCache.forEach(msg => {
-        // Защита: добавляем только если у сообщения есть ID и его ТОЧНО нет на экране
-        if (msg.id && !document.getElementById(`msg-${msg.id}`)) {
-            container.insertAdjacentHTML('beforeend', generateMessageHtml(msg));
+        const isTemporary = typeof msg.id === 'number' && msg.id < 0; // Наше созданное оптимистичное сообщение
+        
+        // Проверяем, есть ли уже такое сообщение на экране
+        const existingNode = document.getElementById(`msg-${msg.id}`);
+
+        if (!existingNode) {
+            // Магия против дублирования: если это пришло серверное сообщение, 
+            // но на экране всё еще висит его временная копия от нашей отправки (сравниваем текст)
+            const tempNodes = container.querySelectorAll('[id^="msg-temp-"], [id^="msg--"]');
+            let replaced = false;
+
+            for (let tempNode of tempNodes) {
+                // Если текст совпадает, просто обновляем ID элемента на серверный вместо создания нового!
+                if (tempNode.innerText.includes(msg.message)) {
+                    tempNode.id = `msg-${msg.id}`;
+                    replaced = true;
+                    break;
+                }
+            }
+
+            // Если совпадений не нашли — это реально новое сообщение от другого юзера, добавляем в конец
+            if (!replaced) {
+                container.insertAdjacentHTML('beforeend', generateMessageHtml(msg));
+            }
         }
     });
 
+    // Очищаем «мусорные» временные сообщения, если они застряли
+    const allIdsInCache = chatMessagesCache.map(m => `msg-${m.id}`);
+    const displayedMessages = container.getElementsByClassName('message');
+    for (let i = displayedMessages.length - 1; i >= 0; i--) {
+        const msgNode = displayedMessages[i];
+        if (!allIdsInCache.includes(msgNode.id) && (msgNode.id.includes('temp') || msgNode.id.includes('msg--'))) {
+            msgNode.remove();
+        }
+    }
+
+    // Удерживаем скролл внизу
     if (isAtBottom) {
         requestAnimationFrame(() => {
             container.scrollTop = container.scrollHeight;
         });
     }
 }
-        window.searchUsers = function(query) {
-            clearTimeout(searchTimeout);
-            const results = document.getElementById('chatSearchResults');
-
-            if (!query || query.length < 1) {
-                results.style.display = 'none';
-                return;
-            }
-
-            searchTimeout = setTimeout(async () => {
-                try {
-                    const { data, ok } = await sbFetch(
-                        `/rest/v1/users?select=id,username,data&limit=20`
-                    );
-
-                    if (ok && data) {
-                        const users = data
-                            .filter(u => {
-                                if (u.id === UID) return false;
-                                const name = (u.data?.name || u.username || '').toLowerCase();
-                                return name.includes(query.toLowerCase());
-                            })
-                            .map(u => {
-                                const userId = u.id;
-                                const userName = u.data?.name || u.username;
-                                const userAvatar = u.data?.avatar || AVATAR_LIST[0];
-                                return {
-                                    id: userId,
-                                    username: u.username,
-                                    name: userName,
-                                    avatar: userAvatar
-                                };
-                            });
-
-                        if (users.length === 0) {
-                            results.innerHTML = '<div class="tm" style="padding:8px;color:var(--tx2);text-align:center;font-size:13px;">Ник не найден</div>';
-                        } else {
-                            results.innerHTML = users.map(u =>
-                                `<div class="result-item" onclick="selectChatUser('${u.id}','${u.name}','${u.avatar}')">
-                                    <div class="top-avatar" style="width:28px;height:28px;"><img src="${u.avatar}" alt="${u.name}" loading="lazy"></div>
-                                    <span class="name">${u.name}</span>
-                                    <span class="user-id">#${u.id.slice(0, 6)}</span>
-                                </div>`
-                            ).join('');
-                        }
-                        results.style.display = 'block';
-                    }
-                } catch (e) {
-                    console.warn('⚠️ Ошибка поиска пользователей:', e);
-                }
-            }, 300);
-        };
 
         window.selectChatUser = function(id, name, avatar) {
             // Закрываем поиск
@@ -3051,7 +3005,7 @@ function renderChatMessages() {
         };
 
         // ----- ОТПРАВКА СООБЩЕНИЯ -----
-        window.sendMessage = async function() {
+       window.sendMessage = async function() {
     const input = document.getElementById('chatInput');
     const text = input.value.trim();
 
@@ -3119,8 +3073,9 @@ function renderChatMessages() {
     input.value = '';
     input.style.borderColor = '';
 
-    // ОПТИМИСТИЧНОЕ ДОБАВЛЕНИЕ (Генерируем временный ID, чтобы избежать дублирования на телефонах)
-    const tempMsg = { ...msgData, id: 'temp-' + Date.now() };
+    // ОПТИМИСТИЧНОЕ ДОБАВЛЕНИЕ (Генерируем уникальный временный токен)
+    const tempId = 'temp-' + Date.now();
+    const tempMsg = { ...msgData, id: tempId };
     const targetKey = isPrivate ? currentChatTarget.id : 'global';
 
     if (targetKey === 'global') {
@@ -3132,8 +3087,7 @@ function renderChatMessages() {
         chatMessagesCache = chats.dm[targetKey];
     }
 
-    // Добавляем в DOM и жестко сбрасываем счетчик для синхронизации
-    lastMessagesCount = 0; 
+    // Добавляем в DOM
     appendMessageToChat(tempMsg);
 
     // Принудительный скролл вниз после оптимистичного добавления
@@ -3159,7 +3113,7 @@ function renderChatMessages() {
             console.error('❌ Ошибка отправки:', status, data);
             window.toast('❌ Ошибка отправки', 'err');
             
-            // Удаляем из кеша в случае ошибки
+            // Удаляем из кеша и DOM в случае ошибки
             if (targetKey === 'global') {
                 chats.global = chats.global.filter(m => m !== tempMsg);
                 chatMessagesCache = chats.global;
@@ -3167,17 +3121,45 @@ function renderChatMessages() {
                 chats.dm[targetKey] = chats.dm[targetKey].filter(m => m !== tempMsg);
                 chatMessagesCache = chats.dm[targetKey];
             }
-            lastMessagesCount = 0;
+            
+            const tempNode = document.getElementById(`msg-${tempId}`);
+            if (tempNode) tempNode.remove();
+
+            if (typeof lastMessagesCount !== 'undefined') lastMessagesCount = chatMessagesCache.length;
             renderChatMessages();
             input.value = sentText;
         } else {
-            // Если всё ок — сбрасываем счетчик, чтобы принудительно затянуть чистые данные с сервера
-            lastMessagesCount = 0;
+            // === ВОТ ЗДЕСЬ ИСПРАВЛЕНИЕ ХИТРОГО ДУБЛИРОВАНИЯ ===
+            // Supabase при успешном POST обычно возвращает массив с созданной записью в параметре `data`
+            const serverMsg = data && data[0] ? data[0] : null;
+            
+            if (serverMsg && serverMsg.id) {
+                // 1. Обновляем ID в локальном кэше оперативной памяти
+                if (targetKey === 'global') {
+                    const idx = chats.global.findIndex(m => m.id === tempId);
+                    if (idx !== -1) chats.global[idx] = serverMsg;
+                } else {
+                    const idx = chats.dm[targetKey].findIndex(m => m.id === tempId);
+                    if (idx !== -1) chats.dm[targetKey][idx] = serverMsg;
+                }
 
+                // 2. Находим временный блок на экране и "актуализируем" его ID до серверного
+                const tempNode = document.getElementById(`msg-${tempId}`);
+                if (tempNode) {
+                    tempNode.id = `msg-${serverMsg.id}`; // Меняем id прямо на лету!
+                }
+            }
+
+            // Синхронизируем счетчик сообщений для renderChatMessages, если он используется
+            if (typeof lastMessagesCount !== 'undefined') {
+                lastMessagesCount = chatMessagesCache.length;
+            }
+
+            // Запрашиваем официальное обновление чата чуть позже для железной синхронизации устройств
             setTimeout(() => {
                 loadMessages();
                 cleanupOldMessages();
-            }, 300);
+            }, 500);
 
             if (isPrivate) {
                 const remaining = getPrivateRemaining(currentChatTarget.id);
@@ -3192,6 +3174,7 @@ function renderChatMessages() {
     } catch (e) {
         console.error('❌ Ошибка соединения:', e);
         window.toast('❌ Ошибка соединения', 'err');
+        
         if (targetKey === 'global') {
             chats.global = chats.global.filter(m => m !== tempMsg);
             chatMessagesCache = chats.global;
@@ -3199,7 +3182,11 @@ function renderChatMessages() {
             chats.dm[targetKey] = chats.dm[targetKey].filter(m => m !== tempMsg);
             chatMessagesCache = chats.dm[targetKey];
         }
-        lastMessagesCount = 0;
+        
+        const tempNode = document.getElementById(`msg-${tempId}`);
+        if (tempNode) tempNode.remove();
+
+        if (typeof lastMessagesCount !== 'undefined') lastMessagesCount = chatMessagesCache.length;
         renderChatMessages();
         input.value = sentText;
     }
