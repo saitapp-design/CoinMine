@@ -1232,6 +1232,7 @@
             border-radius: var(--r);
             border: 1px solid var(--bd);
             overflow: hidden;
+            position: relative;
         }
         .chat-header {
             display: flex;
@@ -1256,7 +1257,6 @@
             font-size: 20px;
             cursor: pointer;
             padding: 4px 8px;
-            display: none;
             border-radius: 8px;
             min-width: 36px;
             min-height: 36px;
@@ -1310,11 +1310,120 @@
             background: rgba(240, 180, 41, 0.1);
         }
 
+        /* Список диалогов (ЛС) */
+        .chat-dialogs {
+            display: none;
+            flex-direction: column;
+            flex: 1;
+            overflow-y: auto;
+            padding: 6px 8px;
+            background: var(--bg4);
+        }
+        .chat-dialogs.show {
+            display: flex;
+        }
+        .chat-dialogs .dialog-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 4px 12px 4px;
+            border-bottom: 1px solid var(--bd);
+            flex-shrink: 0;
+        }
+        .chat-dialogs .dialog-header span {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--tx2);
+        }
+        .chat-dialogs .dialog-header .close-dialogs {
+            background: none;
+            border: none;
+            color: var(--tx2);
+            font-size: 18px;
+            cursor: pointer;
+            padding: 0 4px;
+        }
+        .chat-dialog-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 12px;
+            border-radius: var(--r2);
+            cursor: pointer;
+            transition: .2s;
+            border-bottom: 1px solid var(--bd);
+            min-height: 56px;
+        }
+        .chat-dialog-item:active { background: var(--bg5); }
+        .chat-dialog-item .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            overflow: hidden;
+            flex-shrink: 0;
+            background: var(--bg4);
+            border: 2px solid var(--bd2);
+        }
+        .chat-dialog-item .avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .chat-dialog-item .info {
+            flex: 1;
+            min-width: 0;
+        }
+        .chat-dialog-item .info .name {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--tx);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .chat-dialog-item .info .last-msg {
+            font-size: 12px;
+            color: var(--tx2);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .chat-dialog-item .badge {
+            background: var(--acc);
+            color: #fff;
+            font-size: 10px;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 10px;
+            flex-shrink: 0;
+        }
+        .chat-dialog-item .online-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            flex-shrink: 0;
+            background: var(--red);
+        }
+        .chat-dialog-item .online-dot.online {
+            background: var(--grn);
+            box-shadow: 0 0 8px #10b98166;
+        }
+        .chat-dialog-item .last-time {
+            font-size: 10px;
+            color: var(--tx2);
+            flex-shrink: 0;
+            opacity: 0.6;
+        }
+
+        /* Окно сообщений */
         .chat-messages-wrap {
             display: flex;
             flex-direction: column;
             flex: 1;
             min-height: 0;
+        }
+        .chat-messages-wrap.hide {
+            display: none;
         }
 
         .chat-messages {
@@ -1366,6 +1475,10 @@
         .chat-messages .msg .sender .name {
             color: var(--gld);
             font-weight: 600;
+            cursor: pointer;
+        }
+        .chat-messages .msg .sender .name:hover {
+            text-decoration: underline;
         }
         .chat-messages .msg .text {
             font-size: 14px;
@@ -1458,78 +1571,30 @@
             color: var(--gld);
             font-weight: 600;
         }
-
-        .chat-dialogs {
-            display: none;
-            flex-direction: column;
-            flex: 1;
-            overflow-y: auto;
-            padding: 6px 8px;
-            background: var(--bg3);
+        .chat-info .private-info {
+            color: var(--acc2);
+            font-weight: 500;
         }
-        .chat-dialogs.show { display: flex; }
-        .chat-dialog-item {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 10px 12px;
-            border-radius: var(--r2);
+
+        /* Кнопка открытия списка диалогов */
+        .chat-dialogs-btn {
+            background: none;
+            border: 1px solid var(--bd2);
+            border-radius: 12px;
+            padding: 4px 10px;
+            font-size: 11px;
+            color: var(--tx2);
             cursor: pointer;
             transition: .3s;
-            border-bottom: 1px solid var(--bd);
-            min-height: 56px;
+            font-weight: 500;
         }
-        .chat-dialog-item:active { background: var(--bg4); }
-        .chat-dialog-item .avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            overflow: hidden;
-            flex-shrink: 0;
-            background: var(--bg4);
-            border: 2px solid var(--bd2);
-        }
-        .chat-dialog-item .avatar img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-        .chat-dialog-item .info {
-            flex: 1;
-            min-width: 0;
-        }
-        .chat-dialog-item .info .name {
-            font-size: 14px;
-            font-weight: 600;
+        .chat-dialogs-btn:hover {
+            border-color: var(--acc2);
             color: var(--tx);
         }
-        .chat-dialog-item .info .last-msg {
-            font-size: 12px;
-            color: var(--tx2);
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        .chat-dialog-item .badge {
-            background: var(--acc);
-            color: #fff;
-            font-size: 10px;
-            font-weight: 700;
-            padding: 2px 8px;
-            border-radius: 10px;
-            flex-shrink: 0;
-        }
-
-        .chat-dialog-item .online-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            flex-shrink: 0;
-            background: var(--red);
-        }
-        .chat-dialog-item .online-dot.online {
-            background: var(--grn);
-            box-shadow: 0 0 8px #10b98166;
+        .chat-dialogs-btn.active {
+            border-color: var(--gld);
+            color: var(--gld);
         }
 
         @media (max-width: 600px) {
@@ -1613,6 +1678,10 @@
                 font-size: 10px !important;
                 padding: 4px 8px !important;
                 min-height: 28px !important;
+            }
+            .chat-dialogs-btn {
+                font-size: 10px !important;
+                padding: 3px 8px !important;
             }
         }
 
@@ -1957,15 +2026,24 @@
                             </div>
                             <div class="chat-header-right">
                                 <span class="online-count" id="chatOnline">● 0 онлайн</span>
+                                <button class="chat-dialogs-btn" id="chatDialogsBtn" onclick="showDialogs()" title="Список диалогов">
+                                    📋
+                                </button>
                                 <button class="chat-mode-toggle" id="chatModeToggle" onclick="toggleChatMode()">
                                     Общий
                                 </button>
                             </div>
                         </div>
 
-                        <!-- Список диалогов (для ЛС) -->
+                        <!-- Список диалогов (ЛС) -->
                         <div class="chat-dialogs" id="chatDialogs">
-                            <div class="system-msg">Загрузка диалогов...</div>
+                            <div class="dialog-header">
+                                <span>📋 Диалоги</span>
+                                <button class="close-dialogs" onclick="closeDialogs()">✕</button>
+                            </div>
+                            <div id="chatDialogsList">
+                                <div class="system-msg">Загрузка диалогов...</div>
+                            </div>
                         </div>
 
                         <!-- Окно сообщений -->
@@ -2130,6 +2208,7 @@
         let chatMessagesCache = [];
         let chatPollInterval = null;
         let chatDialogsCache = [];
+        let isDialogsOpen = false;
 
         const NICK_S = {
             gold: { e: '🌟', n: 'Золотой' },
@@ -2603,21 +2682,31 @@
             return Math.max(0, CHAT_CONFIG.DAILY_PRIVATE_LIMIT - count);
         }
 
+        function closeDialogs() {
+            isDialogsOpen = false;
+            document.getElementById('chatDialogs').classList.remove('show');
+            document.getElementById('chatMessagesWrap').classList.remove('hide');
+            document.getElementById('chatBackBtn').classList.remove('show');
+            document.getElementById('chatTitle').innerHTML = '💬 Чат <span class="sub">Общий чат</span>';
+            document.getElementById('chatDialogsBtn').classList.remove('active');
+        }
+
         function showDialogs() {
+            isDialogsOpen = true;
             document.getElementById('chatDialogs').classList.add('show');
-            document.getElementById('chatMessagesWrap').classList.remove('show');
+            document.getElementById('chatMessagesWrap').classList.add('hide');
             document.getElementById('chatBackBtn').classList.remove('show');
             document.getElementById('chatTitle').innerHTML = '💬 Чат <span class="sub">Диалоги</span>';
-            document.getElementById('chatInfo').textContent = '📋 Выберите диалог или напишите в общий чат';
-            document.getElementById('chatInput').disabled = false;
-            document.getElementById('chatInput').placeholder = 'Напишите сообщение...';
+            document.getElementById('chatDialogsBtn').classList.add('active');
             loadDialogs();
         }
 
         function showMessages() {
+            isDialogsOpen = false;
             document.getElementById('chatDialogs').classList.remove('show');
-            document.getElementById('chatMessagesWrap').classList.add('show');
-            document.getElementById('chatBackBtn').classList.add('show');
+            document.getElementById('chatMessagesWrap').classList.remove('hide');
+            document.getElementById('chatBackBtn').classList.remove('show');
+            document.getElementById('chatDialogsBtn').classList.remove('active');
 
             const input = document.getElementById('chatInput');
             input.disabled = false;
@@ -2648,7 +2737,7 @@
         }
 
         async function loadDialogs() {
-            const container = document.getElementById('chatDialogs');
+            const container = document.getElementById('chatDialogsList');
             container.innerHTML = '<div class="system-msg">Загрузка диалогов...</div>';
 
             try {
@@ -2676,13 +2765,12 @@
                     const avatar = user.data?.avatar || AVATAR_LIST[0];
                     const online = user._online || false;
 
-                    // Получаем последнее сообщение
                     const { data: msgs } = await sbFetch(
-                        `/rest/v1/messages?select=*&order=created_at.desc&limit=1&is_private=eq.true&sender_id=eq.${UID}&receiver_id=eq.${user.id}`
+                        `/rest/v1/messages?select=*,created_at&order=created_at.desc&limit=1&is_private=eq.true&sender_id=eq.${UID}&receiver_id=eq.${user.id}`
                     );
 
                     const { data: msgs2 } = await sbFetch(
-                        `/rest/v1/messages?select=*&order=created_at.desc&limit=1&is_private=eq.true&sender_id=eq.${user.id}&receiver_id=eq.${UID}`
+                        `/rest/v1/messages?select=*,created_at&order=created_at.desc&limit=1&is_private=eq.true&sender_id=eq.${user.id}&receiver_id=eq.${UID}`
                     );
 
                     const allMsgs = [...(msgs || []), ...(msgs2 || [])];
@@ -2690,8 +2778,6 @@
 
                     const lastMsg = allMsgs[0] || null;
                     const remaining = getPrivateRemaining(user.id);
-
-                    // Проверяем есть ли сообщения
                     const hasMessages = allMsgs.length > 0;
 
                     dialogs.push({
@@ -2722,8 +2808,8 @@
                     `<div class="chat-dialog-item" onclick="openPrivateChat('${d.id}','${d.name}','${d.avatar}')">
                         <div class="avatar"><img src="${d.avatar}" alt="${d.name}" loading="lazy"></div>
                         <div class="info">
-                            <div class="fl" style="gap:6px;">
-                                <div class="name">${d.name}</div>
+                            <div class="name">
+                                ${d.name}
                                 <div class="online-dot ${d.online ? 'online' : ''}"></div>
                             </div>
                             <div class="last-msg">${d.lastMsg ? escapeHtml(d.lastMsg.message) : 'Нет сообщений'}</div>
@@ -2759,7 +2845,7 @@
                 chatTarget = null;
                 document.getElementById('chatModeToggle').textContent = 'ЛС';
                 document.getElementById('chatModeToggle').classList.add('active');
-                document.getElementById('chatInfo').textContent = '📋 Выберите собеседника из списка';
+                document.getElementById('chatInfo').innerHTML = '📋 Выберите собеседника из списка';
                 input.disabled = false;
                 input.placeholder = 'Выберите собеседника...';
                 showDialogs();
@@ -2796,6 +2882,7 @@
             window.toast(`💬 ЛС с ${userName} открыт`, 'info');
         }
 
+        // ВАЖНО: Функция загрузки сообщений с правильной сортировкой
         async function loadChatMessages() {
             if (!UID) return;
 
@@ -2817,6 +2904,7 @@
                     const sent = sentRes.ok ? sentRes.data || [] : [];
                     const received = receivedRes.ok ? receivedRes.data || [] : [];
                     data = [...sent, ...received];
+                    // СОРТИРУЕМ ПО ВРЕМЕНИ (старые сверху, новые снизу)
                     data.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
 
                     const remaining = getPrivateRemaining(chatTarget.id);
@@ -2828,6 +2916,7 @@
                         `/rest/v1/messages?select=*&order=created_at.desc&limit=${CHAT_CONFIG.MAX_PUBLIC_MESSAGES}&is_private=eq.false`
                     );
                     data = res.ok ? res.data || [] : [];
+                    // СОРТИРУЕМ ПО ВРЕМЕНИ (старые сверху, новые снизу)
                     data.reverse();
 
                     document.getElementById('chatInfo').innerHTML =
@@ -2850,6 +2939,7 @@
             return div.innerHTML;
         }
 
+        // ВАЖНО: Функция рендеринга без времени, с правильным порядком
         function renderChatMessages() {
             const container = document.getElementById('chatMessages');
             if (!container) return;
@@ -2863,7 +2953,7 @@
                 return;
             }
 
-            // Сортируем по времени (старые сверху, новые снизу)
+            // Убеждаемся, что сообщения отсортированы правильно (старые сверху, новые снизу)
             const sorted = [...chatMessagesCache].sort((a, b) => {
                 const timeA = new Date(a.created_at).getTime();
                 const timeB = new Date(b.created_at).getTime();
@@ -2876,7 +2966,6 @@
                 const senderName = isOwn ? 'Я' : (msg?.sender_name || 'Игрок');
                 const senderId = msg?.sender_id || '';
                 const avatar = msg?.sender_avatar || AVATAR_LIST[0];
-                
                 const text = escapeHtml(msg?.message || '');
 
                 const nameClick = (!isOwn && !isPrivate && senderId !== UID) ?
@@ -2897,6 +2986,7 @@
             container.scrollTop = container.scrollHeight;
         }
 
+        // ВАЖНО: Функция отправки с добавлением в правильном порядке
         window.sendMessage = async function() {
             const input = document.getElementById('chatInput');
             const text = input.value.trim();
@@ -2964,16 +3054,17 @@
             input.value = '';
             input.style.borderColor = '';
 
-            // Добавляем сообщение в кеш сразу (оптимистичный рендеринг)
+            // ОПТИМИСТИЧНЫЙ РЕНДЕРИНГ - добавляем сообщение в кеш
             const tempMsg = { ...msgData };
             chatMessagesCache.push(tempMsg);
             
-            // Сортируем и рендерим
+            // СОРТИРУЕМ по времени (старые сверху, новые снизу)
             chatMessagesCache.sort((a, b) => {
                 const timeA = new Date(a.created_at).getTime();
                 const timeB = new Date(b.created_at).getTime();
                 return timeA - timeB;
             });
+            
             renderChatMessages();
 
             setTimeout(() => {
@@ -3128,15 +3219,18 @@
             if (chatPollInterval) clearInterval(chatPollInterval);
             chatPollInterval = setInterval(() => {
                 if (document.getElementById('sc-chat').classList.contains('on')) {
-                    if (document.getElementById('chatMessagesWrap').classList.contains('show')) {
+                    if (document.getElementById('chatMessagesWrap').classList.contains('hide')) {
+                        // Если открыты диалоги, обновляем их
+                        if (isDialogsOpen) {
+                            loadDialogs();
+                        }
+                    } else {
+                        // Иначе обновляем сообщения
                         loadChatMessages();
-                    }
-                    if (document.getElementById('chatDialogs').classList.contains('show')) {
-                        loadDialogs();
                     }
                     loadOnlineUsers();
                 }
-            }, 3000);
+            }, 5000);
 
             setInterval(cleanupOldMessages, CHAT_CONFIG.CLEANUP_INTERVAL);
             setTimeout(cleanupOldMessages, 30000);
@@ -3383,7 +3477,9 @@
             if (nm === 'chat') {
                 initChat();
                 setTimeout(() => {
-                    if (document.getElementById('chatMessagesWrap').classList.contains('show')) {
+                    if (document.getElementById('chatMessagesWrap').classList.contains('hide')) {
+                        // Если открыты диалоги
+                    } else {
                         loadChatMessages();
                     }
                 }, 100);
@@ -4407,10 +4503,12 @@
 
         console.log('✅ Чат полностью переработан:');
         console.log('  - Время в чате УБРАНО');
-        console.log('  - Сообщения всегда в правильном порядке (новые снизу)');
-        console.log('  - Удобный список диалогов для ЛС с онлайн-статусом');
-        console.log('  - Клик по имени в общем чате → ЛС');
-        console.log('  - Авто-очистка старых сообщений');
+        console.log('  - Сообщения сортируются по времени (старые сверху, новые снизу)');
+        console.log('  - ЛС сделано отдельным окном (как в мессенджере)');
+        console.log('  - Удобный список диалогов с онлайн-статусом');
+        console.log('  - Клик по имени в общем чате → открытие ЛС');
+        console.log('  - Прокрутка не сбрасывается при обновлении');
+        console.log('  - Обновления чата раз в 5 секунд (не слишком часто)');
         console.log('  - Полная поддержка мобильных устройств');
     </script>
 </body>
