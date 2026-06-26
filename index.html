@@ -1548,6 +1548,198 @@
                 height: 280px;
             }
         }
+        /* ===== УЛУЧШЕНИЯ ДЛЯ ТЕЛЕФОНА ===== */
+@media (max-width: 600px) {
+    .chat-container {
+        height: 80vh !important;
+        max-height: none !important;
+        border-radius: 0 !important;
+        margin: -10px -10px 0 -10px;
+    }
+    
+    .chat-header {
+        padding: 8px 10px !important;
+        min-height: 50px;
+    }
+    
+    .chat-header-left .chat-title {
+        font-size: 14px !important;
+    }
+    
+    .chat-header-right .mode-toggle {
+        padding: 3px 10px !important;
+        font-size: 10px !important;
+    }
+    
+    .chat-header-right .online-count {
+        font-size: 10px !important;
+    }
+    
+    .chat-messages {
+        padding: 8px 6px !important;
+        gap: 3px !important;
+        min-height: 200px;
+        max-height: none;
+    }
+    
+    .chat-messages .msg {
+        max-width: 90% !important;
+        padding: 8px 12px !important;
+        font-size: 14px !important;
+        border-radius: 14px !important;
+    }
+    
+    .chat-messages .msg .text {
+        font-size: 14px !important;
+        line-height: 1.5;
+    }
+    
+    .chat-messages .msg .sender {
+        font-size: 10px !important;
+        gap: 4px !important;
+    }
+    
+    .chat-messages .msg .sender .name {
+        font-size: 11px !important;
+    }
+    
+    .chat-input-wrap {
+        padding: 6px 8px !important;
+        gap: 6px !important;
+        background: var(--bg2) !important;
+        border-top: 1px solid var(--bd) !important;
+    }
+    
+    .chat-input-wrap input {
+        padding: 10px 14px !important;
+        font-size: 16px !important; /* Предотвращает зум на iOS */
+        border-radius: 25px !important;
+        height: 48px !important;
+        background: var(--bg3) !important;
+        border: 1.5px solid var(--bd2) !important;
+    }
+    
+    .chat-input-wrap input:focus {
+        border-color: var(--acc2) !important;
+    }
+    
+    .chat-input-wrap button {
+        width: 48px !important;
+        height: 48px !important;
+        padding: 0 !important;
+        border-radius: 50% !important;
+        flex-shrink: 0 !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        background: linear-gradient(135deg, var(--acc), var(--acc2)) !important;
+        box-shadow: 0 4px 16px #7c3aed44 !important;
+    }
+    
+    .chat-input-wrap button:active {
+        transform: scale(0.92) !important;
+    }
+    
+    .chat-input-wrap button span {
+        font-size: 22px !important;
+        line-height: 1 !important;
+        margin-left: 2px;
+    }
+    
+    .chat-dialog-item {
+        padding: 10px 12px !important;
+        min-height: 56px;
+    }
+    
+    .chat-dialog-item .avatar {
+        width: 40px !important;
+        height: 40px !important;
+    }
+    
+    .chat-dialog-item .info .name {
+        font-size: 14px !important;
+    }
+    
+    .chat-dialog-item .info .last-msg {
+        font-size: 12px !important;
+    }
+    
+    .chat-info {
+        font-size: 10px !important;
+        padding: 4px 8px !important;
+        min-height: 28px !important;
+        background: var(--bg3) !important;
+    }
+    
+    .chat-tutorial {
+        margin: 4px 8px !important;
+        padding: 10px 12px !important;
+    }
+    
+    .chat-tutorial .title {
+        font-size: 12px !important;
+    }
+    
+    .chat-tutorial .text {
+        font-size: 11px !important;
+    }
+    
+    /* Авто-скролл для мобильных */
+    .chat-messages {
+        scroll-behavior: smooth;
+        -webkit-overflow-scrolling: touch;
+    }
+}
+
+/* Для очень маленьких экранов */
+@media (max-width: 380px) {
+    .chat-input-wrap input {
+        font-size: 14px !important;
+        height: 42px !important;
+        padding: 8px 12px !important;
+    }
+    
+    .chat-input-wrap button {
+        width: 42px !important;
+        height: 42px !important;
+    }
+    
+    .chat-input-wrap button span {
+        font-size: 18px !important;
+    }
+    
+    .chat-messages .msg {
+        max-width: 94% !important;
+        padding: 6px 10px !important;
+        font-size: 13px !important;
+    }
+}
+
+/* Анимация появления сообщений */
+.chat-messages .msg {
+    animation: msgAppear 0.25s ease-out;
+}
+
+@keyframes msgAppear {
+    from {
+        opacity: 0;
+        transform: translateY(12px) scale(0.96);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* Индикатор набора текста (заготовка) */
+.typing-indicator {
+    align-self: flex-start;
+    color: var(--tx2);
+    font-size: 12px;
+    padding: 4px 12px;
+    opacity: 0.7;
+    font-style: italic;
+}
     </style>
 </head>
 <body>
@@ -1865,68 +2057,66 @@
                     </div>
                 </div>
 
-                <!-- ===== ЧАТ КАК В МЕССЕНДЖЕРЕ ===== -->
-                <div class="sc" id="sc-chat">
-                    <div class="chat-container">
+                <!-- ===== ЧАТ КАК В МЕССЕНДЖЕРЕ (ИСПРАВЛЕННЫЙ) ===== -->
+<div class="sc" id="sc-chat">
+    <div class="chat-container">
 
-                        <!-- Верхняя панель -->
-                        <div class="chat-header">
-                            <div class="chat-header-left">
-                                <button class="back-btn" id="chatBackBtn" onclick="showDialogs()">←</button>
-                                <span class="chat-title" id="chatTitle">
-                                    💬 Чат
-                                    <span class="sub" id="chatSubTitle">Общий чат</span>
-                                </span>
-                            </div>
-                            <div class="chat-header-right">
-                                <span class="online-count" id="chatOnline">● 0 онлайн</span>
-                                <button class="mode-toggle" id="chatModeToggle" onclick="toggleChatMode()">
-                                    Общий
-                                </button>
-                            </div>
-                        </div>
-
-                        <!-- Подсказка для новых пользователей -->
-                        <div class="chat-tutorial" id="chatTutorial">
-                            <div class="title">💡 Как пользоваться чатом</div>
-                            <div class="text">
-                                <strong>Общий чат</strong> — все видят все сообщения. 
-                                Чтобы написать в <strong>ЛС (личные сообщения)</strong>:
-                                <br>1️⃣ Нажмите на <span class="key">Общий</span> → выберите <span class="key">ЛС</span>
-                                <br>2️⃣ Выберите собеседника из списка или нажмите на его имя в чате
-                                <br>3️⃣ В ЛС можно отправить <strong>10 сообщений в день</strong>
-                                <br><span style="color:var(--tx2);font-size:11px;">💡 В общем чате хранятся последние 50 сообщений</span>
-                            </div>
-                        </div>
-
-                        <!-- Список диалогов -->
-                        <div class="chat-dialogs" id="chatDialogs">
-                            <div class="system-msg">Загрузка диалогов...</div>
-                        </div>
-
-                        <!-- Окно сообщений -->
-                        <div class="chat-messages-wrap" id="chatMessagesWrap">
-                            <div class="chat-messages" id="chatMessages">
-                                <div class="system-msg">Выберите диалог или напишите в общий чат</div>
-                            </div>
-
-                            <!-- Информационная строка -->
-                            <div class="chat-info" id="chatInfo">
-                                💬 <span class="highlight">Общий чат</span> — все видят все сообщения
-                            </div>
-
-                            <!-- Поле ввода -->
-                            <div class="chat-input-wrap">
-                                <input id="chatInput" placeholder="Введите сообщение..." 
-                                       onkeydown="if(event.key==='Enter') sendMessage()">
-                                <button class="btn bp" onclick="sendMessage()">➤</button>
-                            </div>
-                        </div>
-
-                    </div>
-                </div>
-
+        <!-- Верхняя панель -->
+        <div class="chat-header">
+            <div class="chat-header-left">
+                <button class="back-btn" id="chatBackBtn" onclick="showDialogs()">←</button>
+                <span class="chat-title" id="chatTitle">
+                    💬 Чат
+                    <span class="sub" id="chatSubTitle">Общий чат</span>
+                </span>
             </div>
+            <div class="chat-header-right">
+                <span class="online-count" id="chatOnline">● 0 онлайн</span>
+                <button class="mode-toggle" id="chatModeToggle" onclick="toggleChatMode()">
+                    Общий
+                </button>
+            </div>
+        </div>
+
+        <!-- Подсказка -->
+        <div class="chat-tutorial" id="chatTutorial">
+            <div class="title">💡 Как пользоваться чатом</div>
+            <div class="text">
+                <strong>Общий чат</strong> — все видят все сообщения.<br>
+                <strong>ЛС (личные сообщения)</strong> — нажмите на имя в чате или выберите в списке.<br>
+                📱 На телефоне: используйте большую кнопку ➤ для отправки.
+            </div>
+        </div>
+
+        <!-- Список диалогов -->
+        <div class="chat-dialogs" id="chatDialogs">
+            <div class="system-msg">Загрузка диалогов...</div>
+        </div>
+
+        <!-- Окно сообщений -->
+        <div class="chat-messages-wrap" id="chatMessagesWrap">
+            <div class="chat-messages" id="chatMessages">
+                <div class="system-msg">Выберите диалог или напишите в общий чат</div>
+            </div>
+
+            <!-- Информационная строка -->
+            <div class="chat-info" id="chatInfo">
+                💬 <span class="highlight">Общий чат</span> — все видят все сообщения
+            </div>
+
+            <!-- Поле ввода (УЛУЧШЕННОЕ ДЛЯ ТЕЛЕФОНА) -->
+            <div class="chat-input-wrap">
+                <input id="chatInput" placeholder="Напишите сообщение..." 
+                       autocomplete="off"
+                       onkeydown="if(event.key==='Enter') sendMessage()">
+                <button class="btn bp" id="sendBtn" onclick="sendMessage()">
+                    <span style="font-size:20px;">➤</span>
+                </button>
+            </div>
+        </div>
+
+    </div>
+</div>
 
             <!-- НАВИГАЦИЯ -->
             <nav class="nav">
@@ -2799,142 +2989,176 @@
         }
 
         function renderChatMessages() {
-            const container = document.getElementById('chatMessages');
-            if (!container) return;
+    const container = document.getElementById('chatMessages');
+    if (!container) return;
 
-            if (!chatMessagesCache || chatMessagesCache.length === 0) {
-                if (chatMode === 'private') {
-                    container.innerHTML = '<div class="system-msg">Нет сообщений в ЛС</div>';
-                } else {
-                    container.innerHTML = '<div class="system-msg">Нет сообщений в общем чате</div>';
-                }
-                return;
-            }
-
-            container.innerHTML = chatMessagesCache.map(msg => {
-                const isOwn = msg?.sender_id === UID;
-                const isPrivate = msg?.is_private === true;
-                const senderName = isOwn ? 'Я' : (msg?.sender_name || 'Игрок');
-                const senderId = msg?.sender_id || '';
-                const avatar = msg?.sender_avatar || AVATAR_LIST[0];
-                const time = msg?.created_at ? new Date(msg.created_at).toLocaleTimeString('ru', { hour: '2-digit',
-                        minute: '2-digit' }) : '';
-                const text = escapeHtml(msg?.message || '');
-
-                const nameClick = (!isOwn && !isPrivate && senderId !== UID) ?
-                    ` onclick="startPrivateFromPublic('${senderId}','${escapeHtml(senderName)}','${avatar}')" style="cursor:pointer;"` :
-                    '';
-
-                return `<div class="msg ${isOwn ? 'own' : 'other'}">
-                    <div class="sender">
-                        ${!isOwn ? `<div class="top-avatar" style="width:22px;height:22px;"><img src="${avatar}" alt="${escapeHtml(senderName)}" loading="lazy"></div>` : ''}
-                        <span class="name"${nameClick}>${escapeHtml(senderName)}</span>
-                        ${isPrivate ? '<span class="private-tag">🔒</span>' : ''}
-                        <span class="time">${time}</span>
-                    </div>
-                    <div class="text">${text}</div>
-                </div>`;
-            }).join('');
-
-            container.scrollTop = container.scrollHeight;
+    if (!chatMessagesCache || chatMessagesCache.length === 0) {
+        if (chatMode === 'private') {
+            container.innerHTML = '<div class="system-msg">Нет сообщений в ЛС</div>';
+        } else {
+            container.innerHTML = '<div class="system-msg">Нет сообщений в общем чате</div>';
         }
+        return;
+    }
+
+    // Сортируем по времени (старые -> новые)
+    const sorted = [...chatMessagesCache].sort((a, b) => 
+        new Date(a.created_at) - new Date(b.created_at)
+    );
+
+    container.innerHTML = sorted.map(msg => {
+        const isOwn = msg?.sender_id === UID;
+        const isPrivate = msg?.is_private === true;
+        const senderName = isOwn ? 'Я' : (msg?.sender_name || 'Игрок');
+        const senderId = msg?.sender_id || '';
+        const avatar = msg?.sender_avatar || AVATAR_LIST[0];
+        const time = msg?.created_at ? new Date(msg.created_at).toLocaleTimeString('ru', { 
+            hour: '2-digit',
+            minute: '2-digit' 
+        }) : '';
+        const text = escapeHtml(msg?.message || '');
+
+        const nameClick = (!isOwn && !isPrivate && senderId !== UID) ?
+            ` onclick="startPrivateFromPublic('${senderId}','${escapeHtml(senderName)}','${avatar}')" style="cursor:pointer;"` :
+            '';
+
+        return `<div class="msg ${isOwn ? 'own' : 'other'}">
+            <div class="sender">
+                ${!isOwn ? `<div class="top-avatar" style="width:22px;height:22px;"><img src="${avatar}" alt="${escapeHtml(senderName)}" loading="lazy"></div>` : ''}
+                <span class="name"${nameClick}>${escapeHtml(senderName)}</span>
+                ${isPrivate ? '<span class="private-tag">🔒</span>' : ''}
+                <span class="time">${time}</span>
+            </div>
+            <div class="text">${text}</div>
+        </div>`;
+    }).join('');
+
+    // === ВАЖНО: ПРИНУДИТЕЛЬНЫЙ СКРОЛЛ ВНИЗ ===
+    setTimeout(() => {
+        container.scrollTop = container.scrollHeight;
+    }, 50);
+}
 
         // ============================================================
         // 15. ОТПРАВКА СООБЩЕНИЙ
         // ============================================================
         window.sendMessage = async function() {
-            const input = document.getElementById('chatInput');
-            const text = input.value.trim();
+    const input = document.getElementById('chatInput');
+    const text = input.value.trim();
 
-            if (!text) {
-                window.toast('Введите сообщение', 'err');
-                return;
-            }
+    if (!text) {
+        // Визуальная подсказка
+        input.style.borderColor = 'var(--red)';
+        setTimeout(() => {
+            input.style.borderColor = '';
+        }, 1000);
+        window.toast('Введите сообщение', 'err');
+        return;
+    }
 
-            if (text.length > 200) {
-                window.toast('Слишком длинное сообщение (макс. 200 символов)', 'err');
-                return;
-            }
+    if (text.length > 200) {
+        window.toast('Слишком длинное сообщение (макс. 200 символов)', 'err');
+        return;
+    }
 
-            if (chatMode === 'private' && !chatTarget) {
-                window.toast('Выберите собеседника в ЛС', 'err');
-                return;
-            }
+    // Если в режиме ЛС, но не выбран собеседник
+    if (chatMode === 'private' && !chatTarget) {
+        window.toast('Выберите собеседника в ЛС', 'err');
+        return;
+    }
 
-            const isPrivate = chatMode === 'private' && chatTarget;
+    const isPrivate = chatMode === 'private' && chatTarget;
 
-            if (isPrivate) {
-                const now = Date.now();
-                if (now - G.lastPrivateReset > 86400000) {
-                    G.privateMessages = {};
-                    G.lastPrivateReset = now;
-                    scheduleSave();
-                }
+    // Проверка лимита ЛС
+    if (isPrivate) {
+        const now = Date.now();
+        if (now - G.lastPrivateReset > 86400000) {
+            G.privateMessages = {};
+            G.lastPrivateReset = now;
+            scheduleSave();
+        }
 
-                const count = G.privateMessages[chatTarget.id] || 0;
-                if (count >= CHAT_CONFIG.DAILY_PRIVATE_LIMIT) {
-                    window.toast(`❌ Лимит ЛС: ${CHAT_CONFIG.DAILY_PRIVATE_LIMIT} сообщений в день`, 'err');
-                    return;
-                }
+        const count = G.privateMessages[chatTarget.id] || 0;
+        if (count >= CHAT_CONFIG.DAILY_PRIVATE_LIMIT) {
+            window.toast(`❌ Лимит ЛС: ${CHAT_CONFIG.DAILY_PRIVATE_LIMIT} сообщений в день`, 'err');
+            return;
+        }
 
-                G.privateMessages[chatTarget.id] = count + 1;
-                scheduleSave();
-            }
+        G.privateMessages[chatTarget.id] = count + 1;
+        scheduleSave();
+    }
 
-            const receiverId = isPrivate ? chatTarget.id : null;
-            const receiverName = isPrivate ? chatTarget.name : null;
+    const receiverId = isPrivate ? chatTarget.id : null;
+    const receiverName = isPrivate ? chatTarget.name : null;
 
-            const safeText = text.replace(/[<>]/g, '').trim();
-            if (!safeText) {
-                window.toast('Недопустимые символы', 'err');
-                return;
-            }
+    const safeText = text.replace(/[<>]/g, '').trim();
+    if (!safeText) {
+        window.toast('Недопустимые символы', 'err');
+        return;
+    }
 
-            const msgData = {
-                sender_id: String(UID),
-                sender_name: String((G.name || currentUsername || 'Игрок').substring(0, 30)),
-                sender_avatar: String(G.avatar || AVATAR_LIST[0]),
-                receiver_id: receiverId ? String(receiverId) : null,
-                receiver_name: receiverName ? String(receiverName.substring(0, 30)) : null,
-                message: String(safeText.substring(0, 200)),
-                is_private: Boolean(isPrivate),
-                created_at: new Date().toISOString()
-            };
+    const msgData = {
+        sender_id: String(UID),
+        sender_name: String((G.name || currentUsername || 'Игрок').substring(0, 30)),
+        sender_avatar: String(G.avatar || AVATAR_LIST[0]),
+        receiver_id: receiverId ? String(receiverId) : null,
+        receiver_name: receiverName ? String(receiverName.substring(0, 30)) : null,
+        message: String(safeText.substring(0, 200)),
+        is_private: Boolean(isPrivate),
+        created_at: new Date().toISOString()
+    };
 
-            input.value = '';
+    // === ОЧИЩАЕМ ПОЛЕ И СОХРАНЯЕМ ТЕКСТ ДЛЯ ВОССТАНОВЛЕНИЯ ===
+    const sentText = text;
+    input.value = '';
+    input.style.borderColor = '';
 
-            chatMessagesCache.push(msgData);
+    // === ПОКАЗЫВАЕМ СООБЩЕНИЕ ЛОКАЛЬНО ===
+    const tempMsg = { ...msgData };
+    chatMessagesCache.push(tempMsg);
+    renderChatMessages();
+
+    // === ВОЗВРАЩАЕМ ФОКУС НА ПОЛЕ ===
+    setTimeout(() => {
+        input.focus();
+    }, 100);
+
+    try {
+        const { ok, status, data } = await sbFetch('/rest/v1/messages', {
+            method: 'POST',
+            body: msgData
+        });
+
+        if (!ok) {
+            console.error('❌ Ошибка отправки:', status, data);
+            window.toast('❌ Ошибка отправки', 'err');
+            // Удаляем сообщение, если не отправилось
+            chatMessagesCache = chatMessagesCache.filter(m => m !== tempMsg);
             renderChatMessages();
-
-            try {
-                const { ok, status, data } = await sbFetch('/rest/v1/messages', {
-                    method: 'POST',
-                    body: msgData
-                });
-
-                if (!ok) {
-                    console.error('❌ Ошибка отправки:', status, data);
-                    window.toast('❌ Ошибка отправки', 'err');
-                    chatMessagesCache = chatMessagesCache.filter(m => m !== msgData);
-                    renderChatMessages();
-                } else {
-                    if (isPrivate) {
-                        const remaining = getPrivateRemaining(chatTarget.id);
-                        document.getElementById('chatInfo').innerHTML =
-                            `💬 ЛС с <span class="highlight">${chatTarget.name}</span> — осталось <span class="highlight">${remaining}</span> сообщений сегодня`;
-                    }
-                    setTimeout(() => {
-                        loadChatMessages();
-                        cleanupOldMessages();
-                    }, 300);
-                }
-            } catch (e) {
-                console.error('❌ Ошибка соединения:', e);
-                window.toast('❌ Ошибка соединения', 'err');
-                chatMessagesCache = chatMessagesCache.filter(m => m !== msgData);
-                renderChatMessages();
+            // Восстанавливаем текст
+            input.value = sentText;
+        } else {
+            // === ОБНОВЛЯЕМ ЧАТ И ЧИСТИМ СТАРЫЕ ===
+            setTimeout(() => {
+                loadChatMessages();
+                cleanupOldMessages();
+            }, 200);
+            
+            // Обновляем информацию о лимите
+            if (isPrivate) {
+                const remaining = getPrivateRemaining(chatTarget.id);
+                document.getElementById('chatInfo').innerHTML =
+                    `💬 ЛС с <span class="highlight">${chatTarget.name}</span> — осталось <span class="highlight">${remaining}</span> сообщений сегодня`;
             }
-        };
+        }
+    } catch (e) {
+        console.error('❌ Ошибка соединения:', e);
+        window.toast('❌ Ошибка соединения', 'err');
+        chatMessagesCache = chatMessagesCache.filter(m => m !== tempMsg);
+        renderChatMessages();
+        input.value = sentText;
+    }
+};
 
         // ============================================================
         // 16. ОЧИСТКА СТАРЫХ СООБЩЕНИЙ
@@ -3019,44 +3243,50 @@
         // 18. ИНИЦИАЛИЗАЦИЯ ЧАТА
         // ============================================================
         function initChat() {
-            if (!UID) return;
+    if (!UID) return;
 
-            chatMode = 'public';
-            chatTarget = null;
-            chatMessagesCache = [];
-            document.getElementById('chatModeToggle').textContent = 'Общий';
-            document.getElementById('chatModeToggle').classList.remove('active');
-            document.getElementById('chatInput').disabled = false;
-            document.getElementById('chatInput').placeholder = 'Напишите в общий чат...';
+    // === ВСЕГДА ВКЛЮЧАЕМ ПОЛЕ ВВОДА ===
+    chatMode = 'public';
+    chatTarget = null;
+    chatMessagesCache = [];
+    
+    document.getElementById('chatModeToggle').textContent = 'Общий';
+    document.getElementById('chatModeToggle').classList.remove('active');
+    
+    const input = document.getElementById('chatInput');
+    input.disabled = false;
+    input.placeholder = 'Напишите в общий чат...';
+    input.focus();
 
-            const hasSeenTutorial = localStorage.getItem('chat_tutorial_seen');
-            if (!hasSeenTutorial) {
-                document.getElementById('chatTutorial').classList.add('show');
-                setTimeout(() => {
-                    document.getElementById('chatTutorial').classList.remove('show');
-                    localStorage.setItem('chat_tutorial_seen', 'true');
-                }, 15000);
+    // Подсказка для новых
+    const hasSeenTutorial = localStorage.getItem('chat_tutorial_seen');
+    if (!hasSeenTutorial) {
+        document.getElementById('chatTutorial').classList.add('show');
+        setTimeout(() => {
+            document.getElementById('chatTutorial').classList.remove('show');
+            localStorage.setItem('chat_tutorial_seen', 'true');
+        }, 20000);
+    }
+
+    showMessages();
+    loadOnlineUsers();
+
+    if (chatPollInterval) clearInterval(chatPollInterval);
+    chatPollInterval = setInterval(() => {
+        if (document.getElementById('sc-chat').classList.contains('on')) {
+            if (document.getElementById('chatMessagesWrap').classList.contains('show')) {
+                loadChatMessages();
             }
-
-            showMessages();
+            if (document.getElementById('chatDialogs').classList.contains('show')) {
+                loadDialogs();
+            }
             loadOnlineUsers();
-
-            if (chatPollInterval) clearInterval(chatPollInterval);
-            chatPollInterval = setInterval(() => {
-                if (document.getElementById('sc-chat').classList.contains('on')) {
-                    if (document.getElementById('chatMessagesWrap').classList.contains('show')) {
-                        loadChatMessages();
-                    }
-                    if (document.getElementById('chatDialogs').classList.contains('show')) {
-                        loadDialogs();
-                    }
-                    loadOnlineUsers();
-                }
-            }, 5000);
-
-            setInterval(cleanupOldMessages, CHAT_CONFIG.CLEANUP_INTERVAL);
-            setTimeout(cleanupOldMessages, 30000);
         }
+    }, 3000); // Уменьшил до 3 секунд для скорости
+
+    setInterval(cleanupOldMessages, CHAT_CONFIG.CLEANUP_INTERVAL);
+    setTimeout(cleanupOldMessages, 30000);
+}
 
         // ============================================================
         // 19. РУЛЕТКА
