@@ -2189,6 +2189,9 @@
 // ============================================================
 // ФОРМАТИРОВАНИЕ ВРЕМЕНИ ПО МСК (UTC+3)
 // ============================================================
+// ============================================================
+// ФОРМАТИРОВАНИЕ ВРЕМЕНИ (БЕЗ ДОБАВЛЕНИЯ СМЕЩЕНИЯ)
+// ============================================================
 function formatTimeMSK(dateString) {
     if (!dateString) return '--:--';
     
@@ -2196,11 +2199,9 @@ function formatTimeMSK(dateString) {
         const date = new Date(dateString);
         if (isNaN(date.getTime())) return '--:--';
         
-        // Принудительно устанавливаем МСК (UTC+3)
-        const mskTime = new Date(date.getTime() + (3 * 60 * 60 * 1000));
-        
-        const hours = String(mskTime.getUTCHours()).padStart(2, '0');
-        const minutes = String(mskTime.getUTCMinutes()).padStart(2, '0');
+        // ПРОСТО ФОРМАТИРУЕМ БЕЗ ДОБАВЛЕНИЯ СМЕЩЕНИЯ
+        const hours = String(date.getUTCHours()).padStart(2, '0');
+        const minutes = String(date.getUTCMinutes()).padStart(2, '0');
         
         return `${hours}:${minutes}`;
     } catch (e) {
@@ -2208,16 +2209,13 @@ function formatTimeMSK(dateString) {
     }
 }
 
-// Альтернативный вариант через Intl.DateTimeFormat (более надёжный)
-function formatTimeMSK2(dateString) {
+// Альтернативный вариант - просто отображаем как есть
+function formatTimeSimple(dateString) {
     if (!dateString) return '--:--';
-    
     try {
         const date = new Date(dateString);
         if (isNaN(date.getTime())) return '--:--';
-        
         return date.toLocaleTimeString('ru', {
-            timeZone: 'Europe/Moscow',
             hour: '2-digit',
             minute: '2-digit',
             hour12: false
@@ -3078,8 +3076,8 @@ function formatTimeMSK2(dateString) {
         const senderId = msg?.sender_id || '';
         const avatar = msg?.sender_avatar || AVATAR_LIST[0];
         
-        // === ИСПОЛЬЗУЕМ МСК ВРЕМЯ ===
-        const time = formatTimeMSK2(msg?.created_at);
+        // === ПРОСТО ФОРМАТИРУЕМ БЕЗ СМЕЩЕНИЯ ===
+        const time = formatTimeSimple(msg?.created_at);
         
         const text = escapeHtml(msg?.message || '');
 
@@ -4616,7 +4614,17 @@ function debugMessageTimes() {
         console.log(`  ${i+1}. UTC: ${original} → МСК: ${formatted}`);
     });
 }
+// Проверка форматирования
+console.log('🧪 Тест форматирования:');
+console.log('  UTC:', '2026-06-26T10:38:19.526');
+console.log('  МСК (без смещения):', formatTimeSimple('2026-06-26T10:38:19.526'));
+console.log('  Должно быть:', '10:38');
 
+// Проверка всех сообщений
+console.log('📊 Актуальное время в чате:');
+chatMessagesCache.forEach((msg, i) => {
+    console.log(`  ${i+1}. ${msg.message.substring(0, 20)} → ${formatTimeSimple(msg.created_at)}`);
+});
 // Вызываем после загрузки сообщений
 setTimeout(debugMessageTimes, 2000);
         console.log('✅ Чат как в мессенджере загружен!');
