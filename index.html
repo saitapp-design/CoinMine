@@ -2181,18 +2181,23 @@
         // ============================================================
         // 4. ФУНКЦИИ ВРЕМЕНИ (ИСПРАВЛЕННЫЕ)
         // ============================================================
-        function formatTime(dateString) {
-            if (!dateString) return '--:--';
-            try {
-                const date = new Date(dateString);
-                if (isNaN(date.getTime())) return '--:--';
-                const hours = String(date.getUTCHours()).padStart(2, '0');
-                const minutes = String(date.getUTCMinutes()).padStart(2, '0');
-                return `${hours}:${minutes}`;
-            } catch (e) {
-                return '--:--';
-            }
-        }
+        // ============================================================
+// ФОРМАТИРОВАНИЕ ВРЕМЕНИ В МСК (UTC+3)
+// ============================================================
+function formatTime(dateString) {
+    if (!dateString) return '--:--';
+    try {
+        const date = new Date(dateString);
+        if (isNaN(date.getTime())) return '--:--';
+        // Добавляем 3 часа для МСК
+        const mskTime = new Date(date.getTime() + (3 * 60 * 60 * 1000));
+        const hours = String(mskTime.getUTCHours()).padStart(2, '0');
+        const minutes = String(mskTime.getUTCMinutes()).padStart(2, '0');
+        return `${hours}:${minutes}`;
+    } catch (e) {
+        return '--:--';
+    }
+}
 
         function formatDateTime(dateString) {
             if (!dateString) return '--.--.---- --:--';
