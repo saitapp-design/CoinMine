@@ -2736,20 +2736,25 @@
         // ============================================================
 
         // ----- УМНЫЙ СКРОЛЛ -----
-        function smartScroll(box) {
-            if (!box) return;
-            const isAtBottom = box.scrollTop + box.clientHeight >= box.scrollHeight - 120;
-            if (isAtBottom) {
-                box.scrollTop = box.scrollHeight;
-            }
-        }
+        // ============================================================
+// 1. УМНЫЙ СКРОЛЛ (прокручивает вниз только если пользователь внизу)
+// ============================================================
+function smartScroll(box) {
+    if (!box) return;
+    const isAtBottom = box.scrollTop + box.clientHeight >= box.scrollHeight - 120;
+    if (isAtBottom) {
+        box.scrollTop = box.scrollHeight;
+    }
+}
 
-        // ----- ДОБАВЛЕНИЕ СООБЩЕНИЯ (БЕЗ ПЕРЕРИСОВКИ) -----
-        // ----- ДОБАВЛЕНИЕ СООБЩЕНИЯ (БЕЗ ПЕРЕРИСОВКИ) -----
+// ============================================================
+// 2. ДОБАВЛЕНИЕ ОДНОГО СООБЩЕНИЯ (БЕЗ ПОЛНОЙ ПЕРЕРИСОВКИ)
+// ============================================================
 function appendMessageToChat(msg) {
     const container = document.getElementById('chatMessages');
     if (!container) return;
 
+    // Определяем, своё ли сообщение
     const isOwn = msg?.sender_id === UID;
     const isPrivate = msg?.is_private === true;
     const senderName = isOwn ? 'Я' : (msg?.sender_name || 'Игрок');
@@ -2757,9 +2762,11 @@ function appendMessageToChat(msg) {
     const avatar = msg?.sender_avatar || AVATAR_LIST[0];
     const text = escapeHtml(msg?.message || '');
 
+    // Создаём DOM-элемент
     const el = document.createElement('div');
     el.className = `msg ${isOwn ? 'own' : 'other'}`;
 
+    // Клик по имени (только для чужих сообщений, чтобы открыть ЛС)
     const nameClick = (!isOwn && !isPrivate && senderId !== UID) ?
         ` onclick="startPrivateFromPublic('${senderId}','${escapeHtml(senderName)}','${avatar}')" style="cursor:pointer;text-decoration:underline;text-underline-offset:2px;"` :
         '';
@@ -2775,174 +2782,70 @@ function appendMessageToChat(msg) {
 
     container.appendChild(el);
 
-    // ========== ГЛАВНОЕ ИСПРАВЛЕНИЕ ==========
-    // Если сообщение отправил текущий пользователь — ВСЕГДА прокручиваем вниз
-    if (isOwn) {
-        container.scrollTop = container.scrollHeight;
-    } else {
-        // Для чужих сообщений — умный скролл (только если пользователь внизу)
-        smartScroll(container);
-    }
+    // Прокручиваем только если пользователь был внизу (чтобы не мешать чтению истории)
+    smartScroll(container);
 }
 
-        // ----- ЗАГРУЗКА СООБЩЕНИЙ -----
-        async function loadMessages() {
-            if (!UID) return;
+// ============================================================
+// 3. ПОЛНАЯ ПЕРЕРИСОВКА ВСЕХ СООБЩЕНИЙ
+// ============================================================
+function renderChatMessages() {
+    const container = document.getElementById('chatMessages');
+    if (!container) return;
 
-            try {
-                let data = [];
-
-                if (currentChat !== 'global' && currentChatTarget) {
-                    const targetId = String(currentChatTarget.id);
-
-                    const [sentRes, receivedRes] = await Promise.all([
-                        sbFetch(
-                            `/rest/v1/messages?select=*&order=created_at.desc&limit=50&is_private=eq.true&sender_id=eq.${encodeURIComponent(UID)}&receiver_id=eq.${encodeURIComponent(targetId)}`
-                        ),
-                        sbFetch(
-                            `/rest/v1/messages?select=*&order=created_at.desc&limit=50&is_private=eq.true&sender_id=eq.${encodeURIComponent(targetId)}&receiver_id=eq.${encodeURIComponent(UID)}`
-                        )
-                    ]);
-
-                    const sent = sentRes.ok ? sentRes.data || [] : [];
-                    const received = receivedRes.ok ? receivedRes.data || [] : [];
-                    data = [...sent, ...received];
-                    data.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
-
-                    if (!chats.dm[targetId]) chats.dm[targetId] = [];
-                    chats.dm[targetId] = data;
-                    chatMessagesCache = data;
-
-                    const remaining = getPrivateRemaining(targetId);
-                    document.getElementById('chatInfo').innerHTML =
-                        `💬 ЛС с <span class="highlight">${currentChatTarget.name}</span> — осталось <span class="highlight">${remaining}</span> сообщений сегодня`;
-
-                } else {
-                    const res = await sbFetch(
-                        `/rest/v1/messages?select=*&order=created_at.desc&limit=50&is_private=eq.false`
-                    );
-                    data = res.ok ? res.data || [] : [];
-                    data.reverse();
-
-                    chats.global = data;
-                    chatMessagesCache = data;
-
-                    document.getElementById('chatInfo').innerHTML =
-                        `💬 <span class="highlight">Общий чат</span> — все видят все сообщения (последние 50)`;
-                }
-
-                renderChatMessages();
-
-            } catch (e) {
-                console.warn('⚠️ Ошибка загрузки сообщений:', e);
-                document.getElementById('chatMessages').innerHTML =
-                    '<div class="system-msg" style="color:var(--red);">Ошибка загрузки</div>';
-            }
+    // Если сообщений нет – показываем заглушку
+    if (!chatMessagesCache || chatMessagesCache.length === 0) {
+        if (currentChat !== 'global') {
+            container.innerHTML = '<div class="system-msg">Нет сообщений в ЛС</div>';
+        } else {
+            container.innerHTML = '<div class="system-msg">Нет сообщений в общем чате</div>';
         }
+        return;
+    }
 
-        // ----- РЕНДЕР (ПОЛНАЯ ПЕРЕРИСОВКА) -----
-        function renderChatMessages() {
-            const container = document.getElementById('chatMessages');
-            if (!container) return;
+    // Сохраняем текущую позицию скролла и флаг "был ли пользователь внизу"
+    const scrollPos = container.scrollTop;
+    const wasAtBottom = container.scrollTop + container.clientHeight >= container.scrollHeight - 120;
 
-            if (!chatMessagesCache || chatMessagesCache.length === 0) {
-                if (currentChat !== 'global') {
-                    container.innerHTML = '<div class="system-msg">Нет сообщений в ЛС</div>';
-                } else {
-                    container.innerHTML = '<div class="system-msg">Нет сообщений в общем чате</div>';
-                }
-                return;
-            }
+    // Генерируем HTML всех сообщений
+    const html = chatMessagesCache.map(msg => {
+        const isOwn = msg?.sender_id === UID;
+        const isPrivate = msg?.is_private === true;
+        const senderName = isOwn ? 'Я' : (msg?.sender_name || 'Игрок');
+        const senderId = msg?.sender_id || '';
+        const avatar = msg?.sender_avatar || AVATAR_LIST[0];
+        const text = escapeHtml(msg?.message || '');
 
-            // Сохраняем позицию скролла
-            const scrollPos = container.scrollTop;
-            const isAtBottom = container.scrollTop + container.clientHeight >= container.scrollHeight - 120;
+        const nameClick = (!isOwn && !isPrivate && senderId !== UID) ?
+            ` onclick="startPrivateFromPublic('${senderId}','${escapeHtml(senderName)}','${avatar}')" style="cursor:pointer;text-decoration:underline;text-underline-offset:2px;"` :
+            '';
 
-            container.innerHTML = chatMessagesCache.map(msg => {
-                const isOwn = msg?.sender_id === UID;
-                const isPrivate = msg?.is_private === true;
-                const senderName = isOwn ? 'Я' : (msg?.sender_name || 'Игрок');
-                const senderId = msg?.sender_id || '';
-                const avatar = msg?.sender_avatar || AVATAR_LIST[0];
-                const text = escapeHtml(msg?.message || '');
+        return `<div class="msg ${isOwn ? 'own' : 'other'}">
+            <div class="sender">
+                ${!isOwn ? `<div class="top-avatar" style="width:22px;height:22px;"><img src="${avatar}" alt="${escapeHtml(senderName)}" loading="lazy"></div>` : ''}
+                <span class="name"${nameClick}>${escapeHtml(senderName)}</span>
+                ${isPrivate ? '<span class="private-tag">🔒</span>' : ''}
+            </div>
+            <div class="text">${text}</div>
+        </div>`;
+    }).join('');
 
-                const nameClick = (!isOwn && !isPrivate && senderId !== UID) ?
-                    ` onclick="startPrivateFromPublic('${senderId}','${escapeHtml(senderName)}','${avatar}')" style="cursor:pointer;text-decoration:underline;text-underline-offset:2px;"` :
-                    '';
+    container.innerHTML = html;
 
-                return `<div class="msg ${isOwn ? 'own' : 'other'}">
-                    <div class="sender">
-                        ${!isOwn ? `<div class="top-avatar" style="width:22px;height:22px;"><img src="${avatar}" alt="${escapeHtml(senderName)}" loading="lazy"></div>` : ''}
-                        <span class="name"${nameClick}>${escapeHtml(senderName)}</span>
-                        ${isPrivate ? '<span class="private-tag">🔒</span>' : ''}
-                    </div>
-                    <div class="text">${text}</div>
-                </div>`;
-            }).join('');
-
-            // Восстанавливаем скролл если пользователь был не внизу
-            if (!isAtBottom) {
-                container.scrollTop = scrollPos;
-            } else {
-                container.scrollTop = container.scrollHeight;
-            }
+    // ========== ГЛАВНОЕ ИСПРАВЛЕНИЕ ДЛЯ ПК ==========
+    // Если последнее сообщение в кеше отправлено текущим пользователем – ПРИНУДИТЕЛЬНО прокручиваем вниз
+    // Это гарантирует, что свои сообщения всегда видны сразу после отправки
+    if (chatMessagesCache.length > 0 && chatMessagesCache[chatMessagesCache.length - 1].sender_id === UID) {
+        container.scrollTop = container.scrollHeight;
+    } else {
+        // Иначе – восстанавливаем позицию, если пользователь был не внизу
+        if (!wasAtBottom) {
+            container.scrollTop = scrollPos;
+        } else {
+            container.scrollTop = container.scrollHeight;
         }
-
-        // ----- ПОИСК ПОЛЬЗОВАТЕЛЕЙ ДЛЯ ЛС -----
-        let searchTimeout = null;
-
-        window.searchUsers = function(query) {
-            clearTimeout(searchTimeout);
-            const results = document.getElementById('chatSearchResults');
-
-            if (!query || query.length < 1) {
-                results.style.display = 'none';
-                return;
-            }
-
-            searchTimeout = setTimeout(async () => {
-                try {
-                    const { data, ok } = await sbFetch(
-                        `/rest/v1/users?select=id,username,data&limit=20`
-                    );
-
-                    if (ok && data) {
-                        const users = data
-                            .filter(u => {
-                                if (u.id === UID) return false;
-                                const name = (u.data?.name || u.username || '').toLowerCase();
-                                return name.includes(query.toLowerCase());
-                            })
-                            .map(u => {
-                                const userId = u.id;
-                                const userName = u.data?.name || u.username;
-                                const userAvatar = u.data?.avatar || AVATAR_LIST[0];
-                                return {
-                                    id: userId,
-                                    username: u.username,
-                                    name: userName,
-                                    avatar: userAvatar
-                                };
-                            });
-
-                        if (users.length === 0) {
-                            results.innerHTML = '<div class="tm" style="padding:8px;color:var(--tx2);text-align:center;font-size:13px;">Ник не найден</div>';
-                        } else {
-                            results.innerHTML = users.map(u =>
-                                `<div class="result-item" onclick="selectChatUser('${u.id}','${u.name}','${u.avatar}')">
-                                    <div class="top-avatar" style="width:28px;height:28px;"><img src="${u.avatar}" alt="${u.name}" loading="lazy"></div>
-                                    <span class="name">${u.name}</span>
-                                    <span class="user-id">#${u.id.slice(0, 6)}</span>
-                                </div>`
-                            ).join('');
-                        }
-                        results.style.display = 'block';
-                    }
-                } catch (e) {
-                    console.warn('⚠️ Ошибка поиска пользователей:', e);
-                }
-            }, 300);
-        };
+    }
+}
 
         window.selectChatUser = function(id, name, avatar) {
             // Закрываем поиск
