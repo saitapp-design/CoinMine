@@ -2256,8 +2256,6 @@
         let currentChat = 'global'; // 'global' или userId
         let currentChatTarget = null; // { id, name, avatar }
         let chatMessagesCache = [];
-        let lastChatRequestTime = 0;
-
         let chatPollInterval = null;
         let isSearchMode = false;
 
@@ -2785,122 +2783,162 @@
 
         // ----- ЗАГРУЗКА СООБЩЕНИЙ -----
         async function loadMessages() {
-    if (!UID) return;
+            if (!UID) return;
 
-    try {
-        let data = [];
+            try {
+                let data = [];
 
-        // =========================
-        // PRIVATE CHAT (ЛС)
-        // =========================
-        if (currentChat !== 'global' && currentChatTarget) {
-            const targetId = String(currentChatTarget.id);
+                if (currentChat !== 'global' && currentChatTarget) {
+                    const targetId = String(currentChatTarget.id);
 
-            const res = await sbFetch(
-                `/rest/v1/messages` +
-                `?select=*` +
-                `&order=created_at.asc` +
-                `&limit=50` +
-                `&is_private=eq.true` +
-                `&or=(and(sender_id.eq.${UID},receiver_id.eq.${targetId}),and(sender_id.eq.${targetId},receiver_id.eq.${UID}))`
-            );
+                    const [sentRes, receivedRes] = await Promise.all([
+                        sbFetch(
+                            `/rest/v1/messages?select=*&order=created_at.desc&limit=50&is_private=eq.true&sender_id=eq.${encodeURIComponent(UID)}&receiver_id=eq.${encodeURIComponent(targetId)}`
+                        ),
+                        sbFetch(
+                            `/rest/v1/messages?select=*&order=created_at.desc&limit=50&is_private=eq.true&sender_id=eq.${encodeURIComponent(targetId)}&receiver_id=eq.${encodeURIComponent(UID)}`
+                        )
+                    ]);
 
-            data = res.ok ? (res.data || []) : [];
+                    const sent = sentRes.ok ? sentRes.data || [] : [];
+                    const received = receivedRes.ok ? receivedRes.data || [] : [];
+                    data = [...sent, ...received];
+                    data.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
 
-            chats.dm[targetId] = data;
-            chatMessagesCache = data;
+                    if (!chats.dm[targetId]) chats.dm[targetId] = [];
+                    chats.dm[targetId] = data;
+                    chatMessagesCache = data;
 
-            const remaining = getPrivateRemaining(targetId);
+                    const remaining = getPrivateRemaining(targetId);
+                    document.getElementById('chatInfo').innerHTML =
+                        `💬 ЛС с <span class="highlight">${currentChatTarget.name}</span> — осталось <span class="highlight">${remaining}</span> сообщений сегодня`;
 
-            document.getElementById('chatInfo').innerHTML =
-                `💬 ЛС с <span class="highlight">${currentChatTarget.name}</span> — осталось <span class="highlight">${remaining}</span> сообщений сегодня`;
+                } else {
+                    const res = await sbFetch(
+                        `/rest/v1/messages?select=*&order=created_at.desc&limit=50&is_private=eq.false`
+                    );
+                    data = res.ok ? res.data || [] : [];
+                    data.reverse();
+
+                    chats.global = data;
+                    chatMessagesCache = data;
+
+                    document.getElementById('chatInfo').innerHTML =
+                        `💬 <span class="highlight">Общий чат</span> — все видят все сообщения (последние 50)`;
+                }
+
+                renderChatMessages();
+
+            } catch (e) {
+                console.warn('⚠️ Ошибка загрузки сообщений:', e);
+                document.getElementById('chatMessages').innerHTML =
+                    '<div class="system-msg" style="color:var(--red);">Ошибка загрузки</div>';
+            }
         }
 
-        // =========================
-        // GLOBAL CHAT
-        // =========================
-        else {
-            const res = await sbFetch(
-                `/rest/v1/messages` +
-                `?select=*` +
-                `&order=created_at.asc` +
-                `&limit=50` +
-                `&is_private=eq.false`
-            );
+        // ----- РЕНДЕР (ПОЛНАЯ ПЕРЕРИСОВКА) -----
+        function renderChatMessages() {
+            const container = document.getElementById('chatMessages');
+            if (!container) return;
 
-            data = res.ok ? (res.data || []) : [];
+            if (!chatMessagesCache || chatMessagesCache.length === 0) {
+                if (currentChat !== 'global') {
+                    container.innerHTML = '<div class="system-msg">Нет сообщений в ЛС</div>';
+                } else {
+                    container.innerHTML = '<div class="system-msg">Нет сообщений в общем чате</div>';
+                }
+                return;
+            }
 
-            chats.global = data;
-            chatMessagesCache = data;
+            // Сохраняем позицию скролла
+            const scrollPos = container.scrollTop;
+            const isAtBottom = container.scrollTop + container.clientHeight >= container.scrollHeight - 120;
 
-            document.getElementById('chatInfo').innerHTML =
-                `💬 <span class="highlight">Общий чат</span> — все видят все сообщения (последние 50)`;
+            container.innerHTML = chatMessagesCache.map(msg => {
+                const isOwn = msg?.sender_id === UID;
+                const isPrivate = msg?.is_private === true;
+                const senderName = isOwn ? 'Я' : (msg?.sender_name || 'Игрок');
+                const senderId = msg?.sender_id || '';
+                const avatar = msg?.sender_avatar || AVATAR_LIST[0];
+                const text = escapeHtml(msg?.message || '');
+
+                const nameClick = (!isOwn && !isPrivate && senderId !== UID) ?
+                    ` onclick="startPrivateFromPublic('${senderId}','${escapeHtml(senderName)}','${avatar}')" style="cursor:pointer;text-decoration:underline;text-underline-offset:2px;"` :
+                    '';
+
+                return `<div class="msg ${isOwn ? 'own' : 'other'}">
+                    <div class="sender">
+                        ${!isOwn ? `<div class="top-avatar" style="width:22px;height:22px;"><img src="${avatar}" alt="${escapeHtml(senderName)}" loading="lazy"></div>` : ''}
+                        <span class="name"${nameClick}>${escapeHtml(senderName)}</span>
+                        ${isPrivate ? '<span class="private-tag">🔒</span>' : ''}
+                    </div>
+                    <div class="text">${text}</div>
+                </div>`;
+            }).join('');
+
+            // Восстанавливаем скролл если пользователь был не внизу
+            if (!isAtBottom) {
+                container.scrollTop = scrollPos;
+            } else {
+                container.scrollTop = container.scrollHeight;
+            }
         }
 
-        renderChatMessages(data);
+        // ----- ПОИСК ПОЛЬЗОВАТЕЛЕЙ ДЛЯ ЛС -----
+        let searchTimeout = null;
 
-    } catch (e) {
-        console.warn('⚠️ Ошибка загрузки сообщений:', e);
+        window.searchUsers = function(query) {
+            clearTimeout(searchTimeout);
+            const results = document.getElementById('chatSearchResults');
 
-        document.getElementById('chatMessages').innerHTML =
-            '<div class="system-msg" style="color:var(--red);">Ошибка загрузки</div>';
-    }
-}
+            if (!query || query.length < 1) {
+                results.style.display = 'none';
+                return;
+            }
 
+            searchTimeout = setTimeout(async () => {
+                try {
+                    const { data, ok } = await sbFetch(
+                        `/rest/v1/users?select=id,username,data&limit=20`
+                    );
 
-// =========================
-// RENDER (IMPORTANT FIX)
-// =========================
+                    if (ok && data) {
+                        const users = data
+                            .filter(u => {
+                                if (u.id === UID) return false;
+                                const name = (u.data?.name || u.username || '').toLowerCase();
+                                return name.includes(query.toLowerCase());
+                            })
+                            .map(u => {
+                                const userId = u.id;
+                                const userName = u.data?.name || u.username;
+                                const userAvatar = u.data?.avatar || AVATAR_LIST[0];
+                                return {
+                                    id: userId,
+                                    username: u.username,
+                                    name: userName,
+                                    avatar: userAvatar
+                                };
+                            });
 
-function renderChatMessages(messages) {
-    const box = document.getElementById('chatMessages');
-
-    // сохраняем позицию скролла
-    const isAtBottom =
-        box.scrollTop + box.clientHeight >= box.scrollHeight - 100;
-
-    box.innerHTML = '';
-
-    for (const msg of messages) {
-        const el = document.createElement('div');
-        el.className = 'msg' + (msg.sender_id == UID ? ' own' : '');
-
-        el.innerHTML = `
-            <b>${msg.user || 'user'}</b>
-            <div>${escapeHtml(msg.text)}</div>
-        `;
-
-        box.appendChild(el);
-    }
-
-    // автоскролл ТОЛЬКО если пользователь внизу
-    if (isAtBottom) {
-        box.scrollTop = box.scrollHeight;
-    }
-}
-
-
-// =========================
-// ESCAPE (SAFETY)
-// =========================
-
-function escapeHtml(text) {
-    return text
-        .replaceAll('&', '&amp;')
-        .replaceAll('<', '&lt;')
-        .replaceAll('>', '&gt;');
-}
-
-
-// =========================
-// OPTIONAL: POLLING (если ещё не realtime)
-// =========================
-
-setInterval(() => {
-    if (document.visibilityState === 'visible') {
-        loadMessages();
-    }
-}, 2500);
+                        if (users.length === 0) {
+                            results.innerHTML = '<div class="tm" style="padding:8px;color:var(--tx2);text-align:center;font-size:13px;">Ник не найден</div>';
+                        } else {
+                            results.innerHTML = users.map(u =>
+                                `<div class="result-item" onclick="selectChatUser('${u.id}','${u.name}','${u.avatar}')">
+                                    <div class="top-avatar" style="width:28px;height:28px;"><img src="${u.avatar}" alt="${u.name}" loading="lazy"></div>
+                                    <span class="name">${u.name}</span>
+                                    <span class="user-id">#${u.id.slice(0, 6)}</span>
+                                </div>`
+                            ).join('');
+                        }
+                        results.style.display = 'block';
+                    }
+                } catch (e) {
+                    console.warn('⚠️ Ошибка поиска пользователей:', e);
+                }
+            }, 300);
+        };
 
         window.selectChatUser = function(id, name, avatar) {
             // Закрываем поиск
