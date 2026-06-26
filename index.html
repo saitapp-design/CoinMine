@@ -2187,31 +2187,44 @@
             CLEANUP_INTERVAL: 3600000,
         };
 // ============================================================
-// ФОРМАТИРОВАНИЕ ВРЕМЕНИ ПО МСК
+// ФОРМАТИРОВАНИЕ ВРЕМЕНИ ПО МСК (UTC+3)
 // ============================================================
 function formatTimeMSK(dateString) {
-    if (!dateString) return '';
+    if (!dateString) return '--:--';
     
-    const date = new Date(dateString);
-    // Смещение на МСК (UTC+3)
-    const mskTime = new Date(date.getTime() + (3 * 60 * 60 * 1000));
-    
-    const hours = String(mskTime.getUTCHours()).padStart(2, '0');
-    const minutes = String(mskTime.getUTCMinutes()).padStart(2, '0');
-    
-    return `${hours}:${minutes}`;
+    try {
+        const date = new Date(dateString);
+        if (isNaN(date.getTime())) return '--:--';
+        
+        // Принудительно устанавливаем МСК (UTC+3)
+        const mskTime = new Date(date.getTime() + (3 * 60 * 60 * 1000));
+        
+        const hours = String(mskTime.getUTCHours()).padStart(2, '0');
+        const minutes = String(mskTime.getUTCMinutes()).padStart(2, '0');
+        
+        return `${hours}:${minutes}`;
+    } catch (e) {
+        return '--:--';
+    }
 }
 
-// Альтернативный вариант с использованием toLocaleString
+// Альтернативный вариант через Intl.DateTimeFormat (более надёжный)
 function formatTimeMSK2(dateString) {
-    if (!dateString) return '';
+    if (!dateString) return '--:--';
     
-    const date = new Date(dateString);
-    return date.toLocaleTimeString('ru', {
-        timeZone: 'Europe/Moscow',
-        hour: '2-digit',
-        minute: '2-digit'
-    });
+    try {
+        const date = new Date(dateString);
+        if (isNaN(date.getTime())) return '--:--';
+        
+        return date.toLocaleTimeString('ru', {
+            timeZone: 'Europe/Moscow',
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: false
+        });
+    } catch (e) {
+        return '--:--';
+    }
 }
         // ============================================================
         // 2. ВСПОМОГАТЕЛЬНЫЕ
@@ -3052,9 +3065,11 @@ function formatTimeMSK2(dateString) {
     }
 
     // Сортируем по времени (старые -> новые)
-    const sorted = [...chatMessagesCache].sort((a, b) => 
-        new Date(a.created_at) - new Date(b.created_at)
-    );
+    const sorted = [...chatMessagesCache].sort((a, b) => {
+        const timeA = new Date(a.created_at).getTime();
+        const timeB = new Date(b.created_at).getTime();
+        return timeA - timeB;
+    });
 
     container.innerHTML = sorted.map(msg => {
         const isOwn = msg?.sender_id === UID;
@@ -3064,12 +3079,12 @@ function formatTimeMSK2(dateString) {
         const avatar = msg?.sender_avatar || AVATAR_LIST[0];
         
         // === ИСПОЛЬЗУЕМ МСК ВРЕМЯ ===
-        const time = formatTimeMSK(msg?.created_at);
+        const time = formatTimeMSK2(msg?.created_at);
         
         const text = escapeHtml(msg?.message || '');
 
         const nameClick = (!isOwn && !isPrivate && senderId !== UID) ?
-            ` onclick="startPrivateFromPublic('${senderId}','${escapeHtml(senderName)}','${avatar}')" style="cursor:pointer;"` :
+            ` onclick="startPrivateFromPublic('${senderId}','${escapeHtml(senderName)}','${avatar}')" style="cursor:pointer;text-decoration:underline;text-underline-offset:2px;"` :
             '';
 
         return `<div class="msg ${isOwn ? 'own' : 'other'}">
@@ -4587,6 +4602,23 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 });
+        // Добавьте в конец скрипта
+console.log('🕐 Текущее МСК время:', formatTimeMSK2(new Date().toISOString()));
+
+// Проверка времени в сообщениях
+function debugMessageTimes() {
+    if (chatMessagesCache.length === 0) return;
+    
+    console.log('📊 Проверка времени сообщений:');
+    chatMessagesCache.slice(0, 5).forEach((msg, i) => {
+        const original = msg.created_at;
+        const formatted = formatTimeMSK2(original);
+        console.log(`  ${i+1}. UTC: ${original} → МСК: ${formatted}`);
+    });
+}
+
+// Вызываем после загрузки сообщений
+setTimeout(debugMessageTimes, 2000);
         console.log('✅ Чат как в мессенджере загружен!');
         console.log('📱 Особенности:');
         console.log('  - Список диалогов с последними сообщениями');
