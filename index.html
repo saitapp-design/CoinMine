@@ -2125,28 +2125,53 @@
         // 5. API
         // ============================================================
         async function sbFetch(path, opts = {}) {
-            const headers = {
-                'apikey': SB_ANON_KEY,
-                'Content-Type': 'application/json',
-                'Prefer': 'return=representation',
-                ...(opts.headers || {})
-            };
+    const headers = {
+        'apikey': SB_ANON_KEY,
+        'Content-Type': 'application/json',
+        ...(opts.headers || {})
+    };
 
-            let attempts = 0;
-            while (attempts < CONFIG.MAX_RETRIES) {
-                try {
-                    const r = await fetch(SB_URL + path, { ...opts, headers });
-                    const txt = await r.text();
-                    let d;
-                    try { d = JSON.parse(txt); } catch (e) { d = txt; }
-                    return { ok: r.ok, status: r.status, data: d };
-                } catch (e) {
-                    attempts++;
-                    if (attempts >= CONFIG.MAX_RETRIES) throw e;
-                    await new Promise(r => setTimeout(r, 1000 * attempts));
-                }
+    // Убираем Prefer, если он уже есть
+    if (!opts.headers?.Prefer) {
+        headers['Prefer'] = 'return=representation';
+    }
+
+    let attempts = 0;
+    while (attempts < CONFIG.MAX_RETRIES) {
+        try {
+            const r = await fetch(SB_URL + path, { 
+                ...opts, 
+                headers,
+                // Добавляем timeout
+                signal: AbortSignal.timeout(10000)
+            });
+            
+            const txt = await r.text();
+            let d;
+            try { 
+                d = JSON.parse(txt); 
+            } catch (e) { 
+                d = txt; 
             }
+            
+            // Логируем ошибки для отладки
+            if (!r.ok) {
+                console.warn(`⚠️ API Error ${r.status}:`, {
+                    path,
+                    status: r.status,
+                    data: d,
+                    opts
+                });
+            }
+            
+            return { ok: r.ok, status: r.status, data: d };
+        } catch (e) {
+            attempts++;
+            if (attempts >= CONFIG.MAX_RETRIES) throw e;
+            await new Promise(r => setTimeout(r, 1000 * attempts));
         }
+    }
+}
 
         // ============================================================
         // 6. ТОП-10
@@ -2201,62 +2226,66 @@
         // 7. АВТОРИЗАЦИЯ
         // ============================================================
         async function authRegister(username, password, fingerprint) {
-            const { data: existing } = await sbFetch(
-                `/rest/v1/users?fingerprint=eq.${encodeURIComponent(fingerprint)}&select=id`
-            );
-            if (existing && existing.length > 0) {
-                throw new Error('На этом устройстве уже есть аккаунт');
-            }
+    const { data: existing } = await sbFetch(
+        `/rest/v1/users?fingerprint=eq.${encodeURIComponent(fingerprint)}&select=id`
+    );
+    if (existing && existing.length > 0) {
+        throw new Error('На этом устройстве уже есть аккаунт');
+    }
 
-            const { data: taken } = await sbFetch(
-                `/rest/v1/users?username=eq.${encodeURIComponent(username)}&select=id`
-            );
-            if (taken && taken.length > 0) {
-                throw new Error('Этот логин уже занят');
-            }
+    const { data: taken } = await sbFetch(
+        `/rest/v1/users?username=eq.${encodeURIComponent(username)}&select=id`
+    );
+    if (taken && taken.length > 0) {
+        throw new Error('Этот логин уже занят');
+    }
 
-            const newUser = {
-                username,
-                password,
-                fingerprint,
-                data: {
-                    coins: 150,
-                    farms: 0,
-                    refs: 0,
-                    keys: 0,
-                    lastFarm: 0,
-                    farmLv: 1,
-                    name: username,
-                    nicks: { p: [], a: null },
-                    shards: {},
-                    clan: null,
-                    clanLF: 0,
-                    promos: {},
-                    missions: { active: null, lastReset: 0 },
-                    auctionBid: 0,
-                    auctionBidders: [],
-                    chests: 0,
-                    refCode: '',
-                    activatedRef: null,
-                    avatar: AVATAR_LIST[0]
-                },
-                boss: { hp: 0, lastKill: 0 },
-                created_at: new Date().toISOString(),
-                updated_at: new Date().toISOString()
-            };
+    const newUser = {
+        username: username.substring(0, 30),
+        password: password.substring(0, 50),
+        fingerprint: fingerprint,
+        data: {
+            coins: 150,
+            farms: 0,
+            refs: 0,
+            keys: 0,
+            lastFarm: 0,
+            farmLv: 1,
+            name: username.substring(0, 16),
+            nicks: { p: [], a: null },
+            shards: {},
+            clan: null,
+            clanLF: 0,
+            promos: {},
+            missions: { active: null, lastReset: 0 },
+            auctionBid: 0,
+            auctionBidders: [],
+            chests: 0,
+            refCode: '',
+            activatedRef: null,
+            avatar: AVATAR_LIST[0]
+        },
+        boss: { hp: 0, lastKill: 0 },
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+    };
 
-            const { ok, data, status } = await sbFetch('/rest/v1/users', {
-                method: 'POST',
-                body: JSON.stringify(newUser)
-            });
+    const { ok, data, status } = await sbFetch('/rest/v1/users', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Prefer': 'return=representation'
+        },
+        body: JSON.stringify(newUser)
+    });
 
-            if (!ok) {
-                const msg = data?.details || data?.message || 'Ошибка регистрации';
-                throw new Error(msg);
-            }
+    if (!ok) {
+        const msg = data?.details || data?.message || 'Ошибка регистрации';
+        throw new Error(msg);
+    }
 
-            return await authLogin(username, password);
-        }
+    return await authLogin(username, password);
+}
 
         async function authLogin(username, password) {
             const { data, ok } = await sbFetch(
@@ -2320,47 +2349,54 @@
         }
 
         async function saveUserData() {
-            if (!UID) return false;
-            if (isSaving) return false;
-            isSaving = true;
+    if (!UID) return false;
+    if (isSaving) return false;
+    isSaving = true;
 
-            try {
-                const dataToSave = JSON.parse(JSON.stringify(G));
-                const bossToSave = JSON.parse(JSON.stringify(BOSS_STATE));
+    try {
+        // Глубокое копирование данных
+        const dataToSave = JSON.parse(JSON.stringify(G));
+        const bossToSave = JSON.parse(JSON.stringify(BOSS_STATE));
 
-                const payload = {
-                    data: dataToSave,
-                    boss: bossToSave,
-                    updated_at: new Date().toISOString()
-                };
+        // Убеждаемся, что data - это объект
+        const payload = {
+            data: dataToSave,
+            boss: bossToSave,
+            updated_at: new Date().toISOString()
+        };
 
-                const { ok, status, data } = await sbFetch(`/rest/v1/users?id=eq.${UID}`, {
-                    method: 'PATCH',
-                    body: JSON.stringify(payload)
-                });
+        const { ok, status, data } = await sbFetch(`/rest/v1/users?id=eq.${UID}`, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+                'Prefer': 'return=minimal' // Добавляем Prefer для экономии
+            },
+            body: JSON.stringify(payload)
+        });
 
-                if (!ok) {
-                    console.error('❌ Ошибка сохранения:', status, data);
-                    offlineQueue.push({
-                        uid: UID,
-                        data: payload,
-                        timestamp: Date.now()
-                    });
-                    localStorage.setItem('offline_queue', JSON.stringify(offlineQueue));
-                    return false;
-                }
-
-                offlineQueue = offlineQueue.filter(item => item.uid !== UID);
-                localStorage.setItem('offline_queue', JSON.stringify(offlineQueue));
-
-                return true;
-            } catch (e) {
-                console.error('❌ Ошибка:', e);
-                return false;
-            } finally {
-                isSaving = false;
-            }
+        if (!ok) {
+            console.error('❌ Ошибка сохранения:', status, data);
+            // Сохраняем в офлайн-очередь
+            offlineQueue.push({
+                uid: UID,
+                data: payload,
+                timestamp: Date.now()
+            });
+            localStorage.setItem('offline_queue', JSON.stringify(offlineQueue));
+            return false;
         }
+
+        offlineQueue = offlineQueue.filter(item => item.uid !== UID);
+        localStorage.setItem('offline_queue', JSON.stringify(offlineQueue));
+
+        return true;
+    } catch (e) {
+        console.error('❌ Ошибка:', e);
+        return false;
+    } finally {
+        isSaving = false;
+    }
+}
 
         async function forceSave() {
             clearTimeout(saveTimer);
@@ -2578,7 +2614,21 @@
                 }, 300);
             }
         };
+// Добавьте в конец скрипта
+window.addEventListener('error', function(e) {
+    console.error('❌ Глобальная ошибка:', e.message, e.filename, e.lineno);
+    if (e.message.includes('400')) {
+        window.toast('⚠️ Ошибка синхронизации. Данные сохранены локально.', 'err');
+    }
+});
 
+// Перехват ошибок Promise
+window.addEventListener('unhandledrejection', function(e) {
+    console.error('❌ Необработанный Promise:', e.reason);
+    if (e.reason?.message?.includes('400')) {
+        window.toast('⚠️ Ошибка сервера. Попробуйте позже.', 'err');
+    }
+});
         // ============================================================
         // 13. ЧАТ (ПОЛНОСТЬЮ ПЕРЕРАБОТАН) - ИСПРАВЛЕННАЯ ВЕРСИЯ
         // ============================================================
@@ -2766,64 +2816,73 @@
 
         // ИСПРАВЛЕННАЯ ФУНКЦИЯ ОТПРАВКИ
         window.sendMessage = async function() {
-            const input = document.getElementById('chatInput');
-            const text = input.value.trim();
+    const input = document.getElementById('chatInput');
+    const text = input.value.trim();
 
-            if (!text) {
-                window.toast('Введите сообщение', 'err');
-                return;
-            }
+    if (!text) {
+        window.toast('Введите сообщение', 'err');
+        return;
+    }
 
-            if (text.length > 200) {
-                window.toast('Слишком длинное сообщение (макс. 200 символов)', 'err');
-                return;
-            }
+    if (text.length > 200) {
+        window.toast('Слишком длинное сообщение (макс. 200 символов)', 'err');
+        return;
+    }
 
-            const isPrivate = chatMode === 'private' && chatTarget;
-            const receiverId = isPrivate ? chatTarget.id : null;
-            const receiverName = isPrivate ? chatTarget.name : null;
+    // Экранируем текст для безопасности
+    const safeText = text.replace(/[<>]/g, '').trim();
+    if (!safeText) {
+        window.toast('Недопустимые символы', 'err');
+        return;
+    }
 
-            // Создаём сообщение для локального отображения
-            const msgData = {
-                sender_id: UID,
-                sender_name: G.name || currentUsername,
-                sender_avatar: G.avatar || AVATAR_LIST[0],
-                receiver_id: receiverId,
-                receiver_name: receiverName,
-                message: text,
-                is_private: isPrivate,
-                created_at: new Date().toISOString()
-            };
+    const isPrivate = chatMode === 'private' && chatTarget;
+    const receiverId = isPrivate ? chatTarget.id : null;
+    const receiverName = isPrivate ? chatTarget.name : null;
 
-            // Очищаем поле ввода
-            input.value = '';
+    const msgData = {
+        sender_id: UID,
+        sender_name: (G.name || currentUsername || 'Игрок').substring(0, 30),
+        sender_avatar: G.avatar || AVATAR_LIST[0],
+        receiver_id: receiverId,
+        receiver_name: receiverName ? receiverName.substring(0, 30) : null,
+        message: safeText.substring(0, 200),
+        is_private: isPrivate || false,
+        created_at: new Date().toISOString()
+    };
 
-            // Добавляем сообщение локально
-            chatMessagesCache.push(msgData);
+    input.value = '';
+
+    // Добавляем локально
+    chatMessagesCache.push(msgData);
+    renderChatMessages();
+
+    try {
+        const { ok, status, data } = await sbFetch('/rest/v1/messages', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Prefer': 'return=minimal'
+            },
+            body: JSON.stringify(msgData)
+        });
+
+        if (!ok) {
+            console.error('❌ Ошибка отправки:', status, data);
+            window.toast('❌ Ошибка отправки', 'err');
+            chatMessagesCache = chatMessagesCache.filter(m => m !== msgData);
             renderChatMessages();
-
-            try {
-                const { ok } = await sbFetch('/rest/v1/messages', {
-                    method: 'POST',
-                    body: JSON.stringify(msgData)
-                });
-
-                if (!ok) {
-                    window.toast('❌ Ошибка отправки', 'err');
-                    // Удаляем сообщение, если не отправилось
-                    chatMessagesCache = chatMessagesCache.filter(m => m !== msgData);
-                    renderChatMessages();
-                } else {
-                    // Успешно отправлено - обновляем чат
-                    setTimeout(() => loadChatMessages(), 300);
-                }
-            } catch (e) {
-                console.error('❌ Ошибка отправки:', e);
-                window.toast('❌ Ошибка соединения', 'err');
-                chatMessagesCache = chatMessagesCache.filter(m => m !== msgData);
-                renderChatMessages();
-            }
-        };
+        } else {
+            // Успешно
+            setTimeout(() => loadChatMessages(), 300);
+        }
+    } catch (e) {
+        console.error('❌ Ошибка соединения:', e);
+        window.toast('❌ Ошибка соединения', 'err');
+        chatMessagesCache = chatMessagesCache.filter(m => m !== msgData);
+        renderChatMessages();
+    }
+};
 
         async function loadOnlineUsers() {
             try {
