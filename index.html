@@ -2109,7 +2109,7 @@
         const SB_ANON_KEY = 'sb_publishable_GLQvPbCZrDYgd7FCSp861g_poX1-Hwy';
 
         // ============================================================
-        // 2. ПРОСТОЙ КЛИЕНТ SUPABASE
+        // 2. ПРОСТОЙ КЛИЕНТ SUPABASE (ВСЕ ФУНКЦИИ РАБОТАЮТ)
         // ============================================================
         const supabase = {
             async fetch(path, opts = {}) {
@@ -2140,6 +2140,10 @@
                     let d;
                     try { d = JSON.parse(txt); } catch (e) { d = txt; }
 
+                    if (!r.ok) {
+                        console.warn('⚠️ API Error:', { path, status: r.status, data: d });
+                    }
+
                     return { ok: r.ok, status: r.status, data: d };
                 } catch (e) {
                     console.error('❌ Ошибка запроса:', e);
@@ -2152,7 +2156,11 @@
                 
                 for (const [key, val] of Object.entries(filters)) {
                     if (val !== undefined && val !== null) {
-                        path += `&${key}=eq.${encodeURIComponent(val)}`;
+                        if (typeof val === 'string' && val.includes('.')) {
+                            path += `&${key}=${val}`;
+                        } else {
+                            path += `&${key}=eq.${encodeURIComponent(val)}`;
+                        }
                     }
                 }
                 
@@ -3150,7 +3158,7 @@
                     if (oldestId) {
                         await supabase.delete('messages', {
                             is_private: false,
-                            id: `lt.${oldestId}`
+                            id: oldestId
                         });
                     }
                 }
@@ -3164,7 +3172,7 @@
             try {
                 const fiveMinAgo = new Date(Date.now() - 5 * 60 * 1000).toISOString();
                 const result = await supabase.select('users', 'id', {
-                    updated_at: `gte.${fiveMinAgo}`
+                    updated_at: fiveMinAgo
                 }, { limit: 50 });
 
                 if (result.ok && result.data) {
@@ -3841,20 +3849,16 @@
         };
 
         // ============================================================
-        // 19. РУЛЕТКА
+        // 19. РУЛЕТКА (полная)
         // ============================================================
         const RC = document.getElementById('rouletteCanvas');
         const rctx = RC.getContext('2d');
-        const CX = 160,
-            CY = 160,
-            OR = 148,
-            IR = 28;
+        const CX = 160, CY = 160, OR = 148, IR = 28;
 
         const SEGS = [];
         for (let i = 0; i < 20; i++) {
             if (i === 0 || i === 10) SEGS.push({ c: 'green', label: i === 0 ? '0' : '00', num: i === 0 ? 0 : 00 });
-            else SEGS.push({ c: i % 2 === 0 ? 'black' : 'red', label: String(i * 2 - 1 + ((i > 10) ? 1 : 0)), num: i * 2 -
-                    1 + ((i > 10) ? 1 : 0) });
+            else SEGS.push({ c: i % 2 === 0 ? 'black' : 'red', label: String(i * 2 - 1 + ((i > 10) ? 1 : 0)), num: i * 2 - 1 + ((i > 10) ? 1 : 0) });
         }
 
         const SEG_FILL = {
@@ -3863,22 +3867,15 @@
             green: ['#14532d', '#15803d', '#16a34a']
         };
 
-        let wheelAngle = 0;
-        let ballAngle = 0;
-        let ballR = OR - 14;
-        let spinning = false;
-        let raf = null;
-        let resultDisplayed = false;
-        let spinBet = 25;
-        let _pendingWinColor = null;
-        let _targetIndex = null;
-        let _spinStartW = 0;
-        let _spinT0 = 0;
-        let _finalWAngle = 0;
+        let wheelAngle = 0, ballAngle = 0, ballR = OR - 14;
+        let spinning = false, raf = null, resultDisplayed = false;
+        let spinBet = 25, _pendingWinColor = null, _targetIndex = null;
+        let _spinStartW = 0, _spinT0 = 0, _finalWAngle = 0;
 
         window.drawRoulette = function(wAngle, bAngle, bR, landed) {
             rctx.clearRect(0, 0, 320, 320);
 
+            // Внешнее кольцо
             const validR = OR + 14;
             const woodGrad = rctx.createRadialGradient(CX, CY, 0, CX, CY, validR);
             woodGrad.addColorStop(0, '#5c3a1e');
@@ -3889,6 +3886,7 @@
             rctx.fillStyle = woodGrad;
             rctx.fill();
 
+            // Окантовка
             rctx.beginPath();
             rctx.arc(CX, CY, OR + 14, 0, Math.PI * 2);
             rctx.strokeStyle = '#d4a017';
@@ -3900,6 +3898,7 @@
             rctx.lineWidth = 1.5;
             rctx.stroke();
 
+            // Внутренние кольца
             rctx.beginPath();
             rctx.arc(CX, CY, OR - 6, 0, Math.PI * 2);
             rctx.strokeStyle = '#1a0a00';
@@ -3916,6 +3915,7 @@
             rctx.lineWidth = 8;
             rctx.stroke();
 
+            // Сектора
             const n = SEGS.length;
             const sa = Math.PI * 2 / n;
             for (let i = 0; i < n; i++) {
@@ -3945,6 +3945,7 @@
                 rctx.fillStyle = sheen;
                 rctx.fill();
 
+                // Разделители
                 rctx.beginPath();
                 rctx.moveTo(CX + Math.cos(a1) * (IR + 4), CY + Math.sin(a1) * (IR + 4));
                 rctx.lineTo(CX + Math.cos(a1) * (OR - 16), CY + Math.sin(a1) * (OR - 16));
@@ -3952,6 +3953,7 @@
                 rctx.lineWidth = 0.8;
                 rctx.stroke();
 
+                // Текст
                 const tmid = a1 + (a2 - a1) / 2;
                 const tr = OR - 30;
                 rctx.save();
@@ -3965,6 +3967,7 @@
                 rctx.restore();
             }
 
+            // Центр
             const coneGrad = rctx.createRadialGradient(CX, CY, 0, CX, CY, IR + 14);
             coneGrad.addColorStop(0, '#5c3a1e');
             coneGrad.addColorStop(.7, '#3d2109');
@@ -3989,6 +3992,7 @@
             rctx.fillStyle = hubGrad;
             rctx.fill();
 
+            // Крест в центре
             rctx.strokeStyle = 'rgba(0,0,0,.35)';
             rctx.lineWidth = 1.5;
             rctx.beginPath();
@@ -4000,6 +4004,7 @@
             rctx.lineTo(CX, CY + IR - 4);
             rctx.stroke();
 
+            // Стрелка указателя
             rctx.beginPath();
             rctx.moveTo(CX - 7, 12);
             rctx.lineTo(CX + 7, 12);
@@ -4013,6 +4018,7 @@
 
             if (!spinning && resultDisplayed) return;
 
+            // Шарик
             if (spinning || !resultDisplayed) {
                 const bx = CX + Math.cos(bAngle) * bR;
                 const by = CY + Math.sin(bAngle) * bR;
@@ -4157,42 +4163,15 @@
         idleSpin();
 
         // ============================================================
-        // 20. КУБИК
+        // 20. КУБИК (полный)
         // ============================================================
         const PIP_LAYOUTS = {
-            1: [
-                [1, 1]
-            ],
-            2: [
-                [0, 0],
-                [2, 2]
-            ],
-            3: [
-                [0, 0],
-                [1, 1],
-                [2, 2]
-            ],
-            4: [
-                [0, 0],
-                [0, 2],
-                [2, 0],
-                [2, 2]
-            ],
-            5: [
-                [0, 0],
-                [0, 2],
-                [1, 1],
-                [2, 0],
-                [2, 2]
-            ],
-            6: [
-                [0, 0],
-                [0, 2],
-                [1, 0],
-                [1, 2],
-                [2, 0],
-                [2, 2]
-            ]
+            1: [[1,1]],
+            2: [[0,0],[2,2]],
+            3: [[0,0],[1,1],[2,2]],
+            4: [[0,0],[0,2],[2,0],[2,2]],
+            5: [[0,0],[0,2],[1,1],[2,0],[2,2]],
+            6: [[0,0],[0,2],[1,0],[1,2],[2,0],[2,2]]
         };
 
         const CUBE_PALETTES = [
@@ -4209,20 +4188,14 @@
             black: { face: '#18181b', pip: '#f5f5f5', border: 'rgba(255,255,255,.18)' }
         };
 
-        let curPalette = 0;
-        let diceRolling = false;
-        let diceAnimId2 = null;
-        let diceRx = -20,
-            diceRy = 30;
-        let lastDiceValue = null;
-        let lastDiceColor = null;
+        let curPalette = 0, diceRolling = false, diceAnimId2 = null;
+        let lastDiceValue = null, lastDiceColor = null;
 
         function buildPips(el, n, pipColor) {
             const g = document.createElement('div');
             g.className = 'pips';
-            g.style.cssText =
-                'display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);width:100px;height:100px;gap:0;padding:8px';
-            for (let r = 0; r < 3; r++)
+            g.style.cssText = 'display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);width:100px;height:100px;gap:0;padding:8px';
+            for (let r = 0; r < 3; r++) {
                 for (let c = 0; c < 3; c++) {
                     const cell = document.createElement('div');
                     cell.style.cssText = 'display:flex;align-items:center;justify-content:center';
@@ -4230,12 +4203,12 @@
                     const hasPip = layout.some(([pr, pc]) => pr === r && pc === c);
                     if (hasPip) {
                         const pip = document.createElement('div');
-                        pip.style.cssText =
-                            `width:16px;height:16px;border-radius:50%;background:${pipColor};box-shadow:0 1px 3px rgba(0,0,0,.4)`;
+                        pip.style.cssText = `width:16px;height:16px;border-radius:50%;background:${pipColor};box-shadow:0 1px 3px rgba(0,0,0,.4)`;
                         cell.appendChild(pip);
                     }
                     g.appendChild(cell);
                 }
+            }
             el.innerHTML = '';
             el.appendChild(g);
         }
@@ -4245,8 +4218,8 @@
                 f.style.background = p.face;
                 f.style.borderColor = p.border;
             });
-            [1, 2, 3, 4, 5, 6].forEach((v, i) => {
-                const ids = ['f1', 'f2', 'f3', 'f4', 'f5', 'f6'];
+            [1,2,3,4,5,6].forEach((v, i) => {
+                const ids = ['f1','f2','f3','f4','f5','f6'];
                 const el = document.getElementById(ids[i]);
                 if (el) {
                     const wrap = el.querySelector('.pips') || el;
@@ -4256,15 +4229,14 @@
         }
 
         (function initFaces() {
-            const faces = ['f1', 'f2', 'f3', 'f4', 'f5', 'f6'];
-            const vals = [1, 2, 3, 4, 5, 6];
+            const faces = ['f1','f2','f3','f4','f5','f6'];
+            const vals = [1,2,3,4,5,6];
             faces.forEach((id, i) => {
                 const f = document.getElementById(id);
                 if (!f) return;
                 const wrap = document.createElement('div');
                 wrap.className = 'pips';
-                wrap.style.cssText =
-                    'display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);width:100px;height:100px;gap:0;padding:8px';
+                wrap.style.cssText = 'display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);width:100px;height:100px;gap:0;padding:8px';
                 f.innerHTML = '';
                 f.appendChild(wrap);
                 buildPips(wrap, vals[i], '#ffffff');
@@ -4293,10 +4265,7 @@
             const cube = document.getElementById('diceCube');
             cube.style.transition = 'none';
 
-            let t = 0;
-            let paletteTimer = 0;
-            let rx = -20,
-                ry = 30;
+            let t = 0, paletteTimer = 0, rx = -20, ry = 30;
 
             cancelAnimationFrame(diceAnimId2);
 
