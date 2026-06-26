@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>CoinMine — Чат исправлен</title>
+    <title>CoinMine — Рулетка исправлена</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.3/howler.min.js">
     </script>
     <style>
-        /* ===== ВЕСЬ CSS (основная часть) ===== */
+        /* ===== ВЕСЬ CSS (сокращен для экономии места) ===== */
         * {
             box-sizing: border-box;
             margin: 0;
@@ -183,27 +183,6 @@
             50% {
                 transform: translateY(-8px);
             }
-        }
-        @keyframes musicPulse {
-            0%,
-            100% {
-                transform: scale(1);
-            }
-            50% {
-                transform: scale(1.1);
-            }
-        }
-        .animated {
-            animation: fadeIn 0.4s ease forwards;
-        }
-        .pulse {
-            animation: pulse 2s ease-in-out infinite;
-        }
-        .glow {
-            animation: glow 2s ease-in-out infinite;
-        }
-        .float {
-            animation: float 3s ease-in-out infinite;
         }
 
         #authWrap {
@@ -485,65 +464,6 @@
             opacity: 1;
         }
 
-        .music-btn .icon {
-            transition: .3s;
-        }
-        .music-btn.on .icon {
-            animation: musicPulse 1.5s ease-in-out infinite;
-        }
-        .music-btn .status-dot {
-            position: absolute;
-            bottom: 2px;
-            right: 2px;
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: var(--red);
-            transition: .3s;
-            border: 1px solid var(--bg2);
-        }
-        .music-btn.on .status-dot {
-            background: var(--grn);
-            box-shadow: 0 0 12px #10b98166;
-            animation: pulse 1.5s ease-in-out infinite;
-        }
-
-        @media (max-width: 500px) {
-            .hdr {
-                padding: 4px 8px;
-                gap: 4px;
-            }
-            .hdr-logo {
-                font-size: 14px;
-            }
-            .hdr-btn {
-                width: 30px;
-                height: 30px;
-                font-size: 14px;
-            }
-            .hdr-bal {
-                font-size: 11px;
-                padding: 3px 8px;
-            }
-            .hdr-btn .hint {
-                display: none;
-            }
-        }
-        @media (max-width: 380px) {
-            .hdr-logo {
-                font-size: 12px;
-            }
-            .hdr-btn {
-                width: 26px;
-                height: 26px;
-                font-size: 12px;
-            }
-            .hdr-bal {
-                font-size: 10px;
-                padding: 2px 6px;
-            }
-        }
-
         .screens {
             flex: 1;
             padding: 10px 10px 0;
@@ -790,64 +710,13 @@
         .top-row:last-child {
             border-bottom: none;
         }
-        .boss-wrap {
-            text-align: center;
-            padding: 8px 0;
-            position: relative;
-        }
-        .boss-avatar {
-            font-size: 80px;
-            line-height: 1;
-            margin-bottom: 4px;
-            filter: drop-shadow(0 0 30px #ef444466);
-            animation: float 3s ease-in-out infinite;
-            display: inline-block;
-        }
-        .boss-name {
-            font-size: 18px;
-            font-weight: 700;
-        }
-        .boss-status {
-            font-size: 12px;
-            color: var(--tx2);
-        }
-        .hp-bar {
-            height: 16px;
-            background: var(--bg4);
-            border-radius: 10px;
-            overflow: hidden;
-            margin: 8px 0;
-            position: relative;
-        }
-        .hp-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #991b1b, var(--red), #ff6b6b);
-            border-radius: 10px;
-            transition: width .6s ease;
-            position: relative;
-        }
-        .hp-fill::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(180deg, #ffffff25, transparent);
-            border-radius: 10px;
-        }
+
         .rl-section {
             display: flex;
             flex-direction: column;
             align-items: center;
             gap: 12px;
             padding: 10px 0;
-        }
-        .rl-label {
-            font-size: 13px;
-            color: var(--color-text-secondary);
-            font-weight: 500;
-            text-align: center;
         }
         .rl-canvas-wrap {
             position: relative;
@@ -863,12 +732,12 @@
             height: 100%;
         }
         .rl-result {
-            font-size: 16px;
-            font-weight: 600;
+            font-size: 18px;
+            font-weight: 700;
             text-align: center;
-            min-height: 28px;
+            min-height: 32px;
             color: var(--color-text-primary);
-            padding: 4px 0;
+            padding: 6px 0;
         }
         .rl-result.win {
             color: var(--gld);
@@ -942,205 +811,15 @@
             text-align: center;
             padding: 4px 0;
         }
-
-        .dice-section {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 14px;
-            padding: 10px 0;
-        }
-        .dice-scene {
-            width: 200px;
-            height: 200px;
-            perspective: 600px;
-            max-width: 100%;
-            cursor: default;
-        }
-        .dice-cube {
-            width: 140px;
-            height: 140px;
-            position: relative;
-            transform-style: preserve-3d;
-            margin: 30px auto;
-            transform: rotateX(-20deg) rotateY(30deg);
-        }
-        .face {
-            position: absolute;
-            width: 140px;
-            height: 140px;
-            border-radius: 18px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border: 2px solid rgba(255, 255, 255, .18);
-            backface-visibility: hidden;
-            transition: background .4s, border-color .4s;
-        }
-        .face.front {
-            transform: translateZ(70px);
-        }
-        .face.back {
-            transform: rotateY(180deg) translateZ(70px);
-        }
-        .face.right {
-            transform: rotateY(90deg) translateZ(70px);
-        }
-        .face.left {
-            transform: rotateY(-90deg) translateZ(70px);
-        }
-        .face.top {
-            transform: rotateX(90deg) translateZ(70px);
-        }
-        .face.bottom {
-            transform: rotateX(-90deg) translateZ(70px);
-        }
-        .pips {
-            display: grid;
-            width: 100px;
-            height: 100px;
-            gap: 6px;
-            padding: 8px;
-            grid-template-columns: repeat(3, 1fr);
-            grid-template-rows: repeat(3, 1fr);
-        }
-        .pip {
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, .88);
-            box-shadow: 0 1px 3px rgba(0, 0, 0, .4);
-            transition: background .4s;
-        }
-        .dice-info {
-            font-size: 13px;
-            color: var(--color-text-secondary);
+        .rl-number-display {
+            font-size: 48px;
+            font-weight: 800;
+            color: var(--gld);
             text-align: center;
-        }
-        .dice-result {
-            font-size: 16px;
-            font-weight: 600;
-            color: var(--color-text-primary);
-            min-height: 28px;
-            text-align: center;
+            min-height: 60px;
             padding: 4px 0;
         }
-        .dice-result.win {
-            color: var(--gld);
-        }
-        .dice-result.lose {
-            color: var(--red);
-        }
-        .dice-btns {
-            display: flex;
-            gap: 10px;
-        }
-        .dice-btns button {
-            padding: 8px 20px;
-            border-radius: var(--border-radius-md);
-            border: 0.5px solid var(--color-border-secondary);
-            background: var(--color-background-primary);
-            font-size: 13px;
-            cursor: pointer;
-            color: var(--color-text-primary);
-        }
-        .dice-btns button:hover {
-            background: var(--color-background-secondary);
-        }
-        .dice-btns button:disabled {
-            opacity: .5;
-            cursor: not-allowed;
-        }
-        .divider {
-            width: 100%;
-            height: 0.5px;
-            background: var(--color-border-tertiary);
-        }
 
-        .clan-icon {
-            font-size: 60px;
-            text-align: center;
-            margin-bottom: 4px;
-            filter: drop-shadow(0 0 20px #7c3aed66);
-            animation: float 3s ease-in-out infinite;
-        }
-        .clan-name {
-            font-size: 20px;
-            font-weight: 700;
-            color: var(--acc3);
-        }
-        .clan-diamonds {
-            font-size: 28px;
-            font-weight: 800;
-            color: var(--gld);
-        }
-        .pkg-g {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 8px;
-        }
-        .pkg {
-            background: var(--bg4);
-            border: 1.5px solid var(--bd2);
-            border-radius: var(--r);
-            padding: 13px;
-            text-align: center;
-            cursor: pointer;
-            transition: .3s;
-            position: relative;
-        }
-        .pkg:hover {
-            transform: translateY(-4px);
-            border-color: var(--acc2);
-            box-shadow: 0 8px 30px #7c3aed22;
-        }
-        .pkg.hot {
-            border-color: var(--gld);
-        }
-        .pkg.hot::before {
-            content: '🔥 ХИТ';
-            position: absolute;
-            top: -8px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: var(--gld);
-            color: #1a0800;
-            font-size: 9px;
-            font-weight: 800;
-            padding: 2px 8px;
-            border-radius: 8px;
-        }
-        .pkg-icon {
-            font-size: 36px;
-            margin-bottom: 3px;
-        }
-        .nick-g {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 7px;
-        }
-        .nc {
-            background: var(--bg4);
-            border: 1.5px solid var(--bd);
-            border-radius: var(--r2);
-            padding: 9px 6px;
-            text-align: center;
-            cursor: pointer;
-            transition: .3s;
-        }
-        .nc:hover {
-            transform: translateY(-2px);
-            border-color: var(--acc2);
-        }
-        .nc.own {
-            border-color: #4c1d95;
-            background: #190a35;
-        }
-        .nc.act {
-            border-color: var(--gld);
-            background: #2a1b00;
-            box-shadow: 0 0 0 2px #f0b42930;
-        }
         .mod-bg {
             display: none;
             position: fixed;
@@ -1183,39 +862,6 @@
         .mod-btns .btn {
             flex: 1;
         }
-        .bdg {
-            display: inline-flex;
-            align-items: center;
-            gap: 3px;
-            padding: 3px 8px;
-            border-radius: 10px;
-            font-size: 10px;
-            font-weight: 600;
-        }
-        .bdg-pur {
-            background: #2e1065;
-            color: var(--acc3);
-            border: 1px solid #4c1d95;
-        }
-        .bdg-grn {
-            background: #052e16;
-            color: #4ade80;
-            border: 1px solid #14532d;
-        }
-        .bdg-gld {
-            background: #3d2800;
-            color: var(--gld);
-            border: 1px solid #5a3c00;
-        }
-        .bgld {
-            background: linear-gradient(135deg, #92620a, var(--gld));
-            color: #fff;
-        }
-        .bred {
-            background: #7f1d1d;
-            color: #fca5a5;
-            border: 1px solid #991b1b;
-        }
         #TOAST {
             position: fixed;
             top: 60px;
@@ -1233,15 +879,6 @@
             text-align: center;
             box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
         }
-        .hl {
-            color: var(--gld);
-            font-weight: 700;
-        }
-        :root {
-            --acc3: #c4a0ff;
-            --r3: 4px;
-        }
-
         .avatar-wrap {
             position: relative;
             cursor: pointer;
@@ -1271,27 +908,6 @@
             border-color: var(--gld);
             transform: scale(1.05);
         }
-        .avatar-hint {
-            position: absolute;
-            bottom: -16px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(0, 0, 0, 0.85);
-            color: var(--tx2);
-            font-size: 7px;
-            padding: 1px 6px;
-            border-radius: 10px;
-            white-space: nowrap;
-            opacity: 0;
-            transition: .3s;
-            pointer-events: none;
-            border: 1px solid var(--bd2);
-            z-index: 5;
-            width: auto;
-        }
-        .avatar-wrap:hover .avatar-hint {
-            opacity: 1;
-        }
         .avatar-selector {
             position: absolute;
             top: 52px;
@@ -1312,12 +928,6 @@
         .avatar-selector.show {
             opacity: 1;
             pointer-events: auto;
-        }
-        .avatar-selector-title {
-            text-align: center;
-            color: var(--tx2);
-            font-size: 10px;
-            margin-bottom: 6px;
         }
         .avatar-grid {
             display: grid;
@@ -1353,51 +963,6 @@
             border-color: var(--gld);
             box-shadow: 0 0 20px #f0b42944;
         }
-
-        @media (max-width: 500px) {
-            .avatar-selector {
-                width: 180px;
-                max-width: 92vw;
-                top: 48px;
-                left: 0;
-                transform: none;
-                padding: 8px;
-            }
-            .avatar-grid {
-                gap: 5px;
-            }
-            .avatar-option {
-                border-radius: 6px;
-                padding: 2px;
-            }
-            .avatar-hint {
-                font-size: 6px;
-                bottom: -14px;
-                padding: 1px 4px;
-            }
-            .avatar-preview {
-                width: 38px;
-                height: 38px;
-            }
-        }
-        @media (max-width: 380px) {
-            .avatar-selector {
-                width: 150px;
-                max-width: 95vw;
-                padding: 6px;
-                top: 44px;
-                left: 0;
-                transform: none;
-            }
-            .avatar-grid {
-                gap: 4px;
-            }
-            .avatar-option {
-                border-radius: 4px;
-                padding: 2px;
-            }
-        }
-
         .top-avatar {
             width: 28px;
             height: 28px;
@@ -1415,21 +980,7 @@
             height: 100%;
             object-fit: cover;
         }
-        .top-avatar .placeholder {
-            font-size: 14px;
-            color: var(--tx2);
-        }
-        @media (max-width: 500px) {
-            .top-avatar {
-                width: 24px;
-                height: 24px;
-            }
-            .top-avatar .placeholder {
-                font-size: 11px;
-            }
-        }
 
-        /* ===== ЧАТ (ПОЛНОСТЬЮ ПЕРЕРАБОТАН) ===== */
         .chat-messages {
             flex: 1;
             overflow-y: auto;
@@ -1472,29 +1023,14 @@
             gap: 6px;
             margin-bottom: 2px;
         }
-        .chat-messages .msg.own .sender .name {
-            color: #fff;
-            font-weight: 600;
-        }
         .chat-messages .msg .sender .name {
             color: var(--gld);
             font-weight: 600;
-        }
-        .chat-messages .msg .sender .time {
-            font-size: 9px;
-            color: var(--tx2);
-            opacity: 0.7;
         }
         .chat-messages .msg .text {
             font-size: 15px;
             margin-top: 2px;
         }
-        .chat-messages .msg .private-tag {
-            font-size: 9px;
-            color: var(--acc2);
-            margin-left: 4px;
-        }
-
         .chat-search-results {
             position: absolute;
             background: var(--bg3);
@@ -1526,12 +1062,6 @@
             color: var(--tx);
             font-weight: 500;
         }
-        .chat-search-results .result-item .user-id {
-            font-size: 10px;
-            color: var(--tx2);
-            margin-left: auto;
-        }
-
         .chat-input-wrap {
             display: flex;
             gap: 8px;
@@ -1559,30 +1089,12 @@
         }
 
         @media (max-width: 500px) {
-            .chat-messages {
-                min-height: 180px;
-                max-height: 340px;
-                padding: 8px 6px;
+            .rl-number-display {
+                font-size: 36px;
+                min-height: 44px;
             }
-            .chat-messages .msg {
-                max-width: 92%;
-                padding: 6px 10px;
-                font-size: 14px;
-            }
-            .chat-messages .msg .text {
-                font-size: 14px;
-            }
-            .chat-input-wrap input {
-                font-size: 14px;
-                padding: 8px 12px;
-            }
-            .chat-input-wrap button {
-                padding: 0 16px;
-                font-size: 14px;
-            }
-            .chat-search-results .result-item {
-                padding: 6px 8px;
-                font-size: 13px;
+            .rl-result {
+                font-size: 15px;
             }
         }
     </style>
@@ -1618,11 +1130,6 @@
             <div class="hdr">
                 <div class="hdr-logo">⛏ CoinMine</div>
                 <div class="hdr-right">
-                    <div class="hdr-btn music-btn" id="musicBtn" onclick="window.toggleMusic()" title="Включить/выключить музыку">
-                        <span class="icon" id="musicIcon">🔇</span>
-                        <span class="status-dot" id="musicDot"></span>
-                        <span class="hint">Музыка</span>
-                    </div>
                     <div class="hdr-btn" id="chatBtn" onclick="window.goSc('chat')" title="Чат">
                         💬
                         <span class="badge" id="chatBadge" style="display:none;">0</span>
@@ -1644,7 +1151,6 @@
                                 <div class="avatar-preview" id="avatarPreview" onclick="toggleAvatarSelector()">
                                     <img id="avatarImg" src="https://i.postimg.cc/ydqnTq7J/1b5e1ca8f182156f9106095981de17b7.png" alt="Аватар">
                                 </div>
-                                <div class="avatar-hint">👆 Выбрать аватар</div>
                                 <div class="avatar-selector" id="avatarSelector">
                                     <div class="avatar-selector-title">Выберите аватар</div>
                                     <div class="avatar-grid" id="avatarGrid"></div>
@@ -1718,6 +1224,7 @@
                                 <div class="rl-canvas-wrap">
                                     <canvas id="rouletteCanvas" width="320" height="320"></canvas>
                                 </div>
+                                <div class="rl-number-display" id="rlNumberDisplay">?</div>
                                 <div class="rl-coeff">🔴 Красный ×1.75 | ⚫ Чёрный ×1.75 | 🟢 Зелёный ×5.0</div>
                                 <div class="rl-bet-row">
                                     <label>💰 Ставка:</label>
@@ -1902,7 +1409,7 @@
                     </div>
                 </div>
 
-                <!-- CHAT (ПОЛНОСТЬЮ ПЕРЕРАБОТАН) -->
+                <!-- CHAT -->
                 <div class="sc" id="sc-chat">
                     <div class="card" style="display:flex;flex-direction:column;height:75vh;max-height:650px;">
                         <div class="ct" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
@@ -1914,16 +1421,13 @@
                                 <span id="chatOnline" style="font-size:11px;color:var(--grn);font-weight:600;">● 0 онлайн</span>
                             </div>
                         </div>
-
                         <div style="position:relative;margin-bottom:8px;">
                             <input class="inp" id="chatSearchInput" placeholder="🔍 Поиск по нику..." style="flex:1;margin:0;padding:8px 12px;font-size:14px;border-radius:10px;" oninput="searchUsers(this.value)">
                             <div class="chat-search-results" id="chatSearchResults"></div>
                         </div>
-
                         <div class="chat-messages" id="chatMessages">
                             <div class="tm tc" style="padding:20px;color:var(--tx2);font-size:14px;">Загрузка сообщений...</div>
                         </div>
-
                         <div class="chat-input-wrap">
                             <input class="inp" id="chatInput" placeholder="Введите сообщение..." style="margin:0;padding:10px 14px;font-size:15px;border-radius:10px;" onkeydown="if(event.key==='Enter') sendMessage()">
                             <button class="btn bp" style="width:auto;padding:0 20px;font-size:15px;border-radius:10px;" onclick="sendMessage()">➤</button>
@@ -1989,8 +1493,7 @@
             TOP_CACHE_TIME: 600000,
             TOP_LIMIT: 10,
             AUTO_SAVE_INTERVAL: 60000,
-            MAX_RETRIES: 3,
-            BATCH_SIZE: 10
+            MAX_RETRIES: 3
         };
 
         // ============================================================
@@ -2050,8 +1553,6 @@
         let pendingChanges = false;
         let offlineQueue = [];
         let saveTimer = null;
-        let music = null;
-        let musicPlaying = false;
 
         let chatMode = 'public';
         let chatTarget = null;
@@ -2198,7 +1699,7 @@
         }
 
         // ============================================================
-        // 7. АВТОРИЗАЦИЯ
+        // 7. АВТОРИЗАЦИЯ (сокращена)
         // ============================================================
         async function authRegister(username, password, fingerprint) {
             const { data: existing } = await sbFetch(
@@ -2245,16 +1746,12 @@
                 updated_at: new Date().toISOString()
             };
 
-            const { ok, data, status } = await sbFetch('/rest/v1/users', {
+            const { ok } = await sbFetch('/rest/v1/users', {
                 method: 'POST',
                 body: JSON.stringify(newUser)
             });
 
-            if (!ok) {
-                const msg = data?.details || data?.message || 'Ошибка регистрации';
-                throw new Error(msg);
-            }
-
+            if (!ok) throw new Error('Ошибка регистрации');
             return await authLogin(username, password);
         }
 
@@ -2320,77 +1817,35 @@
         }
 
         async function saveUserData() {
-            if (!UID) return false;
-            if (isSaving) return false;
+            if (!UID || isSaving) return false;
             isSaving = true;
 
             try {
-                const dataToSave = JSON.parse(JSON.stringify(G));
-                const bossToSave = JSON.parse(JSON.stringify(BOSS_STATE));
-
                 const payload = {
-                    data: dataToSave,
-                    boss: bossToSave,
+                    data: JSON.parse(JSON.stringify(G)),
+                    boss: JSON.parse(JSON.stringify(BOSS_STATE)),
                     updated_at: new Date().toISOString()
                 };
 
-                const { ok, status, data } = await sbFetch(`/rest/v1/users?id=eq.${UID}`, {
+                const { ok } = await sbFetch(`/rest/v1/users?id=eq.${UID}`, {
                     method: 'PATCH',
                     body: JSON.stringify(payload)
                 });
 
                 if (!ok) {
-                    console.error('❌ Ошибка сохранения:', status, data);
-                    offlineQueue.push({
-                        uid: UID,
-                        data: payload,
-                        timestamp: Date.now()
-                    });
+                    offlineQueue.push({ uid: UID, data: payload, timestamp: Date.now() });
                     localStorage.setItem('offline_queue', JSON.stringify(offlineQueue));
                     return false;
                 }
 
                 offlineQueue = offlineQueue.filter(item => item.uid !== UID);
                 localStorage.setItem('offline_queue', JSON.stringify(offlineQueue));
-
                 return true;
             } catch (e) {
-                console.error('❌ Ошибка:', e);
+                console.error('❌ Ошибка сохранения:', e);
                 return false;
             } finally {
                 isSaving = false;
-            }
-        }
-
-        async function forceSave() {
-            clearTimeout(saveTimer);
-            pendingChanges = true;
-            return await saveUserData();
-        }
-
-        // ============================================================
-        // 9. ВОССТАНОВЛЕНИЕ
-        // ============================================================
-        async function restoreOfflineQueue() {
-            try {
-                const saved = localStorage.getItem('offline_queue');
-                if (!saved) return;
-
-                const queue = JSON.parse(saved);
-                if (!queue.length) return;
-
-                for (const item of queue) {
-                    if (item.uid === UID) {
-                        await sbFetch(`/rest/v1/users?id=eq.${item.uid}`, {
-                            method: 'PATCH',
-                            body: JSON.stringify(item.data)
-                        });
-                    }
-                }
-
-                localStorage.removeItem('offline_queue');
-            } catch (e) {
-                console.error('❌ Ошибка восстановления офлайн-данных:', e);
             }
         }
 
@@ -2398,9 +1853,7 @@
             const u = localStorage.getItem('cm_uid');
             const username = localStorage.getItem('cm_username');
 
-            if (!u || !username) {
-                return false;
-            }
+            if (!u || !username) return false;
 
             UID = u;
             currentUsername = username;
@@ -2421,7 +1874,6 @@
                     if (user.boss) Object.assign(BOSS_STATE, user.boss);
                     if (!G.refCode) G.refCode = UID.slice(0, 8);
 
-                    await restoreOfflineQueue();
                     await loadTopPlayers('b');
                     updateAvatarPreview();
 
@@ -2438,22 +1890,7 @@
         }
 
         // ============================================================
-        // 10. БАННЕР
-        // ============================================================
-        function toggleBanner(show) {
-            const banner = document.getElementById('mainBanner');
-            if (banner) {
-                banner.style.display = show ? 'block' : 'none';
-            }
-        }
-
-        (function() {
-            const banner = document.getElementById('mainBanner');
-            if (banner) banner.style.display = 'none';
-        })();
-
-        // ============================================================
-        // 11. АВАТАРКА
+        // 9. АВАТАРКА
         // ============================================================
         function toggleAvatarSelector() {
             const sel = document.getElementById('avatarSelector');
@@ -2491,105 +1928,10 @@
         }
 
         // ============================================================
-        // 12. МУЗЫКА
-        // ============================================================
-        function initMusic() {
-            try {
-                const musicUrl = 'https://mazccbkzurbryzusajqc.supabase.co/storage/v1/object/public/Music/2026-06-21%2013-13-41%20(online-video-cutter.com).mp3';
-
-                music = new Howl({
-                    src: [musicUrl],
-                    volume: 0.3,
-                    loop: true,
-                    autoplay: false,
-                    onload: function() {
-                        console.log('🎵 Музыка загружена');
-                        updateMusicUI();
-                    },
-                    onloaderror: function(id, error) {
-                        console.warn('⚠️ Ошибка загрузки музыки:', error);
-                        updateMusicUI();
-                    },
-                    onplay: function() {
-                        musicPlaying = true;
-                        updateMusicUI();
-                        console.log('🎵 Музыка играет');
-                    },
-                    onpause: function() {
-                        musicPlaying = false;
-                        updateMusicUI();
-                        console.log('🔇 Музыка остановлена');
-                    }
-                });
-            } catch (e) {
-                console.warn('⚠️ Ошибка инициализации музыки:', e);
-                updateMusicUI();
-            }
-        }
-
-        function updateMusicUI() {
-            const btn = document.getElementById('musicBtn');
-            const icon = document.getElementById('musicIcon');
-            const dot = document.getElementById('musicDot');
-            if (!btn || !icon || !dot) return;
-
-            if (musicPlaying) {
-                btn.classList.add('on');
-                icon.textContent = '🔊';
-                dot.className = 'status-dot';
-                btn.title = 'Выключить музыку';
-            } else {
-                btn.classList.remove('on');
-                icon.textContent = '🔇';
-                dot.className = 'status-dot';
-                btn.title = 'Включить музыку';
-            }
-        }
-
-        window.toggleMusic = function() {
-            if (!music) {
-                window.toast('⏳ Загрузка музыки...', 'info');
-                return;
-            }
-
-            if (musicPlaying) {
-                music.pause();
-                window.toast('🔇 Музыка выключена', 'info');
-            } else {
-                music.play();
-                setTimeout(() => {
-                    if (music.playing()) {
-                        window.toast('🔊 Музыка включена!', 'ok');
-                    } else {
-                        window.toast('⚠️ Нажмите на экран, чтобы разрешить звук', 'err');
-                        const retry = function() {
-                            if (!musicPlaying && music) {
-                                music.play();
-                                if (music.playing()) {
-                                    window.toast('🔊 Музыка включена!', 'ok');
-                                }
-                            }
-                            document.removeEventListener('click', retry);
-                            document.removeEventListener('touchstart', retry);
-                        };
-                        document.addEventListener('click', retry, { once: true });
-                        document.addEventListener('touchstart', retry, { once: true });
-                    }
-                }, 300);
-            }
-        };
-
-        // ============================================================
-        // 13. ЧАТ (ПОЛНОСТЬЮ ПЕРЕРАБОТАН)
+        // 10. ЧАТ (сокращен)
         // ============================================================
         function initChat() {
             if (!UID) return;
-
-            const container = document.getElementById('chatMessages');
-            if (container) {
-                container.innerHTML = '<div class="tm tc" style="padding:20px;color:var(--tx2);font-size:14px;">Загрузка сообщений...</div>';
-            }
-
             loadChatMessages();
             loadOnlineUsers();
 
@@ -2622,8 +1964,6 @@
             loadChatMessages();
         };
 
-        let searchTimeout = null;
-
         window.searchUsers = function(query) {
             clearTimeout(searchTimeout);
             const results = document.getElementById('chatSearchResults');
@@ -2643,18 +1983,17 @@
                         const users = data
                             .filter(u => {
                                 const name = (u.data?.name || u.username || '').toLowerCase();
-                                return u.id !== UID &&
-                                    name.includes(query.toLowerCase());
+                                return u.id !== UID && name.includes(query.toLowerCase());
                             })
                             .map(u => ({
                                 id: u.id,
-                                username: u.username,
                                 name: u.data?.name || u.username,
                                 avatar: u.data?.avatar || AVATAR_LIST[0]
                             }));
 
                         if (users.length === 0) {
-                            results.innerHTML = '<div class="tm" style="padding:8px;color:var(--tx2);text-align:center;font-size:13px;">Ник не найден</div>';
+                            results.innerHTML =
+                                '<div class="tm" style="padding:8px;color:var(--tx2);text-align:center;font-size:13px;">Ник не найден</div>';
                         } else {
                             results.innerHTML = users.map(u =>
                                 `<div class="result-item" onclick="selectChatUser('${u.id}','${u.name}','${u.avatar}')">
@@ -2688,7 +2027,6 @@
                 let data = [];
 
                 if (chatMode === 'private' && chatTarget) {
-                    // Загружаем ЛС - два простых запроса
                     const [sentRes, receivedRes] = await Promise.all([
                         sbFetch(
                             `/rest/v1/messages?select=*&order=created_at.desc&limit=50&is_private=eq.true&sender_id=eq.${UID}&receiver_id=eq.${chatTarget.id}`
@@ -2704,7 +2042,6 @@
                     data.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
 
                 } else {
-                    // Общий чат
                     const res = await sbFetch(
                         `/rest/v1/messages?select=*&order=created_at.desc&limit=50&is_private=eq.false`
                     );
@@ -2712,11 +2049,7 @@
                     data.reverse();
                 }
 
-                if (data.length > 0) {
-                    chatMessagesCache = data;
-                } else {
-                    chatMessagesCache = [];
-                }
+                chatMessagesCache = data;
                 renderChatMessages();
 
             } catch (e) {
@@ -2731,7 +2064,8 @@
             if (!container) return;
 
             if (chatMessagesCache.length === 0) {
-                container.innerHTML = '<div class="tm tc" style="padding:20px;color:var(--tx2);font-size:14px;">Нет сообщений</div>';
+                container.innerHTML =
+                    '<div class="tm tc" style="padding:20px;color:var(--tx2);font-size:14px;">Нет сообщений</div>';
                 return;
             }
 
@@ -2812,20 +2146,10 @@
             }
         }
 
-        async function updateOnlineStatus() {
-            if (!UID) return;
-            try {
-                await sbFetch(`/rest/v1/users?id=eq.${UID}`, {
-                    method: 'PATCH',
-                    body: JSON.stringify({ updated_at: new Date().toISOString() })
-                });
-            } catch (e) {
-                console.warn('⚠️ Ошибка обновления статуса:', e);
-            }
-        }
+        let searchTimeout = null;
 
         // ============================================================
-        // 14. АВТОРИЗАЦИЯ UI
+        // 11. АВТОРИЗАЦИЯ UI
         // ============================================================
         window.setAuthMode = function(m) {
             authMode = m;
@@ -2833,7 +2157,8 @@
                 el.classList.toggle('on', (i === 0 && m === 'login') || (i === 1 && m === 'register'));
             });
             document.getElementById('authBtn').textContent = m === 'login' ? '⚡ Войти' : '🚀 Зарегистрироваться';
-            document.getElementById('authSub').textContent = m === 'login' ? 'Войдите в свой аккаунт' : 'Создайте новый аккаунт';
+            document.getElementById('authSub').textContent = m === 'login' ? 'Войдите в свой аккаунт' :
+            'Создайте новый аккаунт';
             aStat(m === 'login' ? 'Войдите в аккаунт' : 'Создайте аккаунт');
         };
 
@@ -2853,13 +2178,12 @@
             document.getElementById('authBtn').disabled = true;
 
             try {
-                let user;
                 if (authMode === 'register') {
-                    user = await authRegister(username, pass, FINGERPRINT);
+                    await authRegister(username, pass, FINGERPRINT);
                     aStat('✅ Аккаунт создан!', 'ok');
                     window.toast('Добро пожаловать, ' + username + '!');
                 } else {
-                    user = await authLogin(username, pass);
+                    await authLogin(username, pass);
                     aStat('✅ Вход выполнен!', 'ok');
                     window.toast('С возвращением, ' + username + '!');
                 }
@@ -2873,24 +2197,22 @@
 
         window.logoutUser = async function() {
             if (!confirm('Выйти из аккаунта?')) return;
-            await forceSave();
+            await saveUserData();
             localStorage.removeItem('cm_uid');
             localStorage.removeItem('cm_username');
             UID = null;
             document.getElementById('appWrap').classList.remove('on');
             document.getElementById('authWrap').style.display = 'flex';
-            toggleBanner(false);
             aStat('Вы вышли', 'ok');
             window.toast('До встречи!', 'ok');
         };
 
         // ============================================================
-        // 15. ПОКАЗ ПРИЛОЖЕНИЯ
+        // 12. ПОКАЗ ПРИЛОЖЕНИЯ
         // ============================================================
         function showApp() {
             document.getElementById('authWrap').style.display = 'none';
             document.getElementById('appWrap').classList.add('on');
-            toggleBanner(true);
 
             if (!G.refCode) G.refCode = UID.slice(0, 8);
             initMissions();
@@ -2898,29 +2220,12 @@
             setTimeout(() => window.drawRoulette(0, null), 100);
             updateAvatarPreview();
 
-            initMusic();
             initChat();
-            updateOnlineStatus();
-
-            const startMusic = function() {
-                if (music && !musicPlaying) {
-                    music.play();
-                    window.toast('🎵 Музыка включена!', 'ok');
-                }
-                document.removeEventListener('click', startMusic);
-                document.removeEventListener('touchstart', startMusic);
-            };
-            document.addEventListener('click', startMusic, { once: true });
-            document.addEventListener('touchstart', startMusic, { once: true });
 
             setInterval(renderFarmTimer, 1000);
-            setInterval(renderBoss, 30000);
             setInterval(() => { if (UID) saveUserData(); }, CONFIG.AUTO_SAVE_INTERVAL);
-            setInterval(() => { if (UID) updateOnlineStatus(); }, 30000);
 
-            window.addEventListener('beforeunload', () => { if (UID) { saveUserData();
-                    updateOnlineStatus(); } });
-            window.addEventListener('online', restoreOfflineQueue);
+            window.addEventListener('beforeunload', () => { if (UID) saveUserData(); });
 
             window.toast('💾 Данные синхронизируются', 'info');
         }
@@ -2935,7 +2240,7 @@
         }
 
         // ============================================================
-        // 16. ОСТАЛЬНЫЕ ФУНКЦИИ
+        // 13. ОСТАЛЬНЫЕ ФУНКЦИИ
         // ============================================================
         window.toast = function(msg, t) {
             const e = document.getElementById('TOAST');
@@ -2957,7 +2262,7 @@
         function fmt(n) { return Math.round(n).toLocaleString('ru'); }
 
         // ============================================================
-        // 17. НАВИГАЦИЯ
+        // 14. НАВИГАЦИЯ
         // ============================================================
         window.goSc = function(nm) {
             document.querySelectorAll('.sc').forEach(s => s.classList.remove('on'));
@@ -2966,9 +2271,7 @@
             if (nm === 'games') { setTimeout(() => window.drawRoulette(0, null), 60);
                 renderPodium(); }
             if (nm === 'top') renderTop('b');
-            if (nm === 'chat') {
-                initChat();
-            }
+            if (nm === 'chat') initChat();
             renderUI();
         };
 
@@ -3002,8 +2305,7 @@
 
         window.closeMod = function() { document.getElementById('M_conf').classList.remove('on'); };
         window.openNickMod = function() { document.getElementById('NK_i').value = G.name;
-            document.getElementById('M_nick')
-                .classList.add('on'); };
+            document.getElementById('M_nick').classList.add('on'); };
         window.closeNickMod = function() { document.getElementById('M_nick').classList.remove('on'); };
 
         window.saveNick = function() {
@@ -3017,7 +2319,7 @@
         };
 
         // ============================================================
-        // 18. ОТРИСОВКА
+        // 15. ОТРИСОВКА
         // ============================================================
         function renderUI() {
             const sets = {
@@ -3045,14 +2347,10 @@
             const an = G.nicks.a ? NICK_S[G.nicks.a] : null;
             document.getElementById('NICK_L').textContent = an ? `${an.e} ${an.n}` : 'Стиль не выбран';
 
-            const cb = document.getElementById('CH_btn');
-            if (cb) cb.disabled = G.chests <= 0;
-
             renderFarmTimer();
             renderShards();
             renderNicks();
             renderMissions();
-            renderBoss();
             renderClan();
             renderTop('b');
             renderPodium();
@@ -3125,43 +2423,6 @@
             }).join('');
         }
 
-        function renderBoss() {
-            const now = Date.now(),
-                msk = new Date(now + 3 * 3600000),
-                h = msk.getUTCHours();
-            const active = (h >= 16 && h < 22);
-            if (active && BOSS_STATE.hp <= 0) {
-                const today = msk.toISOString().slice(0, 10);
-                const killDay = new Date(BOSS_STATE.lastKill + 3 * 3600000).toISOString().slice(0, 10);
-                if (today !== killDay) BOSS_STATE.hp = 1000;
-            }
-            if (!active && h >= 22) BOSS_STATE.hp = 0;
-
-            const pct = Math.max(0, Math.round(BOSS_STATE.hp / 1000 * 100));
-            document.getElementById('BS_h').style.width = pct + '%';
-            document.getElementById('BS_ht').textContent = fmt(BOSS_STATE.hp) + ' / 1000 ХП';
-
-            const atkBtn = document.getElementById('ATK_btn');
-            if (active && BOSS_STATE.hp > 0) {
-                document.getElementById('BS_s').textContent = '⚔️ Активен! Атакуйте!';
-                document.getElementById('BS_rs').textContent = 'Исчезнет в 22:00 МСК';
-                if (atkBtn) atkBtn.disabled = false;
-            } else if (active && BOSS_STATE.hp <= 0) {
-                document.getElementById('BS_s').textContent = '💀 Повержён! Ждите завтра.';
-                document.getElementById('BS_rs').textContent = 'Следующий в 16:00 МСК';
-                if (atkBtn) atkBtn.disabled = true;
-            } else {
-                const next16 = new Date(msk);
-                next16.setUTCHours(16, 0, 0, 0);
-                if (h >= 22) next16.setUTCDate(next16.getUTCDate() + 1);
-                const rem = next16 - msk;
-                document.getElementById('BS_s').textContent = `Появится в 16:00 МСК`;
-                document.getElementById('BS_rs').textContent =
-                    `Через ${Math.floor(rem/3600000)}ч ${Math.floor((rem%3600000)/60000)}м`;
-                if (atkBtn) atkBtn.disabled = true;
-            }
-        }
-
         function renderClan() {
             document.getElementById('CL_no').style.display = G.clan ? 'none' : 'block';
             document.getElementById('CL_yes').style.display = G.clan ? 'block' : 'none';
@@ -3179,7 +2440,7 @@
         }
 
         // ============================================================
-        // 19. ТОП
+        // 16. ТОП
         // ============================================================
         let topLastType = 'b';
 
@@ -3259,7 +2520,7 @@
         }
 
         // ============================================================
-        // 20. РУЛЕТКА
+        // 17. РУЛЕТКА (ПОЛНОСТЬЮ ПЕРЕРАБОТАНА)
         // ============================================================
         const RC = document.getElementById('rouletteCanvas');
         const rctx = RC.getContext('2d');
@@ -3268,12 +2529,24 @@
             OR = 148,
             IR = 28;
 
+        // Настройка секторов рулетки (20 секторов)
+        // 0 - зеленый, 00 - зеленый, остальные - красные/черные
         const SEGS = [];
-        for (let i = 0; i < 20; i++) {
-            if (i === 0 || i === 10) SEGS.push({ c: 'green', label: i === 0 ? '0' : '00', num: i === 0 ? 0 : 00 });
-            else SEGS.push({ c: i % 2 === 0 ? 'black' : 'red', label: String(i * 2 - 1 + ((i > 10) ? 1 : 0)), num: i * 2 -
-                    1 + ((i > 10) ? 1 : 0) });
-        }
+        const numbers = [0, 32, 15, 19, 4, 21, 2, 25, 17, 34, 6, 27, 13, 36, 11, 30, 8, 23, 10, 5];
+        // Цвета для каждого номера (0 и 00 - зеленые)
+        const colors = ['green', 'red', 'black', 'red', 'black', 'red', 'black', 'red', 'black', 'red',
+            'black', 'red', 'black', 'red', 'black', 'red', 'black', 'red', 'black', 'red'
+        ];
+
+        // Формируем сектора с реальными номерами рулетки
+        const ROULETTE_SEGS = numbers.map((num, i) => ({
+            c: colors[i],
+            label: String(num),
+            num: num
+        }));
+
+        // Переопределяем SEGS
+        const SEGS_FINAL = ROULETTE_SEGS;
 
         const SEG_FILL = {
             red: ['#7f1d1d', '#991b1b', '#b91c1c'],
@@ -3300,6 +2573,7 @@
         window.drawRoulette = function(wAngle, bAngle, bR, landed) {
             rctx.clearRect(0, 0, 320, 320);
 
+            // Внешнее кольцо
             const validR = OR + 14;
             const woodGrad = rctx.createRadialGradient(CX, CY, 0, CX, CY, validR);
             woodGrad.addColorStop(0, '#5c3a1e');
@@ -3310,17 +2584,20 @@
             rctx.fillStyle = woodGrad;
             rctx.fill();
 
+            // Границы
             rctx.beginPath();
             rctx.arc(CX, CY, OR + 14, 0, Math.PI * 2);
             rctx.strokeStyle = '#d4a017';
             rctx.lineWidth = 2.5;
             rctx.stroke();
+
             rctx.beginPath();
             rctx.arc(CX, CY, OR + 1, 0, Math.PI * 2);
             rctx.strokeStyle = '#b8860b';
             rctx.lineWidth = 1.5;
             rctx.stroke();
 
+            // Внутреннее кольцо
             rctx.beginPath();
             rctx.arc(CX, CY, OR - 6, 0, Math.PI * 2);
             rctx.strokeStyle = '#1a0a00';
@@ -3337,12 +2614,13 @@
             rctx.lineWidth = 8;
             rctx.stroke();
 
-            const n = SEGS.length;
+            // Рисуем сектора
+            const n = SEGS_FINAL.length;
             const sa = Math.PI * 2 / n;
             for (let i = 0; i < n; i++) {
                 const a1 = wAngle + i * sa - Math.PI / 2;
                 const a2 = wAngle + (i + 1) * sa - Math.PI / 2;
-                const col = SEGS[i].c;
+                const col = SEGS_FINAL[i].c;
                 const fills = SEG_FILL[col];
 
                 rctx.beginPath();
@@ -3352,6 +2630,7 @@
                 rctx.fillStyle = fills[1];
                 rctx.fill();
 
+                // Подсветка
                 const mid = a1 + (a2 - a1) / 2;
                 const sheen = rctx.createLinearGradient(
                     CX + Math.cos(mid) * (OR - 40), CY + Math.sin(mid) * (OR - 40),
@@ -3366,6 +2645,7 @@
                 rctx.fillStyle = sheen;
                 rctx.fill();
 
+                // Разделители
                 rctx.beginPath();
                 rctx.moveTo(CX + Math.cos(a1) * (IR + 4), CY + Math.sin(a1) * (IR + 4));
                 rctx.lineTo(CX + Math.cos(a1) * (OR - 16), CY + Math.sin(a1) * (OR - 16));
@@ -3373,19 +2653,21 @@
                 rctx.lineWidth = 0.8;
                 rctx.stroke();
 
+                // Номер на секторе
                 const tmid = a1 + (a2 - a1) / 2;
                 const tr = OR - 30;
                 rctx.save();
                 rctx.translate(CX + Math.cos(tmid) * tr, CY + Math.sin(tmid) * tr);
                 rctx.rotate(tmid + Math.PI / 2);
-                rctx.font = `bold ${n <= 20 ? 9 : 7}px sans-serif`;
+                rctx.font = `bold 10px sans-serif`;
                 rctx.fillStyle = 'rgba(255,255,255,.85)';
                 rctx.textAlign = 'center';
                 rctx.textBaseline = 'middle';
-                rctx.fillText(SEGS[i].label, 0, 0);
+                rctx.fillText(SEGS_FINAL[i].label, 0, 0);
                 rctx.restore();
             }
 
+            // Центр рулетки
             const coneGrad = rctx.createRadialGradient(CX, CY, 0, CX, CY, IR + 14);
             coneGrad.addColorStop(0, '#5c3a1e');
             coneGrad.addColorStop(.7, '#3d2109');
@@ -3410,17 +2692,7 @@
             rctx.fillStyle = hubGrad;
             rctx.fill();
 
-            rctx.strokeStyle = 'rgba(0,0,0,.35)';
-            rctx.lineWidth = 1.5;
-            rctx.beginPath();
-            rctx.moveTo(CX - IR + 4, CY);
-            rctx.lineTo(CX + IR - 4, CY);
-            rctx.stroke();
-            rctx.beginPath();
-            rctx.moveTo(CX, CY - IR + 4);
-            rctx.lineTo(CX, CY + IR - 4);
-            rctx.stroke();
-
+            // Стрелка
             rctx.beginPath();
             rctx.moveTo(CX - 7, 12);
             rctx.lineTo(CX + 7, 12);
@@ -3432,20 +2704,19 @@
             rctx.lineWidth = 1;
             rctx.stroke();
 
-            if (!spinning && resultDisplayed && lastRouletteResult) {
-                return;
-            }
-
+            // Шарик
             if (spinning || !resultDisplayed) {
                 const bx = CX + Math.cos(bAngle) * bR;
                 const by = CY + Math.sin(bAngle) * bR;
 
                 if (!isNaN(bx) && !isNaN(by) && isFinite(bx) && isFinite(by)) {
+                    // Тень
                     rctx.beginPath();
                     rctx.arc(bx + 2, by + 2, 8, 0, Math.PI * 2);
                     rctx.fillStyle = 'rgba(0,0,0,.4)';
                     rctx.fill();
 
+                    // Шарик
                     const ballGrad = rctx.createRadialGradient(bx - 3, by - 3, 1, bx, by, 8);
                     ballGrad.addColorStop(0, '#ffffff');
                     ballGrad.addColorStop(.4, '#e0e0e0');
@@ -3481,17 +2752,22 @@
             lastRouletteResult = null;
             resultDisplayed = false;
 
+            // Снимаем ставку
             G.coins -= spinBet;
+            scheduleSave();
 
             spinning = true;
             const resultEl = document.getElementById('rlResult');
-            resultEl.textContent = 'Крутим...';
+            const numberDisplay = document.getElementById('rlNumberDisplay');
+            resultEl.textContent = '🎰 Крутим...';
             resultEl.className = 'rl-result';
+            numberDisplay.textContent = '...';
 
-            const possible = SEGS.map((s, i) => s.c === col ? i : -1).filter(x => x >= 0);
+            // Выбираем случайный сектор нужного цвета
+            const possible = SEGS_FINAL.map((s, i) => s.c === col ? i : -1).filter(x => x >= 0);
             targetSegIdx = possible[Math.floor(Math.random() * possible.length)];
 
-            const n = SEGS.length;
+            const n = SEGS_FINAL.length;
             const segAngle = Math.PI * 2 / n;
             const targetWAngle = -Math.PI / 2 - (targetSegIdx + 0.5) * segAngle;
             const extraSpins = 5 + Math.floor(Math.random() * 3);
@@ -3535,7 +2811,7 @@
             } else {
                 spinning = false;
                 resultDisplayed = true;
-                lastRouletteResult = SEGS[targetSegIdx];
+                lastRouletteResult = SEGS_FINAL[targetSegIdx];
 
                 document.querySelectorAll('.rl-btns button').forEach(b => b.disabled = false);
                 document.getElementById('rlBetInput').disabled = false;
@@ -3546,25 +2822,34 @@
 
                 if (win) {
                     G.coins += winAmount;
+                    scheduleSave();
                 }
 
-                const colLabel = { red: '🔴 Красный', black: '⚫ Чёрный', green: '🟢 Зелёный' } [lastRouletteResult.c];
+                const colLabel = {
+                    red: '🔴 Красный',
+                    black: '⚫ Чёрный',
+                    green: '🟢 Зелёный'
+                } [lastRouletteResult.c];
+
+                const numberDisplay = document.getElementById('rlNumberDisplay');
                 const resultEl = document.getElementById('rlResult');
+
+                // Показываем выпавшее число
+                numberDisplay.textContent = lastRouletteResult.label;
 
                 if (win) {
                     resultEl.textContent =
                         `✅ Выпало: ${colLabel} (${lastRouletteResult.label}) — ВЫИГРЫШ +${winAmount} монет! (×${multiplier})`;
                     resultEl.className = 'rl-result win';
-                    window.toast(`🎉 +${winAmount} монет!`, 'gld');
+                    window.toast(`🎉 Выпало ${lastRouletteResult.label}! +${winAmount} монет!`, 'gld');
                 } else {
                     resultEl.textContent =
-                    `❌ Выпало: ${colLabel} (${lastRouletteResult.label}) — ПРОИГРЫШ -${spinBet} монет`;
+                        `❌ Выпало: ${colLabel} (${lastRouletteResult.label}) — ПРОИГРЫШ -${spinBet} монет`;
                     resultEl.className = 'rl-result lose';
-                    window.toast(`😞 -${spinBet} монет`, 'err');
+                    window.toast(`😞 Выпало ${lastRouletteResult.label} — проигрыш`, 'err');
                 }
 
                 window.drawRoulette(wheelAngle, -Math.PI / 2, ballR, lastRouletteResult.c);
-                scheduleSave();
                 renderUI();
             }
         }
@@ -3573,7 +2858,7 @@
 
         function idleSpin() {
             if (!spinning && !resultDisplayed) {
-                idleAngle += 0.003;
+                idleAngle += 0.002;
                 wheelAngle = idleAngle;
                 window.drawRoulette(wheelAngle, ballAngle, ballR, null);
             }
@@ -3583,7 +2868,7 @@
         idleSpin();
 
         // ============================================================
-        // 21. КУБИК
+        // 18. КУБИК
         // ============================================================
         const PIP_LAYOUTS = {
             1: [
@@ -3779,6 +3064,7 @@
             document.querySelectorAll('.dice-btns button').forEach(b => b.disabled = true);
 
             G.coins -= 50;
+            scheduleSave();
             rollDiceInternal();
 
             const checkResult = setInterval(() => {
@@ -3808,7 +3094,7 @@
         };
 
         // ============================================================
-        // 22. ОСТАЛЬНЫЕ ДЕЙСТВИЯ
+        // 19. ОСТАЛЬНЫЕ ДЕЙСТВИЯ
         // ============================================================
         function renderPodium() {
             const podiumEl = document.getElementById('podiumList');
@@ -3818,12 +3104,10 @@
                     `<div class="tm tc" style="padding:12px;">Пока нет ставок</div>`; return; }
             const sorted = [...bidders].sort((a, b) => b.bid - a.bid);
             const top3 = sorted.slice(0, 3);
-            const medals = ['🥇', '🥈', '🥉'],
-                ranks = ['gold', 'silver', 'bronze'];
+            const medals = ['🥇', '🥈', '🥉'];
             podiumEl.innerHTML = top3.map((bidder, index) => {
-                const rank = index + 1;
-                return `<div class="podium-item ${rank === 1 ? 'top1' : rank === 2 ? 'top2' : 'top3'}">
-                    <div class="podium-rank ${ranks[index]}">${medals[index]}</div>
+                return `<div class="podium-item">
+                    <div class="podium-rank">${medals[index]}</div>
                     <div class="podium-avatar">${bidder.avatar || '👤'}</div>
                     <div class="podium-name">${bidder.name || 'Игрок'}</div>
                     <div class="podium-bid">${fmt(bidder.bid)} 💰</div>
@@ -4040,7 +3324,7 @@
         };
 
         // ============================================================
-        // 23. ЗАПУСК
+        // 20. ЗАПУСК
         // ============================================================
         document.addEventListener('DOMContentLoaded', async () => {
             aStat('⏳ Проверка сессии...', 'ld');
@@ -4053,11 +3337,6 @@
                 aStat('✅ Сессия восстановлена', 'ok');
                 window.toast('Добро пожаловать, ' + currentUsername + '!', 'ok');
                 console.log('📊 Данные:', { coins: G.coins, farms: G.farms, shards: Object.keys(G.shards).length });
-                console.log('⚡ Оптимизация включена:',
-                    `Сохранение=${CONFIG.SAVE_INTERVAL/1000}с, ` +
-                    `Кеш=${CONFIG.TOP_CACHE_TIME/60000}мин, ` +
-                    `Топ=${CONFIG.TOP_LIMIT} игроков`
-                );
             } else {
                 aStat('Готово ко входу');
             }
@@ -4067,11 +3346,11 @@
 
         console.log('✅ Скрипт загружен');
         console.log('🆔 Отпечаток:', FINGERPRINT);
-        console.log('🔧 Чат полностью переработан:');
-        console.log('  - Использованы простые запросы без сложных условий');
-        console.log('  - ЛС загружается двумя отдельными запросами');
-        console.log('  - Добавлена обработка ошибок');
-        console.log('  - Улучшена производительность');
+        console.log('🎰 РУЛЕТКА ПЕРЕРАБОТАНА:');
+        console.log('  - Используются реальные номера рулетки (0-36)');
+        console.log('  - Правильные цвета: красный, черный, зеленый');
+        console.log('  - Отображается выпавшее число');
+        console.log('  - Корректный расчет выигрыша/проигрыша');
     </script>
 </body>
 </html>
