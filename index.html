@@ -1222,7 +1222,7 @@
             .top-avatar .placeholder { font-size: 11px; }
         }
 
-        /* ===== ЧАТ (ПЕРЕРАБОТАН) ===== */
+        /* ===== ЧАТ ===== */
         .chat-container {
             display: flex;
             flex-direction: column;
@@ -1232,7 +1232,6 @@
             border-radius: var(--r);
             border: 1px solid var(--bd);
             overflow: hidden;
-            position: relative;
         }
         .chat-header {
             display: flex;
@@ -1310,7 +1309,6 @@
             background: rgba(240, 180, 41, 0.1);
         }
 
-        /* Список диалогов (ЛС) */
         .chat-dialogs {
             display: none;
             flex-direction: column;
@@ -1319,9 +1317,7 @@
             padding: 6px 8px;
             background: var(--bg4);
         }
-        .chat-dialogs.show {
-            display: flex;
-        }
+        .chat-dialogs.show { display: flex; }
         .chat-dialogs .dialog-header {
             display: flex;
             align-items: center;
@@ -1415,7 +1411,6 @@
             opacity: 0.6;
         }
 
-        /* Окно сообщений */
         .chat-messages-wrap {
             display: flex;
             flex-direction: column;
@@ -1446,6 +1441,7 @@
             animation: msgAppear 0.2s ease-out;
             font-size: 14px;
             line-height: 1.5;
+            flex-shrink: 0;
         }
         .chat-messages .msg.own {
             align-self: flex-end;
@@ -1483,6 +1479,7 @@
         .chat-messages .msg .text {
             font-size: 14px;
             margin-top: 2px;
+            word-wrap: break-word;
         }
         .chat-messages .msg .private-tag {
             font-size: 9px;
@@ -1576,7 +1573,6 @@
             font-weight: 500;
         }
 
-        /* Кнопка открытия списка диалогов */
         .chat-dialogs-btn {
             background: none;
             border: 1px solid var(--bd2);
@@ -2011,7 +2007,7 @@
                     </div>
                 </div>
 
-                <!-- ЧАТ (ПЕРЕРАБОТАН) -->
+                <!-- ЧАТ -->
                 <div class="sc" id="sc-chat">
                     <div class="chat-container">
 
@@ -2190,7 +2186,24 @@
         ];
 
         // ============================================================
-        // 4. СОСТОЯНИЕ
+        // 4. ДАННЫЕ (ИСТОЧНИК ИСТИНЫ)
+        // ============================================================
+        let chats = {
+            global: [], // общий чат
+            dm: {} // личные сообщения: { userId: [messages] }
+        };
+
+        let currentChat = 'global'; // 'global' или userId
+        let currentChatTarget = null; // { id, name, avatar }
+        let chatMessagesCache = [];
+        let chatPollInterval = null;
+        let chatDialogsCache = [];
+        let isDialogsOpen = false;
+        let chatChannel = null;
+        let isRealtimeReady = false;
+
+        // ============================================================
+        // 5. СОСТОЯНИЕ (игровое)
         // ============================================================
         let UID = null;
         let authMode = 'login';
@@ -2202,13 +2215,6 @@
         let saveTimer = null;
         let music = null;
         let musicPlaying = false;
-
-        let chatMode = 'public';
-        let chatTarget = null;
-        let chatMessagesCache = [];
-        let chatPollInterval = null;
-        let chatDialogsCache = [];
-        let isDialogsOpen = false;
 
         const NICK_S = {
             gold: { e: '🌟', n: 'Золотой' },
@@ -2270,7 +2276,7 @@
         let BOSS_STATE = { hp: 0, lastKill: 0 };
 
         // ============================================================
-        // 5. API
+        // 6. API
         // ============================================================
         async function sbFetch(path, opts = {}) {
             const headers = {
@@ -2321,7 +2327,7 @@
         }
 
         // ============================================================
-        // 6. АВТОРИЗАЦИЯ
+        // 7. АВТОРИЗАЦИЯ
         // ============================================================
         async function authRegister(username, password, fingerprint) {
             const { data: existing } = await sbFetch(
@@ -2433,7 +2439,7 @@
         }
 
         // ============================================================
-        // 7. СОХРАНЕНИЕ
+        // 8. СОХРАНЕНИЕ
         // ============================================================
         function scheduleSave() {
             pendingChanges = true;
@@ -2496,7 +2502,7 @@
         }
 
         // ============================================================
-        // 8. ВОССТАНОВЛЕНИЕ
+        // 9. ВОССТАНОВЛЕНИЕ
         // ============================================================
         async function restoreOfflineQueue() {
             try {
@@ -2565,7 +2571,7 @@
         }
 
         // ============================================================
-        // 9. АВАТАРКА
+        // 10. АВАТАРКА
         // ============================================================
         function toggleAvatarSelector() {
             const sel = document.getElementById('avatarSelector');
@@ -2600,7 +2606,7 @@
         }
 
         // ============================================================
-        // 10. МУЗЫКА
+        // 11. МУЗЫКА
         // ============================================================
         function initMusic() {
             try {
@@ -2669,8 +2675,374 @@
         };
 
         // ============================================================
-        // 11. ФУНКЦИИ ЧАТА (ПЕРЕРАБОТАНЫ)
+        // 12. ФУНКЦИИ ЧАТА (НОВАЯ АРХИТЕКТУРА)
         // ============================================================
+
+        // ----- УМНЫЙ СКРОЛЛ -----
+        function smartScroll(box) {
+            if (!box) return;
+            const isAtBottom = box.scrollTop + box.clientHeight >= box.scrollHeight - 120;
+            if (isAtBottom) {
+                box.scrollTop = box.scrollHeight;
+            }
+        }
+
+        // ----- ДОБАВЛЕНИЕ СООБЩЕНИЯ (БЕЗ ПЕРЕРИСОВКИ) -----
+        function appendMessageToChat(msg, targetChat = 'global') {
+            const container = document.getElementById('chatMessages');
+            if (!container) return;
+
+            // Проверяем, что это сообщение для текущего чата
+            if (targetChat === 'global' && currentChat !== 'global') return;
+            if (targetChat !== 'global' && currentChat !== targetChat) return;
+
+            const isOwn = msg?.sender_id === UID;
+            const isPrivate = msg?.is_private === true;
+            const senderName = isOwn ? 'Я' : (msg?.sender_name || 'Игрок');
+            const senderId = msg?.sender_id || '';
+            const avatar = msg?.sender_avatar || AVATAR_LIST[0];
+            const text = escapeHtml(msg?.message || '');
+
+            const el = document.createElement('div');
+            el.className = `msg ${isOwn ? 'own' : 'other'}`;
+            el.style.animation = 'none';
+
+            const nameClick = (!isOwn && !isPrivate && senderId !== UID) ?
+                ` onclick="startPrivateFromPublic('${senderId}','${escapeHtml(senderName)}','${avatar}')" style="cursor:pointer;text-decoration:underline;text-underline-offset:2px;"` :
+                '';
+
+            el.innerHTML = `
+                <div class="sender">
+                    ${!isOwn ? `<div class="top-avatar" style="width:22px;height:22px;"><img src="${avatar}" alt="${escapeHtml(senderName)}" loading="lazy"></div>` : ''}
+                    <span class="name"${nameClick}>${escapeHtml(senderName)}</span>
+                    ${isPrivate ? '<span class="private-tag">🔒</span>' : ''}
+                </div>
+                <div class="text">${text}</div>
+            `;
+
+            container.appendChild(el);
+
+            // Умный скролл
+            smartScroll(container);
+        }
+
+        // ----- ЗАГРУЗКА СООБЩЕНИЙ (ТОЛЬКО НОВЫЕ) -----
+        async function loadMessages(force = false) {
+            if (!UID) return;
+
+            try {
+                let data = [];
+
+                if (currentChat !== 'global' && currentChatTarget) {
+                    const targetId = String(currentChatTarget.id);
+
+                    const [sentRes, receivedRes] = await Promise.all([
+                        sbFetch(
+                            `/rest/v1/messages?select=*&order=created_at.desc&limit=${CHAT_CONFIG.MAX_PRIVATE_MESSAGES}&is_private=eq.true&sender_id=eq.${encodeURIComponent(UID)}&receiver_id=eq.${encodeURIComponent(targetId)}`
+                        ),
+                        sbFetch(
+                            `/rest/v1/messages?select=*&order=created_at.desc&limit=${CHAT_CONFIG.MAX_PRIVATE_MESSAGES}&is_private=eq.true&sender_id=eq.${encodeURIComponent(targetId)}&receiver_id=eq.${encodeURIComponent(UID)}`
+                        )
+                    ]);
+
+                    const sent = sentRes.ok ? sentRes.data || [] : [];
+                    const received = receivedRes.ok ? receivedRes.data || [] : [];
+                    data = [...sent, ...received];
+                    data.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+
+                    // Сохраняем в кеш
+                    if (!chats.dm[targetId]) chats.dm[targetId] = [];
+                    chats.dm[targetId] = data;
+                    chatMessagesCache = data;
+
+                    const remaining = getPrivateRemaining(targetId);
+                    document.getElementById('chatInfo').innerHTML =
+                        `💬 ЛС с <span class="highlight">${currentChatTarget.name}</span> — осталось <span class="highlight">${remaining}</span> сообщений сегодня`;
+
+                } else {
+                    const res = await sbFetch(
+                        `/rest/v1/messages?select=*&order=created_at.desc&limit=${CHAT_CONFIG.MAX_PUBLIC_MESSAGES}&is_private=eq.false`
+                    );
+                    data = res.ok ? res.data || [] : [];
+                    data.reverse();
+
+                    chats.global = data;
+                    chatMessagesCache = data;
+
+                    document.getElementById('chatInfo').innerHTML =
+                        `💬 <span class="highlight">Общий чат</span> — все видят все сообщения (последние ${CHAT_CONFIG.MAX_PUBLIC_MESSAGES})`;
+                }
+
+                renderChatMessages(force);
+
+            } catch (e) {
+                console.warn('⚠️ Ошибка загрузки сообщений:', e);
+                document.getElementById('chatMessages').innerHTML =
+                    '<div class="system-msg" style="color:var(--red);">Ошибка загрузки</div>';
+            }
+        }
+
+        // ----- РЕНДЕР (ПОЛНАЯ ПЕРЕРИСОВКА) -----
+        function renderChatMessages(force = false) {
+            const container = document.getElementById('chatMessages');
+            if (!container) return;
+
+            if (!chatMessagesCache || chatMessagesCache.length === 0) {
+                if (currentChat !== 'global') {
+                    container.innerHTML = '<div class="system-msg">Нет сообщений в ЛС</div>';
+                } else {
+                    container.innerHTML = '<div class="system-msg">Нет сообщений в общем чате</div>';
+                }
+                return;
+            }
+
+            // Сохраняем позицию скролла
+            const scrollPos = container.scrollTop;
+            const isAtBottom = container.scrollTop + container.clientHeight >= container.scrollHeight - 120;
+
+            container.innerHTML = chatMessagesCache.map(msg => {
+                const isOwn = msg?.sender_id === UID;
+                const isPrivate = msg?.is_private === true;
+                const senderName = isOwn ? 'Я' : (msg?.sender_name || 'Игрок');
+                const senderId = msg?.sender_id || '';
+                const avatar = msg?.sender_avatar || AVATAR_LIST[0];
+                const text = escapeHtml(msg?.message || '');
+
+                const nameClick = (!isOwn && !isPrivate && senderId !== UID) ?
+                    ` onclick="startPrivateFromPublic('${senderId}','${escapeHtml(senderName)}','${avatar}')" style="cursor:pointer;text-decoration:underline;text-underline-offset:2px;"` :
+                    '';
+
+                return `<div class="msg ${isOwn ? 'own' : 'other'}">
+                    <div class="sender">
+                        ${!isOwn ? `<div class="top-avatar" style="width:22px;height:22px;"><img src="${avatar}" alt="${escapeHtml(senderName)}" loading="lazy"></div>` : ''}
+                        <span class="name"${nameClick}>${escapeHtml(senderName)}</span>
+                        ${isPrivate ? '<span class="private-tag">🔒</span>' : ''}
+                    </div>
+                    <div class="text">${text}</div>
+                </div>`;
+            }).join('');
+
+            // Восстанавливаем скролл если пользователь был не внизу
+            if (!isAtBottom && !force) {
+                container.scrollTop = scrollPos;
+            } else {
+                container.scrollTop = container.scrollHeight;
+            }
+        }
+
+        // ----- ОТПРАВКА СООБЩЕНИЯ -----
+        window.sendMessage = async function() {
+            const input = document.getElementById('chatInput');
+            const text = input.value.trim();
+
+            if (!text) {
+                input.style.borderColor = 'var(--red)';
+                setTimeout(() => {
+                    input.style.borderColor = '';
+                }, 1000);
+                window.toast('Введите сообщение', 'err');
+                return;
+            }
+
+            if (text.length > 200) {
+                window.toast('Слишком длинное сообщение (макс. 200 символов)', 'err');
+                return;
+            }
+
+            const isPrivate = currentChat !== 'global' && currentChatTarget;
+
+            if (isPrivate) {
+                const now = Date.now();
+                if (now - G.lastPrivateReset > 86400000) {
+                    G.privateMessages = {};
+                    G.lastPrivateReset = now;
+                    scheduleSave();
+                }
+
+                const count = G.privateMessages[currentChatTarget.id] || 0;
+                if (count >= CHAT_CONFIG.DAILY_PRIVATE_LIMIT) {
+                    window.toast(`❌ Лимит ЛС: ${CHAT_CONFIG.DAILY_PRIVATE_LIMIT} сообщений в день`, 'err');
+                    return;
+                }
+
+                G.privateMessages[currentChatTarget.id] = count + 1;
+                scheduleSave();
+            }
+
+            const receiverId = isPrivate ? currentChatTarget.id : null;
+            const receiverName = isPrivate ? currentChatTarget.name : null;
+
+            const safeText = text.replace(/[<>]/g, '').trim();
+            if (!safeText) {
+                window.toast('Недопустимые символы', 'err');
+                return;
+            }
+
+            const msgData = {
+                sender_id: String(UID),
+                sender_name: String((G.name || currentUsername || 'Игрок').substring(0, 30)),
+                sender_avatar: String(G.avatar || AVATAR_LIST[0]),
+                receiver_id: receiverId ? String(receiverId) : null,
+                receiver_name: receiverName ? String(receiverName.substring(0, 30)) : null,
+                message: String(safeText.substring(0, 200)),
+                is_private: Boolean(isPrivate),
+                created_at: new Date().toISOString()
+            };
+
+            const sentText = text;
+            input.value = '';
+            input.style.borderColor = '';
+
+            // ОПТИМИСТИЧНОЕ ДОБАВЛЕНИЕ
+            const tempMsg = { ...msgData };
+            const targetKey = isPrivate ? currentChatTarget.id : 'global';
+
+            if (targetKey === 'global') {
+                chats.global.push(tempMsg);
+                chatMessagesCache = chats.global;
+            } else {
+                if (!chats.dm[targetKey]) chats.dm[targetKey] = [];
+                chats.dm[targetKey].push(tempMsg);
+                chatMessagesCache = chats.dm[targetKey];
+            }
+
+            // Добавляем в DOM
+            appendMessageToChat(tempMsg, targetKey);
+
+            setTimeout(() => {
+                input.focus();
+                if ('ontouchstart' in window) {
+                    input.click();
+                }
+            }, 100);
+
+            try {
+                const { ok, status, data } = await sbFetch('/rest/v1/messages', {
+                    method: 'POST',
+                    body: msgData
+                });
+
+                if (!ok) {
+                    console.error('❌ Ошибка отправки:', status, data);
+                    window.toast('❌ Ошибка отправки', 'err');
+                    // Удаляем из кеша
+                    if (targetKey === 'global') {
+                        chats.global = chats.global.filter(m => m !== tempMsg);
+                        chatMessagesCache = chats.global;
+                    } else {
+                        chats.dm[targetKey] = chats.dm[targetKey].filter(m => m !== tempMsg);
+                        chatMessagesCache = chats.dm[targetKey];
+                    }
+                    renderChatMessages(true);
+                    input.value = sentText;
+                } else {
+                    // Обновляем с сервера для получения корректных ID
+                    setTimeout(() => {
+                        loadMessages(true);
+                        cleanupOldMessages();
+                    }, 200);
+
+                    if (isPrivate) {
+                        const remaining = getPrivateRemaining(currentChatTarget.id);
+                        document.getElementById('chatInfo').innerHTML =
+                            `💬 ЛС с <span class="highlight">${currentChatTarget.name}</span> — осталось <span class="highlight">${remaining}</span> сообщений сегодня`;
+                    }
+
+                    if (navigator.vibrate) {
+                        navigator.vibrate(10);
+                    }
+                }
+            } catch (e) {
+                console.error('❌ Ошибка соединения:', e);
+                window.toast('❌ Ошибка соединения', 'err');
+                if (targetKey === 'global') {
+                    chats.global = chats.global.filter(m => m !== tempMsg);
+                    chatMessagesCache = chats.global;
+                } else {
+                    chats.dm[targetKey] = chats.dm[targetKey].filter(m => m !== tempMsg);
+                    chatMessagesCache = chats.dm[targetKey];
+                }
+                renderChatMessages(true);
+                input.value = sentText;
+            }
+        };
+
+        // ----- REALTIME -----
+        function setupRealtime() {
+            if (chatChannel) {
+                chatChannel.unsubscribe();
+                chatChannel = null;
+            }
+
+            // Используем polling как fallback для Realtime
+            isRealtimeReady = true;
+
+            // Чистим старый интервал
+            if (chatPollInterval) {
+                clearInterval(chatPollInterval);
+                chatPollInterval = null;
+            }
+
+            // Используем polling с умной проверкой
+            let lastMessageTime = Date.now();
+
+            chatPollInterval = setInterval(async () => {
+                if (!UID) return;
+                if (!document.getElementById('sc-chat').classList.contains('on')) return;
+
+                try {
+                    const isPrivate = currentChat !== 'global' && currentChatTarget;
+
+                    if (isPrivate) {
+                        const targetId = String(currentChatTarget.id);
+                        const { data, ok } = await sbFetch(
+                            `/rest/v1/messages?select=*&order=created_at.desc&limit=5&is_private=eq.true&created_at=gt.${encodeURIComponent(new Date(lastMessageTime).toISOString())}&or=(sender_id.eq.${UID},receiver_id.eq.${UID})&or=(sender_id.eq.${targetId},receiver_id.eq.${targetId})`
+                        );
+
+                        if (ok && data && data.length > 0) {
+                            const newMsgs = data.reverse();
+                            for (const msg of newMsgs) {
+                                if (!chats.dm[targetId]) chats.dm[targetId] = [];
+                                // Проверяем дубли
+                                const exists = chats.dm[targetId].some(m => m.id === msg.id);
+                                if (!exists) {
+                                    chats.dm[targetId].push(msg);
+                                    chatMessagesCache = chats.dm[targetId];
+                                    appendMessageToChat(msg, targetId);
+                                }
+                            }
+                            // Обновляем время
+                            if (newMsgs.length > 0) {
+                                lastMessageTime = new Date(newMsgs[newMsgs.length - 1].created_at).getTime();
+                            }
+                        }
+                    } else {
+                        const { data, ok } = await sbFetch(
+                            `/rest/v1/messages?select=*&order=created_at.desc&limit=5&is_private=eq.false&created_at=gt.${encodeURIComponent(new Date(lastMessageTime).toISOString())}`
+                        );
+
+                        if (ok && data && data.length > 0) {
+                            const newMsgs = data.reverse();
+                            for (const msg of newMsgs) {
+                                const exists = chats.global.some(m => m.id === msg.id);
+                                if (!exists) {
+                                    chats.global.push(msg);
+                                    chatMessagesCache = chats.global;
+                                    appendMessageToChat(msg, 'global');
+                                }
+                            }
+                            if (newMsgs.length > 0) {
+                                lastMessageTime = new Date(newMsgs[newMsgs.length - 1].created_at).getTime();
+                            }
+                        }
+                    }
+                } catch (e) {
+                    // Игнорируем ошибки polling
+                }
+            }, 2000); // Проверка раз в 2 секунды (не слишком часто)
+        }
+
+        // ----- ДИАЛОГИ (ЛС) -----
         function getPrivateRemaining(receiverId) {
             const now = Date.now();
             if (now - G.lastPrivateReset > 86400000) {
@@ -2680,6 +3052,12 @@
             }
             const count = G.privateMessages[receiverId] || 0;
             return Math.max(0, CHAT_CONFIG.DAILY_PRIVATE_LIMIT - count);
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
         }
 
         function closeDialogs() {
@@ -2711,17 +3089,17 @@
             const input = document.getElementById('chatInput');
             input.disabled = false;
 
-            if (chatMode === 'public') {
+            if (currentChat === 'global') {
                 document.getElementById('chatTitle').innerHTML = '💬 Чат <span class="sub">Общий чат</span>';
                 document.getElementById('chatInfo').innerHTML = '💬 <span class="highlight">Общий чат</span> — все видят все сообщения';
                 input.placeholder = 'Напишите в общий чат...';
                 document.getElementById('chatModeToggle').textContent = 'Общий';
                 document.getElementById('chatModeToggle').classList.remove('active');
-            } else if (chatTarget) {
-                document.getElementById('chatTitle').innerHTML = `🔒 ЛС <span class="sub">${chatTarget.name}</span>`;
-                const remaining = getPrivateRemaining(chatTarget.id);
-                document.getElementById('chatInfo').innerHTML = `💬 ЛС с <span class="highlight">${chatTarget.name}</span> — осталось <span class="highlight">${remaining}</span> сообщений сегодня`;
-                input.placeholder = `Напишите ${chatTarget.name}...`;
+            } else if (currentChatTarget) {
+                document.getElementById('chatTitle').innerHTML = `🔒 ЛС <span class="sub">${currentChatTarget.name}</span>`;
+                const remaining = getPrivateRemaining(currentChatTarget.id);
+                document.getElementById('chatInfo').innerHTML = `💬 ЛС с <span class="highlight">${currentChatTarget.name}</span> — осталось <span class="highlight">${remaining}</span> сообщений сегодня`;
+                input.placeholder = `Напишите ${currentChatTarget.name}...`;
                 document.getElementById('chatModeToggle').textContent = 'ЛС';
                 document.getElementById('chatModeToggle').classList.add('active');
             }
@@ -2733,7 +3111,7 @@
                 }
             }, 300);
 
-            loadChatMessages();
+            loadMessages(true);
         }
 
         async function loadDialogs() {
@@ -2752,7 +3130,6 @@
 
                 const users = data.filter(u => u.id !== UID);
 
-                // Проверяем онлайн статус
                 const fiveMinAgo = Date.now() - 5 * 60 * 1000;
                 users.forEach(u => {
                     const updated = u.updated_at ? new Date(u.updated_at).getTime() : 0;
@@ -2825,24 +3202,34 @@
         }
 
         function openPrivateChat(id, name, avatar) {
-            chatMode = 'private';
-            chatTarget = { id, name, avatar };
+            currentChat = id;
+            currentChatTarget = { id, name, avatar };
             document.getElementById('chatModeToggle').textContent = 'ЛС';
             document.getElementById('chatModeToggle').classList.add('active');
-            
+
             const input = document.getElementById('chatInput');
             input.disabled = false;
             input.placeholder = `Напишите ${name}...`;
-            
+
+            // Загружаем сообщения из кеша или с сервера
+            if (chats.dm[id] && chats.dm[id].length > 0) {
+                chatMessagesCache = chats.dm[id];
+                renderChatMessages(true);
+            } else {
+                chatMessagesCache = [];
+                renderChatMessages(true);
+                loadMessages(true);
+            }
+
             showMessages();
         }
 
         window.toggleChatMode = function() {
             const input = document.getElementById('chatInput');
-            
-            if (chatMode === 'public') {
-                chatMode = 'private';
-                chatTarget = null;
+
+            if (currentChat === 'global') {
+                currentChat = 'private';
+                currentChatTarget = null;
                 document.getElementById('chatModeToggle').textContent = 'ЛС';
                 document.getElementById('chatModeToggle').classList.add('active');
                 document.getElementById('chatInfo').innerHTML = '📋 Выберите собеседника из списка';
@@ -2850,16 +3237,16 @@
                 input.placeholder = 'Выберите собеседника...';
                 showDialogs();
             } else {
-                chatMode = 'public';
-                chatTarget = null;
+                currentChat = 'global';
+                currentChatTarget = null;
                 document.getElementById('chatModeToggle').textContent = 'Общий';
                 document.getElementById('chatModeToggle').classList.remove('active');
                 input.disabled = false;
                 input.placeholder = 'Напишите в общий чат...';
-                chatMessagesCache = [];
+                chatMessagesCache = chats.global || [];
                 showMessages();
             }
-            loadChatMessages();
+            loadMessages(true);
         };
 
         function startPrivateFromPublic(userId, userName, userAvatar) {
@@ -2867,251 +3254,67 @@
                 window.toast('Это вы!', 'info');
                 return;
             }
-            chatMode = 'private';
-            chatTarget = { id: userId, name: userName, avatar: userAvatar };
+            currentChat = userId;
+            currentChatTarget = { id: userId, name: userName, avatar: userAvatar };
             document.getElementById('chatModeToggle').textContent = 'ЛС';
             document.getElementById('chatModeToggle').classList.add('active');
-            
+
             const input = document.getElementById('chatInput');
             input.disabled = false;
             input.placeholder = `Напишите ${userName}...`;
-            
-            chatMessagesCache = [];
+
+            if (chats.dm[userId] && chats.dm[userId].length > 0) {
+                chatMessagesCache = chats.dm[userId];
+                renderChatMessages(true);
+            } else {
+                chatMessagesCache = [];
+                renderChatMessages(true);
+                loadMessages(true);
+            }
+
             showMessages();
-            loadChatMessages();
             window.toast(`💬 ЛС с ${userName} открыт`, 'info');
         }
 
-        // ВАЖНО: Функция загрузки сообщений с правильной сортировкой
-        async function loadChatMessages() {
+        function initChat() {
             if (!UID) return;
 
-            try {
-                let data = [];
+            currentChat = 'global';
+            currentChatTarget = null;
+            chatMessagesCache = chats.global || [];
 
-                if (chatMode === 'private' && chatTarget) {
-                    const targetId = String(chatTarget.id);
+            const toggle = document.getElementById('chatModeToggle');
+            toggle.textContent = 'Общий';
+            toggle.classList.remove('active');
 
-                    const [sentRes, receivedRes] = await Promise.all([
-                        sbFetch(
-                            `/rest/v1/messages?select=*&order=created_at.desc&limit=${CHAT_CONFIG.MAX_PRIVATE_MESSAGES}&is_private=eq.true&sender_id=eq.${encodeURIComponent(UID)}&receiver_id=eq.${encodeURIComponent(targetId)}`
-                        ),
-                        sbFetch(
-                            `/rest/v1/messages?select=*&order=created_at.desc&limit=${CHAT_CONFIG.MAX_PRIVATE_MESSAGES}&is_private=eq.true&sender_id=eq.${encodeURIComponent(targetId)}&receiver_id=eq.${encodeURIComponent(UID)}`
-                        )
-                    ]);
-
-                    const sent = sentRes.ok ? sentRes.data || [] : [];
-                    const received = receivedRes.ok ? receivedRes.data || [] : [];
-                    data = [...sent, ...received];
-                    // СОРТИРУЕМ ПО ВРЕМЕНИ (старые сверху, новые снизу)
-                    data.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
-
-                    const remaining = getPrivateRemaining(chatTarget.id);
-                    document.getElementById('chatInfo').innerHTML =
-                        `💬 ЛС с <span class="highlight">${chatTarget.name}</span> — осталось <span class="highlight">${remaining}</span> сообщений сегодня`;
-
-                } else {
-                    const res = await sbFetch(
-                        `/rest/v1/messages?select=*&order=created_at.desc&limit=${CHAT_CONFIG.MAX_PUBLIC_MESSAGES}&is_private=eq.false`
-                    );
-                    data = res.ok ? res.data || [] : [];
-                    // СОРТИРУЕМ ПО ВРЕМЕНИ (старые сверху, новые снизу)
-                    data.reverse();
-
-                    document.getElementById('chatInfo').innerHTML =
-                        `💬 <span class="highlight">Общий чат</span> — все видят все сообщения (последние ${CHAT_CONFIG.MAX_PUBLIC_MESSAGES})`;
-                }
-
-                chatMessagesCache = data.length > 0 ? data : [];
-                renderChatMessages();
-
-            } catch (e) {
-                console.warn('⚠️ Ошибка загрузки сообщений:', e);
-                document.getElementById('chatMessages').innerHTML =
-                    '<div class="system-msg" style="color:var(--red);">Ошибка загрузки</div>';
-            }
-        }
-
-        function escapeHtml(text) {
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
-        }
-
-        // ВАЖНО: Функция рендеринга без времени, с правильным порядком
-        function renderChatMessages() {
-            const container = document.getElementById('chatMessages');
-            if (!container) return;
-
-            if (!chatMessagesCache || chatMessagesCache.length === 0) {
-                if (chatMode === 'private') {
-                    container.innerHTML = '<div class="system-msg">Нет сообщений в ЛС</div>';
-                } else {
-                    container.innerHTML = '<div class="system-msg">Нет сообщений в общем чате</div>';
-                }
-                return;
-            }
-
-            // Убеждаемся, что сообщения отсортированы правильно (старые сверху, новые снизу)
-            const sorted = [...chatMessagesCache].sort((a, b) => {
-                const timeA = new Date(a.created_at).getTime();
-                const timeB = new Date(b.created_at).getTime();
-                return timeA - timeB;
-            });
-
-            container.innerHTML = sorted.map(msg => {
-                const isOwn = msg?.sender_id === UID;
-                const isPrivate = msg?.is_private === true;
-                const senderName = isOwn ? 'Я' : (msg?.sender_name || 'Игрок');
-                const senderId = msg?.sender_id || '';
-                const avatar = msg?.sender_avatar || AVATAR_LIST[0];
-                const text = escapeHtml(msg?.message || '');
-
-                const nameClick = (!isOwn && !isPrivate && senderId !== UID) ?
-                    ` onclick="startPrivateFromPublic('${senderId}','${escapeHtml(senderName)}','${avatar}')" style="cursor:pointer;text-decoration:underline;text-underline-offset:2px;"` :
-                    '';
-
-                return `<div class="msg ${isOwn ? 'own' : 'other'}">
-                    <div class="sender">
-                        ${!isOwn ? `<div class="top-avatar" style="width:22px;height:22px;"><img src="${avatar}" alt="${escapeHtml(senderName)}" loading="lazy"></div>` : ''}
-                        <span class="name"${nameClick}>${escapeHtml(senderName)}</span>
-                        ${isPrivate ? '<span class="private-tag">🔒</span>' : ''}
-                    </div>
-                    <div class="text">${text}</div>
-                </div>`;
-            }).join('');
-
-            // Прокручиваем вниз (новые сообщения)
-            container.scrollTop = container.scrollHeight;
-        }
-
-        // ВАЖНО: Функция отправки с добавлением в правильном порядке
-        window.sendMessage = async function() {
             const input = document.getElementById('chatInput');
-            const text = input.value.trim();
+            if (input) {
+                input.disabled = false;
+                input.readOnly = false;
+                input.style.opacity = '1';
+                input.style.pointerEvents = 'auto';
+                input.placeholder = 'Напишите в общий чат...';
+                input.value = '';
 
-            if (!text) {
-                input.style.borderColor = 'var(--red)';
                 setTimeout(() => {
-                    input.style.borderColor = '';
-                }, 1000);
-                window.toast('Введите сообщение', 'err');
-                return;
-            }
-
-            if (text.length > 200) {
-                window.toast('Слишком длинное сообщение (макс. 200 символов)', 'err');
-                return;
-            }
-
-            if (chatMode === 'private' && !chatTarget) {
-                window.toast('Выберите собеседника в ЛС', 'err');
-                return;
-            }
-
-            const isPrivate = chatMode === 'private' && chatTarget;
-
-            if (isPrivate) {
-                const now = Date.now();
-                if (now - G.lastPrivateReset > 86400000) {
-                    G.privateMessages = {};
-                    G.lastPrivateReset = now;
-                    scheduleSave();
-                }
-
-                const count = G.privateMessages[chatTarget.id] || 0;
-                if (count >= CHAT_CONFIG.DAILY_PRIVATE_LIMIT) {
-                    window.toast(`❌ Лимит ЛС: ${CHAT_CONFIG.DAILY_PRIVATE_LIMIT} сообщений в день`, 'err');
-                    return;
-                }
-
-                G.privateMessages[chatTarget.id] = count + 1;
-                scheduleSave();
-            }
-
-            const receiverId = isPrivate ? chatTarget.id : null;
-            const receiverName = isPrivate ? chatTarget.name : null;
-
-            const safeText = text.replace(/[<>]/g, '').trim();
-            if (!safeText) {
-                window.toast('Недопустимые символы', 'err');
-                return;
-            }
-
-            const msgData = {
-                sender_id: String(UID),
-                sender_name: String((G.name || currentUsername || 'Игрок').substring(0, 30)),
-                sender_avatar: String(G.avatar || AVATAR_LIST[0]),
-                receiver_id: receiverId ? String(receiverId) : null,
-                receiver_name: receiverName ? String(receiverName.substring(0, 30)) : null,
-                message: String(safeText.substring(0, 200)),
-                is_private: Boolean(isPrivate),
-                created_at: new Date().toISOString()
-            };
-
-            const sentText = text;
-            input.value = '';
-            input.style.borderColor = '';
-
-            // ОПТИМИСТИЧНЫЙ РЕНДЕРИНГ - добавляем сообщение в кеш
-            const tempMsg = { ...msgData };
-            chatMessagesCache.push(tempMsg);
-            
-            // СОРТИРУЕМ по времени (старые сверху, новые снизу)
-            chatMessagesCache.sort((a, b) => {
-                const timeA = new Date(a.created_at).getTime();
-                const timeB = new Date(b.created_at).getTime();
-                return timeA - timeB;
-            });
-            
-            renderChatMessages();
-
-            setTimeout(() => {
-                input.focus();
-                if ('ontouchstart' in window) {
-                    input.click();
-                }
-            }, 100);
-
-            try {
-                const { ok, status, data } = await sbFetch('/rest/v1/messages', {
-                    method: 'POST',
-                    body: msgData
-                });
-
-                if (!ok) {
-                    console.error('❌ Ошибка отправки:', status, data);
-                    window.toast('❌ Ошибка отправки', 'err');
-                    chatMessagesCache = chatMessagesCache.filter(m => m !== tempMsg);
-                    renderChatMessages();
-                    input.value = sentText;
-                } else {
-                    // Обновляем сообщения с сервера для получения корректных ID
-                    setTimeout(() => {
-                        loadChatMessages();
-                        cleanupOldMessages();
-                    }, 200);
-                    
-                    if (isPrivate) {
-                        const remaining = getPrivateRemaining(chatTarget.id);
-                        document.getElementById('chatInfo').innerHTML =
-                            `💬 ЛС с <span class="highlight">${chatTarget.name}</span> — осталось <span class="highlight">${remaining}</span> сообщений сегодня`;
+                    input.focus();
+                    if ('ontouchstart' in window) {
+                        input.click();
                     }
-                    
-                    if (navigator.vibrate) {
-                        navigator.vibrate(10);
-                    }
-                }
-            } catch (e) {
-                console.error('❌ Ошибка соединения:', e);
-                window.toast('❌ Ошибка соединения', 'err');
-                chatMessagesCache = chatMessagesCache.filter(m => m !== tempMsg);
-                renderChatMessages();
-                input.value = sentText;
+                }, 300);
             }
-        };
 
+            showMessages();
+            loadOnlineUsers();
+
+            // Настраиваем Realtime
+            setupRealtime();
+
+            setInterval(cleanupOldMessages, CHAT_CONFIG.CLEANUP_INTERVAL);
+            setTimeout(cleanupOldMessages, 30000);
+        }
+
+        // ----- ОЧИСТКА СТАРЫХ СООБЩЕНИЙ -----
         async function cleanupOldMessages() {
             if (!UID) return;
 
@@ -3157,6 +3360,7 @@
             }
         }
 
+        // ----- ОНЛАЙН -----
         async function loadOnlineUsers() {
             try {
                 const fiveMinAgo = new Date(Date.now() - 5 * 60 * 1000).toISOString();
@@ -3185,59 +3389,8 @@
             }
         }
 
-        function initChat() {
-            if (!UID) return;
-
-            chatMode = 'public';
-            chatTarget = null;
-            chatMessagesCache = [];
-            
-            const toggle = document.getElementById('chatModeToggle');
-            toggle.textContent = 'Общий';
-            toggle.classList.remove('active');
-            
-            const input = document.getElementById('chatInput');
-            if (input) {
-                input.disabled = false;
-                input.readOnly = false;
-                input.style.opacity = '1';
-                input.style.pointerEvents = 'auto';
-                input.placeholder = 'Напишите в общий чат...';
-                input.value = '';
-                
-                setTimeout(() => {
-                    input.focus();
-                    if ('ontouchstart' in window) {
-                        input.click();
-                    }
-                }, 300);
-            }
-
-            showMessages();
-            loadOnlineUsers();
-
-            if (chatPollInterval) clearInterval(chatPollInterval);
-            chatPollInterval = setInterval(() => {
-                if (document.getElementById('sc-chat').classList.contains('on')) {
-                    if (document.getElementById('chatMessagesWrap').classList.contains('hide')) {
-                        // Если открыты диалоги, обновляем их
-                        if (isDialogsOpen) {
-                            loadDialogs();
-                        }
-                    } else {
-                        // Иначе обновляем сообщения
-                        loadChatMessages();
-                    }
-                    loadOnlineUsers();
-                }
-            }, 5000);
-
-            setInterval(cleanupOldMessages, CHAT_CONFIG.CLEANUP_INTERVAL);
-            setTimeout(cleanupOldMessages, 30000);
-        }
-
         // ============================================================
-        // 12. ВСЕ ИГРОВЫЕ ФУНКЦИИ
+        // 13. ВСЕ ИГРОВЫЕ ФУНКЦИИ
         // ============================================================
         window.toast = function(msg, t) {
             const e = document.getElementById('TOAST');
@@ -3467,7 +3620,7 @@
         }
 
         // ============================================================
-        // 13. НАВИГАЦИЯ
+        // 14. НАВИГАЦИЯ
         // ============================================================
         window.goSc = function(nm) {
             document.querySelectorAll('.sc').forEach(s => s.classList.remove('on'));
@@ -3476,13 +3629,6 @@
 
             if (nm === 'chat') {
                 initChat();
-                setTimeout(() => {
-                    if (document.getElementById('chatMessagesWrap').classList.contains('hide')) {
-                        // Если открыты диалоги
-                    } else {
-                        loadChatMessages();
-                    }
-                }, 100);
             }
             renderUI();
         };
@@ -3529,7 +3675,7 @@
         };
 
         // ============================================================
-        // 14. ОТРИСОВКА UI
+        // 15. ОТРИСОВКА UI
         // ============================================================
         function renderUI() {
             const sets = {
@@ -3571,7 +3717,7 @@
         }
 
         // ============================================================
-        // 15. ИГРОВЫЕ ДЕЙСТВИЯ
+        // 16. ИГРОВЫЕ ДЕЙСТВИЯ
         // ============================================================
         window.doFarm = function() {
             const now = Date.now();
@@ -3784,116 +3930,7 @@
         };
 
         // ============================================================
-        // 16. ПОКАЗ ПРИЛОЖЕНИЯ
-        // ============================================================
-        function showApp() {
-            document.getElementById('authWrap').style.display = 'none';
-            document.getElementById('appWrap').classList.add('on');
-
-            if (!G.refCode) G.refCode = UID.slice(0, 8);
-            initMissions();
-            renderUI();
-            setTimeout(() => window.drawRoulette(0, null), 100);
-            updateAvatarPreview();
-
-            initMusic();
-            initChat();
-            updateOnlineStatus();
-
-            const startMusic = function() {
-                if (music && !musicPlaying) {
-                    music.play();
-                    window.toast('🎵 Музыка включена!', 'ok');
-                }
-                document.removeEventListener('click', startMusic);
-                document.removeEventListener('touchstart', startMusic);
-            };
-            document.addEventListener('click', startMusic, { once: true });
-            document.addEventListener('touchstart', startMusic, { once: true });
-
-            setInterval(renderFarmTimer, 1000);
-            setInterval(renderBoss, 30000);
-            setInterval(() => { if (UID) saveUserData(); }, CONFIG.AUTO_SAVE_INTERVAL);
-            setInterval(() => { if (UID) updateOnlineStatus(); }, 30000);
-
-            window.addEventListener('beforeunload', () => { if (UID) { saveUserData();
-                    updateOnlineStatus(); } });
-            window.addEventListener('online', restoreOfflineQueue);
-
-            window.toast('💾 Данные синхронизируются', 'info');
-        }
-
-        function initMissions() {
-            const now = Date.now();
-            if (now - (G.missions?.lastReset || 0) > 86400000 || !G.missions?.active) {
-                G.missions = { active: {}, lastReset: now };
-                const picked = [...MISSIONS_DEF].sort(() => Math.random() - .5).slice(0, 3);
-                picked.forEach(m => { G.missions.active[m.id] = { ...m, prog: 0, claimed: false }; });
-            }
-        }
-
-        // ============================================================
-        // 17. АВТОРИЗАЦИЯ UI
-        // ============================================================
-        window.setAuthMode = function(m) {
-            authMode = m;
-            document.querySelectorAll('.auth-tab').forEach((el, i) => {
-                el.classList.toggle('on', (i === 0 && m === 'login') || (i === 1 && m === 'register'));
-            });
-            document.getElementById('authBtn').textContent = m === 'login' ? '⚡ Войти' : '🚀 Зарегистрироваться';
-            document.getElementById('authSub').textContent = m === 'login' ? 'Войдите в свой аккаунт' :
-            'Создайте новый аккаунт';
-            aStat(m === 'login' ? 'Войдите в аккаунт' : 'Создайте аккаунт');
-        };
-
-        window.handleAuth = async function() {
-            const username = document.getElementById('authUsername').value.trim();
-            const pass = document.getElementById('authPass').value.trim();
-
-            if (!username || !pass) { aStat('Заполните все поля', 'err'); return; }
-            if (username.length < 3 || username.length > 16) { aStat('Логин 3-16 символов', 'err'); return; }
-            if (pass.length < 6) { aStat('Пароль минимум 6 символов', 'err'); return; }
-            if (!/^[a-zA-Z0-9_]+$/.test(username)) {
-                aStat('Только буквы, цифры и _', 'err');
-                return;
-            }
-
-            aStat('⏳ Обработка...', 'ld');
-            document.getElementById('authBtn').disabled = true;
-
-            try {
-                let user;
-                if (authMode === 'register') {
-                    user = await authRegister(username, pass, FINGERPRINT);
-                    aStat('✅ Аккаунт создан!', 'ok');
-                    window.toast('Добро пожаловать, ' + username + '!');
-                } else {
-                    user = await authLogin(username, pass);
-                    aStat('✅ Вход выполнен!', 'ok');
-                    window.toast('С возвращением, ' + username + '!');
-                }
-                showApp();
-            } catch (e) {
-                aStat('❌ ' + e.message, 'err');
-                console.error('Ошибка:', e);
-            }
-            document.getElementById('authBtn').disabled = false;
-        };
-
-        window.logoutUser = async function() {
-            if (!confirm('Выйти из аккаунта?')) return;
-            await forceSave();
-            localStorage.removeItem('cm_uid');
-            localStorage.removeItem('cm_username');
-            UID = null;
-            document.getElementById('appWrap').classList.remove('on');
-            document.getElementById('authWrap').style.display = 'flex';
-            aStat('Вы вышли', 'ok');
-            window.toast('До встречи!', 'ok');
-        };
-
-        // ============================================================
-        // 18. РУЛЕТКА
+        // 17. РУЛЕТКА (полная)
         // ============================================================
         const RC = document.getElementById('rouletteCanvas');
         const rctx = RC.getContext('2d');
@@ -4209,7 +4246,7 @@
         idleSpin();
 
         // ============================================================
-        // 19. КУБИК
+        // 18. КУБИК
         // ============================================================
         const PIP_LAYOUTS = {
             1: [
@@ -4434,7 +4471,7 @@
         };
 
         // ============================================================
-        // 20. ТОП-10
+        // 19. ТОП-10
         // ============================================================
         async function loadTopPlayers(tp = 'b') {
             const now = Date.now();
@@ -4483,7 +4520,116 @@
         }
 
         // ============================================================
-        // 21. ЗАПУСК
+        // 20. ПОКАЗ ПРИЛОЖЕНИЯ
+        // ============================================================
+        function showApp() {
+            document.getElementById('authWrap').style.display = 'none';
+            document.getElementById('appWrap').classList.add('on');
+
+            if (!G.refCode) G.refCode = UID.slice(0, 8);
+            initMissions();
+            renderUI();
+            setTimeout(() => window.drawRoulette(0, null), 100);
+            updateAvatarPreview();
+
+            initMusic();
+            initChat();
+            updateOnlineStatus();
+
+            const startMusic = function() {
+                if (music && !musicPlaying) {
+                    music.play();
+                    window.toast('🎵 Музыка включена!', 'ok');
+                }
+                document.removeEventListener('click', startMusic);
+                document.removeEventListener('touchstart', startMusic);
+            };
+            document.addEventListener('click', startMusic, { once: true });
+            document.addEventListener('touchstart', startMusic, { once: true });
+
+            setInterval(renderFarmTimer, 1000);
+            setInterval(renderBoss, 30000);
+            setInterval(() => { if (UID) saveUserData(); }, CONFIG.AUTO_SAVE_INTERVAL);
+            setInterval(() => { if (UID) updateOnlineStatus(); }, 30000);
+
+            window.addEventListener('beforeunload', () => { if (UID) { saveUserData();
+                    updateOnlineStatus(); } });
+            window.addEventListener('online', restoreOfflineQueue);
+
+            window.toast('💾 Данные синхронизируются', 'info');
+        }
+
+        function initMissions() {
+            const now = Date.now();
+            if (now - (G.missions?.lastReset || 0) > 86400000 || !G.missions?.active) {
+                G.missions = { active: {}, lastReset: now };
+                const picked = [...MISSIONS_DEF].sort(() => Math.random() - .5).slice(0, 3);
+                picked.forEach(m => { G.missions.active[m.id] = { ...m, prog: 0, claimed: false }; });
+            }
+        }
+
+        // ============================================================
+        // 21. АВТОРИЗАЦИЯ UI
+        // ============================================================
+        window.setAuthMode = function(m) {
+            authMode = m;
+            document.querySelectorAll('.auth-tab').forEach((el, i) => {
+                el.classList.toggle('on', (i === 0 && m === 'login') || (i === 1 && m === 'register'));
+            });
+            document.getElementById('authBtn').textContent = m === 'login' ? '⚡ Войти' : '🚀 Зарегистрироваться';
+            document.getElementById('authSub').textContent = m === 'login' ? 'Войдите в свой аккаунт' :
+            'Создайте новый аккаунт';
+            aStat(m === 'login' ? 'Войдите в аккаунт' : 'Создайте аккаунт');
+        };
+
+        window.handleAuth = async function() {
+            const username = document.getElementById('authUsername').value.trim();
+            const pass = document.getElementById('authPass').value.trim();
+
+            if (!username || !pass) { aStat('Заполните все поля', 'err'); return; }
+            if (username.length < 3 || username.length > 16) { aStat('Логин 3-16 символов', 'err'); return; }
+            if (pass.length < 6) { aStat('Пароль минимум 6 символов', 'err'); return; }
+            if (!/^[a-zA-Z0-9_]+$/.test(username)) {
+                aStat('Только буквы, цифры и _', 'err');
+                return;
+            }
+
+            aStat('⏳ Обработка...', 'ld');
+            document.getElementById('authBtn').disabled = true;
+
+            try {
+                let user;
+                if (authMode === 'register') {
+                    user = await authRegister(username, pass, FINGERPRINT);
+                    aStat('✅ Аккаунт создан!', 'ok');
+                    window.toast('Добро пожаловать, ' + username + '!');
+                } else {
+                    user = await authLogin(username, pass);
+                    aStat('✅ Вход выполнен!', 'ok');
+                    window.toast('С возвращением, ' + username + '!');
+                }
+                showApp();
+            } catch (e) {
+                aStat('❌ ' + e.message, 'err');
+                console.error('Ошибка:', e);
+            }
+            document.getElementById('authBtn').disabled = false;
+        };
+
+        window.logoutUser = async function() {
+            if (!confirm('Выйти из аккаунта?')) return;
+            await forceSave();
+            localStorage.removeItem('cm_uid');
+            localStorage.removeItem('cm_username');
+            UID = null;
+            document.getElementById('appWrap').classList.remove('on');
+            document.getElementById('authWrap').style.display = 'flex';
+            aStat('Вы вышли', 'ok');
+            window.toast('До встречи!', 'ok');
+        };
+
+        // ============================================================
+        // 22. ЗАПУСК
         // ============================================================
         document.addEventListener('DOMContentLoaded', async () => {
             aStat('⏳ Проверка сессии...', 'ld');
@@ -4501,15 +4647,14 @@
             renderPodium();
         });
 
-        console.log('✅ Чат полностью переработан:');
-        console.log('  - Время в чате УБРАНО');
-        console.log('  - Сообщения сортируются по времени (старые сверху, новые снизу)');
-        console.log('  - ЛС сделано отдельным окном (как в мессенджере)');
-        console.log('  - Удобный список диалогов с онлайн-статусом');
-        console.log('  - Клик по имени в общем чате → открытие ЛС');
-        console.log('  - Прокрутка не сбрасывается при обновлении');
-        console.log('  - Обновления чата раз в 5 секунд (не слишком часто)');
-        console.log('  - Полная поддержка мобильных устройств');
+        console.log('✅ ЧАТ ПЕРЕРАБОТАН ПО НОВОЙ АРХИТЕКТУРЕ:');
+        console.log('  📦 Данные = источник истины (chats.global, chats.dm)');
+        console.log('  🎨 UI = только отображение');
+        console.log('  ⚡ Обновляются только новые сообщения');
+        console.log('  💬 Общий чат и ЛС — раздельные каналы');
+        console.log('  🧠 Умный скролл (не прыгает, если пользователь читает)');
+        console.log('  🔄 Realtime через polling (раз в 2 сек, не часто)');
+        console.log('  📱 Полная поддержка мобильных устройств');
     </script>
 </body>
 </html>
