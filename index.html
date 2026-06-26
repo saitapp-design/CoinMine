@@ -2131,9 +2131,10 @@
         ...(opts.headers || {})
     };
 
-    // Убираем Prefer, если он уже есть
-    if (!opts.headers?.Prefer) {
-        headers['Prefer'] = 'return=representation';
+    // Проверяем, что body - это строка JSON, а не объект
+    let body = opts.body;
+    if (body && typeof body === 'object') {
+        body = JSON.stringify(body);
     }
 
     let attempts = 0;
@@ -2141,8 +2142,8 @@
         try {
             const r = await fetch(SB_URL + path, { 
                 ...opts, 
+                body: body,
                 headers,
-                // Добавляем timeout
                 signal: AbortSignal.timeout(10000)
             });
             
@@ -2154,13 +2155,12 @@
                 d = txt; 
             }
             
-            // Логируем ошибки для отладки
             if (!r.ok) {
                 console.warn(`⚠️ API Error ${r.status}:`, {
                     path,
                     status: r.status,
                     data: d,
-                    opts
+                    body: body // Логируем тело для отладки
                 });
             }
             
@@ -2172,7 +2172,6 @@
         }
     }
 }
-
         // ============================================================
         // 6. ТОП-10
         // ============================================================
@@ -2750,16 +2749,15 @@ window.addEventListener('unhandledrejection', function(e) {
         let data = [];
 
         if (chatMode === 'private' && chatTarget) {
-            // ВАЖНО: используем UUID строки для фильтрации
-            const targetId = chatTarget.id; // строка UUID
+            const targetId = String(chatTarget.id);
             
-            // Загружаем ЛС - два простых запроса
+            // Используем простые запросы без сложных условий
             const [sentRes, receivedRes] = await Promise.all([
                 sbFetch(
-                    `/rest/v1/messages?select=*&order=created_at.desc&limit=50&is_private=eq.true&sender_id=eq.${UID}&receiver_id=eq.${targetId}`
+                    `/rest/v1/messages?select=*&order=created_at.desc&limit=50&is_private=eq.true&sender_id=eq.${encodeURIComponent(UID)}&receiver_id=eq.${encodeURIComponent(targetId)}`
                 ),
                 sbFetch(
-                    `/rest/v1/messages?select=*&order=created_at.desc&limit=50&is_private=eq.true&sender_id=eq.${targetId}&receiver_id=eq.${UID}`
+                    `/rest/v1/messages?select=*&order=created_at.desc&limit=50&is_private=eq.true&sender_id=eq.${encodeURIComponent(targetId)}&receiver_id=eq.${encodeURIComponent(UID)}`
                 )
             ]);
 
@@ -2769,7 +2767,6 @@ window.addEventListener('unhandledrejection', function(e) {
             data.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
 
         } else {
-            // Общий чат
             const res = await sbFetch(
                 `/rest/v1/messages?select=*&order=created_at.desc&limit=50&is_private=eq.false`
             );
@@ -2793,36 +2790,64 @@ window.addEventListener('unhandledrejection', function(e) {
             return div.innerHTML;
         }
 
-        function renderChatMessages() {
-            const container = document.getElementById('chatMessages');
-            if (!container) return;
+       function renderChatMessages() {
+    const container = document.getElementById('chatMessages');
+    if (!container) return;
 
-            if (chatMessagesCache.length === 0) {
-                container.innerHTML = '<div class="tm tc" style="padding:20px;color:var(--tx2);font-size:14px;">Нет сообщений</div>';
-                return;
+    if (!chatMessagesCache || chatMessagesCache.length === 0) {
+        container.innerHTML = '<div class="tm tc" style="padding:20px;color:var(--tx2);font-size:14px;">Нет сообщений</div>';
+        return;
+    }
+
+    container.innerHTML = chatMessagesCache.map(msg => {
+        // Защита от undefined/null
+        const isOwn = msg?.sender_id === UID;
+        const isPrivate = msg?.is_private === true;
+        const senderName = isOwn ? 'Я' : (msg?.sender_name || 'Игрок');
+        const avatar = msg?.sender_avatar || AVATAR_LIST[0];
+        const time = msg?.created_at ? new Date(msg.created_at).toLocaleTimeString('ru', { hour: '2-digit', minute: '2-digit' }) : '';
+        const text = escapeHtml(msg?.message || '');
+
+        return `<div class="msg ${isOwn ? 'own' : 'other'}">
+            <div class="sender">
+                ${!isOwn ? `<div class="top-avatar" style="width:22px;height:22px;"><img src="${avatar}" alt="${senderName}" loading="lazy"></div>` : ''}
+                <span class="name">${escapeHtml(senderName)}</span>
+                ${isPrivate ? '<span class="private-tag">🔒</span>' : ''}
+                <span class="time">${time}</span>
+            </div>
+            <div class="text">${text}</div>
+        </div>`;
+    }).join('');
+
+    container.scrollTop = container.scrollHeight;
+}
+        // Добавьте в начало скрипта после объявления переменных
+function cleanupCorruptedData() {
+    try {
+        // Очищаем офлайн-очередь
+        const queue = localStorage.getItem('offline_queue');
+        if (queue) {
+            const parsed = JSON.parse(queue);
+            if (Array.isArray(parsed) && parsed.length > 0) {
+                const valid = parsed.filter(item => {
+                    return item && typeof item === 'object' && 
+                           item.uid && typeof item.uid === 'string' &&
+                           item.data && typeof item.data === 'object';
+                });
+                if (valid.length !== parsed.length) {
+                    localStorage.setItem('offline_queue', JSON.stringify(valid));
+                    console.log('🧹 Очищена офлайн-очередь');
+                }
             }
-
-            container.innerHTML = chatMessagesCache.map(msg => {
-                const isOwn = msg.sender_id === UID;
-                const isPrivate = msg.is_private === true;
-                const senderName = isOwn ? 'Я' : (msg.sender_name || 'Игрок');
-                const avatar = msg.sender_avatar || AVATAR_LIST[0];
-                const time = new Date(msg.created_at).toLocaleTimeString('ru', { hour: '2-digit', minute: '2-digit' });
-                const text = escapeHtml(msg.message || '');
-
-                return `<div class="msg ${isOwn ? 'own' : 'other'}">
-                    <div class="sender">
-                        ${!isOwn ? `<div class="top-avatar" style="width:22px;height:22px;"><img src="${avatar}" alt="${senderName}" loading="lazy"></div>` : ''}
-                        <span class="name">${escapeHtml(senderName)}</span>
-                        ${isPrivate ? '<span class="private-tag">🔒</span>' : ''}
-                        <span class="time">${time}</span>
-                    </div>
-                    <div class="text">${text}</div>
-                </div>`;
-            }).join('');
-
-            container.scrollTop = container.scrollHeight;
         }
+    } catch (e) {
+        localStorage.removeItem('offline_queue');
+        console.log('🧹 Офлайн-очередь полностью очищена');
+    }
+}
+
+// Вызов при загрузке
+cleanupCorruptedData();
 
         // ИСПРАВЛЕННАЯ ФУНКЦИЯ ОТПРАВКИ
         window.sendMessage = async function() {
@@ -2840,7 +2865,7 @@ window.addEventListener('unhandledrejection', function(e) {
     }
 
     const isPrivate = chatMode === 'private' && chatTarget;
-    // ВАЖНО: receiver_id должен быть строкой ID, а не объектом!
+    // ВАЖНО: receiver_id должен быть строкой ID или null
     const receiverId = isPrivate ? chatTarget.id : null;
     const receiverName = isPrivate ? chatTarget.name : null;
 
@@ -2851,19 +2876,19 @@ window.addEventListener('unhandledrejection', function(e) {
         return;
     }
 
+    // ВАЖНО: Все поля должны быть простыми типами (string, number, boolean, null)
     const msgData = {
-        sender_id: UID, // строка UUID
-        sender_name: (G.name || currentUsername || 'Игрок').substring(0, 30),
-        sender_avatar: G.avatar || AVATAR_LIST[0],
-        receiver_id: receiverId, // строка UUID или null
-        receiver_name: receiverName ? receiverName.substring(0, 30) : null,
-        message: safeText.substring(0, 200),
-        is_private: isPrivate || false, // boolean!
+        sender_id: String(UID), // принудительно строка
+        sender_name: String((G.name || currentUsername || 'Игрок').substring(0, 30)),
+        sender_avatar: String(G.avatar || AVATAR_LIST[0]),
+        receiver_id: receiverId ? String(receiverId) : null, // строка или null
+        receiver_name: receiverName ? String(receiverName.substring(0, 30)) : null,
+        message: String(safeText.substring(0, 200)),
+        is_private: Boolean(isPrivate), // принудительно boolean
         created_at: new Date().toISOString()
     };
 
-    // Логируем для отладки
-    console.log('📤 Отправка сообщения:', msgData);
+    console.log('📤 Отправка сообщения (JSON):', JSON.stringify(msgData, null, 2));
 
     input.value = '';
 
@@ -2872,13 +2897,14 @@ window.addEventListener('unhandledrejection', function(e) {
     renderChatMessages();
 
     try {
+        // ВАЖНО: body должен быть строкой JSON
         const { ok, status, data } = await sbFetch('/rest/v1/messages', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 'Prefer': 'return=minimal'
             },
-            body: JSON.stringify(msgData)
+            body: msgData // sbFetch сам сделает JSON.stringify
         });
 
         if (!ok) {
