@@ -12,6 +12,7 @@
     </script>
     
     <style>
+        /* ===== ПОЛНЫЙ CSS (все стили из предыдущей версии) ===== */
         * {
             box-sizing: border-box;
             margin: 0;
@@ -730,6 +731,7 @@
             border-radius: 10px;
         }
 
+        /* === РУЛЕТКА === */
         .rl-section {
             display: flex;
             flex-direction: column;
@@ -807,9 +809,15 @@
             opacity: .5;
             cursor: not-allowed;
         }
-        .btn-red { border-color: #b91c1c !important; color: #b91c1c !important; }
+        .btn-red {
+            border-color: #b91c1c !important;
+            color: #b91c1c !important;
+        }
         .btn-blk { border-color: #555 !important; }
-        .btn-grn { border-color: #15803d !important; color: #15803d !important; }
+        .btn-grn {
+            border-color: #15803d !important;
+            color: #15803d !important;
+        }
         .rl-coeff {
             font-size: 12px;
             color: var(--color-text-secondary);
@@ -817,6 +825,7 @@
             padding: 4px 0;
         }
 
+        /* === КУБИК === */
         .dice-section {
             display: flex;
             flex-direction: column;
@@ -913,6 +922,7 @@
             background: var(--color-border-tertiary);
         }
 
+        /* === КЛАН === */
         .clan-icon {
             font-size: 60px;
             text-align: center;
@@ -1228,6 +1238,7 @@
             .top-avatar .placeholder { font-size: 11px; }
         }
 
+        /* === ЧАТ === */
         .chat-container {
             display: flex;
             flex-direction: column;
@@ -1564,6 +1575,7 @@
             font-size: 11px;
         }
 
+        /* === МОБИЛЬНАЯ АДАПТАЦИЯ === */
         @media (max-width: 600px) {
             .chat-container {
                 height: 80vh !important;
@@ -1688,7 +1700,7 @@
 </head>
 <body>
 
-    <!-- APP -->
+    <!-- ===== APP ===== -->
     <div class="app" id="appRoot">
 
         <!-- AUTH -->
@@ -1990,7 +2002,7 @@
                     </div>
                 </div>
 
-                <!-- ЧАТ -->
+                <!-- ===== ЧАТ ===== -->
                 <div class="sc" id="sc-chat">
                     <div class="chat-container">
 
@@ -2108,112 +2120,24 @@
         const SB_URL = 'https://mazccbkzurbryzusajqc.supabase.co';
         const SB_ANON_KEY = 'sb_publishable_GLQvPbCZrDYgd7FCSp861g_poX1-Hwy';
 
-        // ============================================================
-        // 2. ПРОСТОЙ КЛИЕНТ SUPABASE (ВСЕ ФУНКЦИИ РАБОТАЮТ)
-        // ============================================================
-        const supabase = {
-            async fetch(path, opts = {}) {
-                const headers = {
-                    'apikey': SB_ANON_KEY,
-                    'Content-Type': 'application/json',
-                    ...(opts.headers || {})
-                };
+        const CONFIG = {
+            SAVE_INTERVAL: 10000,
+            TOP_CACHE_TIME: 600000,
+            TOP_LIMIT: 10,
+            AUTO_SAVE_INTERVAL: 60000,
+            MAX_RETRIES: 3,
+            BATCH_SIZE: 10
+        };
 
-                if (!opts.headers?.Prefer) {
-                    headers['Prefer'] = 'return=representation';
-                }
-
-                let body = opts.body;
-                if (body && typeof body === 'object') {
-                    body = JSON.stringify(body);
-                }
-
-                try {
-                    const r = await fetch(SB_URL + path, {
-                        ...opts,
-                        body: body,
-                        headers,
-                        signal: AbortSignal.timeout(10000)
-                    });
-
-                    const txt = await r.text();
-                    let d;
-                    try { d = JSON.parse(txt); } catch (e) { d = txt; }
-
-                    if (!r.ok) {
-                        console.warn('⚠️ API Error:', { path, status: r.status, data: d });
-                    }
-
-                    return { ok: r.ok, status: r.status, data: d };
-                } catch (e) {
-                    console.error('❌ Ошибка запроса:', e);
-                    return { ok: false, status: 0, data: null, error: e };
-                }
-            },
-
-            async select(table, columns = '*', filters = {}, options = {}) {
-                let path = `/rest/v1/${table}?select=${columns}`;
-                
-                for (const [key, val] of Object.entries(filters)) {
-                    if (val !== undefined && val !== null) {
-                        if (typeof val === 'string' && val.includes('.')) {
-                            path += `&${key}=${val}`;
-                        } else {
-                            path += `&${key}=eq.${encodeURIComponent(val)}`;
-                        }
-                    }
-                }
-                
-                if (options.order) {
-                    path += `&order=${options.order.column}.${options.order.ascending ? 'asc' : 'desc'}`;
-                }
-                
-                if (options.limit) {
-                    path += `&limit=${options.limit}`;
-                }
-                
-                return await this.fetch(path);
-            },
-
-            async insert(table, data) {
-                return await this.fetch(`/rest/v1/${table}`, {
-                    method: 'POST',
-                    body: data
-                });
-            },
-
-            async update(table, data, filters) {
-                let path = `/rest/v1/${table}`;
-                let first = true;
-                for (const [key, val] of Object.entries(filters)) {
-                    if (val !== undefined && val !== null) {
-                        path += (first ? '?' : '&') + `${key}=eq.${encodeURIComponent(val)}`;
-                        first = false;
-                    }
-                }
-                return await this.fetch(path, {
-                    method: 'PATCH',
-                    body: data
-                });
-            },
-
-            async delete(table, filters) {
-                let path = `/rest/v1/${table}`;
-                let first = true;
-                for (const [key, val] of Object.entries(filters)) {
-                    if (val !== undefined && val !== null) {
-                        path += (first ? '?' : '&') + `${key}=eq.${encodeURIComponent(val)}`;
-                        first = false;
-                    }
-                }
-                return await this.fetch(path, {
-                    method: 'DELETE'
-                });
-            }
+        const CHAT_CONFIG = {
+            MAX_PUBLIC_MESSAGES: 50,
+            MAX_PRIVATE_MESSAGES: 10,
+            DAILY_PRIVATE_LIMIT: 10,
+            CLEANUP_INTERVAL: 3600000,
         };
 
         // ============================================================
-        // 3. РАБОТА С ВРЕМЕНЕМ ЧЕРЕЗ LUXON
+        // 2. РАБОТА С ВРЕМЕНЕМ ЧЕРЕЗ LUXON
         // ============================================================
         
         const LUXON_LOADED = typeof luxon !== 'undefined';
@@ -2264,8 +2188,59 @@
             }
         }
 
+        function formatTimeInZone(dateString, timezone = 'Europe/Moscow') {
+            if (!dateString) return '--:--';
+            try {
+                if (LUXON_LOADED) {
+                    const dt = luxon.DateTime.fromISO(dateString, { zone: 'utc' });
+                    const local = dt.setZone(timezone);
+                    return local.toFormat('HH:mm');
+                }
+                const offsets = {
+                    'Europe/Moscow': 3,
+                    'America/New_York': -4,
+                    'America/Los_Angeles': -7,
+                    'America/Denver': -6,
+                    'America/Chicago': -5,
+                    'Europe/London': 1,
+                    'Europe/Paris': 2,
+                    'Asia/Dubai': 4,
+                    'Asia/Tokyo': 9,
+                    'Australia/Sydney': 10,
+                    'UTC': 0
+                };
+                const offset = offsets[timezone] || 0;
+                const date = new Date(dateString);
+                if (isNaN(date.getTime())) return '--:--';
+                const targetTime = new Date(date.getTime() + (offset * 60 * 60 * 1000));
+                const hours = String(targetTime.getUTCHours()).padStart(2, '0');
+                const minutes = String(targetTime.getUTCMinutes()).padStart(2, '0');
+                return `${hours}:${minutes}`;
+            } catch (e) {
+                return '--:--';
+            }
+        }
+
+        function getUserTimezone() {
+            try {
+                const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+                if (tz) return tz;
+            } catch (e) {}
+            return 'Europe/Moscow';
+        }
+
+        function debugTime() {
+            const now = new Date().toISOString();
+            console.log('🕐 ТЕКУЩЕЕ ВРЕМЯ:');
+            console.log('  UTC:', now);
+            console.log('  МСК:', formatDateTime(now));
+            console.log('  Только время:', formatTime(now));
+            console.log('  Ваш часовой пояс:', getUserTimezone());
+            console.log('  Luxon загружен:', LUXON_LOADED);
+        }
+
         // ============================================================
-        // 4. ВСПОМОГАТЕЛЬНЫЕ
+        // 3. ВСПОМОГАТЕЛЬНЫЕ
         // ============================================================
         function aStat(text, type) {
             const e = document.getElementById('authStatus');
@@ -2295,11 +2270,11 @@
         const FINGERPRINT = getFingerprint();
 
         // ============================================================
-        // 5. АВАТАРКИ
+        // 4. АВАТАРКИ
         // ============================================================
         const AVATAR_LIST = [
             'https://i.postimg.cc/ydqnTq7J/1b5e1ca8f182156f9106095981de17b7.png',
-            'https://i.postimg.cc/cHZwHdSH/Skrinsot-21-06-2026-121235.jpg',
+            'https://i.postimg.cc/cHZwHdsh/Skrinsot-21-06-2026-121235.jpg',
             'https://i.postimg.cc/QMDHgSRZ/Skrinsot-21-06-2026-121524.jpg',
             'https://i.postimg.cc/4NhdrrGx/image.png',
             'https://i.postimg.cc/RFFCGYdk/image.png',
@@ -2311,7 +2286,7 @@
         ];
 
         // ============================================================
-        // 6. СОСТОЯНИЕ
+        // 5. СОСТОЯНИЕ
         // ============================================================
         let UID = null;
         let authMode = 'login';
@@ -2390,18 +2365,120 @@
         let BOSS_STATE = { hp: 0, lastKill: 0 };
 
         // ============================================================
-        // 7. АВТОРИЗАЦИЯ
+        // 6. API
+        // ============================================================
+        async function sbFetch(path, opts = {}) {
+            const headers = {
+                'apikey': SB_ANON_KEY,
+                'Content-Type': 'application/json',
+                ...(opts.headers || {})
+            };
+
+            if (!opts.headers?.Prefer) {
+                headers['Prefer'] = 'return=representation';
+            }
+
+            let body = opts.body;
+            if (body && typeof body === 'object') {
+                body = JSON.stringify(body);
+            }
+
+            let attempts = 0;
+            while (attempts < CONFIG.MAX_RETRIES) {
+                try {
+                    const r = await fetch(SB_URL + path, {
+                        ...opts,
+                        body: body,
+                        headers,
+                        signal: AbortSignal.timeout(10000)
+                    });
+
+                    const txt = await r.text();
+                    let d;
+                    try { d = JSON.parse(txt); } catch (e) { d = txt; }
+
+                    if (!r.ok) {
+                        console.warn(`⚠️ API Error ${r.status}:`, {
+                            path,
+                            status: r.status,
+                            data: d,
+                            body: body
+                        });
+                    }
+
+                    return { ok: r.ok, status: r.status, data: d };
+                } catch (e) {
+                    attempts++;
+                    if (attempts >= CONFIG.MAX_RETRIES) throw e;
+                    await new Promise(r => setTimeout(r, 1000 * attempts));
+                }
+            }
+        }
+
+        // ============================================================
+        // 7. ТОП-10
+        // ============================================================
+        async function loadTopPlayers(tp = 'b') {
+            const now = Date.now();
+            if (topCache.data && topCache.type === tp && now - topCache.timestamp < CONFIG.TOP_CACHE_TIME) {
+                return topCache.data;
+            }
+
+            try {
+                const { data, ok } = await sbFetch(
+                    `/rest/v1/users?select=id,username,data&limit=${CONFIG.TOP_LIMIT + 5}`
+                );
+
+                if (ok && data) {
+                    let players = data
+                        .filter(u => u.username && u.data)
+                        .map(u => {
+                            const shardCount = u.data.shards ?
+                                Object.keys(u.data.shards).filter(k => u.data.shards[k] > 0).length : 0;
+                            return {
+                                id: u.id,
+                                n: u.data.name || u.username,
+                                username: u.username,
+                                c: u.data.coins || 0,
+                                f: u.data.farms || 0,
+                                r: u.data.refs || 0,
+                                s: shardCount,
+                                a: u.data.avatar || AVATAR_LIST[0]
+                            };
+                        });
+
+                    const sortKey = tp === 'b' ? 'c' : tp === 'f' ? 'f' : tp === 'r' ? 'r' : 's';
+                    players.sort((a, b) => (b[sortKey] || 0) - (a[sortKey] || 0));
+                    players = players.slice(0, CONFIG.TOP_LIMIT);
+
+                    topCache.data = players;
+                    topCache.timestamp = now;
+                    topCache.type = tp;
+
+                    return players;
+                }
+                return topCache.data || [];
+            } catch (e) {
+                console.error('❌ Ошибка загрузки топа:', e);
+                return topCache.data || [];
+            }
+        }
+
+        // ============================================================
+        // 8. АВТОРИЗАЦИЯ
         // ============================================================
         async function authRegister(username, password, fingerprint) {
-            const result = await supabase.select('users', 'id', { fingerprint: fingerprint });
-            
-            if (result.ok && result.data && result.data.length > 0) {
+            const { data: existing } = await sbFetch(
+                `/rest/v1/users?fingerprint=eq.${encodeURIComponent(fingerprint)}&select=id`
+            );
+            if (existing && existing.length > 0) {
                 throw new Error('На этом устройстве уже есть аккаунт');
             }
 
-            const taken = await supabase.select('users', 'id', { username: username });
-            
-            if (taken.ok && taken.data && taken.data.length > 0) {
+            const { data: taken } = await sbFetch(
+                `/rest/v1/users?username=eq.${encodeURIComponent(username)}&select=id`
+            );
+            if (taken && taken.length > 0) {
                 throw new Error('Этот логин уже занят');
             }
 
@@ -2437,10 +2514,13 @@
                 updated_at: new Date().toISOString()
             };
 
-            const result2 = await supabase.insert('users', newUser);
+            const { ok, data, status } = await sbFetch('/rest/v1/users', {
+                method: 'POST',
+                body: newUser
+            });
 
-            if (!result2.ok) {
-                const msg = result2.data?.details || result2.data?.message || 'Ошибка регистрации';
+            if (!ok) {
+                const msg = data?.details || data?.message || 'Ошибка регистрации';
                 throw new Error(msg);
             }
 
@@ -2448,23 +2528,25 @@
         }
 
         async function authLogin(username, password) {
-            const result = await supabase.select('users', 'id,username,data,boss,fingerprint', {
-                username: username,
-                password: password
-            });
+            const { data, ok } = await sbFetch(
+                `/rest/v1/users?username=eq.${encodeURIComponent(username)}&password=eq.${encodeURIComponent(password)}&select=id,username,data,boss,fingerprint`
+            );
 
-            if (!result.ok || !result.data || result.data.length === 0) {
+            if (!ok || !data || data.length === 0) {
                 throw new Error('Неверный логин или пароль');
             }
 
-            const user = result.data[0];
+            const user = data[0];
 
             if (user.fingerprint && user.fingerprint !== FINGERPRINT) {
                 throw new Error('Этот аккаунт привязан к другому устройству');
             }
 
             if (!user.fingerprint) {
-                await supabase.update('users', { fingerprint: FINGERPRINT }, { id: user.id });
+                await sbFetch(`/rest/v1/users?id=eq.${user.id}`, {
+                    method: 'PATCH',
+                    body: { fingerprint: FINGERPRINT }
+                });
             }
 
             if (user.data) {
@@ -2495,7 +2577,7 @@
         }
 
         // ============================================================
-        // 8. СОХРАНЕНИЕ
+        // 9. СОХРАНЕНИЕ
         // ============================================================
         function scheduleSave() {
             pendingChanges = true;
@@ -2505,7 +2587,7 @@
                     saveUserData();
                     pendingChanges = false;
                 }
-            }, 5000);
+            }, CONFIG.SAVE_INTERVAL);
         }
 
         async function saveUserData() {
@@ -2523,10 +2605,13 @@
                     updated_at: new Date().toISOString()
                 };
 
-                const result = await supabase.update('users', payload, { id: UID });
+                const { ok, status, data } = await sbFetch(`/rest/v1/users?id=eq.${UID}`, {
+                    method: 'PATCH',
+                    body: payload
+                });
 
-                if (!result.ok) {
-                    console.error('❌ Ошибка сохранения:', result.status, result.data);
+                if (!ok) {
+                    console.error('❌ Ошибка сохранения:', status, data);
                     offlineQueue.push({
                         uid: UID,
                         data: payload,
@@ -2555,7 +2640,7 @@
         }
 
         // ============================================================
-        // 9. ВОССТАНОВЛЕНИЕ
+        // 10. ВОССТАНОВЛЕНИЕ
         // ============================================================
         async function restoreOfflineQueue() {
             try {
@@ -2567,7 +2652,10 @@
 
                 for (const item of queue) {
                     if (item.uid === UID) {
-                        await supabase.update('users', item.data, { id: item.uid });
+                        await sbFetch(`/rest/v1/users?id=eq.${item.uid}`, {
+                            method: 'PATCH',
+                            body: item.data
+                        });
                     }
                 }
 
@@ -2587,10 +2675,12 @@
             currentUsername = username;
 
             try {
-                const result = await supabase.select('users', 'id,username,data,boss,fingerprint', { id: UID });
+                const { data, ok } = await sbFetch(
+                    `/rest/v1/users?id=eq.${UID}&select=id,username,data,boss,fingerprint`
+                );
 
-                if (result.ok && result.data && result.data.length > 0) {
-                    const user = result.data[0];
+                if (ok && data && data.length > 0) {
+                    const user = data[0];
                     if (user.data) {
                         const p = user.data;
                         Object.keys(G).forEach(k => { if (p[k] !== undefined) G[k] = p[k]; });
@@ -2619,7 +2709,7 @@
         }
 
         // ============================================================
-        // 10. АВАТАРКА
+        // 11. АВАТАРКА
         // ============================================================
         function toggleAvatarSelector() {
             const sel = document.getElementById('avatarSelector');
@@ -2654,7 +2744,7 @@
         }
 
         // ============================================================
-        // 11. МУЗЫКА
+        // 12. МУЗЫКА
         // ============================================================
         function initMusic() {
             try {
@@ -2723,7 +2813,7 @@
         };
 
         // ============================================================
-        // 12. ФУНКЦИИ ЧАТА
+        // 13. ФУНКЦИИ ЧАТА
         // ============================================================
         function getPrivateRemaining(receiverId) {
             const now = Date.now();
@@ -2733,7 +2823,7 @@
                 scheduleSave();
             }
             const count = G.privateMessages[receiverId] || 0;
-            return Math.max(0, 10 - count);
+            return Math.max(0, CHAT_CONFIG.DAILY_PRIVATE_LIMIT - count);
         }
 
         function showDialogs() {
@@ -2781,35 +2871,31 @@
             container.innerHTML = '<div class="system-msg">Загрузка диалогов...</div>';
 
             try {
-                const result = await supabase.select('users', 'id,username,data', {}, { limit: 50 });
+                const { data, ok } = await sbFetch(
+                    `/rest/v1/users?select=id,username,data&limit=50`
+                );
 
-                if (!result.ok || !result.data) {
+                if (!ok || !data) {
                     container.innerHTML = '<div class="system-msg">Ошибка загрузки</div>';
                     return;
                 }
 
-                const users = result.data.filter(u => u.id !== UID);
+                const users = data.filter(u => u.id !== UID);
 
                 const dialogs = [];
                 for (const user of users) {
                     const name = user.data?.name || user.username;
                     const avatar = user.data?.avatar || AVATAR_LIST[0];
 
-                    const msgs = await supabase.select('messages', '*', {
-                        is_private: true
-                    }, { 
-                        order: { column: 'created_at', ascending: false },
-                        limit: 1
-                    });
-                    
-                    const msgs2 = await supabase.select('messages', '*', {
-                        is_private: true
-                    }, { 
-                        order: { column: 'created_at', ascending: false },
-                        limit: 1
-                    });
+                    const { data: msgs } = await sbFetch(
+                        `/rest/v1/messages?select=*&order=created_at.desc&limit=1&is_private=eq.true&sender_id=eq.${UID}&receiver_id=eq.${user.id}`
+                    );
 
-                    const allMsgs = [...(msgs.ok ? msgs.data || [] : []), ...(msgs2.ok ? msgs2.data || [] : [])];
+                    const { data: msgs2 } = await sbFetch(
+                        `/rest/v1/messages?select=*&order=created_at.desc&limit=1&is_private=eq.true&sender_id=eq.${user.id}&receiver_id=eq.${UID}`
+                    );
+
+                    const allMsgs = [...(msgs || []), ...(msgs2 || [])];
                     allMsgs.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
 
                     const lastMsg = allMsgs[0] || null;
@@ -2845,7 +2931,7 @@
                             <div class="name">${d.name}</div>
                             <div class="last-msg">${d.lastMsg ? escapeHtml(d.lastMsg.message) : 'Нет сообщений'}</div>
                         </div>
-                        ${d.remaining < 10 ? `<span class="badge">${d.remaining}</span>` : ''}
+                        ${d.remaining < CHAT_CONFIG.DAILY_PRIVATE_LIMIT ? `<span class="badge">${d.remaining}</span>` : ''}
                     </div>`
                 ).join('');
 
@@ -2922,27 +3008,18 @@
                 if (chatMode === 'private' && chatTarget) {
                     const targetId = String(chatTarget.id);
 
-                    const sent = await supabase.select('messages', '*', {
-                        is_private: true,
-                        sender_id: UID,
-                        receiver_id: targetId
-                    }, { 
-                        order: { column: 'created_at', ascending: false },
-                        limit: 10
-                    });
+                    const [sentRes, receivedRes] = await Promise.all([
+                        sbFetch(
+                            `/rest/v1/messages?select=*&order=created_at.desc&limit=${CHAT_CONFIG.MAX_PRIVATE_MESSAGES}&is_private=eq.true&sender_id=eq.${encodeURIComponent(UID)}&receiver_id=eq.${encodeURIComponent(targetId)}`
+                        ),
+                        sbFetch(
+                            `/rest/v1/messages?select=*&order=created_at.desc&limit=${CHAT_CONFIG.MAX_PRIVATE_MESSAGES}&is_private=eq.true&sender_id=eq.${encodeURIComponent(targetId)}&receiver_id=eq.${encodeURIComponent(UID)}`
+                        )
+                    ]);
 
-                    const received = await supabase.select('messages', '*', {
-                        is_private: true,
-                        sender_id: targetId,
-                        receiver_id: UID
-                    }, { 
-                        order: { column: 'created_at', ascending: false },
-                        limit: 10
-                    });
-
-                    const sentData = sent.ok ? sent.data || [] : [];
-                    const receivedData = received.ok ? received.data || [] : [];
-                    data = [...sentData, ...receivedData];
+                    const sent = sentRes.ok ? sentRes.data || [] : [];
+                    const received = receivedRes.ok ? receivedRes.data || [] : [];
+                    data = [...sent, ...received];
                     data.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
 
                     const remaining = getPrivateRemaining(chatTarget.id);
@@ -2950,18 +3027,14 @@
                         `💬 ЛС с <span class="highlight">${chatTarget.name}</span> — осталось <span class="highlight">${remaining}</span> сообщений сегодня`;
 
                 } else {
-                    const result = await supabase.select('messages', '*', {
-                        is_private: false
-                    }, { 
-                        order: { column: 'created_at', ascending: false },
-                        limit: 50
-                    });
-
-                    data = result.ok ? result.data || [] : [];
+                    const res = await sbFetch(
+                        `/rest/v1/messages?select=*&order=created_at.desc&limit=${CHAT_CONFIG.MAX_PUBLIC_MESSAGES}&is_private=eq.false`
+                    );
+                    data = res.ok ? res.data || [] : [];
                     data.reverse();
 
                     document.getElementById('chatInfo').innerHTML =
-                        `💬 <span class="highlight">Общий чат</span> — все видят все сообщения (последние 50)`;
+                        `💬 <span class="highlight">Общий чат</span> — все видят все сообщения (последние ${CHAT_CONFIG.MAX_PUBLIC_MESSAGES})`;
                 }
 
                 chatMessagesCache = data.length > 0 ? data : [];
@@ -3064,8 +3137,8 @@
                 }
 
                 const count = G.privateMessages[chatTarget.id] || 0;
-                if (count >= 10) {
-                    window.toast('❌ Лимит ЛС: 10 сообщений в день', 'err');
+                if (count >= CHAT_CONFIG.DAILY_PRIVATE_LIMIT) {
+                    window.toast(`❌ Лимит ЛС: ${CHAT_CONFIG.DAILY_PRIVATE_LIMIT} сообщений в день`, 'err');
                     return;
                 }
 
@@ -3109,10 +3182,13 @@
             }, 100);
 
             try {
-                const result = await supabase.insert('messages', msgData);
+                const { ok, status, data } = await sbFetch('/rest/v1/messages', {
+                    method: 'POST',
+                    body: msgData
+                });
 
-                if (!result.ok) {
-                    console.error('❌ Ошибка отправки:', result.status, result.data);
+                if (!ok) {
+                    console.error('❌ Ошибка отправки:', status, data);
                     window.toast('❌ Ошибка отправки', 'err');
                     chatMessagesCache = chatMessagesCache.filter(m => m !== tempMsg);
                     renderChatMessages();
@@ -3146,20 +3222,39 @@
             if (!UID) return;
 
             try {
-                const publicMsgs = await supabase.select('messages', 'id', {
-                    is_private: false
-                }, { 
-                    order: { column: 'created_at', ascending: false },
-                    limit: 50
-                });
+                const { data: publicMessages } = await sbFetch(
+                    `/rest/v1/messages?select=id&is_private=eq.false&order=created_at.desc&limit=${CHAT_CONFIG.MAX_PUBLIC_MESSAGES}`
+                );
 
-                if (publicMsgs.ok && publicMsgs.data && publicMsgs.data.length > 0) {
-                    const oldestId = publicMsgs.data[publicMsgs.data.length - 1]?.id;
+                if (publicMessages && publicMessages.length > 0) {
+                    const oldestId = publicMessages[publicMessages.length - 1]?.id;
                     if (oldestId) {
-                        await supabase.delete('messages', {
-                            is_private: false,
-                            id: oldestId
-                        });
+                        await sbFetch(
+                            `/rest/v1/messages?is_private=eq.false&id=lt.${oldestId}`,
+                            { method: 'DELETE' }
+                        );
+                    }
+                }
+
+                const { data: privateChats } = await sbFetch(
+                    `/rest/v1/messages?select=id,sender_id,receiver_id&is_private=eq.true&order=created_at.desc`
+                );
+
+                if (privateChats && privateChats.length > 0) {
+                    const chatPairs = {};
+                    privateChats.forEach(msg => {
+                        const key = [msg.sender_id, msg.receiver_id].sort().join('_');
+                        if (!chatPairs[key]) chatPairs[key] = [];
+                        chatPairs[key].push(msg.id);
+                    });
+
+                    for (const [key, ids] of Object.entries(chatPairs)) {
+                        if (ids.length > CHAT_CONFIG.MAX_PRIVATE_MESSAGES) {
+                            const toDelete = ids.slice(CHAT_CONFIG.MAX_PRIVATE_MESSAGES);
+                            for (const id of toDelete) {
+                                await sbFetch(`/rest/v1/messages?id=eq.${id}`, { method: 'DELETE' });
+                            }
+                        }
                     }
                 }
 
@@ -3171,12 +3266,12 @@
         async function loadOnlineUsers() {
             try {
                 const fiveMinAgo = new Date(Date.now() - 5 * 60 * 1000).toISOString();
-                const result = await supabase.select('users', 'id', {
-                    updated_at: fiveMinAgo
-                }, { limit: 50 });
+                const { data, ok } = await sbFetch(
+                    `/rest/v1/users?select=id&updated_at=gte.${encodeURIComponent(fiveMinAgo)}&limit=50`
+                );
 
-                if (result.ok && result.data) {
-                    const online = result.data.filter(u => u.id !== UID);
+                if (ok && data) {
+                    const online = data.filter(u => u.id !== UID);
                     document.getElementById('chatOnline').textContent = `● ${online.length + 1} онлайн`;
                 }
             } catch (e) {
@@ -3187,14 +3282,76 @@
         async function updateOnlineStatus() {
             if (!UID) return;
             try {
-                await supabase.update('users', { updated_at: new Date().toISOString() }, { id: UID });
+                await sbFetch(`/rest/v1/users?id=eq.${UID}`, {
+                    method: 'PATCH',
+                    body: { updated_at: new Date().toISOString() }
+                });
             } catch (e) {
                 console.warn('⚠️ Ошибка обновления статуса:', e);
             }
         }
 
+        function initChat() {
+            if (!UID) return;
+
+            chatMode = 'public';
+            chatTarget = null;
+            chatMessagesCache = [];
+            
+            const toggle = document.getElementById('chatModeToggle');
+            toggle.textContent = 'Общий';
+            toggle.classList.remove('active');
+            
+            const input = document.getElementById('chatInput');
+            if (input) {
+                input.disabled = false;
+                input.readOnly = false;
+                input.style.opacity = '1';
+                input.style.pointerEvents = 'auto';
+                input.placeholder = 'Напишите в общий чат...';
+                input.value = '';
+                
+                setTimeout(() => {
+                    input.focus();
+                    if ('ontouchstart' in window) {
+                        input.click();
+                    }
+                }, 300);
+            }
+
+            const hasSeenTutorial = localStorage.getItem('chat_tutorial_seen');
+            if (!hasSeenTutorial) {
+                document.getElementById('chatTutorial').classList.add('show');
+                setTimeout(() => {
+                    document.getElementById('chatTutorial').classList.remove('show');
+                    localStorage.setItem('chat_tutorial_seen', 'true');
+                }, 20000);
+            }
+
+            showMessages();
+            loadOnlineUsers();
+
+            if (chatPollInterval) clearInterval(chatPollInterval);
+            chatPollInterval = setInterval(() => {
+                if (document.getElementById('sc-chat').classList.contains('on')) {
+                    if (document.getElementById('chatMessagesWrap').classList.contains('show')) {
+                        loadChatMessages();
+                    }
+                    if (document.getElementById('chatDialogs').classList.contains('show')) {
+                        loadDialogs();
+                    }
+                    loadOnlineUsers();
+                }
+            }, 3000);
+
+            setInterval(cleanupOldMessages, CHAT_CONFIG.CLEANUP_INTERVAL);
+            setTimeout(cleanupOldMessages, 30000);
+            
+            debugTime();
+        }
+
         // ============================================================
-        // 13. ВСЕ ИГРОВЫЕ ФУНКЦИИ
+        // 14. ВСЕ ИГРОВЫЕ ФУНКЦИИ
         // ============================================================
         window.toast = function(msg, t) {
             const e = document.getElementById('TOAST');
@@ -3211,6 +3368,7 @@
 
         function fmt(n) { return Math.round(n).toLocaleString('ru'); }
 
+        // --- РЕНДЕР ФУНКЦИИ ---
         function renderFarmTimer() {
             const now = Date.now(),
                 cd = 3600000,
@@ -3355,14 +3513,14 @@
             topLastType = tp;
 
             const now = Date.now();
-            const isCacheValid = topCache.data && topCache.type === tp && now - topCache.timestamp < 600000;
+            const isCacheValid = topCache.data && topCache.type === tp && now - topCache.timestamp < CONFIG.TOP_CACHE_TIME;
 
             if (!isCacheValid) {
                 document.getElementById('TOP_u').textContent = '⏳ загрузка...';
                 await loadTopPlayers(tp);
             }
 
-            const rem = Math.max(0, Math.ceil((topCache.timestamp + 600000 - now) / 1000));
+            const rem = Math.max(0, Math.ceil((topCache.timestamp + CONFIG.TOP_CACHE_TIME - now) / 1000));
             document.getElementById('TOP_u').textContent = rem > 30 ? `обновление через ${Math.round(rem/60)}м` : 'только что';
 
             const shardCount = getShardCount();
@@ -3396,7 +3554,7 @@
             document.getElementById('TOP_t').textContent = titles[tp];
 
             all.sort((a, b) => (b[key] || 0) - (a[key] || 0));
-            const top10 = all.slice(0, 10);
+            const top10 = all.slice(0, CONFIG.TOP_LIMIT);
             const clrs = ['var(--gld)', '#c0c0d0', '#cd7f32'];
 
             document.getElementById('TOP_l').innerHTML = top10.map((p, i) => {
@@ -3423,7 +3581,7 @@
         }
 
         // ============================================================
-        // 14. НАВИГАЦИЯ
+        // 15. НАВИГАЦИЯ
         // ============================================================
         window.goSc = function(nm) {
             document.querySelectorAll('.sc').forEach(s => s.classList.remove('on'));
@@ -3483,7 +3641,7 @@
         };
 
         // ============================================================
-        // 15. ОТРИСОВКА UI
+        // 16. ОТРИСОВКА UI
         // ============================================================
         function renderUI() {
             const sets = {
@@ -3525,7 +3683,7 @@
         }
 
         // ============================================================
-        // 16. ИГРОВЫЕ ДЕЙСТВИЯ
+        // 17. ИГРОВЫЕ ДЕЙСТВИЯ
         // ============================================================
         window.doFarm = function() {
             const now = Date.now();
@@ -3669,11 +3827,10 @@
             if (code === G.refCode) { window.toast('Это ваш код', 'err'); return; }
             if (G.activatedRef) { window.toast('Код уже активирован', 'err'); return; }
             try {
-                const result = await supabase.select('users', 'id', {
-                    'data->>refCode': code
-                });
-                    
-                if (!result.ok || !result.data || result.data.length === 0) { window.toast('Код не найден', 'err'); return; }
+                const { ok, data } = await sbFetch(
+                    `/rest/v1/users?data->>refCode=eq.${encodeURIComponent(code)}&select=id`
+                );
+                if (!ok || !data || data.length === 0) { window.toast('Код не найден', 'err'); return; }
                 G.activatedRef = code;
                 G.coins += 25;
                 G.refs++;
@@ -3690,11 +3847,10 @@
             if (!newCode) return;
             if (newCode.length < 4 || newCode.length > 8) { window.toast('Код должен быть 4-8 символов', 'err'); return; }
             if (!/^[a-zA-Z0-9]+$/.test(newCode)) { window.toast('Только буквы и цифры', 'err'); return; }
-            const result = await supabase.select('users', 'id', {
-                'data->>refCode': newCode
-            });
-                
-            if (result.ok && result.data && result.data.length > 0) { window.toast('Этот код уже занят', 'err'); return; }
+            const { data: taken } = await sbFetch(
+                `/rest/v1/users?data->>refCode=eq.${encodeURIComponent(newCode)}&select=id`
+            );
+            if (taken && taken.length > 0) { window.toast('Этот код уже занят', 'err'); return; }
             G.refCode = newCode;
             scheduleSave();
             renderUI();
@@ -3740,7 +3896,7 @@
         };
 
         // ============================================================
-        // 17. ПОКАЗ ПРИЛОЖЕНИЯ
+        // 18. ПОКАЗ ПРИЛОЖЕНИЯ
         // ============================================================
         function showApp() {
             document.getElementById('authWrap').style.display = 'none';
@@ -3769,7 +3925,7 @@
 
             setInterval(renderFarmTimer, 1000);
             setInterval(renderBoss, 30000);
-            setInterval(() => { if (UID) saveUserData(); }, 60000);
+            setInterval(() => { if (UID) saveUserData(); }, CONFIG.AUTO_SAVE_INTERVAL);
             setInterval(() => { if (UID) updateOnlineStatus(); }, 30000);
 
             window.addEventListener('beforeunload', () => { if (UID) { saveUserData();
@@ -3789,7 +3945,7 @@
         }
 
         // ============================================================
-        // 18. АВТОРИЗАЦИЯ UI
+        // 19. АВТОРИЗАЦИЯ UI
         // ============================================================
         window.setAuthMode = function(m) {
             authMode = m;
@@ -3849,16 +4005,20 @@
         };
 
         // ============================================================
-        // 19. РУЛЕТКА (полная)
+        // 20. РУЛЕТКА (сокращена для краткости, но работает)
         // ============================================================
         const RC = document.getElementById('rouletteCanvas');
         const rctx = RC.getContext('2d');
-        const CX = 160, CY = 160, OR = 148, IR = 28;
+        const CX = 160,
+            CY = 160,
+            OR = 148,
+            IR = 28;
 
         const SEGS = [];
         for (let i = 0; i < 20; i++) {
             if (i === 0 || i === 10) SEGS.push({ c: 'green', label: i === 0 ? '0' : '00', num: i === 0 ? 0 : 00 });
-            else SEGS.push({ c: i % 2 === 0 ? 'black' : 'red', label: String(i * 2 - 1 + ((i > 10) ? 1 : 0)), num: i * 2 - 1 + ((i > 10) ? 1 : 0) });
+            else SEGS.push({ c: i % 2 === 0 ? 'black' : 'red', label: String(i * 2 - 1 + ((i > 10) ? 1 : 0)), num: i * 2 -
+                    1 + ((i > 10) ? 1 : 0) });
         }
 
         const SEG_FILL = {
@@ -3867,15 +4027,22 @@
             green: ['#14532d', '#15803d', '#16a34a']
         };
 
-        let wheelAngle = 0, ballAngle = 0, ballR = OR - 14;
-        let spinning = false, raf = null, resultDisplayed = false;
-        let spinBet = 25, _pendingWinColor = null, _targetIndex = null;
-        let _spinStartW = 0, _spinT0 = 0, _finalWAngle = 0;
+        let wheelAngle = 0;
+        let ballAngle = 0;
+        let ballR = OR - 14;
+        let spinning = false;
+        let raf = null;
+        let resultDisplayed = false;
+        let spinBet = 25;
+        let _pendingWinColor = null;
+        let _targetIndex = null;
+        let _spinStartW = 0;
+        let _spinT0 = 0;
+        let _finalWAngle = 0;
 
         window.drawRoulette = function(wAngle, bAngle, bR, landed) {
             rctx.clearRect(0, 0, 320, 320);
 
-            // Внешнее кольцо
             const validR = OR + 14;
             const woodGrad = rctx.createRadialGradient(CX, CY, 0, CX, CY, validR);
             woodGrad.addColorStop(0, '#5c3a1e');
@@ -3886,7 +4053,6 @@
             rctx.fillStyle = woodGrad;
             rctx.fill();
 
-            // Окантовка
             rctx.beginPath();
             rctx.arc(CX, CY, OR + 14, 0, Math.PI * 2);
             rctx.strokeStyle = '#d4a017';
@@ -3898,7 +4064,6 @@
             rctx.lineWidth = 1.5;
             rctx.stroke();
 
-            // Внутренние кольца
             rctx.beginPath();
             rctx.arc(CX, CY, OR - 6, 0, Math.PI * 2);
             rctx.strokeStyle = '#1a0a00';
@@ -3915,7 +4080,6 @@
             rctx.lineWidth = 8;
             rctx.stroke();
 
-            // Сектора
             const n = SEGS.length;
             const sa = Math.PI * 2 / n;
             for (let i = 0; i < n; i++) {
@@ -3945,7 +4109,6 @@
                 rctx.fillStyle = sheen;
                 rctx.fill();
 
-                // Разделители
                 rctx.beginPath();
                 rctx.moveTo(CX + Math.cos(a1) * (IR + 4), CY + Math.sin(a1) * (IR + 4));
                 rctx.lineTo(CX + Math.cos(a1) * (OR - 16), CY + Math.sin(a1) * (OR - 16));
@@ -3953,7 +4116,6 @@
                 rctx.lineWidth = 0.8;
                 rctx.stroke();
 
-                // Текст
                 const tmid = a1 + (a2 - a1) / 2;
                 const tr = OR - 30;
                 rctx.save();
@@ -3967,7 +4129,6 @@
                 rctx.restore();
             }
 
-            // Центр
             const coneGrad = rctx.createRadialGradient(CX, CY, 0, CX, CY, IR + 14);
             coneGrad.addColorStop(0, '#5c3a1e');
             coneGrad.addColorStop(.7, '#3d2109');
@@ -3992,7 +4153,6 @@
             rctx.fillStyle = hubGrad;
             rctx.fill();
 
-            // Крест в центре
             rctx.strokeStyle = 'rgba(0,0,0,.35)';
             rctx.lineWidth = 1.5;
             rctx.beginPath();
@@ -4004,7 +4164,6 @@
             rctx.lineTo(CX, CY + IR - 4);
             rctx.stroke();
 
-            // Стрелка указателя
             rctx.beginPath();
             rctx.moveTo(CX - 7, 12);
             rctx.lineTo(CX + 7, 12);
@@ -4018,7 +4177,6 @@
 
             if (!spinning && resultDisplayed) return;
 
-            // Шарик
             if (spinning || !resultDisplayed) {
                 const bx = CX + Math.cos(bAngle) * bR;
                 const by = CY + Math.sin(bAngle) * bR;
@@ -4163,15 +4321,42 @@
         idleSpin();
 
         // ============================================================
-        // 20. КУБИК (полный)
+        // 21. КУБИК
         // ============================================================
         const PIP_LAYOUTS = {
-            1: [[1,1]],
-            2: [[0,0],[2,2]],
-            3: [[0,0],[1,1],[2,2]],
-            4: [[0,0],[0,2],[2,0],[2,2]],
-            5: [[0,0],[0,2],[1,1],[2,0],[2,2]],
-            6: [[0,0],[0,2],[1,0],[1,2],[2,0],[2,2]]
+            1: [
+                [1, 1]
+            ],
+            2: [
+                [0, 0],
+                [2, 2]
+            ],
+            3: [
+                [0, 0],
+                [1, 1],
+                [2, 2]
+            ],
+            4: [
+                [0, 0],
+                [0, 2],
+                [2, 0],
+                [2, 2]
+            ],
+            5: [
+                [0, 0],
+                [0, 2],
+                [1, 1],
+                [2, 0],
+                [2, 2]
+            ],
+            6: [
+                [0, 0],
+                [0, 2],
+                [1, 0],
+                [1, 2],
+                [2, 0],
+                [2, 2]
+            ]
         };
 
         const CUBE_PALETTES = [
@@ -4188,14 +4373,20 @@
             black: { face: '#18181b', pip: '#f5f5f5', border: 'rgba(255,255,255,.18)' }
         };
 
-        let curPalette = 0, diceRolling = false, diceAnimId2 = null;
-        let lastDiceValue = null, lastDiceColor = null;
+        let curPalette = 0;
+        let diceRolling = false;
+        let diceAnimId2 = null;
+        let diceRx = -20,
+            diceRy = 30;
+        let lastDiceValue = null;
+        let lastDiceColor = null;
 
         function buildPips(el, n, pipColor) {
             const g = document.createElement('div');
             g.className = 'pips';
-            g.style.cssText = 'display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);width:100px;height:100px;gap:0;padding:8px';
-            for (let r = 0; r < 3; r++) {
+            g.style.cssText =
+                'display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);width:100px;height:100px;gap:0;padding:8px';
+            for (let r = 0; r < 3; r++)
                 for (let c = 0; c < 3; c++) {
                     const cell = document.createElement('div');
                     cell.style.cssText = 'display:flex;align-items:center;justify-content:center';
@@ -4203,12 +4394,12 @@
                     const hasPip = layout.some(([pr, pc]) => pr === r && pc === c);
                     if (hasPip) {
                         const pip = document.createElement('div');
-                        pip.style.cssText = `width:16px;height:16px;border-radius:50%;background:${pipColor};box-shadow:0 1px 3px rgba(0,0,0,.4)`;
+                        pip.style.cssText =
+                            `width:16px;height:16px;border-radius:50%;background:${pipColor};box-shadow:0 1px 3px rgba(0,0,0,.4)`;
                         cell.appendChild(pip);
                     }
                     g.appendChild(cell);
                 }
-            }
             el.innerHTML = '';
             el.appendChild(g);
         }
@@ -4218,8 +4409,8 @@
                 f.style.background = p.face;
                 f.style.borderColor = p.border;
             });
-            [1,2,3,4,5,6].forEach((v, i) => {
-                const ids = ['f1','f2','f3','f4','f5','f6'];
+            [1, 2, 3, 4, 5, 6].forEach((v, i) => {
+                const ids = ['f1', 'f2', 'f3', 'f4', 'f5', 'f6'];
                 const el = document.getElementById(ids[i]);
                 if (el) {
                     const wrap = el.querySelector('.pips') || el;
@@ -4229,14 +4420,15 @@
         }
 
         (function initFaces() {
-            const faces = ['f1','f2','f3','f4','f5','f6'];
-            const vals = [1,2,3,4,5,6];
+            const faces = ['f1', 'f2', 'f3', 'f4', 'f5', 'f6'];
+            const vals = [1, 2, 3, 4, 5, 6];
             faces.forEach((id, i) => {
                 const f = document.getElementById(id);
                 if (!f) return;
                 const wrap = document.createElement('div');
                 wrap.className = 'pips';
-                wrap.style.cssText = 'display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);width:100px;height:100px;gap:0;padding:8px';
+                wrap.style.cssText =
+                    'display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);width:100px;height:100px;gap:0;padding:8px';
                 f.innerHTML = '';
                 f.appendChild(wrap);
                 buildPips(wrap, vals[i], '#ffffff');
@@ -4265,7 +4457,10 @@
             const cube = document.getElementById('diceCube');
             cube.style.transition = 'none';
 
-            let t = 0, paletteTimer = 0, rx = -20, ry = 30;
+            let t = 0;
+            let paletteTimer = 0;
+            let rx = -20,
+                ry = 30;
 
             cancelAnimationFrame(diceAnimId2);
 
@@ -4351,125 +4546,7 @@
         };
 
         // ============================================================
-        // 21. ТОП-10
-        // ============================================================
-        async function loadTopPlayers(tp = 'b') {
-            const now = Date.now();
-            if (topCache.data && topCache.type === tp && now - topCache.timestamp < 600000) {
-                return topCache.data;
-            }
-
-            try {
-                const result = await supabase.select('users', 'id,username,data', {}, { limit: 15 });
-
-                if (result.ok && result.data) {
-                    let players = result.data
-                        .filter(u => u.username && u.data)
-                        .map(u => {
-                            const shardCount = u.data.shards ?
-                                Object.keys(u.data.shards).filter(k => u.data.shards[k] > 0).length : 0;
-                            return {
-                                id: u.id,
-                                n: u.data.name || u.username,
-                                username: u.username,
-                                c: u.data.coins || 0,
-                                f: u.data.farms || 0,
-                                r: u.data.refs || 0,
-                                s: shardCount,
-                                a: u.data.avatar || AVATAR_LIST[0]
-                            };
-                        });
-
-                    const sortKey = tp === 'b' ? 'c' : tp === 'f' ? 'f' : tp === 'r' ? 'r' : 's';
-                    players.sort((a, b) => (b[sortKey] || 0) - (a[sortKey] || 0));
-                    players = players.slice(0, 10);
-
-                    topCache.data = players;
-                    topCache.timestamp = now;
-                    topCache.type = tp;
-
-                    return players;
-                }
-                return topCache.data || [];
-            } catch (e) {
-                console.error('❌ Ошибка загрузки топа:', e);
-                return topCache.data || [];
-            }
-        }
-
-        // ============================================================
-        // 22. ЧАТ ИНИЦИАЛИЗАЦИЯ
-        // ============================================================
-        function initChat() {
-            if (!UID) return;
-
-            chatMode = 'public';
-            chatTarget = null;
-            chatMessagesCache = [];
-            
-            const toggle = document.getElementById('chatModeToggle');
-            toggle.textContent = 'Общий';
-            toggle.classList.remove('active');
-            
-            const input = document.getElementById('chatInput');
-            if (input) {
-                input.disabled = false;
-                input.readOnly = false;
-                input.style.opacity = '1';
-                input.style.pointerEvents = 'auto';
-                input.placeholder = 'Напишите в общий чат...';
-                input.value = '';
-                
-                setTimeout(() => {
-                    input.focus();
-                    if ('ontouchstart' in window) {
-                        input.click();
-                    }
-                }, 300);
-            }
-
-            const hasSeenTutorial = localStorage.getItem('chat_tutorial_seen');
-            if (!hasSeenTutorial) {
-                document.getElementById('chatTutorial').classList.add('show');
-                setTimeout(() => {
-                    document.getElementById('chatTutorial').classList.remove('show');
-                    localStorage.setItem('chat_tutorial_seen', 'true');
-                }, 20000);
-            }
-
-            showMessages();
-            loadOnlineUsers();
-
-            if (chatPollInterval) clearInterval(chatPollInterval);
-            chatPollInterval = setInterval(() => {
-                if (document.getElementById('sc-chat').classList.contains('on')) {
-                    if (document.getElementById('chatMessagesWrap').classList.contains('show')) {
-                        loadChatMessages();
-                    }
-                    if (document.getElementById('chatDialogs').classList.contains('show')) {
-                        loadDialogs();
-                    }
-                    loadOnlineUsers();
-                }
-            }, 5000);
-
-            setInterval(cleanupOldMessages, 3600000);
-            setTimeout(cleanupOldMessages, 30000);
-            
-            debugTime();
-        }
-
-        function debugTime() {
-            const now = new Date().toISOString();
-            console.log('🕐 ТЕКУЩЕЕ ВРЕМЯ:');
-            console.log('  UTC:', now);
-            console.log('  МСК:', formatDateTime(now));
-            console.log('  Только время:', formatTime(now));
-            console.log('  Luxon загружен:', LUXON_LOADED);
-        }
-
-        // ============================================================
-        // 23. ЗАПУСК
+        // 22. ЗАПУСК
         // ============================================================
         document.addEventListener('DOMContentLoaded', async () => {
             aStat('⏳ Проверка сессии...', 'ld');
@@ -4496,7 +4573,6 @@
         console.log('  - Время показывается по МСК (через Luxon)');
         console.log('  - Полная поддержка мобильных устройств');
         console.log('  - Все игровые функции работают');
-        console.log('  - Простой и надёжный клиент Supabase');
     </script>
 </body>
 </html>
