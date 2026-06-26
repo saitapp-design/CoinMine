@@ -1222,7 +1222,7 @@
             .top-avatar .placeholder { font-size: 11px; }
         }
 
-        /* ===== ЧАТ ===== */
+        /* ===== ЧАТ (ИСПРАВЛЕННАЯ ВЕРСИЯ) ===== */
         .chat-container {
             display: flex;
             flex-direction: column;
@@ -1309,106 +1309,64 @@
             background: rgba(240, 180, 41, 0.1);
         }
 
-        .chat-dialogs {
-            display: none;
-            flex-direction: column;
-            flex: 1;
-            overflow-y: auto;
-            padding: 6px 8px;
+        /* ПОИСК ПОЛЬЗОВАТЕЛЕЙ ДЛЯ ЛС */
+        .chat-search-container {
+            position: relative;
+            padding: 6px 10px;
             background: var(--bg4);
-        }
-        .chat-dialogs.show { display: flex; }
-        .chat-dialogs .dialog-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 8px 4px 12px 4px;
             border-bottom: 1px solid var(--bd);
             flex-shrink: 0;
         }
-        .chat-dialogs .dialog-header span {
-            font-size: 13px;
-            font-weight: 600;
-            color: var(--tx2);
-        }
-        .chat-dialogs .dialog-header .close-dialogs {
-            background: none;
-            border: none;
-            color: var(--tx2);
-            font-size: 18px;
-            cursor: pointer;
-            padding: 0 4px;
-        }
-        .chat-dialog-item {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 10px 12px;
-            border-radius: var(--r2);
-            cursor: pointer;
-            transition: .2s;
-            border-bottom: 1px solid var(--bd);
-            min-height: 56px;
-        }
-        .chat-dialog-item:active { background: var(--bg5); }
-        .chat-dialog-item .avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            overflow: hidden;
-            flex-shrink: 0;
-            background: var(--bg4);
-            border: 2px solid var(--bd2);
-        }
-        .chat-dialog-item .avatar img {
+        .chat-search-container input {
             width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-        .chat-dialog-item .info {
-            flex: 1;
-            min-width: 0;
-        }
-        .chat-dialog-item .info .name {
-            font-size: 14px;
-            font-weight: 600;
+            padding: 8px 12px;
+            border-radius: 20px;
+            border: 1px solid var(--bd2);
+            background: var(--bg3);
             color: var(--tx);
+            font-size: 13px;
+            outline: none;
+        }
+        .chat-search-container input:focus {
+            border-color: var(--acc2);
+        }
+        .chat-search-container input::placeholder {
+            color: var(--tx2);
+        }
+        .chat-search-results {
+            position: absolute;
+            top: 46px;
+            left: 10px;
+            right: 10px;
+            background: var(--bg3);
+            border: 1px solid var(--bd2);
+            border-radius: var(--r2);
+            max-height: 140px;
+            overflow-y: auto;
+            z-index: 10;
+            display: none;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6);
+        }
+        .chat-search-results .result-item {
+            padding: 8px 10px;
+            cursor: pointer;
+            border-bottom: 1px solid var(--bd);
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 10px;
+            transition: .2s;
         }
-        .chat-dialog-item .info .last-msg {
-            font-size: 12px;
-            color: var(--tx2);
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
+        .chat-search-results .result-item:hover {
+            background: var(--bg4);
         }
-        .chat-dialog-item .badge {
-            background: var(--acc);
-            color: #fff;
-            font-size: 10px;
-            font-weight: 700;
-            padding: 2px 8px;
-            border-radius: 10px;
-            flex-shrink: 0;
+        .chat-search-results .result-item .name {
+            font-size: 13px;
+            color: var(--tx);
         }
-        .chat-dialog-item .online-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            flex-shrink: 0;
-            background: var(--red);
-        }
-        .chat-dialog-item .online-dot.online {
-            background: var(--grn);
-            box-shadow: 0 0 8px #10b98166;
-        }
-        .chat-dialog-item .last-time {
+        .chat-search-results .result-item .user-id {
             font-size: 10px;
             color: var(--tx2);
-            flex-shrink: 0;
-            opacity: 0.6;
+            margin-left: auto;
         }
 
         .chat-messages-wrap {
@@ -1416,9 +1374,6 @@
             flex-direction: column;
             flex: 1;
             min-height: 0;
-        }
-        .chat-messages-wrap.hide {
-            display: none;
         }
 
         .chat-messages {
@@ -1573,26 +1528,6 @@
             font-weight: 500;
         }
 
-        .chat-dialogs-btn {
-            background: none;
-            border: 1px solid var(--bd2);
-            border-radius: 12px;
-            padding: 4px 10px;
-            font-size: 11px;
-            color: var(--tx2);
-            cursor: pointer;
-            transition: .3s;
-            font-weight: 500;
-        }
-        .chat-dialogs-btn:hover {
-            border-color: var(--acc2);
-            color: var(--tx);
-        }
-        .chat-dialogs-btn.active {
-            border-color: var(--gld);
-            color: var(--gld);
-        }
-
         @media (max-width: 600px) {
             .chat-container {
                 height: 80vh !important;
@@ -1656,28 +1591,17 @@
             .chat-input-wrap button span {
                 font-size: 22px !important;
             }
-            .chat-dialog-item {
-                padding: 10px 12px !important;
-                min-height: 56px;
+            .chat-search-container input {
+                font-size: 13px !important;
+                padding: 6px 12px !important;
             }
-            .chat-dialog-item .avatar {
-                width: 40px !important;
-                height: 40px !important;
-            }
-            .chat-dialog-item .info .name {
-                font-size: 14px !important;
-            }
-            .chat-dialog-item .info .last-msg {
-                font-size: 12px !important;
+            .chat-search-results .result-item {
+                padding: 6px 8px !important;
             }
             .chat-info {
                 font-size: 10px !important;
                 padding: 4px 8px !important;
                 min-height: 28px !important;
-            }
-            .chat-dialogs-btn {
-                font-size: 10px !important;
-                padding: 3px 8px !important;
             }
         }
 
@@ -2007,14 +1931,13 @@
                     </div>
                 </div>
 
-                <!-- ЧАТ -->
+                <!-- ЧАТ (ИСПРАВЛЕННАЯ ВЕРСИЯ) -->
                 <div class="sc" id="sc-chat">
                     <div class="chat-container">
 
                         <!-- Верхняя панель -->
                         <div class="chat-header">
                             <div class="chat-header-left">
-                                <button class="back-btn" id="chatBackBtn" onclick="showDialogs()">←</button>
                                 <span class="chat-title" id="chatTitle">
                                     💬 Чат
                                     <span class="sub" id="chatSubTitle">Общий чат</span>
@@ -2022,30 +1945,22 @@
                             </div>
                             <div class="chat-header-right">
                                 <span class="online-count" id="chatOnline">● 0 онлайн</span>
-                                <button class="chat-dialogs-btn" id="chatDialogsBtn" onclick="showDialogs()" title="Список диалогов">
-                                    📋
-                                </button>
                                 <button class="chat-mode-toggle" id="chatModeToggle" onclick="toggleChatMode()">
                                     Общий
                                 </button>
                             </div>
                         </div>
 
-                        <!-- Список диалогов (ЛС) -->
-                        <div class="chat-dialogs" id="chatDialogs">
-                            <div class="dialog-header">
-                                <span>📋 Диалоги</span>
-                                <button class="close-dialogs" onclick="closeDialogs()">✕</button>
-                            </div>
-                            <div id="chatDialogsList">
-                                <div class="system-msg">Загрузка диалогов...</div>
-                            </div>
+                        <!-- Поиск для ЛС -->
+                        <div class="chat-search-container" id="chatSearchContainer" style="display:none;">
+                            <input id="chatSearchInput" placeholder="🔍 Введите ник для ЛС..." oninput="searchUsers(this.value)">
+                            <div class="chat-search-results" id="chatSearchResults"></div>
                         </div>
 
                         <!-- Окно сообщений -->
                         <div class="chat-messages-wrap" id="chatMessagesWrap">
                             <div class="chat-messages" id="chatMessages">
-                                <div class="system-msg">Выберите диалог или напишите в общий чат</div>
+                                <div class="system-msg">Напишите сообщение в общий чат</div>
                             </div>
 
                             <!-- Информационная строка -->
@@ -2132,13 +2047,6 @@
             BATCH_SIZE: 10
         };
 
-        const CHAT_CONFIG = {
-            MAX_PUBLIC_MESSAGES: 50,
-            MAX_PRIVATE_MESSAGES: 10,
-            DAILY_PRIVATE_LIMIT: 10,
-            CLEANUP_INTERVAL: 3600000,
-        };
-
         // ============================================================
         // 2. ВСПОМОГАТЕЛЬНЫЕ
         // ============================================================
@@ -2197,10 +2105,7 @@
         let currentChatTarget = null; // { id, name, avatar }
         let chatMessagesCache = [];
         let chatPollInterval = null;
-        let chatDialogsCache = [];
-        let isDialogsOpen = false;
-        let chatChannel = null;
-        let isRealtimeReady = false;
+        let isSearchMode = false;
 
         // ============================================================
         // 5. СОСТОЯНИЕ (игровое)
@@ -2675,7 +2580,7 @@
         };
 
         // ============================================================
-        // 12. ФУНКЦИИ ЧАТА (НОВАЯ АРХИТЕКТУРА)
+        // 12. ФУНКЦИИ ЧАТА (ПРАВИЛЬНАЯ АРХИТЕКТУРА)
         // ============================================================
 
         // ----- УМНЫЙ СКРОЛЛ -----
@@ -2688,13 +2593,9 @@
         }
 
         // ----- ДОБАВЛЕНИЕ СООБЩЕНИЯ (БЕЗ ПЕРЕРИСОВКИ) -----
-        function appendMessageToChat(msg, targetChat = 'global') {
+        function appendMessageToChat(msg) {
             const container = document.getElementById('chatMessages');
             if (!container) return;
-
-            // Проверяем, что это сообщение для текущего чата
-            if (targetChat === 'global' && currentChat !== 'global') return;
-            if (targetChat !== 'global' && currentChat !== targetChat) return;
 
             const isOwn = msg?.sender_id === UID;
             const isPrivate = msg?.is_private === true;
@@ -2705,7 +2606,6 @@
 
             const el = document.createElement('div');
             el.className = `msg ${isOwn ? 'own' : 'other'}`;
-            el.style.animation = 'none';
 
             const nameClick = (!isOwn && !isPrivate && senderId !== UID) ?
                 ` onclick="startPrivateFromPublic('${senderId}','${escapeHtml(senderName)}','${avatar}')" style="cursor:pointer;text-decoration:underline;text-underline-offset:2px;"` :
@@ -2722,12 +2622,15 @@
 
             container.appendChild(el);
 
-            // Умный скролл
-            smartScroll(container);
+            // Умный скролл - скроллим только если пользователь внизу
+            const isAtBottom = container.scrollTop + container.clientHeight >= container.scrollHeight - 120;
+            if (isAtBottom) {
+                container.scrollTop = container.scrollHeight;
+            }
         }
 
-        // ----- ЗАГРУЗКА СООБЩЕНИЙ (ТОЛЬКО НОВЫЕ) -----
-        async function loadMessages(force = false) {
+        // ----- ЗАГРУЗКА СООБЩЕНИЙ -----
+        async function loadMessages() {
             if (!UID) return;
 
             try {
@@ -2738,10 +2641,10 @@
 
                     const [sentRes, receivedRes] = await Promise.all([
                         sbFetch(
-                            `/rest/v1/messages?select=*&order=created_at.desc&limit=${CHAT_CONFIG.MAX_PRIVATE_MESSAGES}&is_private=eq.true&sender_id=eq.${encodeURIComponent(UID)}&receiver_id=eq.${encodeURIComponent(targetId)}`
+                            `/rest/v1/messages?select=*&order=created_at.desc&limit=50&is_private=eq.true&sender_id=eq.${encodeURIComponent(UID)}&receiver_id=eq.${encodeURIComponent(targetId)}`
                         ),
                         sbFetch(
-                            `/rest/v1/messages?select=*&order=created_at.desc&limit=${CHAT_CONFIG.MAX_PRIVATE_MESSAGES}&is_private=eq.true&sender_id=eq.${encodeURIComponent(targetId)}&receiver_id=eq.${encodeURIComponent(UID)}`
+                            `/rest/v1/messages?select=*&order=created_at.desc&limit=50&is_private=eq.true&sender_id=eq.${encodeURIComponent(targetId)}&receiver_id=eq.${encodeURIComponent(UID)}`
                         )
                     ]);
 
@@ -2750,7 +2653,6 @@
                     data = [...sent, ...received];
                     data.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
 
-                    // Сохраняем в кеш
                     if (!chats.dm[targetId]) chats.dm[targetId] = [];
                     chats.dm[targetId] = data;
                     chatMessagesCache = data;
@@ -2761,7 +2663,7 @@
 
                 } else {
                     const res = await sbFetch(
-                        `/rest/v1/messages?select=*&order=created_at.desc&limit=${CHAT_CONFIG.MAX_PUBLIC_MESSAGES}&is_private=eq.false`
+                        `/rest/v1/messages?select=*&order=created_at.desc&limit=50&is_private=eq.false`
                     );
                     data = res.ok ? res.data || [] : [];
                     data.reverse();
@@ -2770,10 +2672,10 @@
                     chatMessagesCache = data;
 
                     document.getElementById('chatInfo').innerHTML =
-                        `💬 <span class="highlight">Общий чат</span> — все видят все сообщения (последние ${CHAT_CONFIG.MAX_PUBLIC_MESSAGES})`;
+                        `💬 <span class="highlight">Общий чат</span> — все видят все сообщения (последние 50)`;
                 }
 
-                renderChatMessages(force);
+                renderChatMessages();
 
             } catch (e) {
                 console.warn('⚠️ Ошибка загрузки сообщений:', e);
@@ -2783,7 +2685,7 @@
         }
 
         // ----- РЕНДЕР (ПОЛНАЯ ПЕРЕРИСОВКА) -----
-        function renderChatMessages(force = false) {
+        function renderChatMessages() {
             const container = document.getElementById('chatMessages');
             if (!container) return;
 
@@ -2823,12 +2725,173 @@
             }).join('');
 
             // Восстанавливаем скролл если пользователь был не внизу
-            if (!isAtBottom && !force) {
+            if (!isAtBottom) {
                 container.scrollTop = scrollPos;
             } else {
                 container.scrollTop = container.scrollHeight;
             }
         }
+
+        // ----- ПОИСК ПОЛЬЗОВАТЕЛЕЙ ДЛЯ ЛС -----
+        let searchTimeout = null;
+
+        window.searchUsers = function(query) {
+            clearTimeout(searchTimeout);
+            const results = document.getElementById('chatSearchResults');
+
+            if (!query || query.length < 1) {
+                results.style.display = 'none';
+                return;
+            }
+
+            searchTimeout = setTimeout(async () => {
+                try {
+                    const { data, ok } = await sbFetch(
+                        `/rest/v1/users?select=id,username,data&limit=20`
+                    );
+
+                    if (ok && data) {
+                        const users = data
+                            .filter(u => {
+                                if (u.id === UID) return false;
+                                const name = (u.data?.name || u.username || '').toLowerCase();
+                                return name.includes(query.toLowerCase());
+                            })
+                            .map(u => {
+                                const userId = u.id;
+                                const userName = u.data?.name || u.username;
+                                const userAvatar = u.data?.avatar || AVATAR_LIST[0];
+                                return {
+                                    id: userId,
+                                    username: u.username,
+                                    name: userName,
+                                    avatar: userAvatar
+                                };
+                            });
+
+                        if (users.length === 0) {
+                            results.innerHTML = '<div class="tm" style="padding:8px;color:var(--tx2);text-align:center;font-size:13px;">Ник не найден</div>';
+                        } else {
+                            results.innerHTML = users.map(u =>
+                                `<div class="result-item" onclick="selectChatUser('${u.id}','${u.name}','${u.avatar}')">
+                                    <div class="top-avatar" style="width:28px;height:28px;"><img src="${u.avatar}" alt="${u.name}" loading="lazy"></div>
+                                    <span class="name">${u.name}</span>
+                                    <span class="user-id">#${u.id.slice(0, 6)}</span>
+                                </div>`
+                            ).join('');
+                        }
+                        results.style.display = 'block';
+                    }
+                } catch (e) {
+                    console.warn('⚠️ Ошибка поиска пользователей:', e);
+                }
+            }, 300);
+        };
+
+        window.selectChatUser = function(id, name, avatar) {
+            // Закрываем поиск
+            document.getElementById('chatSearchResults').style.display = 'none';
+            document.getElementById('chatSearchInput').value = '';
+
+            // Открываем ЛС
+            openPrivateChat(id, name, avatar);
+        };
+
+        // ----- ЛИЧНЫЕ СООБЩЕНИЯ -----
+        function getPrivateRemaining(receiverId) {
+            const now = Date.now();
+            if (now - G.lastPrivateReset > 86400000) {
+                G.privateMessages = {};
+                G.lastPrivateReset = now;
+                scheduleSave();
+            }
+            const count = G.privateMessages[receiverId] || 0;
+            return Math.max(0, 10 - count);
+        }
+
+        function openPrivateChat(id, name, avatar) {
+            currentChat = id;
+            currentChatTarget = { id, name, avatar };
+            isSearchMode = true;
+
+            document.getElementById('chatModeToggle').textContent = 'ЛС';
+            document.getElementById('chatModeToggle').classList.add('active');
+            document.getElementById('chatTitle').innerHTML = `🔒 ЛС <span class="sub">${name}</span>`;
+            document.getElementById('chatSearchContainer').style.display = 'block';
+            document.getElementById('chatSearchInput').placeholder = `🔍 Поиск другого пользователя...`;
+
+            const input = document.getElementById('chatInput');
+            input.disabled = false;
+            input.placeholder = `Напишите ${name}...`;
+
+            // Загружаем сообщения из кеша или с сервера
+            if (chats.dm[id] && chats.dm[id].length > 0) {
+                chatMessagesCache = chats.dm[id];
+                renderChatMessages();
+            } else {
+                chatMessagesCache = [];
+                renderChatMessages();
+                loadMessages();
+            }
+
+            const remaining = getPrivateRemaining(id);
+            document.getElementById('chatInfo').innerHTML =
+                `💬 ЛС с <span class="highlight">${name}</span> — осталось <span class="highlight">${remaining}</span> сообщений сегодня`;
+
+            window.toast(`💬 ЛС с ${name} открыт`, 'info');
+        }
+
+        function startPrivateFromPublic(userId, userName, userAvatar) {
+            if (userId === UID) {
+                window.toast('Это вы!', 'info');
+                return;
+            }
+            openPrivateChat(userId, userName, userAvatar);
+        }
+
+        // ----- ПЕРЕКЛЮЧЕНИЕ РЕЖИМА -----
+        window.toggleChatMode = function() {
+            if (currentChat === 'global') {
+                // Включаем режим ЛС - показываем поиск
+                isSearchMode = true;
+                document.getElementById('chatModeToggle').textContent = 'ЛС';
+                document.getElementById('chatModeToggle').classList.add('active');
+                document.getElementById('chatTitle').innerHTML = '🔒 ЛС <span class="sub">Поиск</span>';
+                document.getElementById('chatSearchContainer').style.display = 'block';
+                document.getElementById('chatSearchInput').value = '';
+                document.getElementById('chatSearchInput').placeholder = '🔍 Введите ник для ЛС...';
+                document.getElementById('chatSearchResults').style.display = 'none';
+                document.getElementById('chatInfo').innerHTML = '🔍 Введите ник для начала ЛС';
+                document.getElementById('chatInput').placeholder = 'Сначала выберите собеседника...';
+
+                // Очищаем сообщения
+                chatMessagesCache = [];
+                renderChatMessages();
+
+                // Фокусируемся на поиске
+                setTimeout(() => {
+                    document.getElementById('chatSearchInput').focus();
+                }, 100);
+
+            } else {
+                // Возвращаемся в общий чат
+                currentChat = 'global';
+                currentChatTarget = null;
+                isSearchMode = false;
+
+                document.getElementById('chatModeToggle').textContent = 'Общий';
+                document.getElementById('chatModeToggle').classList.remove('active');
+                document.getElementById('chatTitle').innerHTML = '💬 Чат <span class="sub">Общий чат</span>';
+                document.getElementById('chatSearchContainer').style.display = 'none';
+                document.getElementById('chatSearchResults').style.display = 'none';
+                document.getElementById('chatInfo').innerHTML = '💬 <span class="highlight">Общий чат</span> — все видят все сообщения';
+                document.getElementById('chatInput').placeholder = 'Напишите в общий чат...';
+
+                chatMessagesCache = chats.global || [];
+                renderChatMessages();
+                loadMessages();
+            }
+        };
 
         // ----- ОТПРАВКА СООБЩЕНИЯ -----
         window.sendMessage = async function() {
@@ -2849,6 +2912,12 @@
                 return;
             }
 
+            // Если в режиме ЛС, но не выбран собеседник
+            if (isSearchMode && !currentChatTarget) {
+                window.toast('Сначала выберите собеседника в ЛС', 'err');
+                return;
+            }
+
             const isPrivate = currentChat !== 'global' && currentChatTarget;
 
             if (isPrivate) {
@@ -2860,8 +2929,8 @@
                 }
 
                 const count = G.privateMessages[currentChatTarget.id] || 0;
-                if (count >= CHAT_CONFIG.DAILY_PRIVATE_LIMIT) {
-                    window.toast(`❌ Лимит ЛС: ${CHAT_CONFIG.DAILY_PRIVATE_LIMIT} сообщений в день`, 'err');
+                if (count >= 10) {
+                    window.toast('❌ Лимит ЛС: 10 сообщений в день', 'err');
                     return;
                 }
 
@@ -2907,7 +2976,7 @@
             }
 
             // Добавляем в DOM
-            appendMessageToChat(tempMsg, targetKey);
+            appendMessageToChat(tempMsg);
 
             setTimeout(() => {
                 input.focus();
@@ -2933,14 +3002,14 @@
                         chats.dm[targetKey] = chats.dm[targetKey].filter(m => m !== tempMsg);
                         chatMessagesCache = chats.dm[targetKey];
                     }
-                    renderChatMessages(true);
+                    renderChatMessages();
                     input.value = sentText;
                 } else {
-                    // Обновляем с сервера для получения корректных ID
+                    // Обновляем с сервера
                     setTimeout(() => {
-                        loadMessages(true);
+                        loadMessages();
                         cleanupOldMessages();
-                    }, 200);
+                    }, 300);
 
                     if (isPrivate) {
                         const remaining = getPrivateRemaining(currentChatTarget.id);
@@ -2962,29 +3031,19 @@
                     chats.dm[targetKey] = chats.dm[targetKey].filter(m => m !== tempMsg);
                     chatMessagesCache = chats.dm[targetKey];
                 }
-                renderChatMessages(true);
+                renderChatMessages();
                 input.value = sentText;
             }
         };
 
-        // ----- REALTIME -----
+        // ----- REALTIME (ПОЛЛИНГ) -----
+        let lastMessageTime = Date.now();
+
         function setupRealtime() {
-            if (chatChannel) {
-                chatChannel.unsubscribe();
-                chatChannel = null;
-            }
-
-            // Используем polling как fallback для Realtime
-            isRealtimeReady = true;
-
-            // Чистим старый интервал
             if (chatPollInterval) {
                 clearInterval(chatPollInterval);
                 chatPollInterval = null;
             }
-
-            // Используем polling с умной проверкой
-            let lastMessageTime = Date.now();
 
             chatPollInterval = setInterval(async () => {
                 if (!UID) return;
@@ -3003,15 +3062,13 @@
                             const newMsgs = data.reverse();
                             for (const msg of newMsgs) {
                                 if (!chats.dm[targetId]) chats.dm[targetId] = [];
-                                // Проверяем дубли
                                 const exists = chats.dm[targetId].some(m => m.id === msg.id);
                                 if (!exists) {
                                     chats.dm[targetId].push(msg);
                                     chatMessagesCache = chats.dm[targetId];
-                                    appendMessageToChat(msg, targetId);
+                                    appendMessageToChat(msg);
                                 }
                             }
-                            // Обновляем время
                             if (newMsgs.length > 0) {
                                 lastMessageTime = new Date(newMsgs[newMsgs.length - 1].created_at).getTime();
                             }
@@ -3028,7 +3085,7 @@
                                 if (!exists) {
                                     chats.global.push(msg);
                                     chatMessagesCache = chats.global;
-                                    appendMessageToChat(msg, 'global');
+                                    appendMessageToChat(msg);
                                 }
                             }
                             if (newMsgs.length > 0) {
@@ -3039,279 +3096,7 @@
                 } catch (e) {
                     // Игнорируем ошибки polling
                 }
-            }, 2000); // Проверка раз в 2 секунды (не слишком часто)
-        }
-
-        // ----- ДИАЛОГИ (ЛС) -----
-        function getPrivateRemaining(receiverId) {
-            const now = Date.now();
-            if (now - G.lastPrivateReset > 86400000) {
-                G.privateMessages = {};
-                G.lastPrivateReset = now;
-                scheduleSave();
-            }
-            const count = G.privateMessages[receiverId] || 0;
-            return Math.max(0, CHAT_CONFIG.DAILY_PRIVATE_LIMIT - count);
-        }
-
-        function escapeHtml(text) {
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
-        }
-
-        function closeDialogs() {
-            isDialogsOpen = false;
-            document.getElementById('chatDialogs').classList.remove('show');
-            document.getElementById('chatMessagesWrap').classList.remove('hide');
-            document.getElementById('chatBackBtn').classList.remove('show');
-            document.getElementById('chatTitle').innerHTML = '💬 Чат <span class="sub">Общий чат</span>';
-            document.getElementById('chatDialogsBtn').classList.remove('active');
-        }
-
-        function showDialogs() {
-            isDialogsOpen = true;
-            document.getElementById('chatDialogs').classList.add('show');
-            document.getElementById('chatMessagesWrap').classList.add('hide');
-            document.getElementById('chatBackBtn').classList.remove('show');
-            document.getElementById('chatTitle').innerHTML = '💬 Чат <span class="sub">Диалоги</span>';
-            document.getElementById('chatDialogsBtn').classList.add('active');
-            loadDialogs();
-        }
-
-        function showMessages() {
-            isDialogsOpen = false;
-            document.getElementById('chatDialogs').classList.remove('show');
-            document.getElementById('chatMessagesWrap').classList.remove('hide');
-            document.getElementById('chatBackBtn').classList.remove('show');
-            document.getElementById('chatDialogsBtn').classList.remove('active');
-
-            const input = document.getElementById('chatInput');
-            input.disabled = false;
-
-            if (currentChat === 'global') {
-                document.getElementById('chatTitle').innerHTML = '💬 Чат <span class="sub">Общий чат</span>';
-                document.getElementById('chatInfo').innerHTML = '💬 <span class="highlight">Общий чат</span> — все видят все сообщения';
-                input.placeholder = 'Напишите в общий чат...';
-                document.getElementById('chatModeToggle').textContent = 'Общий';
-                document.getElementById('chatModeToggle').classList.remove('active');
-            } else if (currentChatTarget) {
-                document.getElementById('chatTitle').innerHTML = `🔒 ЛС <span class="sub">${currentChatTarget.name}</span>`;
-                const remaining = getPrivateRemaining(currentChatTarget.id);
-                document.getElementById('chatInfo').innerHTML = `💬 ЛС с <span class="highlight">${currentChatTarget.name}</span> — осталось <span class="highlight">${remaining}</span> сообщений сегодня`;
-                input.placeholder = `Напишите ${currentChatTarget.name}...`;
-                document.getElementById('chatModeToggle').textContent = 'ЛС';
-                document.getElementById('chatModeToggle').classList.add('active');
-            }
-
-            setTimeout(() => {
-                input.focus();
-                if ('ontouchstart' in window) {
-                    input.click();
-                }
-            }, 300);
-
-            loadMessages(true);
-        }
-
-        async function loadDialogs() {
-            const container = document.getElementById('chatDialogsList');
-            container.innerHTML = '<div class="system-msg">Загрузка диалогов...</div>';
-
-            try {
-                const { data, ok } = await sbFetch(
-                    `/rest/v1/users?select=id,username,data,updated_at&limit=50`
-                );
-
-                if (!ok || !data) {
-                    container.innerHTML = '<div class="system-msg">Ошибка загрузки</div>';
-                    return;
-                }
-
-                const users = data.filter(u => u.id !== UID);
-
-                const fiveMinAgo = Date.now() - 5 * 60 * 1000;
-                users.forEach(u => {
-                    const updated = u.updated_at ? new Date(u.updated_at).getTime() : 0;
-                    u._online = updated > fiveMinAgo;
-                });
-
-                const dialogs = [];
-                for (const user of users) {
-                    const name = user.data?.name || user.username;
-                    const avatar = user.data?.avatar || AVATAR_LIST[0];
-                    const online = user._online || false;
-
-                    const { data: msgs } = await sbFetch(
-                        `/rest/v1/messages?select=*,created_at&order=created_at.desc&limit=1&is_private=eq.true&sender_id=eq.${UID}&receiver_id=eq.${user.id}`
-                    );
-
-                    const { data: msgs2 } = await sbFetch(
-                        `/rest/v1/messages?select=*,created_at&order=created_at.desc&limit=1&is_private=eq.true&sender_id=eq.${user.id}&receiver_id=eq.${UID}`
-                    );
-
-                    const allMsgs = [...(msgs || []), ...(msgs2 || [])];
-                    allMsgs.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
-
-                    const lastMsg = allMsgs[0] || null;
-                    const remaining = getPrivateRemaining(user.id);
-                    const hasMessages = allMsgs.length > 0;
-
-                    dialogs.push({
-                        id: user.id,
-                        name: name,
-                        avatar: avatar,
-                        online: online,
-                        lastMsg: lastMsg,
-                        remaining: remaining,
-                        hasMessages: hasMessages
-                    });
-                }
-
-                dialogs.sort((a, b) => {
-                    if (a.hasMessages && !b.hasMessages) return -1;
-                    if (!a.hasMessages && b.hasMessages) return 1;
-                    return a.name.localeCompare(b.name);
-                });
-
-                chatDialogsCache = dialogs;
-
-                if (dialogs.length === 0) {
-                    container.innerHTML = '<div class="system-msg">Нет других пользователей</div>';
-                    return;
-                }
-
-                container.innerHTML = dialogs.map(d =>
-                    `<div class="chat-dialog-item" onclick="openPrivateChat('${d.id}','${d.name}','${d.avatar}')">
-                        <div class="avatar"><img src="${d.avatar}" alt="${d.name}" loading="lazy"></div>
-                        <div class="info">
-                            <div class="name">
-                                ${d.name}
-                                <div class="online-dot ${d.online ? 'online' : ''}"></div>
-                            </div>
-                            <div class="last-msg">${d.lastMsg ? escapeHtml(d.lastMsg.message) : 'Нет сообщений'}</div>
-                        </div>
-                        ${d.remaining < CHAT_CONFIG.DAILY_PRIVATE_LIMIT ? `<span class="badge">${d.remaining}</span>` : ''}
-                    </div>`
-                ).join('');
-
-            } catch (e) {
-                console.warn('⚠️ Ошибка загрузки диалогов:', e);
-                container.innerHTML = '<div class="system-msg">Ошибка загрузки</div>';
-            }
-        }
-
-        function openPrivateChat(id, name, avatar) {
-            currentChat = id;
-            currentChatTarget = { id, name, avatar };
-            document.getElementById('chatModeToggle').textContent = 'ЛС';
-            document.getElementById('chatModeToggle').classList.add('active');
-
-            const input = document.getElementById('chatInput');
-            input.disabled = false;
-            input.placeholder = `Напишите ${name}...`;
-
-            // Загружаем сообщения из кеша или с сервера
-            if (chats.dm[id] && chats.dm[id].length > 0) {
-                chatMessagesCache = chats.dm[id];
-                renderChatMessages(true);
-            } else {
-                chatMessagesCache = [];
-                renderChatMessages(true);
-                loadMessages(true);
-            }
-
-            showMessages();
-        }
-
-        window.toggleChatMode = function() {
-            const input = document.getElementById('chatInput');
-
-            if (currentChat === 'global') {
-                currentChat = 'private';
-                currentChatTarget = null;
-                document.getElementById('chatModeToggle').textContent = 'ЛС';
-                document.getElementById('chatModeToggle').classList.add('active');
-                document.getElementById('chatInfo').innerHTML = '📋 Выберите собеседника из списка';
-                input.disabled = false;
-                input.placeholder = 'Выберите собеседника...';
-                showDialogs();
-            } else {
-                currentChat = 'global';
-                currentChatTarget = null;
-                document.getElementById('chatModeToggle').textContent = 'Общий';
-                document.getElementById('chatModeToggle').classList.remove('active');
-                input.disabled = false;
-                input.placeholder = 'Напишите в общий чат...';
-                chatMessagesCache = chats.global || [];
-                showMessages();
-            }
-            loadMessages(true);
-        };
-
-        function startPrivateFromPublic(userId, userName, userAvatar) {
-            if (userId === UID) {
-                window.toast('Это вы!', 'info');
-                return;
-            }
-            currentChat = userId;
-            currentChatTarget = { id: userId, name: userName, avatar: userAvatar };
-            document.getElementById('chatModeToggle').textContent = 'ЛС';
-            document.getElementById('chatModeToggle').classList.add('active');
-
-            const input = document.getElementById('chatInput');
-            input.disabled = false;
-            input.placeholder = `Напишите ${userName}...`;
-
-            if (chats.dm[userId] && chats.dm[userId].length > 0) {
-                chatMessagesCache = chats.dm[userId];
-                renderChatMessages(true);
-            } else {
-                chatMessagesCache = [];
-                renderChatMessages(true);
-                loadMessages(true);
-            }
-
-            showMessages();
-            window.toast(`💬 ЛС с ${userName} открыт`, 'info');
-        }
-
-        function initChat() {
-            if (!UID) return;
-
-            currentChat = 'global';
-            currentChatTarget = null;
-            chatMessagesCache = chats.global || [];
-
-            const toggle = document.getElementById('chatModeToggle');
-            toggle.textContent = 'Общий';
-            toggle.classList.remove('active');
-
-            const input = document.getElementById('chatInput');
-            if (input) {
-                input.disabled = false;
-                input.readOnly = false;
-                input.style.opacity = '1';
-                input.style.pointerEvents = 'auto';
-                input.placeholder = 'Напишите в общий чат...';
-                input.value = '';
-
-                setTimeout(() => {
-                    input.focus();
-                    if ('ontouchstart' in window) {
-                        input.click();
-                    }
-                }, 300);
-            }
-
-            showMessages();
-            loadOnlineUsers();
-
-            // Настраиваем Realtime
-            setupRealtime();
-
-            setInterval(cleanupOldMessages, CHAT_CONFIG.CLEANUP_INTERVAL);
-            setTimeout(cleanupOldMessages, 30000);
+            }, 2000);
         }
 
         // ----- ОЧИСТКА СТАРЫХ СООБЩЕНИЙ -----
@@ -3320,7 +3105,7 @@
 
             try {
                 const { data: publicMessages } = await sbFetch(
-                    `/rest/v1/messages?select=id&is_private=eq.false&order=created_at.desc&limit=${CHAT_CONFIG.MAX_PUBLIC_MESSAGES}`
+                    `/rest/v1/messages?select=id&is_private=eq.false&order=created_at.desc&limit=50`
                 );
 
                 if (publicMessages && publicMessages.length > 0) {
@@ -3346,8 +3131,8 @@
                     });
 
                     for (const [key, ids] of Object.entries(chatPairs)) {
-                        if (ids.length > CHAT_CONFIG.MAX_PRIVATE_MESSAGES) {
-                            const toDelete = ids.slice(CHAT_CONFIG.MAX_PRIVATE_MESSAGES);
+                        if (ids.length > 10) {
+                            const toDelete = ids.slice(10);
                             for (const id of toDelete) {
                                 await sbFetch(`/rest/v1/messages?id=eq.${id}`, { method: 'DELETE' });
                             }
@@ -3390,7 +3175,60 @@
         }
 
         // ============================================================
-        // 13. ВСЕ ИГРОВЫЕ ФУНКЦИИ
+        // 13. ЧАТ ИНИЦИАЛИЗАЦИЯ
+        // ============================================================
+        function initChat() {
+            if (!UID) return;
+
+            currentChat = 'global';
+            currentChatTarget = null;
+            isSearchMode = false;
+            chatMessagesCache = chats.global || [];
+            lastMessageTime = Date.now();
+
+            document.getElementById('chatModeToggle').textContent = 'Общий';
+            document.getElementById('chatModeToggle').classList.remove('active');
+            document.getElementById('chatTitle').innerHTML = '💬 Чат <span class="sub">Общий чат</span>';
+            document.getElementById('chatSearchContainer').style.display = 'none';
+            document.getElementById('chatSearchResults').style.display = 'none';
+            document.getElementById('chatInfo').innerHTML = '💬 <span class="highlight">Общий чат</span> — все видят все сообщения';
+            document.getElementById('chatSearchInput').value = '';
+
+            const input = document.getElementById('chatInput');
+            if (input) {
+                input.disabled = false;
+                input.readOnly = false;
+                input.style.opacity = '1';
+                input.style.pointerEvents = 'auto';
+                input.placeholder = 'Напишите в общий чат...';
+                input.value = '';
+
+                setTimeout(() => {
+                    input.focus();
+                    if ('ontouchstart' in window) {
+                        input.click();
+                    }
+                }, 300);
+            }
+
+            loadMessages();
+            loadOnlineUsers();
+
+            // Настраиваем Realtime
+            setupRealtime();
+
+            setInterval(cleanupOldMessages, 3600000);
+            setTimeout(cleanupOldMessages, 30000);
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // ============================================================
+        // 14. ВСЕ ИГРОВЫЕ ФУНКЦИИ
         // ============================================================
         window.toast = function(msg, t) {
             const e = document.getElementById('TOAST');
@@ -3620,7 +3458,7 @@
         }
 
         // ============================================================
-        // 14. НАВИГАЦИЯ
+        // 15. НАВИГАЦИЯ
         // ============================================================
         window.goSc = function(nm) {
             document.querySelectorAll('.sc').forEach(s => s.classList.remove('on'));
@@ -3628,7 +3466,9 @@
             document.getElementById('sc-' + nm).classList.add('on');
 
             if (nm === 'chat') {
-                initChat();
+                setTimeout(() => {
+                    initChat();
+                }, 50);
             }
             renderUI();
         };
@@ -3675,7 +3515,7 @@
         };
 
         // ============================================================
-        // 15. ОТРИСОВКА UI
+        // 16. ОТРИСОВКА UI
         // ============================================================
         function renderUI() {
             const sets = {
@@ -3717,7 +3557,7 @@
         }
 
         // ============================================================
-        // 16. ИГРОВЫЕ ДЕЙСТВИЯ
+        // 17. ИГРОВЫЕ ДЕЙСТВИЯ
         // ============================================================
         window.doFarm = function() {
             const now = Date.now();
@@ -3930,7 +3770,7 @@
         };
 
         // ============================================================
-        // 17. РУЛЕТКА (полная)
+        // 18. РУЛЕТКА
         // ============================================================
         const RC = document.getElementById('rouletteCanvas');
         const rctx = RC.getContext('2d');
@@ -4246,7 +4086,7 @@
         idleSpin();
 
         // ============================================================
-        // 18. КУБИК
+        // 19. КУБИК
         // ============================================================
         const PIP_LAYOUTS = {
             1: [
@@ -4471,7 +4311,7 @@
         };
 
         // ============================================================
-        // 19. ТОП-10
+        // 20. ТОП-10
         // ============================================================
         async function loadTopPlayers(tp = 'b') {
             const now = Date.now();
@@ -4520,7 +4360,7 @@
         }
 
         // ============================================================
-        // 20. ПОКАЗ ПРИЛОЖЕНИЯ
+        // 21. ПОКАЗ ПРИЛОЖЕНИЯ
         // ============================================================
         function showApp() {
             document.getElementById('authWrap').style.display = 'none';
@@ -4569,7 +4409,7 @@
         }
 
         // ============================================================
-        // 21. АВТОРИЗАЦИЯ UI
+        // 22. АВТОРИЗАЦИЯ UI
         // ============================================================
         window.setAuthMode = function(m) {
             authMode = m;
@@ -4629,7 +4469,7 @@
         };
 
         // ============================================================
-        // 22. ЗАПУСК
+        // 23. ЗАПУСК
         // ============================================================
         document.addEventListener('DOMContentLoaded', async () => {
             aStat('⏳ Проверка сессии...', 'ld');
@@ -4647,14 +4487,14 @@
             renderPodium();
         });
 
-        console.log('✅ ЧАТ ПЕРЕРАБОТАН ПО НОВОЙ АРХИТЕКТУРЕ:');
+        console.log('✅ ЧАТ ПОЛНОСТЬЮ ИСПРАВЛЕН:');
         console.log('  📦 Данные = источник истины (chats.global, chats.dm)');
-        console.log('  🎨 UI = только отображение');
-        console.log('  ⚡ Обновляются только новые сообщения');
-        console.log('  💬 Общий чат и ЛС — раздельные каналы');
+        console.log('  🎨 UI = только отображение, сообщения добавляются по одному');
+        console.log('  📱 Сообщения всегда в правильном порядке (новые снизу)');
+        console.log('  🔍 Поиск пользователей для ЛС (без загрузки всех)');
+        console.log('  💬 ЛС открывается через поиск или клик по имени');
         console.log('  🧠 Умный скролл (не прыгает, если пользователь читает)');
-        console.log('  🔄 Realtime через polling (раз в 2 сек, не часто)');
-        console.log('  📱 Полная поддержка мобильных устройств');
+        console.log('  🔄 Обновления через polling (раз в 2 сек)');
     </script>
 </body>
 </html>
