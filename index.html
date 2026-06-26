@@ -4512,7 +4512,20 @@ function formatTime(dateString) {
             document.getElementById('authBtn').disabled = false;
             renderPodium();
         });
+// 1. Проверка текущего времени
+const now = new Date();
+console.log('🕐 ТЕКУЩЕЕ ВРЕМЯ:');
+console.log('  UTC:', now.toISOString());
+console.log('  Ваше локальное:', now.toLocaleString());
+console.log('  Смещение:', now.getTimezoneOffset() / -60, 'часов');
 
+// 2. Проверка форматирования
+const testDate = '2026-06-26T21:39:00.000Z';
+console.log('📊 ТЕСТОВОЕ СООБЩЕНИЕ:');
+console.log('  UTC время:', testDate);
+console.log('  Результат formatTime:', formatTime(testDate));
+console.log('  Должно быть (МСК):', formatTimeInZone(testDate, 3));
+console.log('  Ваше локальное:', formatTimeInZone(testDate, -7));
         console.log('✅ Чат как в мессенджере загружен!');
         console.log('📱 Особенности:');
         console.log('  - Список диалогов с последними сообщениями');
