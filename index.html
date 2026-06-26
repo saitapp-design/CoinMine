@@ -2830,49 +2830,45 @@ async function loadMessages() {
 
         // ----- РЕНДЕР (ПОЛНАЯ ПЕРЕРИСОВКА) -----
         // Переменная для хранения ID последнего отрисованного сообщения, чтобы не перерисовывать всё подряд
-let lastRenderedMessageId = null;
+// Переменные для контроля состояния чата
+let lastRenderedChatType = null; // Хранит тип текущего чата ('global' или id пользователя ЛС)
 
 function renderChatMessages() {
     const container = document.getElementById('chatMessages');
-    if (!container || !chatMessagesCache || chatMessagesCache.length === 0) return;
+    if (!container || !chatMessagesCache) return;
 
-    // Проверяем, находится ли юзер внизу чата ДО добавления элементов
+    // Определяем уникальный идентификатор текущего экрана чата
+    const currentChatId = currentChat === 'global' ? 'global' : String(currentChatTarget?.id || '');
+
+    // Проверяем скролл ДО обновления: находится ли юзер внизу?
     const isAtBottom = container.scrollTop + container.clientHeight >= container.scrollHeight - 150;
 
-    // Если это первая загрузка или сменился чат — очищаем и рендерим всё полностью
-    const firstMsgInCache = chatMessagesCache[0]?.id;
-    const lastMsgInCache = chatMessagesCache[chatMessagesCache.length - 1]?.id;
-
-    if (!lastRenderedMessageId || container.innerHTML === "" || !document.getElementById(`msg-${firstMsgInCache}`)) {
+    // ЕСЛИ: изменился чат (перешли из глобального в ЛС или сменили друга) ИЛИ чат пустой
+    if (lastRenderedChatType !== currentChatId || container.innerHTML === "") {
         let fullHtml = '';
         chatMessagesCache.forEach(msg => {
-            fullHtml += generateMessageHtml(msg); // Твоя функция генерации HTML строки сообщения
+            fullHtml += generateMessageHtml(msg);
         });
         container.innerHTML = fullHtml;
-    } else {
-        // Умное добавление: ищем только те сообщения, которых ЕЩЁ НЕТ в чате
-        chatMessagesCache.forEach(msg => {
-            if (!document.getElementById(`msg-${msg.id}`)) {
-                // Добавляем строго в конец контейнера, не трогая остальной DOM
-                container.insertAdjacentHTML('beforeend', generateMessageHtml(msg));
-            }
-        });
+        
+        // При смене чата ВСЕГДА жестко скроллим в самый низ
+        container.scrollTop = container.scrollHeight;
+        lastRenderedChatType = currentChatId;
+        return; 
     }
 
-    // Запоминаем ID последнего сообщения
-    if (lastMsgInCache) {
-        lastRenderedMessageId = lastMsgInCache;
-    }
+    // ЕСЛИ это просто фоновое автообновление того же самого чата:
+    // Добавляем только те сообщения, которых физически ещё нет на экране
+    chatMessagesCache.forEach(msg => {
+        if (!document.getElementById(`msg-${msg.id}`)) {
+            container.insertAdjacentHTML('beforeend', generateMessageHtml(msg));
+        }
+    });
 
-    // Жестко фиксируем скролл внизу на ПК
+    // Возвращаем скролл вниз, только если пользователь до этого не листал историю наверх
     if (isAtBottom) {
-        // Используем requestAnimationFrame, чтобы дождаться отрисовки браузером ПК
         requestAnimationFrame(() => {
             container.scrollTop = container.scrollHeight;
-            // Дублируем для гарантии через минимальный таймаут
-            setTimeout(() => {
-                container.scrollTop = container.scrollHeight;
-            }, 50);
         });
     }
 }
