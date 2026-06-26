@@ -2829,55 +2829,53 @@ async function loadMessages() {
 }
 
         // ----- РЕНДЕР (ПОЛНАЯ ПЕРЕРИСОВКА) -----
-        function renderChatMessages() {
-            const container = document.getElementById('chatMessages');
-            if (!container) return;
+        // Переменная для хранения ID последнего отрисованного сообщения, чтобы не перерисовывать всё подряд
+let lastRenderedMessageId = null;
 
-            if (!chatMessagesCache || chatMessagesCache.length === 0) {
-                if (currentChat !== 'global') {
-                    container.innerHTML = '<div class="system-msg">Нет сообщений в ЛС</div>';
-                } else {
-                    container.innerHTML = '<div class="system-msg">Нет сообщений в общем чате</div>';
-                }
-                return;
+function renderChatMessages() {
+    const container = document.getElementById('chatMessages');
+    if (!container || !chatMessagesCache || chatMessagesCache.length === 0) return;
+
+    // Проверяем, находится ли юзер внизу чата ДО добавления элементов
+    const isAtBottom = container.scrollTop + container.clientHeight >= container.scrollHeight - 150;
+
+    // Если это первая загрузка или сменился чат — очищаем и рендерим всё полностью
+    const firstMsgInCache = chatMessagesCache[0]?.id;
+    const lastMsgInCache = chatMessagesCache[chatMessagesCache.length - 1]?.id;
+
+    if (!lastRenderedMessageId || container.innerHTML === "" || !document.getElementById(`msg-${firstMsgInCache}`)) {
+        let fullHtml = '';
+        chatMessagesCache.forEach(msg => {
+            fullHtml += generateMessageHtml(msg); // Твоя функция генерации HTML строки сообщения
+        });
+        container.innerHTML = fullHtml;
+    } else {
+        // Умное добавление: ищем только те сообщения, которых ЕЩЁ НЕТ в чате
+        chatMessagesCache.forEach(msg => {
+            if (!document.getElementById(`msg-${msg.id}`)) {
+                // Добавляем строго в конец контейнера, не трогая остальной DOM
+                container.insertAdjacentHTML('beforeend', generateMessageHtml(msg));
             }
+        });
+    }
 
-            // Сохраняем позицию скролла
-            const scrollPos = container.scrollTop;
-            const isAtBottom = container.scrollTop + container.clientHeight >= container.scrollHeight - 120;
+    // Запоминаем ID последнего сообщения
+    if (lastMsgInCache) {
+        lastRenderedMessageId = lastMsgInCache;
+    }
 
-            container.innerHTML = chatMessagesCache.map(msg => {
-                const isOwn = msg?.sender_id === UID;
-                const isPrivate = msg?.is_private === true;
-                const senderName = isOwn ? 'Я' : (msg?.sender_name || 'Игрок');
-                const senderId = msg?.sender_id || '';
-                const avatar = msg?.sender_avatar || AVATAR_LIST[0];
-                const text = escapeHtml(msg?.message || '');
-
-                const nameClick = (!isOwn && !isPrivate && senderId !== UID) ?
-                    ` onclick="startPrivateFromPublic('${senderId}','${escapeHtml(senderName)}','${avatar}')" style="cursor:pointer;text-decoration:underline;text-underline-offset:2px;"` :
-                    '';
-
-                return `<div class="msg ${isOwn ? 'own' : 'other'}">
-                    <div class="sender">
-                        ${!isOwn ? `<div class="top-avatar" style="width:22px;height:22px;"><img src="${avatar}" alt="${escapeHtml(senderName)}" loading="lazy"></div>` : ''}
-                        <span class="name"${nameClick}>${escapeHtml(senderName)}</span>
-                        ${isPrivate ? '<span class="private-tag">🔒</span>' : ''}
-                    </div>
-                    <div class="text">${text}</div>
-                </div>`;
-            }).join('');
-
-            // Восстанавливаем скролл если пользователь был не внизу
-            if (!isAtBottom) {
-                container.scrollTop = scrollPos;
-            } else {
+    // Жестко фиксируем скролл внизу на ПК
+    if (isAtBottom) {
+        // Используем requestAnimationFrame, чтобы дождаться отрисовки браузером ПК
+        requestAnimationFrame(() => {
+            container.scrollTop = container.scrollHeight;
+            // Дублируем для гарантии через минимальный таймаут
+            setTimeout(() => {
                 container.scrollTop = container.scrollHeight;
-            }
-        }
-
-        // ----- ПОИСК ПОЛЬЗОВАТЕЛЕЙ ДЛЯ ЛС -----
-        let searchTimeout = null;
+            }, 50);
+        });
+    }
+}
 
         window.searchUsers = function(query) {
             clearTimeout(searchTimeout);
