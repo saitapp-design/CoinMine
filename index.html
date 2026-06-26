@@ -2186,7 +2186,33 @@
             DAILY_PRIVATE_LIMIT: 10,
             CLEANUP_INTERVAL: 3600000,
         };
+// ============================================================
+// ФОРМАТИРОВАНИЕ ВРЕМЕНИ ПО МСК
+// ============================================================
+function formatTimeMSK(dateString) {
+    if (!dateString) return '';
+    
+    const date = new Date(dateString);
+    // Смещение на МСК (UTC+3)
+    const mskTime = new Date(date.getTime() + (3 * 60 * 60 * 1000));
+    
+    const hours = String(mskTime.getUTCHours()).padStart(2, '0');
+    const minutes = String(mskTime.getUTCMinutes()).padStart(2, '0');
+    
+    return `${hours}:${minutes}`;
+}
 
+// Альтернативный вариант с использованием toLocaleString
+function formatTimeMSK2(dateString) {
+    if (!dateString) return '';
+    
+    const date = new Date(dateString);
+    return date.toLocaleTimeString('ru', {
+        timeZone: 'Europe/Moscow',
+        hour: '2-digit',
+        minute: '2-digit'
+    });
+}
         // ============================================================
         // 2. ВСПОМОГАТЕЛЬНЫЕ
         // ============================================================
@@ -2881,35 +2907,59 @@
         }
 
         function openPrivateChat(id, name, avatar) {
-            chatMode = 'private';
-            chatTarget = { id, name, avatar };
-            document.getElementById('chatModeToggle').textContent = 'ЛС';
-            document.getElementById('chatModeToggle').classList.add('active');
-            showMessages();
-        }
+    chatMode = 'private';
+    chatTarget = { id, name, avatar };
+    document.getElementById('chatModeToggle').textContent = 'ЛС';
+    document.getElementById('chatModeToggle').classList.add('active');
+    
+    const input = document.getElementById('chatInput');
+    if (input) {
+        input.placeholder = `Напишите ${name}...`;
+        input.disabled = false;
+        input.readOnly = false;
+        setTimeout(() => {
+            input.focus();
+            if ('ontouchstart' in window) {
+                input.click();
+            }
+        }, 400);
+    }
+    
+    showMessages();
+}
 
         window.toggleChatMode = function() {
-            if (chatMode === 'public') {
-                chatMode = 'private';
-                chatTarget = null;
-                document.getElementById('chatModeToggle').textContent = 'ЛС';
-                document.getElementById('chatModeToggle').classList.add('active');
-                document.getElementById('chatInfo').textContent = '📋 Выберите собеседника из списка';
-                document.getElementById('chatInput').placeholder = 'Выберите собеседника...';
-                document.getElementById('chatInput').disabled = true;
-                showDialogs();
-            } else {
-                chatMode = 'public';
-                chatTarget = null;
-                document.getElementById('chatModeToggle').textContent = 'Общий';
-                document.getElementById('chatModeToggle').classList.remove('active');
-                document.getElementById('chatInput').disabled = false;
-                document.getElementById('chatInput').placeholder = 'Напишите в общий чат...';
-                chatMessagesCache = [];
-                showMessages();
-            }
-            loadChatMessages();
-        };
+    const input = document.getElementById('chatInput');
+    
+    if (chatMode === 'public') {
+        chatMode = 'private';
+        chatTarget = null;
+        document.getElementById('chatModeToggle').textContent = 'ЛС';
+        document.getElementById('chatModeToggle').classList.add('active');
+        document.getElementById('chatInfo').textContent = '📋 Выберите собеседника из списка';
+        if (input) {
+            input.placeholder = 'Выберите собеседника...';
+            input.disabled = false; // НЕ БЛОКИРУЕМ!
+            input.readOnly = false;
+            input.focus();
+        }
+        showDialogs();
+    } else {
+        chatMode = 'public';
+        chatTarget = null;
+        document.getElementById('chatModeToggle').textContent = 'Общий';
+        document.getElementById('chatModeToggle').classList.remove('active');
+        if (input) {
+            input.placeholder = 'Напишите в общий чат...';
+            input.disabled = false;
+            input.readOnly = false;
+            input.focus();
+        }
+        chatMessagesCache = [];
+        showMessages();
+    }
+    loadChatMessages();
+};
 
         function startPrivateFromPublic(userId, userName, userAvatar) {
             if (userId === UID) {
@@ -3012,10 +3062,10 @@
         const senderName = isOwn ? 'Я' : (msg?.sender_name || 'Игрок');
         const senderId = msg?.sender_id || '';
         const avatar = msg?.sender_avatar || AVATAR_LIST[0];
-        const time = msg?.created_at ? new Date(msg.created_at).toLocaleTimeString('ru', { 
-            hour: '2-digit',
-            minute: '2-digit' 
-        }) : '';
+        
+        // === ИСПОЛЬЗУЕМ МСК ВРЕМЯ ===
+        const time = formatTimeMSK(msg?.created_at);
+        
         const text = escapeHtml(msg?.message || '');
 
         const nameClick = (!isOwn && !isPrivate && senderId !== UID) ?
@@ -3033,7 +3083,7 @@
         </div>`;
     }).join('');
 
-    // === ВАЖНО: ПРИНУДИТЕЛЬНЫЙ СКРОЛЛ ВНИЗ ===
+    // Принудительный скролл вниз
     setTimeout(() => {
         container.scrollTop = container.scrollHeight;
     }, 50);
@@ -3245,18 +3295,34 @@
         function initChat() {
     if (!UID) return;
 
-    // === ВСЕГДА ВКЛЮЧАЕМ ПОЛЕ ВВОДА ===
+    // === ПРИНУДИТЕЛЬНО АКТИВИРУЕМ ПОЛЕ ===
     chatMode = 'public';
     chatTarget = null;
     chatMessagesCache = [];
     
-    document.getElementById('chatModeToggle').textContent = 'Общий';
-    document.getElementById('chatModeToggle').classList.remove('active');
+    const toggle = document.getElementById('chatModeToggle');
+    toggle.textContent = 'Общий';
+    toggle.classList.remove('active');
     
     const input = document.getElementById('chatInput');
-    input.disabled = false;
-    input.placeholder = 'Напишите в общий чат...';
-    input.focus();
+    if (input) {
+        // === УБИРАЕМ ВСЕ БЛОКИРОВКИ ===
+        input.disabled = false;
+        input.readOnly = false;
+        input.style.opacity = '1';
+        input.style.pointerEvents = 'auto';
+        input.placeholder = 'Напишите в общий чат...';
+        input.value = '';
+        
+        // === ПРИНУДИТЕЛЬНЫЙ ФОКУС ===
+        setTimeout(() => {
+            input.focus();
+            // На телефонах открываем клавиатуру
+            if ('ontouchstart' in window) {
+                input.click();
+            }
+        }, 300);
+    }
 
     // Подсказка для новых
     const hasSeenTutorial = localStorage.getItem('chat_tutorial_seen');
@@ -3282,7 +3348,7 @@
             }
             loadOnlineUsers();
         }
-    }, 3000); // Уменьшил до 3 секунд для скорости
+    }, 3000);
 
     setInterval(cleanupOldMessages, CHAT_CONFIG.CLEANUP_INTERVAL);
     setTimeout(cleanupOldMessages, 30000);
@@ -4502,7 +4568,25 @@
             document.getElementById('authBtn').disabled = false;
             renderPodium();
         });
-
+// Добавьте в конец скрипта
+document.addEventListener('DOMContentLoaded', function() {
+    // При клике на чат - фокус на поле ввода
+    const chatContainer = document.querySelector('.chat-container');
+    if (chatContainer) {
+        chatContainer.addEventListener('click', function(e) {
+            // Если клик не по полю ввода и не по кнопке
+            if (!e.target.closest('.chat-input-wrap')) {
+                const input = document.getElementById('chatInput');
+                if (input && !input.disabled) {
+                    input.focus();
+                    if ('ontouchstart' in window) {
+                        input.click();
+                    }
+                }
+            }
+        });
+    }
+});
         console.log('✅ Чат как в мессенджере загружен!');
         console.log('📱 Особенности:');
         console.log('  - Список диалогов с последними сообщениями');
