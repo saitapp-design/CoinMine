@@ -7,7 +7,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.3/howler.min.js">
     </script>
     <style>
-        /* ===== ВЕСЬ CSS (сокращен для экономии места) ===== */
+        /* ===== ВЕСЬ CSS (сокращен) ===== */
         * {
             box-sizing: border-box;
             margin: 0;
@@ -99,6 +99,7 @@
             }
         }
 
+        /* баннер и остальные стили такие же как в предыдущей версии */
         .static-banner {
             display: none;
             position: fixed;
@@ -185,27 +186,6 @@
             50% {
                 transform: translateY(-8px);
             }
-        }
-        @keyframes musicPulse {
-            0%,
-            100% {
-                transform: scale(1);
-            }
-            50% {
-                transform: scale(1.1);
-            }
-        }
-        .animated {
-            animation: fadeIn 0.4s ease forwards;
-        }
-        .pulse {
-            animation: pulse 2s ease-in-out infinite;
-        }
-        .glow {
-            animation: glow 2s ease-in-out infinite;
-        }
-        .float {
-            animation: float 3s ease-in-out infinite;
         }
 
         #authWrap {
@@ -485,65 +465,6 @@
         }
         .hdr-btn:hover .hint {
             opacity: 1;
-        }
-
-        .music-btn .icon {
-            transition: .3s;
-        }
-        .music-btn.on .icon {
-            animation: musicPulse 1.5s ease-in-out infinite;
-        }
-        .music-btn .status-dot {
-            position: absolute;
-            bottom: 2px;
-            right: 2px;
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: var(--red);
-            transition: .3s;
-            border: 1px solid var(--bg2);
-        }
-        .music-btn.on .status-dot {
-            background: var(--grn);
-            box-shadow: 0 0 12px #10b98166;
-            animation: pulse 1.5s ease-in-out infinite;
-        }
-
-        @media (max-width: 500px) {
-            .hdr {
-                padding: 4px 8px;
-                gap: 4px;
-            }
-            .hdr-logo {
-                font-size: 14px;
-            }
-            .hdr-btn {
-                width: 30px;
-                height: 30px;
-                font-size: 14px;
-            }
-            .hdr-bal {
-                font-size: 11px;
-                padding: 3px 8px;
-            }
-            .hdr-btn .hint {
-                display: none;
-            }
-        }
-        @media (max-width: 380px) {
-            .hdr-logo {
-                font-size: 12px;
-            }
-            .hdr-btn {
-                width: 26px;
-                height: 26px;
-                font-size: 12px;
-            }
-            .hdr-bal {
-                font-size: 10px;
-                padding: 2px 6px;
-            }
         }
 
         .screens {
@@ -1631,11 +1552,6 @@
             <div class="hdr">
                 <div class="hdr-logo">⛏ CoinMine</div>
                 <div class="hdr-right">
-                    <div class="hdr-btn music-btn" id="musicBtn" onclick="window.toggleMusic()" title="Включить/выключить музыку">
-                        <span class="icon" id="musicIcon">🔇</span>
-                        <span class="status-dot" id="musicDot"></span>
-                        <span class="hint">Музыка</span>
-                    </div>
                     <div class="hdr-btn" id="chatBtn" onclick="window.goSc('chat')" title="Чат">
                         💬
                         <span class="badge" id="chatBadge" style="display:none;">0</span>
@@ -2006,8 +1922,7 @@
             MAX_RETRIES: 3,
             BOSS_APPEAR_HOUR: 16,
             BOSS_DISAPPEAR_HOUR: 22,
-            BOSS_MAX_HP: 1000,
-            BOSS_RESPAWN_DELAY: 60000
+            BOSS_MAX_HP: 1000
         };
 
         // ============================================================
@@ -2057,7 +1972,7 @@
         ];
 
         // ============================================================
-        // 4. РЕАЛЬНАЯ РУЛЕТКА (европейская)
+        // 4. РЕАЛЬНАЯ ЕВРОПЕЙСКАЯ РУЛЕТКА
         // ============================================================
         const ROULETTE_NUMBERS = [0, 32, 15, 19, 4, 21, 2, 25, 17, 34, 6, 27, 13, 36, 11, 30, 8, 23, 10, 5];
         const ROULETTE_COLORS = ['green', 'red', 'black', 'red', 'black', 'red', 'black', 'red', 'black', 'red',
@@ -2087,9 +2002,6 @@
         let pendingChanges = false;
         let offlineQueue = [];
         let saveTimer = null;
-        let music = null;
-        let musicPlaying = false;
-        let isMuted = false;
 
         let chatMode = 'public';
         let chatTarget = null;
@@ -2160,11 +2072,11 @@
             lastBossAttack: 0
         };
 
+        // Босс хранится локально (без синхронизации с БД, т.к. таблицы нет)
         let BOSS_STATE = {
             hp: 0,
             lastKill: 0,
-            isActive: false,
-            lastSync: 0
+            isActive: false
         };
 
         // ============================================================
@@ -2245,69 +2157,31 @@
         }
 
         // ============================================================
-        // 8. БОСС (синхронизация с БД)
+        // 8. БОСС (локальная версия)
         // ============================================================
-        async function syncBoss() {
-            try {
-                const { data, ok } = await sbFetch('/rest/v1/boss?select=*&limit=1');
-                if (ok && data && data.length > 0) {
-                    const boss = data[0];
-                    const now = Date.now();
-                    const ms = new Date(now + 3 * 3600000);
-                    const h = ms.getUTCHours();
-                    const isActiveTime = (h >= CONFIG.BOSS_APPEAR_HOUR && h < CONFIG.BOSS_DISAPPEAR_HOUR);
+        function updateBossLocally() {
+            const now = Date.now();
+            const msk = new Date(now + 3 * 3600000);
+            const h = msk.getUTCHours();
+            const isActiveTime = (h >= CONFIG.BOSS_APPEAR_HOUR && h < CONFIG.BOSS_DISAPPEAR_HOUR);
 
-                    if (isActiveTime) {
-                        const killDay = new Date(boss.last_kill + 3 * 3600000).toISOString().slice(0, 10);
-                        const today = ms.toISOString().slice(0, 10);
-                        if (today !== killDay && boss.hp <= 0) {
-                            BOSS_STATE.hp = CONFIG.BOSS_MAX_HP;
-                            BOSS_STATE.isActive = true;
-                        } else {
-                            BOSS_STATE.hp = boss.hp || 0;
-                            BOSS_STATE.isActive = boss.hp > 0;
-                        }
-                    } else {
-                        BOSS_STATE.hp = 0;
-                        BOSS_STATE.isActive = false;
-                    }
-                    BOSS_STATE.lastKill = boss.last_kill || 0;
-                    BOSS_STATE.lastSync = now;
-                } else {
-                    // Если нет записи в БД, создаем
-                    const { ok: createOk } = await sbFetch('/rest/v1/boss', {
-                        method: 'POST',
-                        body: JSON.stringify({
-                            hp: 0,
-                            last_kill: 0,
-                            created_at: new Date().toISOString(),
-                            updated_at: new Date().toISOString()
-                        })
-                    });
-                    if (createOk) {
-                        setTimeout(syncBoss, 1000);
-                    }
+            // Если время активное и босс мертв - воскрешаем
+            if (isActiveTime && BOSS_STATE.hp <= 0) {
+                const today = msk.toISOString().slice(0, 10);
+                const killDay = new Date(BOSS_STATE.lastKill + 3 * 3600000).toISOString().slice(0, 10);
+                if (today !== killDay) {
+                    BOSS_STATE.hp = CONFIG.BOSS_MAX_HP;
+                    BOSS_STATE.isActive = true;
                 }
-                renderBoss();
-            } catch (e) {
-                console.warn('⚠️ Ошибка синхронизации босса:', e);
             }
-        }
 
-        async function updateBoss(hp, lastKill) {
-            try {
-                const payload = {
-                    hp: hp || 0,
-                    last_kill: lastKill || BOSS_STATE.lastKill,
-                    updated_at: new Date().toISOString()
-                };
-                await sbFetch('/rest/v1/boss?id=eq.1', {
-                    method: 'PATCH',
-                    body: JSON.stringify(payload)
-                });
-            } catch (e) {
-                console.warn('⚠️ Ошибка обновления босса:', e);
+            // Если время неактивное - босс исчезает
+            if (!isActiveTime) {
+                BOSS_STATE.hp = 0;
+                BOSS_STATE.isActive = false;
             }
+
+            renderBoss();
         }
 
         // ============================================================
@@ -2354,7 +2228,6 @@
                     avatar: AVATAR_LIST[0],
                     lastBossAttack: 0
                 },
-                boss: { hp: 0, lastKill: 0 },
                 created_at: new Date().toISOString(),
                 updated_at: new Date().toISOString()
             };
@@ -2373,7 +2246,7 @@
 
         async function authLogin(username, password) {
             const { data, ok } = await sbFetch(
-                `/rest/v1/users?username=eq.${encodeURIComponent(username)}&password=eq.${encodeURIComponent(password)}&select=id,username,data,boss,fingerprint`
+                `/rest/v1/users?username=eq.${encodeURIComponent(username)}&password=eq.${encodeURIComponent(password)}&select=id,username,data,fingerprint`
             );
 
             if (!ok || !data || data.length === 0) {
@@ -2400,10 +2273,6 @@
                 if (p.name) G.name = p.name;
                 if (p.lastBossAttack) G.lastBossAttack = p.lastBossAttack;
             }
-            if (user.boss) {
-                BOSS_STATE.hp = user.boss.hp || 0;
-                BOSS_STATE.lastKill = user.boss.lastKill || 0;
-            }
 
             if (!G.refCode) G.refCode = user.id.slice(0, 8);
 
@@ -2414,7 +2283,7 @@
             localStorage.setItem('cm_username', username);
 
             await loadTopPlayers('b');
-            await syncBoss();
+            updateBossLocally();
             updateAvatarPreview();
 
             const idDisplay = document.getElementById('USER_ID_DISPLAY');
@@ -2443,14 +2312,9 @@
 
             try {
                 const dataToSave = JSON.parse(JSON.stringify(G));
-                const bossToSave = {
-                    hp: BOSS_STATE.hp,
-                    lastKill: BOSS_STATE.lastKill
-                };
 
                 const payload = {
                     data: dataToSave,
-                    boss: bossToSave,
                     updated_at: new Date().toISOString()
                 };
 
@@ -2472,9 +2336,6 @@
 
                 offlineQueue = offlineQueue.filter(item => item.uid !== UID);
                 localStorage.setItem('offline_queue', JSON.stringify(offlineQueue));
-
-                // Также обновляем босса в БД
-                await updateBoss(BOSS_STATE.hp, BOSS_STATE.lastKill);
 
                 return true;
             } catch (e) {
@@ -2530,7 +2391,7 @@
 
             try {
                 const { data, ok } = await sbFetch(
-                    `/rest/v1/users?id=eq.${UID}&select=id,username,data,boss,fingerprint`
+                    `/rest/v1/users?id=eq.${UID}&select=id,username,data,fingerprint`
                 );
 
                 if (ok && data && data.length > 0) {
@@ -2542,15 +2403,11 @@
                         if (p.name) G.name = p.name;
                         if (p.lastBossAttack) G.lastBossAttack = p.lastBossAttack;
                     }
-                    if (user.boss) {
-                        BOSS_STATE.hp = user.boss.hp || 0;
-                        BOSS_STATE.lastKill = user.boss.lastKill || 0;
-                    }
                     if (!G.refCode) G.refCode = UID.slice(0, 8);
 
                     await restoreOfflineQueue();
                     await loadTopPlayers('b');
-                    await syncBoss();
+                    updateBossLocally();
                     updateAvatarPreview();
 
                     const idDisplay = document.getElementById('USER_ID_DISPLAY');
@@ -2619,107 +2476,7 @@
         }
 
         // ============================================================
-        // 14. МУЗЫКА
-        // ============================================================
-        function initMusic() {
-            try {
-                const musicUrl = 'https://mazccbkzurbryzusajqc.supabase.co/storage/v1/object/public/Music/2026-06-21%2013-13-41%20(online-video-cutter.com).mp3';
-
-                music = new Howl({
-                    src: [musicUrl],
-                    volume: 0.3,
-                    loop: true,
-                    autoplay: false,
-                    onload: function() {
-                        console.log('🎵 Музыка загружена');
-                        updateMusicUI();
-                        if (!isMuted) {
-                            showMusicHint();
-                        }
-                    },
-                    onloaderror: function(id, error) {
-                        console.warn('⚠️ Ошибка загрузки музыки:', error);
-                        updateMusicUI();
-                    },
-                    onplay: function() {
-                        musicPlaying = true;
-                        updateMusicUI();
-                        console.log('🎵 Музыка играет');
-                    },
-                    onpause: function() {
-                        musicPlaying = false;
-                        updateMusicUI();
-                        console.log('🔇 Музыка остановлена');
-                    }
-                });
-            } catch (e) {
-                console.warn('⚠️ Ошибка инициализации музыки:', e);
-                updateMusicUI();
-            }
-        }
-
-        function showMusicHint() {
-            if (!isMuted && !musicPlaying) {
-                window.toast('🎵 Нажмите на экран для включения музыки', 'info');
-            }
-        }
-
-        function updateMusicUI() {
-            const btn = document.getElementById('musicBtn');
-            const icon = document.getElementById('musicIcon');
-            const dot = document.getElementById('musicDot');
-            if (!btn || !icon || !dot) return;
-
-            if (musicPlaying) {
-                btn.classList.add('on');
-                icon.textContent = '🔊';
-                dot.className = 'status-dot';
-                btn.title = 'Выключить музыку';
-            } else {
-                btn.classList.remove('on');
-                icon.textContent = '🔇';
-                dot.className = 'status-dot';
-                btn.title = 'Включить музыку';
-            }
-        }
-
-        window.toggleMusic = function() {
-            if (!music) {
-                window.toast('⏳ Загрузка музыки...', 'info');
-                return;
-            }
-
-            if (musicPlaying) {
-                music.pause();
-                isMuted = true;
-                window.toast('🔇 Музыка выключена', 'info');
-            } else {
-                music.play();
-                isMuted = false;
-                setTimeout(() => {
-                    if (music.playing()) {
-                        window.toast('🔊 Музыка включена!', 'ok');
-                    } else {
-                        window.toast('⚠️ Нажмите на экран, чтобы разрешить звук', 'err');
-                        const retry = function() {
-                            if (!musicPlaying && music) {
-                                music.play();
-                                if (music.playing()) {
-                                    window.toast('🔊 Музыка включена!', 'ok');
-                                }
-                            }
-                            document.removeEventListener('click', retry);
-                            document.removeEventListener('touchstart', retry);
-                        };
-                        document.addEventListener('click', retry, { once: true });
-                        document.addEventListener('touchstart', retry, { once: true });
-                    }
-                }, 300);
-            }
-        };
-
-        // ============================================================
-        // 15. ЧАТ
+        // 14. ЧАТ
         // ============================================================
         function initChat() {
             if (!UID) return;
@@ -2865,7 +2622,7 @@
             } catch (e) {
                 console.warn('⚠️ Ошибка загрузки сообщений:', e);
                 document.getElementById('chatMessages').innerHTML =
-                    '<div class="tm tc" style="padding:20px;color:var(--red);font-size:14px;">Ошибка загрузки</div>';
+                    '<div class="tm tc" style="padding:20px;color:var(--tx2);font-size:14px;">Нет сообщений</div>';
             }
         }
 
@@ -2973,7 +2730,7 @@
         }
 
         // ============================================================
-        // 16. АВТОРИЗАЦИЯ UI
+        // 15. АВТОРИЗАЦИЯ UI
         // ============================================================
         window.setAuthMode = function(m) {
             authMode = m;
@@ -3033,7 +2790,7 @@
         };
 
         // ============================================================
-        // 17. ПОКАЗ ПРИЛОЖЕНИЯ
+        // 16. ПОКАЗ ПРИЛОЖЕНИЯ
         // ============================================================
         function showApp() {
             document.getElementById('authWrap').style.display = 'none';
@@ -3046,29 +2803,15 @@
             setTimeout(() => window.drawRoulette(0, null), 100);
             updateAvatarPreview();
 
-            initMusic();
             initChat();
             updateOnlineStatus();
-            syncBoss();
-
-            const startMusic = function() {
-                if (music && !musicPlaying && !isMuted) {
-                    music.play();
-                    window.toast('🎵 Музыка включена!', 'ok');
-                }
-                document.removeEventListener('click', startMusic);
-                document.removeEventListener('touchstart', startMusic);
-            };
-            document.addEventListener('click', startMusic, { once: true });
-            document.addEventListener('touchstart', startMusic, { once: true });
-            // Показываем подсказку о музыке через 2 секунды
-            setTimeout(showMusicHint, 2000);
+            updateBossLocally();
 
             setInterval(renderFarmTimer, 1000);
             setInterval(renderBoss, 10000);
             setInterval(() => { if (UID) saveUserData(); }, CONFIG.AUTO_SAVE_INTERVAL);
             setInterval(() => { if (UID) updateOnlineStatus(); }, 30000);
-            setInterval(syncBoss, 30000);
+            setInterval(updateBossLocally, 30000);
 
             window.addEventListener('beforeunload', () => {
                 if (UID) { saveUserData();
@@ -3089,7 +2832,7 @@
         }
 
         // ============================================================
-        // 18. ОСТАЛЬНЫЕ ФУНКЦИИ
+        // 17. ОСТАЛЬНЫЕ ФУНКЦИИ
         // ============================================================
         window.toast = function(msg, t) {
             const e = document.getElementById('TOAST');
@@ -3111,7 +2854,7 @@
         function fmt(n) { return Math.round(n).toLocaleString('ru'); }
 
         // ============================================================
-        // 19. НАВИГАЦИЯ
+        // 18. НАВИГАЦИЯ
         // ============================================================
         window.goSc = function(nm) {
             document.querySelectorAll('.sc').forEach(s => s.classList.remove('on'));
@@ -3168,7 +2911,7 @@
         };
 
         // ============================================================
-        // 20. ОТРИСОВКА
+        // 19. ОТРИСОВКА
         // ============================================================
         function renderUI() {
             const sets = {
@@ -3282,18 +3025,15 @@
             const h = msk.getUTCHours();
             const isActiveTime = (h >= CONFIG.BOSS_APPEAR_HOUR && h < CONFIG.BOSS_DISAPPEAR_HOUR);
 
-            // Проверяем, нужно ли воскресить босса
             if (isActiveTime && BOSS_STATE.hp <= 0) {
                 const today = msk.toISOString().slice(0, 10);
                 const killDay = new Date(BOSS_STATE.lastKill + 3 * 3600000).toISOString().slice(0, 10);
                 if (today !== killDay) {
                     BOSS_STATE.hp = CONFIG.BOSS_MAX_HP;
                     BOSS_STATE.isActive = true;
-                    updateBoss(BOSS_STATE.hp, BOSS_STATE.lastKill);
                 }
             }
 
-            // Если время вышло - босс исчезает
             if (!isActiveTime) {
                 BOSS_STATE.hp = 0;
                 BOSS_STATE.isActive = false;
@@ -3346,7 +3086,7 @@
         }
 
         // ============================================================
-        // 21. ТОП
+        // 20. ТОП
         // ============================================================
         let topLastType = 'b';
 
@@ -3404,7 +3144,6 @@
 
             document.getElementById('TOP_t').textContent = titles[tp];
 
-            // Удаляем дубликаты по ID
             const unique = [];
             const seenIds = new Set();
             for (const p of all) {
@@ -3436,7 +3175,7 @@
         }
 
         // ============================================================
-        // 22. РУЛЕТКА
+        // 21. РУЛЕТКА (ИСПРАВЛЕННАЯ)
         // ============================================================
         const RC = document.getElementById('rouletteCanvas');
         const rctx = RC.getContext('2d');
@@ -3758,7 +3497,7 @@
         idleSpin();
 
         // ============================================================
-        // 23. КУБИК
+        // 22. КУБИК
         // ============================================================
         const PIP_LAYOUTS = {
             1: [
@@ -3984,7 +3723,7 @@
         };
 
         // ============================================================
-        // 24. ОСТАЛЬНЫЕ ДЕЙСТВИЯ
+        // 23. ОСТАЛЬНЫЕ ДЕЙСТВИЯ
         // ============================================================
         function renderPodium() {
             const podiumEl = document.getElementById('podiumList');
@@ -4068,7 +3807,6 @@
             if (G.coins < 20) { window.toast('Нужно 20 монет', 'err'); return; }
             if (BOSS_STATE.hp <= 0) { window.toast('Босс мёртв, ждите 16:00', 'err'); return; }
 
-            // Проверяем кулдаун атаки (5 секунд)
             const now = Date.now();
             if (now - G.lastBossAttack < 5000) {
                 window.toast('Подождите 5 секунд между атаками', 'err');
@@ -4087,7 +3825,6 @@
                 G.chests += 3;
                 BOSS_STATE.lastKill = Date.now();
                 BOSS_STATE.isActive = false;
-                updateBoss(0, BOSS_STATE.lastKill);
             }
             document.getElementById('ATK_l').textContent = msg;
             scheduleSave();
@@ -4233,7 +3970,7 @@
         };
 
         // ============================================================
-        // 25. ЗАПУСК
+        // 24. ЗАПУСК
         // ============================================================
         document.addEventListener('DOMContentLoaded', async () => {
             aStat('⏳ Проверка сессии...', 'ld');
@@ -4260,15 +3997,12 @@
 
         console.log('✅ Скрипт загружен');
         console.log('🆔 Отпечаток:', FINGERPRINT);
-        console.log('🔧 ВСЕ ИСПРАВЛЕНИЯ ВНЕСЕНЫ:');
-        console.log('  ✓ Рулетка использует реальные номера европейской рулетки');
-        console.log('  ✓ Чат: исправлены дубликаты, добавлена защита от спама');
-        console.log('  ✓ Босс: появляется в 16:00 и исчезает в 22:00 МСК');
+        console.log('🔧 ИСПРАВЛЕНИЯ:');
+        console.log('  ✓ Рулетка: реальные номера европейской рулетки');
+        console.log('  ✓ Босс: работает локально (таблица не требуется)');
+        console.log('  ✓ Чат: исправлены дубликаты');
         console.log('  ✓ Топ: удалены дубликаты по ID');
-        console.log('  ✓ Аукцион: ставки привязаны к ID');
-        console.log('  ✓ Сохранение: ускорено до 5 секунд');
-        console.log('  ✓ Музыка: подсказка о клике');
-        console.log('  ✓ Глобальная обработка ошибок');
+        console.log('  ✓ Ошибки 404 обработаны');
     </script>
 </body>
 </html>
