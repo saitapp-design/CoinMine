@@ -730,7 +730,6 @@
             border-radius: 10px;
         }
 
-        /* РУЛЕТКА */
         .rl-section {
             display: flex;
             flex-direction: column;
@@ -818,7 +817,6 @@
             padding: 4px 0;
         }
 
-        /* КУБИК */
         .dice-section {
             display: flex;
             flex-direction: column;
@@ -915,7 +913,6 @@
             background: var(--color-border-tertiary);
         }
 
-        /* КЛАН */
         .clan-icon {
             font-size: 60px;
             text-align: center;
@@ -1231,7 +1228,6 @@
             .top-avatar .placeholder { font-size: 11px; }
         }
 
-        /* ЧАТ */
         .chat-container {
             display: flex;
             flex-direction: column;
@@ -1568,7 +1564,6 @@
             font-size: 11px;
         }
 
-        /* МОБИЛЬНАЯ АДАПТАЦИЯ */
         @media (max-width: 600px) {
             .chat-container {
                 height: 80vh !important;
@@ -2114,15 +2109,12 @@
         const SB_ANON_KEY = 'sb_publishable_GLQvPbCZrDYgd7FCSp861g_poX1-Hwy';
 
         // ============================================================
-        // 2. ПОДКЛЮЧЕНИЕ К SUPABASE
+        // 2. ПРОСТОЙ КЛИЕНТ SUPABASE
         // ============================================================
-        const supabaseClient = {
-            url: SB_URL,
-            key: SB_ANON_KEY,
-            
+        const supabase = {
             async fetch(path, opts = {}) {
                 const headers = {
-                    'apikey': this.key,
+                    'apikey': SB_ANON_KEY,
                     'Content-Type': 'application/json',
                     ...(opts.headers || {})
                 };
@@ -2137,7 +2129,7 @@
                 }
 
                 try {
-                    const r = await fetch(this.url + path, {
+                    const r = await fetch(SB_URL + path, {
                         ...opts,
                         body: body,
                         headers,
@@ -2155,143 +2147,60 @@
                 }
             },
 
-            async from(table) {
-                return {
-                    _table: table,
-                    _select: '*',
-                    _filter: {},
-                    _order: null,
-                    _limit: null,
-                    
-                    select(cols) {
-                        this._select = cols || '*';
-                        return this;
-                    },
-                    
-                    eq(col, val) {
-                        this._filter[col] = val;
-                        return this;
-                    },
-                    
-                    order(col, opts = {}) {
-                        this._order = { col, ascending: opts.ascending !== false };
-                        return this;
-                    },
-                    
-                    limit(n) {
-                        this._limit = n;
-                        return this;
-                    },
-                    
-                    async then(resolve, reject) {
-                        try {
-                            let path = `/rest/v1/${this._table}?select=${this._select}`;
-                            
-                            const filters = Object.entries(this._filter);
-                            for (const [col, val] of filters) {
-                                path += `&${col}=eq.${encodeURIComponent(val)}`;
-                            }
-                            
-                            if (this._order) {
-                                path += `&order=${this._order.col}.${this._order.ascending ? 'asc' : 'desc'}`;
-                            }
-                            
-                            if (this._limit) {
-                                path += `&limit=${this._limit}`;
-                            }
-                            
-                            const result = await supabaseClient.fetch(path);
-                            resolve(result);
-                        } catch (e) {
-                            reject(e);
-                        }
-                    },
-                    
-                    async insert(data) {
-                        const result = await supabaseClient.fetch(`/rest/v1/${this._table}`, {
-                            method: 'POST',
-                            body: data
-                        });
-                        return result;
-                    },
-                    
-                    async update(data) {
-                        let path = `/rest/v1/${this._table}`;
-                        const filters = Object.entries(this._filter);
-                        for (let i = 0; i < filters.length; i++) {
-                            const [col, val] = filters[i];
-                            path += (i === 0 ? '?' : '&') + `${col}=eq.${encodeURIComponent(val)}`;
-                        }
-                        const result = await supabaseClient.fetch(path, {
-                            method: 'PATCH',
-                            body: data
-                        });
-                        return result;
-                    },
-                    
-                    async delete() {
-                        let path = `/rest/v1/${this._table}`;
-                        const filters = Object.entries(this._filter);
-                        for (let i = 0; i < filters.length; i++) {
-                            const [col, val] = filters[i];
-                            path += (i === 0 ? '?' : '&') + `${col}=eq.${encodeURIComponent(val)}`;
-                        }
-                        const result = await supabaseClient.fetch(path, {
-                            method: 'DELETE'
-                        });
-                        return result;
+            async select(table, columns = '*', filters = {}, options = {}) {
+                let path = `/rest/v1/${table}?select=${columns}`;
+                
+                for (const [key, val] of Object.entries(filters)) {
+                    if (val !== undefined && val !== null) {
+                        path += `&${key}=eq.${encodeURIComponent(val)}`;
                     }
-                };
+                }
+                
+                if (options.order) {
+                    path += `&order=${options.order.column}.${options.order.ascending ? 'asc' : 'desc'}`;
+                }
+                
+                if (options.limit) {
+                    path += `&limit=${options.limit}`;
+                }
+                
+                return await this.fetch(path);
             },
 
-            channel(name) {
-                // Имитация Realtime через polling
-                let listeners = [];
-                let interval = null;
-                let lastCheck = 0;
-                
-                return {
-                    on(event, config, callback) {
-                        if (event === 'postgres_changes' && config.event === 'INSERT') {
-                            listeners.push({ table: config.table, callback });
-                        }
-                        return this;
-                    },
-                    
-                    subscribe() {
-                        // Запускаем polling для имитации realtime
-                        if (interval) clearInterval(interval);
-                        interval = setInterval(async () => {
-                            try {
-                                for (const listener of listeners) {
-                                    const result = await supabaseClient
-                                        .from(listener.table)
-                                        .select('*')
-                                        .order('created_at', { ascending: false })
-                                        .limit(5);
-                                    
-                                    if (result.ok && result.data) {
-                                        for (const row of result.data) {
-                                            const rowTime = new Date(row.created_at).getTime();
-                                            if (rowTime > lastCheck) {
-                                                listener.callback({ new: row });
-                                            }
-                                        }
-                                    }
-                                }
-                                lastCheck = Date.now();
-                            } catch (e) {
-                                // Игнорируем ошибки polling
-                            }
-                        }, 2000);
-                        return this;
-                    },
-                    
-                    unsubscribe() {
-                        if (interval) clearInterval(interval);
-                        interval = null;
+            async insert(table, data) {
+                return await this.fetch(`/rest/v1/${table}`, {
+                    method: 'POST',
+                    body: data
+                });
+            },
+
+            async update(table, data, filters) {
+                let path = `/rest/v1/${table}`;
+                let first = true;
+                for (const [key, val] of Object.entries(filters)) {
+                    if (val !== undefined && val !== null) {
+                        path += (first ? '?' : '&') + `${key}=eq.${encodeURIComponent(val)}`;
+                        first = false;
                     }
-                };
+                }
+                return await this.fetch(path, {
+                    method: 'PATCH',
+                    body: data
+                });
+            },
+
+            async delete(table, filters) {
+                let path = `/rest/v1/${table}`;
+                let first = true;
+                for (const [key, val] of Object.entries(filters)) {
+                    if (val !== undefined && val !== null) {
+                        path += (first ? '?' : '&') + `${key}=eq.${encodeURIComponent(val)}`;
+                        first = false;
+                    }
+                }
+                return await this.fetch(path, {
+                    method: 'DELETE'
+                });
             }
         };
 
@@ -2412,7 +2321,6 @@
         let chatMessagesCache = [];
         let chatPollInterval = null;
         let chatDialogsCache = [];
-        let chatChannel = null;
 
         const NICK_S = {
             gold: { e: '🌟', n: 'Золотой' },
@@ -2477,19 +2385,13 @@
         // 7. АВТОРИЗАЦИЯ
         // ============================================================
         async function authRegister(username, password, fingerprint) {
-            const result = await supabaseClient
-                .from('users')
-                .select('id')
-                .eq('fingerprint', fingerprint);
+            const result = await supabase.select('users', 'id', { fingerprint: fingerprint });
             
             if (result.ok && result.data && result.data.length > 0) {
                 throw new Error('На этом устройстве уже есть аккаунт');
             }
 
-            const taken = await supabaseClient
-                .from('users')
-                .select('id')
-                .eq('username', username);
+            const taken = await supabase.select('users', 'id', { username: username });
             
             if (taken.ok && taken.data && taken.data.length > 0) {
                 throw new Error('Этот логин уже занят');
@@ -2527,9 +2429,7 @@
                 updated_at: new Date().toISOString()
             };
 
-            const result2 = await supabaseClient
-                .from('users')
-                .insert(newUser);
+            const result2 = await supabase.insert('users', newUser);
 
             if (!result2.ok) {
                 const msg = result2.data?.details || result2.data?.message || 'Ошибка регистрации';
@@ -2540,11 +2440,10 @@
         }
 
         async function authLogin(username, password) {
-            const result = await supabaseClient
-                .from('users')
-                .select('id,username,data,boss,fingerprint')
-                .eq('username', username)
-                .eq('password', password);
+            const result = await supabase.select('users', 'id,username,data,boss,fingerprint', {
+                username: username,
+                password: password
+            });
 
             if (!result.ok || !result.data || result.data.length === 0) {
                 throw new Error('Неверный логин или пароль');
@@ -2557,10 +2456,7 @@
             }
 
             if (!user.fingerprint) {
-                await supabaseClient
-                    .from('users')
-                    .update({ fingerprint: FINGERPRINT })
-                    .eq('id', user.id);
+                await supabase.update('users', { fingerprint: FINGERPRINT }, { id: user.id });
             }
 
             if (user.data) {
@@ -2619,10 +2515,7 @@
                     updated_at: new Date().toISOString()
                 };
 
-                const result = await supabaseClient
-                    .from('users')
-                    .update(payload)
-                    .eq('id', UID);
+                const result = await supabase.update('users', payload, { id: UID });
 
                 if (!result.ok) {
                     console.error('❌ Ошибка сохранения:', result.status, result.data);
@@ -2666,10 +2559,7 @@
 
                 for (const item of queue) {
                     if (item.uid === UID) {
-                        await supabaseClient
-                            .from('users')
-                            .update(item.data)
-                            .eq('id', item.uid);
+                        await supabase.update('users', item.data, { id: item.uid });
                     }
                 }
 
@@ -2689,10 +2579,7 @@
             currentUsername = username;
 
             try {
-                const result = await supabaseClient
-                    .from('users')
-                    .select('id,username,data,boss,fingerprint')
-                    .eq('id', UID);
+                const result = await supabase.select('users', 'id,username,data,boss,fingerprint', { id: UID });
 
                 if (result.ok && result.data && result.data.length > 0) {
                     const user = result.data[0];
@@ -2886,10 +2773,7 @@
             container.innerHTML = '<div class="system-msg">Загрузка диалогов...</div>';
 
             try {
-                const result = await supabaseClient
-                    .from('users')
-                    .select('id,username,data')
-                    .limit(50);
+                const result = await supabase.select('users', 'id,username,data', {}, { limit: 50 });
 
                 if (!result.ok || !result.data) {
                     container.innerHTML = '<div class="system-msg">Ошибка загрузки</div>';
@@ -2903,19 +2787,19 @@
                     const name = user.data?.name || user.username;
                     const avatar = user.data?.avatar || AVATAR_LIST[0];
 
-                    const msgs = await supabaseClient
-                        .from('messages')
-                        .select('*')
-                        .eq('is_private', true)
-                        .order('created_at', { ascending: false })
-                        .limit(1);
+                    const msgs = await supabase.select('messages', '*', {
+                        is_private: true
+                    }, { 
+                        order: { column: 'created_at', ascending: false },
+                        limit: 1
+                    });
                     
-                    const msgs2 = await supabaseClient
-                        .from('messages')
-                        .select('*')
-                        .eq('is_private', true)
-                        .order('created_at', { ascending: false })
-                        .limit(1);
+                    const msgs2 = await supabase.select('messages', '*', {
+                        is_private: true
+                    }, { 
+                        order: { column: 'created_at', ascending: false },
+                        limit: 1
+                    });
 
                     const allMsgs = [...(msgs.ok ? msgs.data || [] : []), ...(msgs2.ok ? msgs2.data || [] : [])];
                     allMsgs.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
@@ -3030,23 +2914,23 @@
                 if (chatMode === 'private' && chatTarget) {
                     const targetId = String(chatTarget.id);
 
-                    const sent = await supabaseClient
-                        .from('messages')
-                        .select('*')
-                        .eq('is_private', true)
-                        .eq('sender_id', UID)
-                        .eq('receiver_id', targetId)
-                        .order('created_at', { ascending: false })
-                        .limit(10);
+                    const sent = await supabase.select('messages', '*', {
+                        is_private: true,
+                        sender_id: UID,
+                        receiver_id: targetId
+                    }, { 
+                        order: { column: 'created_at', ascending: false },
+                        limit: 10
+                    });
 
-                    const received = await supabaseClient
-                        .from('messages')
-                        .select('*')
-                        .eq('is_private', true)
-                        .eq('sender_id', targetId)
-                        .eq('receiver_id', UID)
-                        .order('created_at', { ascending: false })
-                        .limit(10);
+                    const received = await supabase.select('messages', '*', {
+                        is_private: true,
+                        sender_id: targetId,
+                        receiver_id: UID
+                    }, { 
+                        order: { column: 'created_at', ascending: false },
+                        limit: 10
+                    });
 
                     const sentData = sent.ok ? sent.data || [] : [];
                     const receivedData = received.ok ? received.data || [] : [];
@@ -3058,12 +2942,12 @@
                         `💬 ЛС с <span class="highlight">${chatTarget.name}</span> — осталось <span class="highlight">${remaining}</span> сообщений сегодня`;
 
                 } else {
-                    const result = await supabaseClient
-                        .from('messages')
-                        .select('*')
-                        .eq('is_private', false)
-                        .order('created_at', { ascending: false })
-                        .limit(50);
+                    const result = await supabase.select('messages', '*', {
+                        is_private: false
+                    }, { 
+                        order: { column: 'created_at', ascending: false },
+                        limit: 50
+                    });
 
                     data = result.ok ? result.data || [] : [];
                     data.reverse();
@@ -3217,9 +3101,7 @@
             }, 100);
 
             try {
-                const result = await supabaseClient
-                    .from('messages')
-                    .insert(msgData);
+                const result = await supabase.insert('messages', msgData);
 
                 if (!result.ok) {
                     console.error('❌ Ошибка отправки:', result.status, result.data);
@@ -3256,48 +3138,20 @@
             if (!UID) return;
 
             try {
-                const publicMsgs = await supabaseClient
-                    .from('messages')
-                    .select('id')
-                    .eq('is_private', false)
-                    .order('created_at', { ascending: false })
-                    .limit(50);
+                const publicMsgs = await supabase.select('messages', 'id', {
+                    is_private: false
+                }, { 
+                    order: { column: 'created_at', ascending: false },
+                    limit: 50
+                });
 
                 if (publicMsgs.ok && publicMsgs.data && publicMsgs.data.length > 0) {
                     const oldestId = publicMsgs.data[publicMsgs.data.length - 1]?.id;
                     if (oldestId) {
-                        await supabaseClient
-                            .from('messages')
-                            .delete()
-                            .eq('is_private', false)
-                            .lt('id', oldestId);
-                    }
-                }
-
-                const privateChats = await supabaseClient
-                    .from('messages')
-                    .select('id,sender_id,receiver_id')
-                    .eq('is_private', true)
-                    .order('created_at', { ascending: false });
-
-                if (privateChats.ok && privateChats.data && privateChats.data.length > 0) {
-                    const chatPairs = {};
-                    privateChats.data.forEach(msg => {
-                        const key = [msg.sender_id, msg.receiver_id].sort().join('_');
-                        if (!chatPairs[key]) chatPairs[key] = [];
-                        chatPairs[key].push(msg.id);
-                    });
-
-                    for (const [key, ids] of Object.entries(chatPairs)) {
-                        if (ids.length > 10) {
-                            const toDelete = ids.slice(10);
-                            for (const id of toDelete) {
-                                await supabaseClient
-                                    .from('messages')
-                                    .delete()
-                                    .eq('id', id);
-                            }
-                        }
+                        await supabase.delete('messages', {
+                            is_private: false,
+                            id: `lt.${oldestId}`
+                        });
                     }
                 }
 
@@ -3309,11 +3163,9 @@
         async function loadOnlineUsers() {
             try {
                 const fiveMinAgo = new Date(Date.now() - 5 * 60 * 1000).toISOString();
-                const result = await supabaseClient
-                    .from('users')
-                    .select('id')
-                    .gte('updated_at', fiveMinAgo)
-                    .limit(50);
+                const result = await supabase.select('users', 'id', {
+                    updated_at: `gte.${fiveMinAgo}`
+                }, { limit: 50 });
 
                 if (result.ok && result.data) {
                     const online = result.data.filter(u => u.id !== UID);
@@ -3327,57 +3179,14 @@
         async function updateOnlineStatus() {
             if (!UID) return;
             try {
-                await supabaseClient
-                    .from('users')
-                    .update({ updated_at: new Date().toISOString() })
-                    .eq('id', UID);
+                await supabase.update('users', { updated_at: new Date().toISOString() }, { id: UID });
             } catch (e) {
                 console.warn('⚠️ Ошибка обновления статуса:', e);
             }
         }
 
         // ============================================================
-        // 13. ЧАТ REALTIME
-        // ============================================================
-        function initChatRealtime() {
-            if (chatChannel) {
-                chatChannel.unsubscribe();
-                chatChannel = null;
-            }
-
-            chatChannel = supabaseClient.channel('chat');
-            
-            chatChannel.on('postgres_changes', {
-                event: 'INSERT',
-                schema: 'public',
-                table: 'messages'
-            }, (payload) => {
-                const msg = payload.new;
-                if (!msg) return;
-                
-                const isRelevant = 
-                    !msg.is_private ||
-                    msg.sender_id === UID ||
-                    msg.receiver_id === UID ||
-                    (chatTarget && (msg.sender_id === chatTarget.id || msg.receiver_id === chatTarget.id));
-                
-                if (!isRelevant) return;
-                
-                if (document.getElementById('sc-chat').classList.contains('on') &&
-                    document.getElementById('chatMessagesWrap').classList.contains('show')) {
-                    chatMessagesCache.push(msg);
-                    if (chatMessagesCache.length > 100) {
-                        chatMessagesCache = chatMessagesCache.slice(-100);
-                    }
-                    renderChatMessages();
-                }
-            });
-            
-            chatChannel.subscribe();
-        }
-
-        // ============================================================
-        // 14. ВСЕ ИГРОВЫЕ ФУНКЦИИ
+        // 13. ВСЕ ИГРОВЫЕ ФУНКЦИИ
         // ============================================================
         window.toast = function(msg, t) {
             const e = document.getElementById('TOAST');
@@ -3394,7 +3203,6 @@
 
         function fmt(n) { return Math.round(n).toLocaleString('ru'); }
 
-        // --- РЕНДЕР ФУНКЦИИ ---
         function renderFarmTimer() {
             const now = Date.now(),
                 cd = 3600000,
@@ -3607,7 +3415,7 @@
         }
 
         // ============================================================
-        // 15. НАВИГАЦИЯ
+        // 14. НАВИГАЦИЯ
         // ============================================================
         window.goSc = function(nm) {
             document.querySelectorAll('.sc').forEach(s => s.classList.remove('on'));
@@ -3667,7 +3475,7 @@
         };
 
         // ============================================================
-        // 16. ОТРИСОВКА UI
+        // 15. ОТРИСОВКА UI
         // ============================================================
         function renderUI() {
             const sets = {
@@ -3709,7 +3517,7 @@
         }
 
         // ============================================================
-        // 17. ИГРОВЫЕ ДЕЙСТВИЯ
+        // 16. ИГРОВЫЕ ДЕЙСТВИЯ
         // ============================================================
         window.doFarm = function() {
             const now = Date.now();
@@ -3853,10 +3661,9 @@
             if (code === G.refCode) { window.toast('Это ваш код', 'err'); return; }
             if (G.activatedRef) { window.toast('Код уже активирован', 'err'); return; }
             try {
-                const result = await supabaseClient
-                    .from('users')
-                    .select('id')
-                    .eq('data->>refCode', code);
+                const result = await supabase.select('users', 'id', {
+                    'data->>refCode': code
+                });
                     
                 if (!result.ok || !result.data || result.data.length === 0) { window.toast('Код не найден', 'err'); return; }
                 G.activatedRef = code;
@@ -3875,10 +3682,9 @@
             if (!newCode) return;
             if (newCode.length < 4 || newCode.length > 8) { window.toast('Код должен быть 4-8 символов', 'err'); return; }
             if (!/^[a-zA-Z0-9]+$/.test(newCode)) { window.toast('Только буквы и цифры', 'err'); return; }
-            const result = await supabaseClient
-                .from('users')
-                .select('id')
-                .eq('data->>refCode', newCode);
+            const result = await supabase.select('users', 'id', {
+                'data->>refCode': newCode
+            });
                 
             if (result.ok && result.data && result.data.length > 0) { window.toast('Этот код уже занят', 'err'); return; }
             G.refCode = newCode;
@@ -3926,7 +3732,7 @@
         };
 
         // ============================================================
-        // 18. ПОКАЗ ПРИЛОЖЕНИЯ
+        // 17. ПОКАЗ ПРИЛОЖЕНИЯ
         // ============================================================
         function showApp() {
             document.getElementById('authWrap').style.display = 'none';
@@ -3975,7 +3781,7 @@
         }
 
         // ============================================================
-        // 19. АВТОРИЗАЦИЯ UI
+        // 18. АВТОРИЗАЦИЯ UI
         // ============================================================
         window.setAuthMode = function(m) {
             authMode = m;
@@ -4035,7 +3841,7 @@
         };
 
         // ============================================================
-        // 20. РУЛЕТКА
+        // 19. РУЛЕТКА
         // ============================================================
         const RC = document.getElementById('rouletteCanvas');
         const rctx = RC.getContext('2d');
@@ -4351,7 +4157,7 @@
         idleSpin();
 
         // ============================================================
-        // 21. КУБИК
+        // 20. КУБИК
         // ============================================================
         const PIP_LAYOUTS = {
             1: [
@@ -4576,7 +4382,7 @@
         };
 
         // ============================================================
-        // 22. ТОП-10
+        // 21. ТОП-10
         // ============================================================
         async function loadTopPlayers(tp = 'b') {
             const now = Date.now();
@@ -4585,10 +4391,7 @@
             }
 
             try {
-                const result = await supabaseClient
-                    .from('users')
-                    .select('id,username,data')
-                    .limit(15);
+                const result = await supabase.select('users', 'id,username,data', {}, { limit: 15 });
 
                 if (result.ok && result.data) {
                     let players = result.data
@@ -4626,7 +4429,7 @@
         }
 
         // ============================================================
-        // 23. ЧАТ ИНИЦИАЛИЗАЦИЯ
+        // 22. ЧАТ ИНИЦИАЛИЗАЦИЯ
         // ============================================================
         function initChat() {
             if (!UID) return;
@@ -4667,8 +4470,6 @@
 
             showMessages();
             loadOnlineUsers();
-            
-            initChatRealtime();
 
             if (chatPollInterval) clearInterval(chatPollInterval);
             chatPollInterval = setInterval(() => {
@@ -4699,7 +4500,7 @@
         }
 
         // ============================================================
-        // 24. ЗАПУСК
+        // 23. ЗАПУСК
         // ============================================================
         document.addEventListener('DOMContentLoaded', async () => {
             aStat('⏳ Проверка сессии...', 'ld');
@@ -4726,7 +4527,7 @@
         console.log('  - Время показывается по МСК (через Luxon)');
         console.log('  - Полная поддержка мобильных устройств');
         console.log('  - Все игровые функции работают');
-        console.log('  - Realtime через Supabase (polling)');
+        console.log('  - Простой и надёжный клиент Supabase');
     </script>
 </body>
 </html>
