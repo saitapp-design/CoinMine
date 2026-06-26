@@ -3052,150 +3052,158 @@ function renderChatMessages() {
 
         // ----- ОТПРАВКА СООБЩЕНИЯ -----
         window.sendMessage = async function() {
-            const input = document.getElementById('chatInput');
-            const text = input.value.trim();
+    const input = document.getElementById('chatInput');
+    const text = input.value.trim();
 
-            if (!text) {
-                input.style.borderColor = 'var(--red)';
-                setTimeout(() => {
-                    input.style.borderColor = '';
-                }, 1000);
-                window.toast('Введите сообщение', 'err');
-                return;
-            }
-
-            if (text.length > 200) {
-                window.toast('Слишком длинное сообщение (макс. 200 символов)', 'err');
-                return;
-            }
-
-            // Если в режиме ЛС, но не выбран собеседник
-            if (isSearchMode && !currentChatTarget) {
-                window.toast('Сначала выберите собеседника в ЛС', 'err');
-                return;
-            }
-
-            const isPrivate = currentChat !== 'global' && currentChatTarget;
-
-            if (isPrivate) {
-                const now = Date.now();
-                if (now - G.lastPrivateReset > 86400000) {
-                    G.privateMessages = {};
-                    G.lastPrivateReset = now;
-                    scheduleSave();
-                }
-
-                const count = G.privateMessages[currentChatTarget.id] || 0;
-                if (count >= 10) {
-                    window.toast('❌ Лимит ЛС: 10 сообщений в день', 'err');
-                    return;
-                }
-
-                G.privateMessages[currentChatTarget.id] = count + 1;
-                scheduleSave();
-            }
-
-            const receiverId = isPrivate ? currentChatTarget.id : null;
-            const receiverName = isPrivate ? currentChatTarget.name : null;
-
-            const safeText = text.replace(/[<>]/g, '').trim();
-            if (!safeText) {
-                window.toast('Недопустимые символы', 'err');
-                return;
-            }
-
-            const msgData = {
-                sender_id: String(UID),
-                sender_name: String((G.name || currentUsername || 'Игрок').substring(0, 30)),
-                sender_avatar: String(G.avatar || AVATAR_LIST[0]),
-                receiver_id: receiverId ? String(receiverId) : null,
-                receiver_name: receiverName ? String(receiverName.substring(0, 30)) : null,
-                message: String(safeText.substring(0, 200)),
-                is_private: Boolean(isPrivate),
-                created_at: new Date().toISOString()
-            };
-
-            const sentText = text;
-            input.value = '';
+    if (!text) {
+        input.style.borderColor = 'var(--red)';
+        setTimeout(() => {
             input.style.borderColor = '';
+        }, 1000);
+        window.toast('Введите сообщение', 'err');
+        return;
+    }
 
-            // ОПТИМИСТИЧНОЕ ДОБАВЛЕНИЕ
-            const tempMsg = { ...msgData };
-            const targetKey = isPrivate ? currentChatTarget.id : 'global';
+    if (text.length > 200) {
+        window.toast('Слишком длинное сообщение (макс. 200 символов)', 'err');
+        return;
+    }
 
+    // Если в режиме ЛС, но не выбран собеседник
+    if (isSearchMode && !currentChatTarget) {
+        window.toast('Сначала выберите собеседника в ЛС', 'err');
+        return;
+    }
+
+    const isPrivate = currentChat !== 'global' && currentChatTarget;
+
+    if (isPrivate) {
+        const now = Date.now();
+        if (now - G.lastPrivateReset > 86400000) {
+            G.privateMessages = {};
+            G.lastPrivateReset = now;
+            scheduleSave();
+        }
+
+        const count = G.privateMessages[currentChatTarget.id] || 0;
+        if (count >= 10) {
+            window.toast('❌ Лимит ЛС: 10 сообщений в день', 'err');
+            return;
+        }
+
+        G.privateMessages[currentChatTarget.id] = count + 1;
+        scheduleSave();
+    }
+
+    const receiverId = isPrivate ? currentChatTarget.id : null;
+    const receiverName = isPrivate ? currentChatTarget.name : null;
+
+    const safeText = text.replace(/[<>]/g, '').trim();
+    if (!safeText) {
+        window.toast('Недопустимые символы', 'err');
+        return;
+    }
+
+    const msgData = {
+        sender_id: String(UID),
+        sender_name: String((G.name || currentUsername || 'Игрок').substring(0, 30)),
+        sender_avatar: String(G.avatar || AVATAR_LIST[0]),
+        receiver_id: receiverId ? String(receiverId) : null,
+        receiver_name: receiverName ? String(receiverName.substring(0, 30)) : null,
+        message: String(safeText.substring(0, 200)),
+        is_private: Boolean(isPrivate),
+        created_at: new Date().toISOString()
+    };
+
+    const sentText = text;
+    input.value = '';
+    input.style.borderColor = '';
+
+    // ОПТИМИСТИЧНОЕ ДОБАВЛЕНИЕ (Генерируем временный ID, чтобы избежать дублирования на телефонах)
+    const tempMsg = { ...msgData, id: 'temp-' + Date.now() };
+    const targetKey = isPrivate ? currentChatTarget.id : 'global';
+
+    if (targetKey === 'global') {
+        chats.global.push(tempMsg);
+        chatMessagesCache = chats.global;
+    } else {
+        if (!chats.dm[targetKey]) chats.dm[targetKey] = [];
+        chats.dm[targetKey].push(tempMsg);
+        chatMessagesCache = chats.dm[targetKey];
+    }
+
+    // Добавляем в DOM и жестко сбрасываем счетчик для синхронизации
+    lastMessagesCount = 0; 
+    appendMessageToChat(tempMsg);
+
+    // Принудительный скролл вниз после оптимистичного добавления
+    const container = document.getElementById('chatMessages');
+    if (container) {
+        container.scrollTop = container.scrollHeight;
+    }
+
+    setTimeout(() => {
+        input.focus();
+        if ('ontouchstart' in window) {
+            input.click();
+        }
+    }, 100);
+
+    try {
+        const { ok, status, data } = await sbFetch('/rest/v1/messages', {
+            method: 'POST',
+            body: msgData
+        });
+
+        if (!ok) {
+            console.error('❌ Ошибка отправки:', status, data);
+            window.toast('❌ Ошибка отправки', 'err');
+            
+            // Удаляем из кеша в случае ошибки
             if (targetKey === 'global') {
-                chats.global.push(tempMsg);
+                chats.global = chats.global.filter(m => m !== tempMsg);
                 chatMessagesCache = chats.global;
             } else {
-                if (!chats.dm[targetKey]) chats.dm[targetKey] = [];
-                chats.dm[targetKey].push(tempMsg);
+                chats.dm[targetKey] = chats.dm[targetKey].filter(m => m !== tempMsg);
                 chatMessagesCache = chats.dm[targetKey];
             }
-
-            // Добавляем в DOM
-            appendMessageToChat(tempMsg);
+            lastMessagesCount = 0;
+            renderChatMessages();
+            input.value = sentText;
+        } else {
+            // Если всё ок — сбрасываем счетчик, чтобы принудительно затянуть чистые данные с сервера
+            lastMessagesCount = 0;
 
             setTimeout(() => {
-                input.focus();
-                if ('ontouchstart' in window) {
-                    input.click();
-                }
-            }, 100);
+                loadMessages();
+                cleanupOldMessages();
+            }, 300);
 
-            try {
-                const { ok, status, data } = await sbFetch('/rest/v1/messages', {
-                    method: 'POST',
-                    body: msgData
-                });
-
-                if (!ok) {
-                    console.error('❌ Ошибка отправки:', status, data);
-                    window.toast('❌ Ошибка отправки', 'err');
-                    // Удаляем из кеша
-                    if (targetKey === 'global') {
-                        chats.global = chats.global.filter(m => m !== tempMsg);
-                        chatMessagesCache = chats.global;
-                    } else {
-                        chats.dm[targetKey] = chats.dm[targetKey].filter(m => m !== tempMsg);
-                        chatMessagesCache = chats.dm[targetKey];
-                    }
-                    renderChatMessages();
-                    input.value = sentText;
-                } else {
-                    // Обновляем с сервера
-                    setTimeout(() => {
-                        loadMessages();
-                        cleanupOldMessages();
-                    }, 300);
-
-                    if (isPrivate) {
-                        const remaining = getPrivateRemaining(currentChatTarget.id);
-                        document.getElementById('chatInfo').innerHTML =
-                            `💬 ЛС с <span class="highlight">${currentChatTarget.name}</span> — осталось <span class="highlight">${remaining}</span> сообщений сегодня`;
-                    }
-
-                    if (navigator.vibrate) {
-                        navigator.vibrate(10);
-                    }
-                }
-            } catch (e) {
-                console.error('❌ Ошибка соединения:', e);
-                window.toast('❌ Ошибка соединения', 'err');
-                if (targetKey === 'global') {
-                    chats.global = chats.global.filter(m => m !== tempMsg);
-                    chatMessagesCache = chats.global;
-                } else {
-                    chats.dm[targetKey] = chats.dm[targetKey].filter(m => m !== tempMsg);
-                    chatMessagesCache = chats.dm[targetKey];
-                }
-                renderChatMessages();
-                input.value = sentText;
+            if (isPrivate) {
+                const remaining = getPrivateRemaining(currentChatTarget.id);
+                document.getElementById('chatInfo').innerHTML =
+                    `💬 ЛС с <span class="highlight">${currentChatTarget.name}</span> — осталось <span class="highlight">${remaining}</span> сообщений сегодня`;
             }
-        };
 
-        // ----- REALTIME (ПОЛЛИНГ) -----
-        let lastMessageTime = Date.now();
-
+            if (navigator.vibrate) {
+                navigator.vibrate(10);
+            }
+        }
+    } catch (e) {
+        console.error('❌ Ошибка соединения:', e);
+        window.toast('❌ Ошибка соединения', 'err');
+        if (targetKey === 'global') {
+            chats.global = chats.global.filter(m => m !== tempMsg);
+            chatMessagesCache = chats.global;
+        } else {
+            chats.dm[targetKey] = chats.dm[targetKey].filter(m => m !== tempMsg);
+            chatMessagesCache = chats.dm[targetKey];
+        }
+        lastMessagesCount = 0;
+        renderChatMessages();
+        input.value = sentText;
+    }
+};
         function setupRealtime() {
             if (chatPollInterval) {
                 clearInterval(chatPollInterval);
