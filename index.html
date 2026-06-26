@@ -3,11 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>CoinMine — Чат исправлен</title>
+    <title>CoinMine — Чат</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.3/howler.min.js">
     </script>
     <style>
-        /* ===== ВЕСЬ CSS (основная часть) ===== */
         * {
             box-sizing: border-box;
             margin: 0;
@@ -19,8 +18,10 @@
             --bg2: #0d0d1c;
             --bg3: #131328;
             --bg4: #1a1a35;
+            --bg5: #22224a;
             --acc: #7c3aed;
             --acc2: #9d5cf0;
+            --acc3: #c4a0ff;
             --gld: #f0b429;
             --gld2: #ffd166;
             --grn: #10b981;
@@ -31,6 +32,7 @@
             --bd2: #ffffff22;
             --r: 12px;
             --r2: 6px;
+            --r3: 4px;
             --gold: #ffd700;
             --silver: #c0c0c0;
             --bronze: #cd7f32;
@@ -41,11 +43,8 @@
             --color-background-primary: #131328;
             --color-background-secondary: #1a1a35;
             --color-border-tertiary: #ffffff14;
-            --acc3: #c4a0ff;
-            --r3: 4px;
         }
-        html,
-        body {
+        html, body {
             height: 100%;
             background: #07070f;
             color: var(--tx);
@@ -54,8 +53,7 @@
             line-height: 1.4;
             overflow-x: hidden;
         }
-        body::before,
-        body::after {
+        body::before, body::after {
             content: '';
             position: fixed;
             top: 0;
@@ -70,17 +68,10 @@
             background-repeat: no-repeat;
             opacity: 0.3;
         }
-        body::before {
-            left: 0;
-        }
-        body::after {
-            right: 0;
-        }
+        body::before { left: 0; }
+        body::after { right: 0; }
         @media (max-width: 700px) {
-            body::before,
-            body::after {
-                display: none !important;
-            }
+            body::before, body::after { display: none !important; }
         }
         .app {
             max-width: 700px;
@@ -94,9 +85,7 @@
             padding-top: 10px;
         }
         @media (max-width: 700px) {
-            .app {
-                max-width: 100%;
-            }
+            .app { max-width: 100%; }
         }
 
         .static-banner {
@@ -117,9 +106,7 @@
             transition: .3s;
             background: var(--bg2);
         }
-        .static-banner.show {
-            display: block;
-        }
+        .static-banner.show { display: block; }
         .static-banner:hover {
             border-color: var(--acc2);
             transform: translateX(-50%) scale(1.03);
@@ -150,63 +137,33 @@
         }
 
         @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
         @keyframes pulse {
-            0%,
-            100% {
-                transform: scale(1);
-            }
-            50% {
-                transform: scale(1.05);
-            }
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
         }
         @keyframes glow {
-            0%,
-            100% {
-                box-shadow: 0 0 20px rgba(124, 58, 237, 0.2);
-            }
-            50% {
-                box-shadow: 0 0 40px rgba(124, 58, 237, 0.6);
-            }
+            0%, 100% { box-shadow: 0 0 20px rgba(124, 58, 237, 0.2); }
+            50% { box-shadow: 0 0 40px rgba(124, 58, 237, 0.6); }
         }
         @keyframes float {
-            0%,
-            100% {
-                transform: translateY(0px);
-            }
-            50% {
-                transform: translateY(-8px);
-            }
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-8px); }
         }
         @keyframes musicPulse {
-            0%,
-            100% {
-                transform: scale(1);
-            }
-            50% {
-                transform: scale(1.1);
-            }
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
         }
-        .animated {
-            animation: fadeIn 0.4s ease forwards;
+        @keyframes msgAppear {
+            from { opacity: 0; transform: translateY(8px) scale(0.97); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
         }
-        .pulse {
-            animation: pulse 2s ease-in-out infinite;
-        }
-        .glow {
-            animation: glow 2s ease-in-out infinite;
-        }
-        .float {
-            animation: float 3s ease-in-out infinite;
-        }
+        .animated { animation: fadeIn 0.4s ease forwards; }
+        .pulse { animation: pulse 2s ease-in-out infinite; }
+        .glow { animation: glow 2s ease-in-out infinite; }
+        .float { animation: float 3s ease-in-out infinite; }
 
         #authWrap {
             min-height: 100vh;
@@ -304,9 +261,7 @@
             border-color: var(--acc2);
             box-shadow: 0 0 20px #7c3aed33;
         }
-        .inp::placeholder {
-            color: var(--tx2);
-        }
+        .inp::placeholder { color: var(--tx2); }
         .btn {
             width: 100%;
             padding: 13px;
@@ -324,9 +279,7 @@
             position: relative;
             overflow: hidden;
         }
-        .btn:active {
-            transform: scale(.97);
-        }
+        .btn:active { transform: scale(.97); }
         .bp {
             background: linear-gradient(135deg, var(--acc), var(--acc2));
             color: #fff;
@@ -341,9 +294,7 @@
             color: var(--tx);
             border: 1.5px solid var(--bd2);
         }
-        .bs:hover {
-            border-color: var(--acc2);
-        }
+        .bs:hover { border-color: var(--acc2); }
         .btn:disabled {
             opacity: .5;
             cursor: not-allowed;
@@ -356,27 +307,18 @@
             min-height: 20px;
             font-weight: 500;
         }
-        .astat.ok {
-            color: var(--grn);
-        }
-        .astat.err {
-            color: var(--red);
-        }
-        .astat.ld {
-            color: var(--gld);
-        }
-        .astat.warn {
-            color: var(--gld2);
-        }
+        .astat.ok { color: var(--grn); }
+        .astat.err { color: var(--red); }
+        .astat.ld { color: var(--gld); }
+        .astat.warn { color: var(--gld2); }
+
         #appWrap {
             display: none;
             flex-direction: column;
             min-height: 100vh;
             padding-bottom: 120px;
         }
-        #appWrap.on {
-            display: flex;
-        }
+        #appWrap.on { display: flex; }
 
         .hdr {
             background: var(--bg2);
@@ -425,7 +367,6 @@
             border-color: var(--gld);
             box-shadow: 0 0 20px #f0b42922;
         }
-
         .hdr-btn {
             background: var(--bg4);
             border: 1.5px solid var(--bd2);
@@ -447,9 +388,7 @@
             background: var(--bg3);
             transform: scale(1.05);
         }
-        .hdr-btn:active {
-            transform: scale(.9);
-        }
+        .hdr-btn:active { transform: scale(.9); }
         .hdr-btn.on {
             border-color: var(--gld);
             color: var(--gld);
@@ -483,16 +422,9 @@
             pointer-events: none;
             border: 1px solid var(--bd2);
         }
-        .hdr-btn:hover .hint {
-            opacity: 1;
-        }
-
-        .music-btn .icon {
-            transition: .3s;
-        }
-        .music-btn.on .icon {
-            animation: musicPulse 1.5s ease-in-out infinite;
-        }
+        .hdr-btn:hover .hint { opacity: 1; }
+        .music-btn .icon { transition: .3s; }
+        .music-btn.on .icon { animation: musicPulse 1.5s ease-in-out infinite; }
         .music-btn .status-dot {
             position: absolute;
             bottom: 2px;
@@ -511,39 +443,16 @@
         }
 
         @media (max-width: 500px) {
-            .hdr {
-                padding: 4px 8px;
-                gap: 4px;
-            }
-            .hdr-logo {
-                font-size: 14px;
-            }
-            .hdr-btn {
-                width: 30px;
-                height: 30px;
-                font-size: 14px;
-            }
-            .hdr-bal {
-                font-size: 11px;
-                padding: 3px 8px;
-            }
-            .hdr-btn .hint {
-                display: none;
-            }
+            .hdr { padding: 4px 8px; gap: 4px; }
+            .hdr-logo { font-size: 14px; }
+            .hdr-btn { width: 30px; height: 30px; font-size: 14px; }
+            .hdr-bal { font-size: 11px; padding: 3px 8px; }
+            .hdr-btn .hint { display: none; }
         }
         @media (max-width: 380px) {
-            .hdr-logo {
-                font-size: 12px;
-            }
-            .hdr-btn {
-                width: 26px;
-                height: 26px;
-                font-size: 12px;
-            }
-            .hdr-bal {
-                font-size: 10px;
-                padding: 2px 6px;
-            }
+            .hdr-logo { font-size: 12px; }
+            .hdr-btn { width: 26px; height: 26px; font-size: 12px; }
+            .hdr-bal { font-size: 10px; padding: 2px 6px; }
         }
 
         .screens {
@@ -580,9 +489,7 @@
             background: rgba(13, 13, 28, 0.95);
         }
         @media (max-width: 700px) {
-            .nav {
-                max-width: 100%;
-            }
+            .nav { max-width: 100%; }
         }
         .nb {
             display: flex;
@@ -607,9 +514,7 @@
             color: var(--gld);
             background: rgba(240, 180, 41, 0.1);
         }
-        .nb span {
-            font-size: 16px;
-        }
+        .nb span { font-size: 16px; }
         .logout-btn {
             background: none;
             border: 1px solid var(--bd2);
@@ -632,9 +537,7 @@
             padding: 12px;
             transition: .3s;
         }
-        .card:hover {
-            border-color: var(--bd2);
-        }
+        .card:hover { border-color: var(--bd2); }
         .ct {
             font-size: 10px;
             color: var(--tx2);
@@ -682,9 +585,7 @@
             border-bottom: 1px solid var(--bd);
             transition: .3s;
         }
-        .row:last-child {
-            border-bottom: none;
-        }
+        .row:last-child { border-bottom: none; }
         .row:hover {
             background: var(--bg4);
             margin: 0 -8px;
@@ -705,36 +606,22 @@
             transition: width .6s ease;
             width: 100%;
         }
-        .pf-gld {
-            background: linear-gradient(90deg, #b87800, var(--gld));
-        }
-        .pf-acc {
-            background: linear-gradient(90deg, var(--acc), var(--acc2));
-        }
-        .pf-grn {
-            background: var(--grn);
-        }
+        .pf-gld { background: linear-gradient(90deg, #b87800, var(--gld)); }
+        .pf-acc { background: linear-gradient(90deg, var(--acc), var(--acc2)); }
+        .pf-grn { background: var(--grn); }
         .fl {
             display: flex;
             align-items: center;
             gap: 8px;
         }
-        .f1 {
-            flex: 1;
-        }
+        .f1 { flex: 1; }
         .tm {
             color: var(--tx2);
             font-size: 12px;
         }
-        .mt8 {
-            margin-top: 8px;
-        }
-        .mb8 {
-            margin-bottom: 8px;
-        }
-        .tc {
-            text-align: center;
-        }
+        .mt8 { margin-top: 8px; }
+        .mb8 { margin-bottom: 8px; }
+        .tc { text-align: center; }
         .irow {
             display: flex;
             gap: 7px;
@@ -789,9 +676,7 @@
             padding: 6px 10px;
             margin: 0 -6px;
         }
-        .top-row:last-child {
-            border-bottom: none;
-        }
+        .top-row:last-child { border-bottom: none; }
         .boss-wrap {
             text-align: center;
             padding: 8px 0;
@@ -838,18 +723,13 @@
             background: linear-gradient(180deg, #ffffff25, transparent);
             border-radius: 10px;
         }
+
         .rl-section {
             display: flex;
             flex-direction: column;
             align-items: center;
             gap: 12px;
             padding: 10px 0;
-        }
-        .rl-label {
-            font-size: 13px;
-            color: var(--color-text-secondary);
-            font-weight: 500;
-            text-align: center;
         }
         .rl-canvas-wrap {
             position: relative;
@@ -872,12 +752,8 @@
             color: var(--color-text-primary);
             padding: 4px 0;
         }
-        .rl-result.win {
-            color: var(--gld);
-        }
-        .rl-result.lose {
-            color: var(--red);
-        }
+        .rl-result.win { color: var(--gld); }
+        .rl-result.lose { color: var(--red); }
         .rl-bet-row {
             display: flex;
             gap: 8px;
@@ -920,24 +796,14 @@
             cursor: pointer;
             transition: background .15s;
         }
-        .rl-btns button:hover {
-            background: var(--color-background-secondary);
-        }
+        .rl-btns button:hover { background: var(--color-background-secondary); }
         .rl-btns button:disabled {
             opacity: .5;
             cursor: not-allowed;
         }
-        .btn-red {
-            border-color: #b91c1c !important;
-            color: #b91c1c !important;
-        }
-        .btn-blk {
-            border-color: #555 !important;
-        }
-        .btn-grn {
-            border-color: #15803d !important;
-            color: #15803d !important;
-        }
+        .btn-red { border-color: #b91c1c !important; color: #b91c1c !important; }
+        .btn-blk { border-color: #555 !important; }
+        .btn-grn { border-color: #15803d !important; color: #15803d !important; }
         .rl-coeff {
             font-size: 12px;
             color: var(--color-text-secondary);
@@ -979,24 +845,12 @@
             backface-visibility: hidden;
             transition: background .4s, border-color .4s;
         }
-        .face.front {
-            transform: translateZ(70px);
-        }
-        .face.back {
-            transform: rotateY(180deg) translateZ(70px);
-        }
-        .face.right {
-            transform: rotateY(90deg) translateZ(70px);
-        }
-        .face.left {
-            transform: rotateY(-90deg) translateZ(70px);
-        }
-        .face.top {
-            transform: rotateX(90deg) translateZ(70px);
-        }
-        .face.bottom {
-            transform: rotateX(-90deg) translateZ(70px);
-        }
+        .face.front { transform: translateZ(70px); }
+        .face.back { transform: rotateY(180deg) translateZ(70px); }
+        .face.right { transform: rotateY(90deg) translateZ(70px); }
+        .face.left { transform: rotateY(-90deg) translateZ(70px); }
+        .face.top { transform: rotateX(90deg) translateZ(70px); }
+        .face.bottom { transform: rotateX(-90deg) translateZ(70px); }
         .pips {
             display: grid;
             width: 100px;
@@ -1027,12 +881,8 @@
             text-align: center;
             padding: 4px 0;
         }
-        .dice-result.win {
-            color: var(--gld);
-        }
-        .dice-result.lose {
-            color: var(--red);
-        }
+        .dice-result.win { color: var(--gld); }
+        .dice-result.lose { color: var(--red); }
         .dice-btns {
             display: flex;
             gap: 10px;
@@ -1046,9 +896,7 @@
             cursor: pointer;
             color: var(--color-text-primary);
         }
-        .dice-btns button:hover {
-            background: var(--color-background-secondary);
-        }
+        .dice-btns button:hover { background: var(--color-background-secondary); }
         .dice-btns button:disabled {
             opacity: .5;
             cursor: not-allowed;
@@ -1154,9 +1002,7 @@
             padding: 16px;
             animation: fadeIn 0.2s ease;
         }
-        .mod-bg.on {
-            display: flex;
-        }
+        .mod-bg.on { display: flex; }
         .mod-box {
             background: var(--bg3);
             border: 1px solid var(--bd2);
@@ -1182,9 +1028,7 @@
             display: flex;
             gap: 8px;
         }
-        .mod-btns .btn {
-            flex: 1;
-        }
+        .mod-btns .btn { flex: 1; }
         .bdg {
             display: inline-flex;
             align-items: center;
@@ -1237,7 +1081,7 @@
         }
         .hl {
             color: var(--gld);
-            font-weight: 700;
+            font-weight: 600;
         }
 
         .avatar-wrap {
@@ -1287,9 +1131,7 @@
             z-index: 5;
             width: auto;
         }
-        .avatar-wrap:hover .avatar-hint {
-            opacity: 1;
-        }
+        .avatar-wrap:hover .avatar-hint { opacity: 1; }
         .avatar-selector {
             position: absolute;
             top: 52px;
@@ -1351,51 +1193,6 @@
             border-color: var(--gld);
             box-shadow: 0 0 20px #f0b42944;
         }
-
-        @media (max-width: 500px) {
-            .avatar-selector {
-                width: 180px;
-                max-width: 92vw;
-                top: 48px;
-                left: 0;
-                transform: none;
-                padding: 8px;
-            }
-            .avatar-grid {
-                gap: 5px;
-            }
-            .avatar-option {
-                border-radius: 6px;
-                padding: 2px;
-            }
-            .avatar-hint {
-                font-size: 6px;
-                bottom: -14px;
-                padding: 1px 4px;
-            }
-            .avatar-preview {
-                width: 38px;
-                height: 38px;
-            }
-        }
-        @media (max-width: 380px) {
-            .avatar-selector {
-                width: 150px;
-                max-width: 95vw;
-                padding: 6px;
-                top: 44px;
-                left: 0;
-                transform: none;
-            }
-            .avatar-grid {
-                gap: 4px;
-            }
-            .avatar-option {
-                border-radius: 4px;
-                padding: 2px;
-            }
-        }
-
         .top-avatar {
             width: 28px;
             height: 28px;
@@ -1422,32 +1219,123 @@
                 width: 24px;
                 height: 24px;
             }
-            .top-avatar .placeholder {
-                font-size: 11px;
-            }
+            .top-avatar .placeholder { font-size: 11px; }
         }
 
-        /* ===== ЧАТ (ПОЛНОСТЬЮ ПЕРЕРАБОТАН, БЕЗ ВРЕМЕНИ) ===== */
+        /* ===== ЧАТ (ПЕРЕРАБОТАН) ===== */
+        .chat-container {
+            display: flex;
+            flex-direction: column;
+            height: 75vh;
+            max-height: 650px;
+            background: var(--bg3);
+            border-radius: var(--r);
+            border: 1px solid var(--bd);
+            overflow: hidden;
+        }
+        .chat-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 14px;
+            background: var(--bg2);
+            border-bottom: 1px solid var(--bd);
+            flex-shrink: 0;
+            min-height: 50px;
+        }
+        .chat-header-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            min-width: 0;
+        }
+        .chat-header-left .back-btn {
+            background: none;
+            border: none;
+            color: var(--tx2);
+            font-size: 20px;
+            cursor: pointer;
+            padding: 4px 8px;
+            display: none;
+            border-radius: 8px;
+            min-width: 36px;
+            min-height: 36px;
+        }
+        .chat-header-left .back-btn:active { background: var(--bg4); }
+        .chat-header-left .back-btn.show { display: block; }
+        .chat-header-left .chat-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--tx);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .chat-header-left .chat-title .sub {
+            font-size: 11px;
+            font-weight: 400;
+            color: var(--tx2);
+        }
+        .chat-header-right {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-shrink: 0;
+        }
+        .chat-header-right .online-count {
+            font-size: 11px;
+            color: var(--grn);
+            font-weight: 600;
+        }
+        .chat-mode-toggle {
+            background: var(--bg4);
+            border: 1px solid var(--bd2);
+            border-radius: 12px;
+            padding: 4px 12px;
+            font-size: 11px;
+            color: var(--tx2);
+            cursor: pointer;
+            transition: .3s;
+            font-weight: 600;
+            min-height: 30px;
+        }
+        .chat-mode-toggle:active { transform: scale(0.95); }
+        .chat-mode-toggle:hover {
+            border-color: var(--acc2);
+            color: var(--tx);
+        }
+        .chat-mode-toggle.active {
+            border-color: var(--gld);
+            color: var(--gld);
+            background: rgba(240, 180, 41, 0.1);
+        }
+
+        .chat-messages-wrap {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            min-height: 0;
+        }
+
         .chat-messages {
             flex: 1;
             overflow-y: auto;
             padding: 10px 8px;
             background: var(--bg4);
-            border-radius: var(--r2);
-            min-height: 240px;
-            max-height: 440px;
             display: flex;
             flex-direction: column;
-            gap: 6px;
-            margin-bottom: 6px;
+            gap: 4px;
+            scroll-behavior: smooth;
+            -webkit-overflow-scrolling: touch;
+            min-height: 0;
         }
         .chat-messages .msg {
             max-width: 86%;
             padding: 8px 12px;
             border-radius: 12px;
             word-break: break-word;
-            animation: fadeIn 0.2s ease;
-            font-size: 15px;
+            animation: msgAppear 0.2s ease-out;
+            font-size: 14px;
             line-height: 1.5;
         }
         .chat-messages .msg.own {
@@ -1469,6 +1357,7 @@
             align-items: center;
             gap: 6px;
             margin-bottom: 2px;
+            flex-wrap: wrap;
         }
         .chat-messages .msg.own .sender .name {
             color: #fff;
@@ -1479,7 +1368,7 @@
             font-weight: 600;
         }
         .chat-messages .msg .text {
-            font-size: 15px;
+            font-size: 14px;
             margin-top: 2px;
         }
         .chat-messages .msg .private-tag {
@@ -1487,132 +1376,271 @@
             color: var(--acc2);
             margin-left: 4px;
         }
-
-        .chat-search-results {
-            position: absolute;
-            background: var(--bg3);
-            border: 1px solid var(--bd2);
-            border-radius: var(--r2);
-            max-height: 140px;
-            overflow-y: auto;
-            z-index: 10;
-            width: 100%;
-            display: none;
-            margin-top: 36px;
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6);
-        }
-        .chat-search-results .result-item {
-            padding: 8px 10px;
-            cursor: pointer;
-            border-bottom: 1px solid var(--bd);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            transition: .2s;
-            font-size: 14px;
-        }
-        .chat-search-results .result-item:hover {
-            background: var(--bg4);
-        }
-        .chat-search-results .result-item .name {
-            font-size: 13px;
-            color: var(--tx);
-            font-weight: 500;
-        }
-        .chat-search-results .result-item .user-id {
-            font-size: 10px;
+        .chat-messages .system-msg {
+            text-align: center;
+            font-size: 12px;
             color: var(--tx2);
-            margin-left: auto;
-        }
-        .chat-search-results .result-item .status {
-            font-size: 10px;
-            padding: 2px 8px;
-            border-radius: 10px;
-            background: var(--grn);
-            color: #fff;
+            padding: 8px;
+            font-style: italic;
         }
 
         .chat-input-wrap {
             display: flex;
             gap: 8px;
-            margin-top: 4px;
+            padding: 8px 10px;
+            background: var(--bg2);
+            border-top: 1px solid var(--bd);
+            flex-shrink: 0;
         }
         .chat-input-wrap input {
             flex: 1;
+            min-width: 60px;
+            height: 48px;
             margin: 0;
             padding: 10px 14px;
-            font-size: 15px;
-            border-radius: var(--r2);
+            font-size: 16px !important;
+            border-radius: 25px !important;
+            background: var(--bg3) !important;
+            border: 1.5px solid var(--bd2) !important;
+            color: var(--tx) !important;
+            outline: none !important;
+            -webkit-appearance: none !important;
+            appearance: none !important;
+        }
+        .chat-input-wrap input:focus {
+            border-color: var(--acc2) !important;
+            box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.2) !important;
+        }
+        .chat-input-wrap input::placeholder {
+            color: var(--tx2) !important;
+            opacity: 0.7 !important;
+        }
+        .chat-input-wrap input:disabled {
+            opacity: 0.5 !important;
+            cursor: not-allowed !important;
         }
         .chat-input-wrap button {
-            width: auto;
-            padding: 0 20px;
-            font-size: 15px;
-            border-radius: var(--r2);
+            width: 48px !important;
+            height: 48px !important;
+            min-width: 48px !important;
+            padding: 0 !important;
+            border-radius: 50% !important;
+            flex-shrink: 0 !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            background: linear-gradient(135deg, var(--acc), var(--acc2)) !important;
+            box-shadow: 0 4px 16px rgba(124, 58, 237, 0.3) !important;
+            border: none !important;
+            cursor: pointer !important;
         }
-        .chat-private-info {
+        .chat-input-wrap button:active {
+            transform: scale(0.9) !important;
+        }
+        .chat-input-wrap button span {
+            font-size: 22px !important;
+            line-height: 1 !important;
+            color: #fff !important;
+        }
+        .chat-info {
+            font-size: 11px;
+            color: var(--tx2);
+            padding: 4px 12px;
+            text-align: center;
+            background: var(--bg4);
+            flex-shrink: 0;
+            min-height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .chat-info .highlight {
+            color: var(--gld);
+            font-weight: 600;
+        }
+
+        .chat-dialogs {
+            display: none;
+            flex-direction: column;
+            flex: 1;
+            overflow-y: auto;
+            padding: 6px 8px;
+            background: var(--bg3);
+        }
+        .chat-dialogs.show { display: flex; }
+        .chat-dialog-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 12px;
+            border-radius: var(--r2);
+            cursor: pointer;
+            transition: .3s;
+            border-bottom: 1px solid var(--bd);
+            min-height: 56px;
+        }
+        .chat-dialog-item:active { background: var(--bg4); }
+        .chat-dialog-item .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            overflow: hidden;
+            flex-shrink: 0;
+            background: var(--bg4);
+            border: 2px solid var(--bd2);
+        }
+        .chat-dialog-item .avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .chat-dialog-item .info {
+            flex: 1;
+            min-width: 0;
+        }
+        .chat-dialog-item .info .name {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--tx);
+        }
+        .chat-dialog-item .info .last-msg {
             font-size: 12px;
             color: var(--tx2);
-            margin-top: 6px;
-            min-height: 20px;
-            font-weight: 500;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
-
-        .chat-mode-badge {
-            display: inline-block;
-            padding: 2px 10px;
-            border-radius: 12px;
-            font-size: 11px;
-            font-weight: 600;
+        .chat-dialog-item .badge {
             background: var(--acc);
             color: #fff;
-        }
-        .chat-mode-badge.public {
-            background: var(--bg4);
-            color: var(--tx2);
-            border: 1px solid var(--bd2);
-        }
-        .chat-mode-badge.private {
-            background: var(--acc);
-            color: #fff;
+            font-size: 10px;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 10px;
+            flex-shrink: 0;
         }
 
-        @media (max-width: 500px) {
+        .chat-dialog-item .online-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            flex-shrink: 0;
+            background: var(--red);
+        }
+        .chat-dialog-item .online-dot.online {
+            background: var(--grn);
+            box-shadow: 0 0 8px #10b98166;
+        }
+
+        @media (max-width: 600px) {
+            .chat-container {
+                height: 80vh !important;
+                max-height: none !important;
+                border-radius: 0 !important;
+                margin: -10px -10px 0 -10px;
+            }
+            .chat-header {
+                padding: 8px 10px !important;
+                min-height: 48px;
+            }
+            .chat-header-left .chat-title {
+                font-size: 14px !important;
+            }
+            .chat-mode-toggle {
+                padding: 3px 10px !important;
+                font-size: 10px !important;
+                min-height: 28px;
+            }
+            .chat-header-right .online-count {
+                font-size: 10px !important;
+            }
             .chat-messages {
-                min-height: 180px;
-                max-height: 340px;
-                padding: 8px 6px;
+                padding: 8px 6px !important;
+                gap: 3px !important;
+                min-height: 200px;
             }
             .chat-messages .msg {
-                max-width: 92%;
-                padding: 6px 10px;
-                font-size: 14px;
+                max-width: 90% !important;
+                padding: 8px 12px !important;
+                font-size: 14px !important;
+                border-radius: 14px !important;
             }
             .chat-messages .msg .text {
-                font-size: 14px;
+                font-size: 14px !important;
+                line-height: 1.5;
+            }
+            .chat-messages .msg .sender {
+                font-size: 10px !important;
+                gap: 4px !important;
+            }
+            .chat-messages .msg .sender .name {
+                font-size: 11px !important;
+            }
+            .chat-input-wrap {
+                padding: 6px 8px !important;
+                gap: 6px !important;
+                background: var(--bg2) !important;
             }
             .chat-input-wrap input {
-                font-size: 14px;
-                padding: 8px 12px;
+                padding: 10px 14px !important;
+                font-size: 16px !important;
+                height: 48px !important;
+                border-radius: 25px !important;
             }
             .chat-input-wrap button {
-                padding: 0 16px;
-                font-size: 14px;
+                width: 48px !important;
+                height: 48px !important;
+                min-width: 48px !important;
             }
-            .chat-search-results .result-item {
-                padding: 6px 8px;
-                font-size: 13px;
+            .chat-input-wrap button span {
+                font-size: 22px !important;
             }
-            .chat-search-results .result-item .status {
-                font-size: 9px;
-                padding: 1px 6px;
+            .chat-dialog-item {
+                padding: 10px 12px !important;
+                min-height: 56px;
+            }
+            .chat-dialog-item .avatar {
+                width: 40px !important;
+                height: 40px !important;
+            }
+            .chat-dialog-item .info .name {
+                font-size: 14px !important;
+            }
+            .chat-dialog-item .info .last-msg {
+                font-size: 12px !important;
+            }
+            .chat-info {
+                font-size: 10px !important;
+                padding: 4px 8px !important;
+                min-height: 28px !important;
+            }
+        }
+
+        @media (max-width: 380px) {
+            .chat-input-wrap input {
+                font-size: 14px !important;
+                height: 42px !important;
+                padding: 8px 12px !important;
+            }
+            .chat-input-wrap button {
+                width: 42px !important;
+                height: 42px !important;
+                min-width: 42px !important;
+            }
+            .chat-input-wrap button span {
+                font-size: 18px !important;
+            }
+            .chat-messages .msg {
+                max-width: 94% !important;
+                padding: 6px 10px !important;
+                font-size: 13px !important;
             }
         }
     </style>
 </head>
 <body>
 
-    <!-- ══════════════════ APP ═══════════════════ -->
+    <!-- APP -->
     <div class="app" id="appRoot">
 
         <!-- AUTH -->
@@ -1641,19 +1669,17 @@
             <div class="hdr">
                 <div class="hdr-logo">⛏ CoinMine</div>
                 <div class="hdr-right">
-                    <div class="hdr-btn music-btn" id="musicBtn" onclick="window.toggleMusic()" title="Включить/выключить музыку">
+                    <div class="hdr-btn music-btn" id="musicBtn" onclick="window.toggleMusic()">
                         <span class="icon" id="musicIcon">🔇</span>
                         <span class="status-dot" id="musicDot"></span>
                         <span class="hint">Музыка</span>
                     </div>
-                    <div class="hdr-btn" id="chatBtn" onclick="window.goSc('chat')" title="Чат">
+                    <div class="hdr-btn" id="chatBtn" onclick="window.goSc('chat')">
                         💬
                         <span class="badge" id="chatBadge" style="display:none;">0</span>
                         <span class="hint">Чат</span>
                     </div>
-                    <div class="hdr-bal">
-                        💰 <span id="H_c">0</span>
-                    </div>
+                    <div class="hdr-bal">💰 <span id="H_c">0</span></div>
                 </div>
             </div>
 
@@ -1690,7 +1716,6 @@
                             <div class="st"><div class="sv" id="S_k">0</div><div class="sl">🔑 ключей</div></div>
                         </div>
                     </div>
-
                     <div class="card glow">
                         <div class="ct">⛏ шахта</div>
                         <div style="background:var(--bg4);border-radius:var(--r2);padding:10px 12px;margin-bottom:10px;display:flex;align-items:center;gap:9px">
@@ -1707,7 +1732,6 @@
                             <button class="btn bs" onclick="window.conf('Улучшить шахту?','Стоимость: ' + window.getFarmCost() + ' монет. +20% к добыче за уровень.',window.upFarm)">⬆ Прокачать</button>
                         </div>
                     </div>
-
                     <div class="card">
                         <div class="ct">🎁 реферальная программа</div>
                         <div class="irow mb8">
@@ -1719,7 +1743,6 @@
                         <div class="tm">Активирован: <b id="ACT_REF" style="color:var(--gld)">—</b></div>
                         <div class="tm mt8">За активацию вашего кода: <b style="color:var(--gld)">+25 монет</b> вам и другу</div>
                     </div>
-
                     <div class="card">
                         <div class="ct">💎 осколки</div>
                         <div id="SH_H" style="font-size:12px;color:var(--tx2)">Выпадают случайно при добыче</div>
@@ -1733,7 +1756,6 @@
                         <div class="tab" onclick="window.gTab('dc',this)">🎲 Кубик</div>
                         <div class="tab" onclick="window.gTab('au',this)">🏛 Аукцион</div>
                     </div>
-
                     <div id="G_rl">
                         <div class="card">
                             <div class="ct">🎰 рулетка</div>
@@ -1755,7 +1777,6 @@
                             </div>
                         </div>
                     </div>
-
                     <div id="G_dc" style="display:none">
                         <div class="card">
                             <div class="ct">🎲 3D кубик — ставка 50 монет</div>
@@ -1779,7 +1800,6 @@
                             </div>
                         </div>
                     </div>
-
                     <div id="G_au" style="display:none">
                         <div class="card">
                             <div class="ct">🏛 аукцион</div>
@@ -1820,7 +1840,6 @@
                         </div>
                         <div style="font-size:13px;color:var(--grn);margin-top:8px;min-height:20px;font-weight:600" id="ATK_l"></div>
                     </div>
-
                     <div class="card">
                         <div class="ct">📋 миссии дня</div>
                         <div id="MS_l"></div>
@@ -1889,12 +1908,10 @@
                         </div>
                         <div class="tm tc mt8">Демо-режим — монеты зачисляются бесплатно</div>
                     </div>
-
                     <div class="card">
                         <div class="ct">🎨 стили ника (250 монет)</div>
                         <div class="nick-g" id="NK_g"></div>
                     </div>
-
                     <div class="card">
                         <div class="ct">🎁 промокоды</div>
                         <div class="irow mb8">
@@ -1925,41 +1942,61 @@
                     </div>
                 </div>
 
-                <!-- CHAT (ПОЛНОСТЬЮ ПЕРЕРАБОТАН, БЕЗ ВРЕМЕНИ) -->
+                <!-- ЧАТ (ПЕРЕРАБОТАН) -->
                 <div class="sc" id="sc-chat">
-                    <div class="card" style="display:flex;flex-direction:column;height:75vh;max-height:650px;">
-                        <div class="ct" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-                            <span style="display:flex;align-items:center;gap:8px;">
-                                💬 Чат
-                                <span id="chatModeBadge" class="chat-mode-badge public">Общий</span>
-                            </span>
-                            <div style="display:flex;gap:6px;align-items:center;">
-                                <button class="btn bs" style="width:auto;padding:3px 12px;font-size:11px;border-radius:12px;" onclick="toggleChatMode()">
-                                    <span id="chatModeLabel">Общий</span>
+                    <div class="chat-container">
+
+                        <!-- Верхняя панель -->
+                        <div class="chat-header">
+                            <div class="chat-header-left">
+                                <button class="back-btn" id="chatBackBtn" onclick="showDialogs()">←</button>
+                                <span class="chat-title" id="chatTitle">
+                                    💬 Чат
+                                    <span class="sub" id="chatSubTitle">Общий чат</span>
+                                </span>
+                            </div>
+                            <div class="chat-header-right">
+                                <span class="online-count" id="chatOnline">● 0 онлайн</span>
+                                <button class="chat-mode-toggle" id="chatModeToggle" onclick="toggleChatMode()">
+                                    Общий
                                 </button>
-                                <span id="chatOnline" style="font-size:11px;color:var(--grn);font-weight:600;">● 0 онлайн</span>
                             </div>
                         </div>
 
-                        <div style="position:relative;margin-bottom:8px;">
-                            <input class="inp" id="chatSearchInput" placeholder="🔍 Поиск по нику..." style="flex:1;margin:0;padding:8px 12px;font-size:14px;border-radius:10px;" oninput="searchUsers(this.value)">
-                            <div class="chat-search-results" id="chatSearchResults"></div>
+                        <!-- Список диалогов (для ЛС) -->
+                        <div class="chat-dialogs" id="chatDialogs">
+                            <div class="system-msg">Загрузка диалогов...</div>
                         </div>
 
-                        <div class="chat-messages" id="chatMessages">
-                            <div class="tm tc" style="padding:20px;color:var(--tx2);font-size:14px;">Загрузка сообщений...</div>
+                        <!-- Окно сообщений -->
+                        <div class="chat-messages-wrap" id="chatMessagesWrap">
+                            <div class="chat-messages" id="chatMessages">
+                                <div class="system-msg">Выберите диалог или напишите в общий чат</div>
+                            </div>
+
+                            <!-- Информационная строка -->
+                            <div class="chat-info" id="chatInfo">
+                                💬 <span class="highlight">Общий чат</span> — все видят все сообщения
+                            </div>
+
+                            <!-- Поле ввода -->
+                            <div class="chat-input-wrap">
+                                <input id="chatInput" placeholder="Напишите сообщение..." 
+                                       autocomplete="off"
+                                       inputmode="text"
+                                       onkeydown="if(event.key==='Enter') sendMessage()">
+                                <button class="btn bp" id="sendBtn" onclick="sendMessage()">
+                                    <span>➤</span>
+                                </button>
+                            </div>
                         </div>
 
-                        <div class="chat-input-wrap">
-                            <input class="inp" id="chatInput" placeholder="Введите сообщение..." style="margin:0;padding:10px 14px;font-size:15px;border-radius:10px;" onkeydown="if(event.key==='Enter') sendMessage()">
-                            <button class="btn bp" style="width:auto;padding:0 20px;font-size:15px;border-radius:10px;" onclick="sendMessage()">➤</button>
-                        </div>
-                        <div class="chat-private-info" id="chatPrivateInfo"></div>
                     </div>
                 </div>
 
             </div>
 
+            <!-- НАВИГАЦИЯ -->
             <nav class="nav">
                 <button class="nb on" onclick="window.goSc('home')"><span>🏠</span>Главная</button>
                 <button class="nb" onclick="window.goSc('games')"><span>🎲</span>Игры</button>
@@ -1973,11 +2010,13 @@
 
     </div>
 
+    <!-- Баннер -->
     <div class="static-banner" id="mainBanner" onclick="window.open('https://t.me/minercoinsf', '_blank')">
         <img id="staticBannerImg" src="https://i.ibb.co/hRSsFg5R/Chat-GPT-Image-19-2026-20-55-28.png" alt="CoinMine Баннер" onerror="this.style.display='none';this.parentElement.querySelector('.placeholder').style.display='flex'">
         <div class="placeholder" style="display:none;">⛏ CoinMine</div>
     </div>
 
+    <!-- Модалки -->
     <div class="mod-bg" id="M_conf">
         <div class="mod-box">
             <div class="mod-title" id="M_t">Подтверждение</div>
@@ -2017,6 +2056,13 @@
             AUTO_SAVE_INTERVAL: 60000,
             MAX_RETRIES: 3,
             BATCH_SIZE: 10
+        };
+
+        const CHAT_CONFIG = {
+            MAX_PUBLIC_MESSAGES: 50,
+            MAX_PRIVATE_MESSAGES: 10,
+            DAILY_PRIVATE_LIMIT: 10,
+            CLEANUP_INTERVAL: 3600000,
         };
 
         // ============================================================
@@ -2083,6 +2129,7 @@
         let chatTarget = null;
         let chatMessagesCache = [];
         let chatPollInterval = null;
+        let chatDialogsCache = [];
 
         const NICK_S = {
             gold: { e: '🌟', n: 'Золотой' },
@@ -2107,21 +2154,15 @@
         };
         const SHARDS_LIST = Object.keys(SHARDS_C);
         const PROMOS = { free: 15, denchak: 15 };
-
         const MISSIONS_DEF = [
             { id: 'f8', nm: '🌾 Шахтёр', d: 'Добыть 8 раз', t: 8, rw: 1 },
             { id: 's1', nm: '💎 Коллекционер', d: 'Найти осколок', t: 1, rw: 2 },
             { id: 'w5', nm: '⚒️ Трудоголик', d: '5 профессий', t: 5, rw: 2 },
             { id: 'r3', nm: '👥 Вербовщик', d: '3 реферала', t: 3, rw: 1 }
         ];
-
         const FARM_COSTS = [50, 100, 250, 500, 1000];
 
-        let topCache = {
-            data: null,
-            timestamp: 0,
-            type: 'b'
-        };
+        let topCache = { data: null, timestamp: 0, type: 'b' };
 
         let G = {
             coins: 0,
@@ -2142,7 +2183,9 @@
             chests: 0,
             refCode: '',
             activatedRef: null,
-            avatar: AVATAR_LIST[0]
+            avatar: AVATAR_LIST[0],
+            privateMessages: {},
+            lastPrivateReset: Date.now()
         };
 
         let BOSS_STATE = { hp: 0, lastKill: 0 };
@@ -2156,6 +2199,10 @@
                 'Content-Type': 'application/json',
                 ...(opts.headers || {})
             };
+
+            if (!opts.headers?.Prefer) {
+                headers['Prefer'] = 'return=representation';
+            }
 
             let body = opts.body;
             if (body && typeof body === 'object') {
@@ -2174,11 +2221,7 @@
 
                     const txt = await r.text();
                     let d;
-                    try {
-                        d = JSON.parse(txt);
-                    } catch (e) {
-                        d = txt;
-                    }
+                    try { d = JSON.parse(txt); } catch (e) { d = txt; }
 
                     if (!r.ok) {
                         console.warn(`⚠️ API Error ${r.status}:`, {
@@ -2199,56 +2242,7 @@
         }
 
         // ============================================================
-        // 6. ТОП-10
-        // ============================================================
-        async function loadTopPlayers(tp = 'b') {
-            const now = Date.now();
-            if (topCache.data && topCache.type === tp && now - topCache.timestamp < CONFIG.TOP_CACHE_TIME) {
-                return topCache.data;
-            }
-
-            try {
-                const { data, ok } = await sbFetch(
-                    `/rest/v1/users?select=id,username,data&limit=${CONFIG.TOP_LIMIT + 5}`
-                );
-
-                if (ok && data) {
-                    let players = data
-                        .filter(u => u.username && u.data)
-                        .map(u => {
-                            const shardCount = u.data.shards ?
-                                Object.keys(u.data.shards).filter(k => u.data.shards[k] > 0).length : 0;
-                            return {
-                                id: u.id,
-                                n: u.data.name || u.username,
-                                username: u.username,
-                                c: u.data.coins || 0,
-                                f: u.data.farms || 0,
-                                r: u.data.refs || 0,
-                                s: shardCount,
-                                a: u.data.avatar || AVATAR_LIST[0]
-                            };
-                        });
-
-                    const sortKey = tp === 'b' ? 'c' : tp === 'f' ? 'f' : tp === 'r' ? 'r' : 's';
-                    players.sort((a, b) => (b[sortKey] || 0) - (a[sortKey] || 0));
-                    players = players.slice(0, CONFIG.TOP_LIMIT);
-
-                    topCache.data = players;
-                    topCache.timestamp = now;
-                    topCache.type = tp;
-
-                    return players;
-                }
-                return topCache.data || [];
-            } catch (e) {
-                console.error('❌ Ошибка загрузки топа:', e);
-                return topCache.data || [];
-            }
-        }
-
-        // ============================================================
-        // 7. АВТОРИЗАЦИЯ
+        // 6. АВТОРИЗАЦИЯ
         // ============================================================
         async function authRegister(username, password, fingerprint) {
             const { data: existing } = await sbFetch(
@@ -2288,7 +2282,9 @@
                     chests: 0,
                     refCode: '',
                     activatedRef: null,
-                    avatar: AVATAR_LIST[0]
+                    avatar: AVATAR_LIST[0],
+                    privateMessages: {},
+                    lastPrivateReset: Date.now()
                 },
                 boss: { hp: 0, lastKill: 0 },
                 created_at: new Date().toISOString(),
@@ -2297,11 +2293,7 @@
 
             const { ok, data, status } = await sbFetch('/rest/v1/users', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Prefer': 'return=representation'
-                },
-                body: JSON.stringify(newUser)
+                body: newUser
             });
 
             if (!ok) {
@@ -2330,7 +2322,7 @@
             if (!user.fingerprint) {
                 await sbFetch(`/rest/v1/users?id=eq.${user.id}`, {
                     method: 'PATCH',
-                    body: JSON.stringify({ fingerprint: FINGERPRINT })
+                    body: { fingerprint: FINGERPRINT }
                 });
             }
 
@@ -2339,6 +2331,8 @@
                 Object.keys(G).forEach(k => { if (p[k] !== undefined) G[k] = p[k]; });
                 if (p.avatar) G.avatar = p.avatar;
                 if (p.name) G.name = p.name;
+                if (p.privateMessages) G.privateMessages = p.privateMessages;
+                if (p.lastPrivateReset) G.lastPrivateReset = p.lastPrivateReset;
             }
             if (user.boss) Object.assign(BOSS_STATE, user.boss);
 
@@ -2360,7 +2354,7 @@
         }
 
         // ============================================================
-        // 8. СОХРАНЕНИЕ
+        // 7. СОХРАНЕНИЕ
         // ============================================================
         function scheduleSave() {
             pendingChanges = true;
@@ -2390,11 +2384,7 @@
 
                 const { ok, status, data } = await sbFetch(`/rest/v1/users?id=eq.${UID}`, {
                     method: 'PATCH',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Prefer': 'return=minimal'
-                    },
-                    body: JSON.stringify(payload)
+                    body: payload
                 });
 
                 if (!ok) {
@@ -2427,7 +2417,7 @@
         }
 
         // ============================================================
-        // 9. ВОССТАНОВЛЕНИЕ
+        // 8. ВОССТАНОВЛЕНИЕ
         // ============================================================
         async function restoreOfflineQueue() {
             try {
@@ -2441,7 +2431,7 @@
                     if (item.uid === UID) {
                         await sbFetch(`/rest/v1/users?id=eq.${item.uid}`, {
                             method: 'PATCH',
-                            body: JSON.stringify(item.data)
+                            body: item.data
                         });
                     }
                 }
@@ -2456,9 +2446,7 @@
             const u = localStorage.getItem('cm_uid');
             const username = localStorage.getItem('cm_username');
 
-            if (!u || !username) {
-                return false;
-            }
+            if (!u || !username) return false;
 
             UID = u;
             currentUsername = username;
@@ -2475,6 +2463,8 @@
                         Object.keys(G).forEach(k => { if (p[k] !== undefined) G[k] = p[k]; });
                         if (p.avatar) G.avatar = p.avatar;
                         if (p.name) G.name = p.name;
+                        if (p.privateMessages) G.privateMessages = p.privateMessages;
+                        if (p.lastPrivateReset) G.lastPrivateReset = p.lastPrivateReset;
                     }
                     if (user.boss) Object.assign(BOSS_STATE, user.boss);
                     if (!G.refCode) G.refCode = UID.slice(0, 8);
@@ -2496,22 +2486,7 @@
         }
 
         // ============================================================
-        // 10. БАННЕР
-        // ============================================================
-        function toggleBanner(show) {
-            const banner = document.getElementById('mainBanner');
-            if (banner) {
-                banner.style.display = show ? 'block' : 'none';
-            }
-        }
-
-        (function() {
-            const banner = document.getElementById('mainBanner');
-            if (banner) banner.style.display = 'none';
-        })();
-
-        // ============================================================
-        // 11. АВАТАРКА
+        // 9. АВАТАРКА
         // ============================================================
         function toggleAvatarSelector() {
             const sel = document.getElementById('avatarSelector');
@@ -2541,15 +2516,12 @@
         }
 
         function updateAvatarPreview() {
-            const preview = document.getElementById('avatarPreview');
             const img = document.getElementById('avatarImg');
-            if (preview && img) {
-                img.src = G.avatar || AVATAR_LIST[0];
-            }
+            if (img) img.src = G.avatar || AVATAR_LIST[0];
         }
 
         // ============================================================
-        // 12. МУЗЫКА
+        // 10. МУЗЫКА
         // ============================================================
         function initMusic() {
             try {
@@ -2560,27 +2532,14 @@
                     volume: 0.3,
                     loop: true,
                     autoplay: false,
-                    onload: function() {
-                        console.log('🎵 Музыка загружена');
-                        updateMusicUI();
-                    },
-                    onloaderror: function(id, error) {
-                        console.warn('⚠️ Ошибка загрузки музыки:', error);
-                        updateMusicUI();
-                    },
-                    onplay: function() {
-                        musicPlaying = true;
-                        updateMusicUI();
-                        console.log('🎵 Музыка играет');
-                    },
-                    onpause: function() {
-                        musicPlaying = false;
-                        updateMusicUI();
-                        console.log('🔇 Музыка остановлена');
-                    }
+                    onload: function() { updateMusicUI(); },
+                    onloaderror: function() { updateMusicUI(); },
+                    onplay: function() { musicPlaying = true;
+                        updateMusicUI(); },
+                    onpause: function() { musicPlaying = false;
+                        updateMusicUI(); }
                 });
             } catch (e) {
-                console.warn('⚠️ Ошибка инициализации музыки:', e);
                 updateMusicUI();
             }
         }
@@ -2595,20 +2554,15 @@
                 btn.classList.add('on');
                 icon.textContent = '🔊';
                 dot.className = 'status-dot';
-                btn.title = 'Выключить музыку';
             } else {
                 btn.classList.remove('on');
                 icon.textContent = '🔇';
                 dot.className = 'status-dot';
-                btn.title = 'Включить музыку';
             }
         }
 
         window.toggleMusic = function() {
-            if (!music) {
-                window.toast('⏳ Загрузка музыки...', 'info');
-                return;
-            }
+            if (!music) { window.toast('⏳ Загрузка музыки...', 'info'); return; }
 
             if (musicPlaying) {
                 music.pause();
@@ -2623,9 +2577,7 @@
                         const retry = function() {
                             if (!musicPlaying && music) {
                                 music.play();
-                                if (music.playing()) {
-                                    window.toast('🔊 Музыка включена!', 'ok');
-                                }
+                                if (music.playing()) window.toast('🔊 Музыка включена!', 'ok');
                             }
                             document.removeEventListener('click', retry);
                             document.removeEventListener('touchstart', retry);
@@ -2638,131 +2590,211 @@
         };
 
         // ============================================================
-        // 13. ЧАТ (ПОЛНОСТЬЮ ПЕРЕРАБОТАН, БЕЗ ВРЕМЕНИ)
+        // 11. ФУНКЦИИ ЧАТА (ПЕРЕРАБОТАНЫ)
         // ============================================================
-        function initChat() {
-            if (!UID) return;
+        function getPrivateRemaining(receiverId) {
+            const now = Date.now();
+            if (now - G.lastPrivateReset > 86400000) {
+                G.privateMessages = {};
+                G.lastPrivateReset = now;
+                scheduleSave();
+            }
+            const count = G.privateMessages[receiverId] || 0;
+            return Math.max(0, CHAT_CONFIG.DAILY_PRIVATE_LIMIT - count);
+        }
 
-            const container = document.getElementById('chatMessages');
-            if (container) {
-                container.innerHTML = '<div class="tm tc" style="padding:20px;color:var(--tx2);font-size:14px;">Загрузка сообщений...</div>';
+        function showDialogs() {
+            document.getElementById('chatDialogs').classList.add('show');
+            document.getElementById('chatMessagesWrap').classList.remove('show');
+            document.getElementById('chatBackBtn').classList.remove('show');
+            document.getElementById('chatTitle').innerHTML = '💬 Чат <span class="sub">Диалоги</span>';
+            document.getElementById('chatInfo').textContent = '📋 Выберите диалог или напишите в общий чат';
+            document.getElementById('chatInput').disabled = false;
+            document.getElementById('chatInput').placeholder = 'Напишите сообщение...';
+            loadDialogs();
+        }
+
+        function showMessages() {
+            document.getElementById('chatDialogs').classList.remove('show');
+            document.getElementById('chatMessagesWrap').classList.add('show');
+            document.getElementById('chatBackBtn').classList.add('show');
+
+            const input = document.getElementById('chatInput');
+            input.disabled = false;
+
+            if (chatMode === 'public') {
+                document.getElementById('chatTitle').innerHTML = '💬 Чат <span class="sub">Общий чат</span>';
+                document.getElementById('chatInfo').innerHTML = '💬 <span class="highlight">Общий чат</span> — все видят все сообщения';
+                input.placeholder = 'Напишите в общий чат...';
+                document.getElementById('chatModeToggle').textContent = 'Общий';
+                document.getElementById('chatModeToggle').classList.remove('active');
+            } else if (chatTarget) {
+                document.getElementById('chatTitle').innerHTML = `🔒 ЛС <span class="sub">${chatTarget.name}</span>`;
+                const remaining = getPrivateRemaining(chatTarget.id);
+                document.getElementById('chatInfo').innerHTML = `💬 ЛС с <span class="highlight">${chatTarget.name}</span> — осталось <span class="highlight">${remaining}</span> сообщений сегодня`;
+                input.placeholder = `Напишите ${chatTarget.name}...`;
+                document.getElementById('chatModeToggle').textContent = 'ЛС';
+                document.getElementById('chatModeToggle').classList.add('active');
             }
 
-            loadChatMessages();
-            loadOnlineUsers();
-
-            if (chatPollInterval) clearInterval(chatPollInterval);
-            chatPollInterval = setInterval(() => {
-                if (document.getElementById('sc-chat').classList.contains('on')) {
-                    loadChatMessages();
-                    loadOnlineUsers();
+            setTimeout(() => {
+                input.focus();
+                if ('ontouchstart' in window) {
+                    input.click();
                 }
-            }, 3000);
+            }, 300);
+
+            loadChatMessages();
+        }
+
+        async function loadDialogs() {
+            const container = document.getElementById('chatDialogs');
+            container.innerHTML = '<div class="system-msg">Загрузка диалогов...</div>';
+
+            try {
+                const { data, ok } = await sbFetch(
+                    `/rest/v1/users?select=id,username,data,updated_at&limit=50`
+                );
+
+                if (!ok || !data) {
+                    container.innerHTML = '<div class="system-msg">Ошибка загрузки</div>';
+                    return;
+                }
+
+                const users = data.filter(u => u.id !== UID);
+
+                // Проверяем онлайн статус
+                const fiveMinAgo = Date.now() - 5 * 60 * 1000;
+                users.forEach(u => {
+                    const updated = u.updated_at ? new Date(u.updated_at).getTime() : 0;
+                    u._online = updated > fiveMinAgo;
+                });
+
+                const dialogs = [];
+                for (const user of users) {
+                    const name = user.data?.name || user.username;
+                    const avatar = user.data?.avatar || AVATAR_LIST[0];
+                    const online = user._online || false;
+
+                    // Получаем последнее сообщение
+                    const { data: msgs } = await sbFetch(
+                        `/rest/v1/messages?select=*&order=created_at.desc&limit=1&is_private=eq.true&sender_id=eq.${UID}&receiver_id=eq.${user.id}`
+                    );
+
+                    const { data: msgs2 } = await sbFetch(
+                        `/rest/v1/messages?select=*&order=created_at.desc&limit=1&is_private=eq.true&sender_id=eq.${user.id}&receiver_id=eq.${UID}`
+                    );
+
+                    const allMsgs = [...(msgs || []), ...(msgs2 || [])];
+                    allMsgs.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
+                    const lastMsg = allMsgs[0] || null;
+                    const remaining = getPrivateRemaining(user.id);
+
+                    // Проверяем есть ли сообщения
+                    const hasMessages = allMsgs.length > 0;
+
+                    dialogs.push({
+                        id: user.id,
+                        name: name,
+                        avatar: avatar,
+                        online: online,
+                        lastMsg: lastMsg,
+                        remaining: remaining,
+                        hasMessages: hasMessages
+                    });
+                }
+
+                dialogs.sort((a, b) => {
+                    if (a.hasMessages && !b.hasMessages) return -1;
+                    if (!a.hasMessages && b.hasMessages) return 1;
+                    return a.name.localeCompare(b.name);
+                });
+
+                chatDialogsCache = dialogs;
+
+                if (dialogs.length === 0) {
+                    container.innerHTML = '<div class="system-msg">Нет других пользователей</div>';
+                    return;
+                }
+
+                container.innerHTML = dialogs.map(d =>
+                    `<div class="chat-dialog-item" onclick="openPrivateChat('${d.id}','${d.name}','${d.avatar}')">
+                        <div class="avatar"><img src="${d.avatar}" alt="${d.name}" loading="lazy"></div>
+                        <div class="info">
+                            <div class="fl" style="gap:6px;">
+                                <div class="name">${d.name}</div>
+                                <div class="online-dot ${d.online ? 'online' : ''}"></div>
+                            </div>
+                            <div class="last-msg">${d.lastMsg ? escapeHtml(d.lastMsg.message) : 'Нет сообщений'}</div>
+                        </div>
+                        ${d.remaining < CHAT_CONFIG.DAILY_PRIVATE_LIMIT ? `<span class="badge">${d.remaining}</span>` : ''}
+                    </div>`
+                ).join('');
+
+            } catch (e) {
+                console.warn('⚠️ Ошибка загрузки диалогов:', e);
+                container.innerHTML = '<div class="system-msg">Ошибка загрузки</div>';
+            }
+        }
+
+        function openPrivateChat(id, name, avatar) {
+            chatMode = 'private';
+            chatTarget = { id, name, avatar };
+            document.getElementById('chatModeToggle').textContent = 'ЛС';
+            document.getElementById('chatModeToggle').classList.add('active');
+            
+            const input = document.getElementById('chatInput');
+            input.disabled = false;
+            input.placeholder = `Напишите ${name}...`;
+            
+            showMessages();
         }
 
         window.toggleChatMode = function() {
+            const input = document.getElementById('chatInput');
+            
             if (chatMode === 'public') {
                 chatMode = 'private';
                 chatTarget = null;
-                document.getElementById('chatModeLabel').textContent = 'ЛС';
-                document.getElementById('chatModeBadge').textContent = 'ЛС';
-                document.getElementById('chatModeBadge').className = 'chat-mode-badge private';
-                document.getElementById('chatPrivateInfo').textContent = '✏️ Введите ник в поиске для ЛС';
-                document.getElementById('chatSearchInput').placeholder = '🔍 Введите ник для ЛС...';
-                document.getElementById('chatSearchInput').value = '';
-                document.getElementById('chatSearchResults').innerHTML = '';
-                document.getElementById('chatSearchResults').style.display = 'none';
+                document.getElementById('chatModeToggle').textContent = 'ЛС';
+                document.getElementById('chatModeToggle').classList.add('active');
+                document.getElementById('chatInfo').textContent = '📋 Выберите собеседника из списка';
+                input.disabled = false;
+                input.placeholder = 'Выберите собеседника...';
+                showDialogs();
             } else {
                 chatMode = 'public';
                 chatTarget = null;
-                document.getElementById('chatModeLabel').textContent = 'Общий';
-                document.getElementById('chatModeBadge').textContent = 'Общий';
-                document.getElementById('chatModeBadge').className = 'chat-mode-badge public';
-                document.getElementById('chatPrivateInfo').textContent = '';
-                document.getElementById('chatSearchInput').placeholder = '🔍 Поиск по нику...';
-                document.getElementById('chatSearchInput').value = '';
-                document.getElementById('chatSearchResults').innerHTML = '';
-                document.getElementById('chatSearchResults').style.display = 'none';
+                document.getElementById('chatModeToggle').textContent = 'Общий';
+                document.getElementById('chatModeToggle').classList.remove('active');
+                input.disabled = false;
+                input.placeholder = 'Напишите в общий чат...';
+                chatMessagesCache = [];
+                showMessages();
             }
-            chatMessagesCache = [];
             loadChatMessages();
         };
 
-        let searchTimeout = null;
-
-        window.searchUsers = function(query) {
-            clearTimeout(searchTimeout);
-            const results = document.getElementById('chatSearchResults');
-
-            if (!query || query.length < 1) {
-                results.style.display = 'none';
+        function startPrivateFromPublic(userId, userName, userAvatar) {
+            if (userId === UID) {
+                window.toast('Это вы!', 'info');
                 return;
             }
-
-            searchTimeout = setTimeout(async () => {
-                try {
-                    const { data, ok } = await sbFetch(
-                        `/rest/v1/users?select=id,username,data&limit=20`
-                    );
-
-                    if (ok && data) {
-                        const users = data
-                            .filter(u => {
-                                if (u.id === UID) return false;
-                                const name = (u.data?.name || u.username || '').toLowerCase();
-                                return name.includes(query.toLowerCase());
-                            })
-                            .map(u => {
-                                const userId = u.id;
-                                const userName = u.data?.name || u.username;
-                                const userAvatar = u.data?.avatar || AVATAR_LIST[0];
-                                // Проверяем онлайн
-                                const isOnline = u.updated_at && (Date.now() - new Date(u.updated_at).getTime() < 300000);
-
-                                return {
-                                    id: userId,
-                                    username: u.username,
-                                    name: userName,
-                                    avatar: userAvatar,
-                                    online: isOnline
-                                };
-                            });
-
-                        if (users.length === 0) {
-                            results.innerHTML = '<div class="tm" style="padding:8px;color:var(--tx2);text-align:center;font-size:13px;">Ник не найден</div>';
-                        } else {
-                            results.innerHTML = users.map(u =>
-                                `<div class="result-item" onclick="selectChatUser('${u.id}','${u.name}','${u.avatar}')">
-                                    <div class="top-avatar" style="width:28px;height:28px;"><img src="${u.avatar}" alt="${u.name}" loading="lazy"></div>
-                                    <span class="name">${u.name}</span>
-                                    ${u.online ? '<span class="status">🟢 онлайн</span>' : ''}
-                                    <span class="user-id">#${u.id.slice(0, 6)}</span>
-                                </div>`
-                            ).join('');
-                        }
-                        results.style.display = 'block';
-                    }
-                } catch (e) {
-                    console.warn('⚠️ Ошибка поиска пользователей:', e);
-                }
-            }, 300);
-        };
-
-        window.selectChatUser = function(id, name, avatar) {
-            chatTarget = {
-                id: id,
-                name: name,
-                avatar: avatar
-            };
-            document.getElementById('chatSearchInput').value = name + ' (#' + id.slice(0, 6) + ')';
-            document.getElementById('chatSearchResults').style.display = 'none';
-            document.getElementById('chatPrivateInfo').textContent = '💬 ЛС с ' + name;
-            // Обновляем бейдж
-            document.getElementById('chatModeBadge').textContent = 'ЛС: ' + name;
-            document.getElementById('chatModeBadge').className = 'chat-mode-badge private';
+            chatMode = 'private';
+            chatTarget = { id: userId, name: userName, avatar: userAvatar };
+            document.getElementById('chatModeToggle').textContent = 'ЛС';
+            document.getElementById('chatModeToggle').classList.add('active');
+            
+            const input = document.getElementById('chatInput');
+            input.disabled = false;
+            input.placeholder = `Напишите ${userName}...`;
+            
             chatMessagesCache = [];
+            showMessages();
             loadChatMessages();
-        };
+            window.toast(`💬 ЛС с ${userName} открыт`, 'info');
+        }
 
         async function loadChatMessages() {
             if (!UID) return;
@@ -2775,10 +2807,10 @@
 
                     const [sentRes, receivedRes] = await Promise.all([
                         sbFetch(
-                            `/rest/v1/messages?select=*&order=created_at.desc&limit=50&is_private=eq.true&sender_id=eq.${encodeURIComponent(UID)}&receiver_id=eq.${encodeURIComponent(targetId)}`
+                            `/rest/v1/messages?select=*&order=created_at.desc&limit=${CHAT_CONFIG.MAX_PRIVATE_MESSAGES}&is_private=eq.true&sender_id=eq.${encodeURIComponent(UID)}&receiver_id=eq.${encodeURIComponent(targetId)}`
                         ),
                         sbFetch(
-                            `/rest/v1/messages?select=*&order=created_at.desc&limit=50&is_private=eq.true&sender_id=eq.${encodeURIComponent(targetId)}&receiver_id=eq.${encodeURIComponent(UID)}`
+                            `/rest/v1/messages?select=*&order=created_at.desc&limit=${CHAT_CONFIG.MAX_PRIVATE_MESSAGES}&is_private=eq.true&sender_id=eq.${encodeURIComponent(targetId)}&receiver_id=eq.${encodeURIComponent(UID)}`
                         )
                     ]);
 
@@ -2787,12 +2819,19 @@
                     data = [...sent, ...received];
                     data.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
 
+                    const remaining = getPrivateRemaining(chatTarget.id);
+                    document.getElementById('chatInfo').innerHTML =
+                        `💬 ЛС с <span class="highlight">${chatTarget.name}</span> — осталось <span class="highlight">${remaining}</span> сообщений сегодня`;
+
                 } else {
                     const res = await sbFetch(
-                        `/rest/v1/messages?select=*&order=created_at.desc&limit=50&is_private=eq.false`
+                        `/rest/v1/messages?select=*&order=created_at.desc&limit=${CHAT_CONFIG.MAX_PUBLIC_MESSAGES}&is_private=eq.false`
                     );
                     data = res.ok ? res.data || [] : [];
                     data.reverse();
+
+                    document.getElementById('chatInfo').innerHTML =
+                        `💬 <span class="highlight">Общий чат</span> — все видят все сообщения (последние ${CHAT_CONFIG.MAX_PUBLIC_MESSAGES})`;
                 }
 
                 chatMessagesCache = data.length > 0 ? data : [];
@@ -2801,53 +2840,72 @@
             } catch (e) {
                 console.warn('⚠️ Ошибка загрузки сообщений:', e);
                 document.getElementById('chatMessages').innerHTML =
-                    '<div class="tm tc" style="padding:20px;color:var(--red);font-size:14px;">Ошибка загрузки</div>';
+                    '<div class="system-msg" style="color:var(--red);">Ошибка загрузки</div>';
             }
         }
 
-        // Функция экранирования HTML
         function escapeHtml(text) {
             const div = document.createElement('div');
             div.textContent = text;
             return div.innerHTML;
         }
 
-        // БЕЗ ВРЕМЕНИ - только имя и текст
         function renderChatMessages() {
             const container = document.getElementById('chatMessages');
             if (!container) return;
 
             if (!chatMessagesCache || chatMessagesCache.length === 0) {
-                container.innerHTML = '<div class="tm tc" style="padding:20px;color:var(--tx2);font-size:14px;">Нет сообщений</div>';
+                if (chatMode === 'private') {
+                    container.innerHTML = '<div class="system-msg">Нет сообщений в ЛС</div>';
+                } else {
+                    container.innerHTML = '<div class="system-msg">Нет сообщений в общем чате</div>';
+                }
                 return;
             }
 
-            container.innerHTML = chatMessagesCache.map(msg => {
+            // Сортируем по времени (старые сверху, новые снизу)
+            const sorted = [...chatMessagesCache].sort((a, b) => {
+                const timeA = new Date(a.created_at).getTime();
+                const timeB = new Date(b.created_at).getTime();
+                return timeA - timeB;
+            });
+
+            container.innerHTML = sorted.map(msg => {
                 const isOwn = msg?.sender_id === UID;
                 const isPrivate = msg?.is_private === true;
                 const senderName = isOwn ? 'Я' : (msg?.sender_name || 'Игрок');
+                const senderId = msg?.sender_id || '';
                 const avatar = msg?.sender_avatar || AVATAR_LIST[0];
+                
                 const text = escapeHtml(msg?.message || '');
+
+                const nameClick = (!isOwn && !isPrivate && senderId !== UID) ?
+                    ` onclick="startPrivateFromPublic('${senderId}','${escapeHtml(senderName)}','${avatar}')" style="cursor:pointer;text-decoration:underline;text-underline-offset:2px;"` :
+                    '';
 
                 return `<div class="msg ${isOwn ? 'own' : 'other'}">
                     <div class="sender">
-                        ${!isOwn ? `<div class="top-avatar" style="width:22px;height:22px;"><img src="${avatar}" alt="${senderName}" loading="lazy"></div>` : ''}
-                        <span class="name">${escapeHtml(senderName)}</span>
+                        ${!isOwn ? `<div class="top-avatar" style="width:22px;height:22px;"><img src="${avatar}" alt="${escapeHtml(senderName)}" loading="lazy"></div>` : ''}
+                        <span class="name"${nameClick}>${escapeHtml(senderName)}</span>
                         ${isPrivate ? '<span class="private-tag">🔒</span>' : ''}
                     </div>
                     <div class="text">${text}</div>
                 </div>`;
             }).join('');
 
+            // Прокручиваем вниз (новые сообщения)
             container.scrollTop = container.scrollHeight;
         }
 
-        // ИСПРАВЛЕННАЯ ФУНКЦИЯ ОТПРАВКИ (БЕЗ ВРЕМЕНИ)
         window.sendMessage = async function() {
             const input = document.getElementById('chatInput');
             const text = input.value.trim();
 
             if (!text) {
+                input.style.borderColor = 'var(--red)';
+                setTimeout(() => {
+                    input.style.borderColor = '';
+                }, 1000);
                 window.toast('Введите сообщение', 'err');
                 return;
             }
@@ -2857,7 +2915,31 @@
                 return;
             }
 
+            if (chatMode === 'private' && !chatTarget) {
+                window.toast('Выберите собеседника в ЛС', 'err');
+                return;
+            }
+
             const isPrivate = chatMode === 'private' && chatTarget;
+
+            if (isPrivate) {
+                const now = Date.now();
+                if (now - G.lastPrivateReset > 86400000) {
+                    G.privateMessages = {};
+                    G.lastPrivateReset = now;
+                    scheduleSave();
+                }
+
+                const count = G.privateMessages[chatTarget.id] || 0;
+                if (count >= CHAT_CONFIG.DAILY_PRIVATE_LIMIT) {
+                    window.toast(`❌ Лимит ЛС: ${CHAT_CONFIG.DAILY_PRIVATE_LIMIT} сообщений в день`, 'err');
+                    return;
+                }
+
+                G.privateMessages[chatTarget.id] = count + 1;
+                scheduleSave();
+            }
+
             const receiverId = isPrivate ? chatTarget.id : null;
             const receiverName = isPrivate ? chatTarget.name : null;
 
@@ -2878,43 +2960,117 @@
                 created_at: new Date().toISOString()
             };
 
+            const sentText = text;
             input.value = '';
+            input.style.borderColor = '';
 
-            // Добавляем локально
-            chatMessagesCache.push(msgData);
+            // Добавляем сообщение в кеш сразу (оптимистичный рендеринг)
+            const tempMsg = { ...msgData };
+            chatMessagesCache.push(tempMsg);
+            
+            // Сортируем и рендерим
+            chatMessagesCache.sort((a, b) => {
+                const timeA = new Date(a.created_at).getTime();
+                const timeB = new Date(b.created_at).getTime();
+                return timeA - timeB;
+            });
             renderChatMessages();
+
+            setTimeout(() => {
+                input.focus();
+                if ('ontouchstart' in window) {
+                    input.click();
+                }
+            }, 100);
 
             try {
                 const { ok, status, data } = await sbFetch('/rest/v1/messages', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Prefer': 'return=minimal'
-                    },
                     body: msgData
                 });
 
                 if (!ok) {
                     console.error('❌ Ошибка отправки:', status, data);
                     window.toast('❌ Ошибка отправки', 'err');
-                    chatMessagesCache = chatMessagesCache.filter(m => m !== msgData);
+                    chatMessagesCache = chatMessagesCache.filter(m => m !== tempMsg);
                     renderChatMessages();
+                    input.value = sentText;
                 } else {
-                    setTimeout(() => loadChatMessages(), 300);
+                    // Обновляем сообщения с сервера для получения корректных ID
+                    setTimeout(() => {
+                        loadChatMessages();
+                        cleanupOldMessages();
+                    }, 200);
+                    
+                    if (isPrivate) {
+                        const remaining = getPrivateRemaining(chatTarget.id);
+                        document.getElementById('chatInfo').innerHTML =
+                            `💬 ЛС с <span class="highlight">${chatTarget.name}</span> — осталось <span class="highlight">${remaining}</span> сообщений сегодня`;
+                    }
+                    
+                    if (navigator.vibrate) {
+                        navigator.vibrate(10);
+                    }
                 }
             } catch (e) {
                 console.error('❌ Ошибка соединения:', e);
                 window.toast('❌ Ошибка соединения', 'err');
-                chatMessagesCache = chatMessagesCache.filter(m => m !== msgData);
+                chatMessagesCache = chatMessagesCache.filter(m => m !== tempMsg);
                 renderChatMessages();
+                input.value = sentText;
             }
         };
+
+        async function cleanupOldMessages() {
+            if (!UID) return;
+
+            try {
+                const { data: publicMessages } = await sbFetch(
+                    `/rest/v1/messages?select=id&is_private=eq.false&order=created_at.desc&limit=${CHAT_CONFIG.MAX_PUBLIC_MESSAGES}`
+                );
+
+                if (publicMessages && publicMessages.length > 0) {
+                    const oldestId = publicMessages[publicMessages.length - 1]?.id;
+                    if (oldestId) {
+                        await sbFetch(
+                            `/rest/v1/messages?is_private=eq.false&id=lt.${oldestId}`,
+                            { method: 'DELETE' }
+                        );
+                    }
+                }
+
+                const { data: privateChats } = await sbFetch(
+                    `/rest/v1/messages?select=id,sender_id,receiver_id&is_private=eq.true&order=created_at.desc`
+                );
+
+                if (privateChats && privateChats.length > 0) {
+                    const chatPairs = {};
+                    privateChats.forEach(msg => {
+                        const key = [msg.sender_id, msg.receiver_id].sort().join('_');
+                        if (!chatPairs[key]) chatPairs[key] = [];
+                        chatPairs[key].push(msg.id);
+                    });
+
+                    for (const [key, ids] of Object.entries(chatPairs)) {
+                        if (ids.length > CHAT_CONFIG.MAX_PRIVATE_MESSAGES) {
+                            const toDelete = ids.slice(CHAT_CONFIG.MAX_PRIVATE_MESSAGES);
+                            for (const id of toDelete) {
+                                await sbFetch(`/rest/v1/messages?id=eq.${id}`, { method: 'DELETE' });
+                            }
+                        }
+                    }
+                }
+
+            } catch (e) {
+                console.warn('⚠️ Ошибка очистки сообщений:', e);
+            }
+        }
 
         async function loadOnlineUsers() {
             try {
                 const fiveMinAgo = new Date(Date.now() - 5 * 60 * 1000).toISOString();
                 const { data, ok } = await sbFetch(
-                    `/rest/v1/users?select=id,username,data,updated_at&updated_at=gte.${encodeURIComponent(fiveMinAgo)}&limit=50`
+                    `/rest/v1/users?select=id&updated_at=gte.${encodeURIComponent(fiveMinAgo)}&limit=50`
                 );
 
                 if (ok && data) {
@@ -2931,125 +3087,63 @@
             try {
                 await sbFetch(`/rest/v1/users?id=eq.${UID}`, {
                     method: 'PATCH',
-                    body: JSON.stringify({ updated_at: new Date().toISOString() })
+                    body: { updated_at: new Date().toISOString() }
                 });
             } catch (e) {
                 console.warn('⚠️ Ошибка обновления статуса:', e);
             }
         }
 
-        // ============================================================
-        // 14. АВТОРИЗАЦИЯ UI
-        // ============================================================
-        window.setAuthMode = function(m) {
-            authMode = m;
-            document.querySelectorAll('.auth-tab').forEach((el, i) => {
-                el.classList.toggle('on', (i === 0 && m === 'login') || (i === 1 && m === 'register'));
-            });
-            document.getElementById('authBtn').textContent = m === 'login' ? '⚡ Войти' : '🚀 Зарегистрироваться';
-            document.getElementById('authSub').textContent = m === 'login' ? 'Войдите в свой аккаунт' : 'Создайте новый аккаунт';
-            aStat(m === 'login' ? 'Войдите в аккаунт' : 'Создайте аккаунт');
-        };
+        function initChat() {
+            if (!UID) return;
 
-        window.handleAuth = async function() {
-            const username = document.getElementById('authUsername').value.trim();
-            const pass = document.getElementById('authPass').value.trim();
-
-            if (!username || !pass) { aStat('Заполните все поля', 'err'); return; }
-            if (username.length < 3 || username.length > 16) { aStat('Логин 3-16 символов', 'err'); return; }
-            if (pass.length < 6) { aStat('Пароль минимум 6 символов', 'err'); return; }
-            if (!/^[a-zA-Z0-9_]+$/.test(username)) {
-                aStat('Только буквы, цифры и _', 'err');
-                return;
+            chatMode = 'public';
+            chatTarget = null;
+            chatMessagesCache = [];
+            
+            const toggle = document.getElementById('chatModeToggle');
+            toggle.textContent = 'Общий';
+            toggle.classList.remove('active');
+            
+            const input = document.getElementById('chatInput');
+            if (input) {
+                input.disabled = false;
+                input.readOnly = false;
+                input.style.opacity = '1';
+                input.style.pointerEvents = 'auto';
+                input.placeholder = 'Напишите в общий чат...';
+                input.value = '';
+                
+                setTimeout(() => {
+                    input.focus();
+                    if ('ontouchstart' in window) {
+                        input.click();
+                    }
+                }, 300);
             }
 
-            aStat('⏳ Обработка...', 'ld');
-            document.getElementById('authBtn').disabled = true;
+            showMessages();
+            loadOnlineUsers();
 
-            try {
-                let user;
-                if (authMode === 'register') {
-                    user = await authRegister(username, pass, FINGERPRINT);
-                    aStat('✅ Аккаунт создан!', 'ok');
-                    window.toast('Добро пожаловать, ' + username + '!');
-                } else {
-                    user = await authLogin(username, pass);
-                    aStat('✅ Вход выполнен!', 'ok');
-                    window.toast('С возвращением, ' + username + '!');
+            if (chatPollInterval) clearInterval(chatPollInterval);
+            chatPollInterval = setInterval(() => {
+                if (document.getElementById('sc-chat').classList.contains('on')) {
+                    if (document.getElementById('chatMessagesWrap').classList.contains('show')) {
+                        loadChatMessages();
+                    }
+                    if (document.getElementById('chatDialogs').classList.contains('show')) {
+                        loadDialogs();
+                    }
+                    loadOnlineUsers();
                 }
-                showApp();
-            } catch (e) {
-                aStat('❌ ' + e.message, 'err');
-                console.error('Ошибка:', e);
-            }
-            document.getElementById('authBtn').disabled = false;
-        };
+            }, 3000);
 
-        window.logoutUser = async function() {
-            if (!confirm('Выйти из аккаунта?')) return;
-            await forceSave();
-            localStorage.removeItem('cm_uid');
-            localStorage.removeItem('cm_username');
-            UID = null;
-            document.getElementById('appWrap').classList.remove('on');
-            document.getElementById('authWrap').style.display = 'flex';
-            toggleBanner(false);
-            aStat('Вы вышли', 'ok');
-            window.toast('До встречи!', 'ok');
-        };
-
-        // ============================================================
-        // 15. ПОКАЗ ПРИЛОЖЕНИЯ
-        // ============================================================
-        function showApp() {
-            document.getElementById('authWrap').style.display = 'none';
-            document.getElementById('appWrap').classList.add('on');
-            toggleBanner(true);
-
-            if (!G.refCode) G.refCode = UID.slice(0, 8);
-            initMissions();
-            renderUI();
-            setTimeout(() => window.drawRoulette(0, null), 100);
-            updateAvatarPreview();
-
-            initMusic();
-            initChat();
-            updateOnlineStatus();
-
-            const startMusic = function() {
-                if (music && !musicPlaying) {
-                    music.play();
-                    window.toast('🎵 Музыка включена!', 'ok');
-                }
-                document.removeEventListener('click', startMusic);
-                document.removeEventListener('touchstart', startMusic);
-            };
-            document.addEventListener('click', startMusic, { once: true });
-            document.addEventListener('touchstart', startMusic, { once: true });
-
-            setInterval(renderFarmTimer, 1000);
-            setInterval(renderBoss, 30000);
-            setInterval(() => { if (UID) saveUserData(); }, CONFIG.AUTO_SAVE_INTERVAL);
-            setInterval(() => { if (UID) updateOnlineStatus(); }, 30000);
-
-            window.addEventListener('beforeunload', () => { if (UID) { saveUserData();
-                    updateOnlineStatus(); } });
-            window.addEventListener('online', restoreOfflineQueue);
-
-            window.toast('💾 Данные синхронизируются', 'info');
-        }
-
-        function initMissions() {
-            const now = Date.now();
-            if (now - (G.missions?.lastReset || 0) > 86400000 || !G.missions?.active) {
-                G.missions = { active: {}, lastReset: now };
-                const picked = [...MISSIONS_DEF].sort(() => Math.random() - .5).slice(0, 3);
-                picked.forEach(m => { G.missions.active[m.id] = { ...m, prog: 0, claimed: false }; });
-            }
+            setInterval(cleanupOldMessages, CHAT_CONFIG.CLEANUP_INTERVAL);
+            setTimeout(cleanupOldMessages, 30000);
         }
 
         // ============================================================
-        // 16. ОСТАЛЬНЫЕ ФУНКЦИИ
+        // 12. ВСЕ ИГРОВЫЕ ФУНКЦИИ
         // ============================================================
         window.toast = function(msg, t) {
             const e = document.getElementById('TOAST');
@@ -3064,114 +3158,9 @@
 
         window.getFarmCost = function() { return FARM_COSTS[Math.min(G.farmLv - 1, 4)]; };
 
-        function getShardCount() {
-            return Object.keys(G.shards).filter(k => G.shards[k] > 0).length;
-        }
-
         function fmt(n) { return Math.round(n).toLocaleString('ru'); }
 
-        // ============================================================
-        // 17. НАВИГАЦИЯ
-        // ============================================================
-        window.goSc = function(nm) {
-            document.querySelectorAll('.sc').forEach(s => s.classList.remove('on'));
-            document.querySelectorAll('.nb').forEach(b => b.classList.remove('on'));
-            document.getElementById('sc-' + nm).classList.add('on');
-            if (nm === 'games') { setTimeout(() => window.drawRoulette(0, null), 60);
-                renderPodium(); }
-            if (nm === 'top') renderTop('b');
-            if (nm === 'chat') {
-                initChat();
-            }
-            renderUI();
-        };
-
-        window.gTab = function(t, el) {
-            ['rl', 'dc', 'au'].forEach(x => {
-                const d = document.getElementById('G_' + x);
-                if (d) d.style.display = x === t ? 'block' : 'none';
-                const tb = document.getElementById('GT_' + x);
-                if (tb) tb.classList.toggle('on', x === t);
-            });
-            if (t === 'rl') setTimeout(() => window.drawRoulette(0, null), 40);
-            if (t === 'dc') window.renderDiceIdle();
-            if (t === 'au') renderPodium();
-        };
-
-        window.topTab = function(t, el) {
-            document.querySelectorAll('#sc-top .tab').forEach(e => e.classList.remove('on'));
-            if (el) el.classList.add('on');
-            renderTop(t);
-        };
-
-        window.conf = function(title, body, fn) {
-            document.getElementById('M_t').textContent = title;
-            document.getElementById('M_b').textContent = body;
-            _pFn = fn;
-            document.getElementById('M_conf').classList.add('on');
-            document.getElementById('M_ok').onclick = () => { window.closeMod();
-                if (_pFn) { _pFn();
-                    _pFn = null; } };
-        };
-
-        window.closeMod = function() { document.getElementById('M_conf').classList.remove('on'); };
-        window.openNickMod = function() { document.getElementById('NK_i').value = G.name;
-            document.getElementById('M_nick')
-                .classList.add('on'); };
-        window.closeNickMod = function() { document.getElementById('M_nick').classList.remove('on'); };
-
-        window.saveNick = function() {
-            const v = document.getElementById('NK_i').value.trim();
-            if (v.length < 3 || v.length > 16) { window.toast('3–16 символов', 'err'); return; }
-            G.name = v;
-            scheduleSave();
-            renderUI();
-            window.closeNickMod();
-            window.toast('Ник изменён!', 'ok');
-        };
-
-        // ============================================================
-        // 18. ОТРИСОВКА
-        // ============================================================
-        function renderUI() {
-            const sets = {
-                H_c: G.coins,
-                S_c: G.coins,
-                S_f: G.farms,
-                S_r: G.refs,
-                S_k: G.keys,
-                PNAME: G.name,
-                F_lv: G.farmLv,
-                F_mx: '×' + (1 + (G.farmLv - 1) * .2).toFixed(1),
-                F_uc: G.farmLv >= 5 ? 'макс' : window.getFarmCost() + ' монет',
-                K_b: G.keys + ' 🔑',
-                CH_c: G.chests,
-                MY_REF: G.refCode || UID?.slice(0, 8) || '—',
-                ACT_REF: G.activatedRef || '—'
-            };
-            Object.entries(sets).forEach(([id, v]) => {
-                const el = document.getElementById(id);
-                if (el) el.textContent = typeof v === 'number' ? fmt(v) : v;
-            });
-
-            updateAvatarPreview();
-
-            const an = G.nicks.a ? NICK_S[G.nicks.a] : null;
-            document.getElementById('NICK_L').textContent = an ? `${an.e} ${an.n}` : 'Стиль не выбран';
-
-            const cb = document.getElementById('CH_btn');
-            if (cb) cb.disabled = G.chests <= 0;
-
-            renderFarmTimer();
-            renderShards();
-            renderNicks();
-            renderMissions();
-            renderBoss();
-            renderClan();
-            renderTop('b');
-            renderPodium();
-        }
-
+        // --- РЕНДЕР ФУНКЦИИ ---
         function renderFarmTimer() {
             const now = Date.now(),
                 cd = 3600000,
@@ -3292,10 +3281,25 @@
             document.getElementById('CL_i').textContent = ['⚔️', '🛡️', '🏹', '🗡️', '🔮'][Math.floor(Math.random() * 5)];
         }
 
-        // ============================================================
-        // 19. ТОП
-        // ============================================================
-        let topLastType = 'b';
+        function renderPodium() {
+            const podiumEl = document.getElementById('podiumList');
+            if (!podiumEl) return;
+            const bidders = G.auctionBidders || [];
+            if (bidders.length === 0) { podiumEl.innerHTML =
+                    `<div class="tm tc" style="padding:12px;">Пока нет ставок</div>`; return; }
+            const sorted = [...bidders].sort((a, b) => b.bid - a.bid);
+            const top3 = sorted.slice(0, 3);
+            const medals = ['🥇', '🥈', '🥉'];
+            podiumEl.innerHTML = top3.map((bidder, index) => {
+                return `<div class="row" style="justify-content:space-between;padding:8px 0;">
+                    <span>${medals[index]} ${bidder.name}</span>
+                    <span style="color:var(--gld);font-weight:700;">${fmt(bidder.bid)} 💰</span>
+                </div>`;
+            }).join('');
+            if (sorted.length > 3) {
+                podiumEl.innerHTML += `<div class="tm tc" style="padding:4px;">+ ещё ${sorted.length - 3} участников</div>`;
+            }
+        }
 
         async function renderTop(tp) {
             topLastType = tp;
@@ -3336,18 +3340,8 @@
             }
 
             const key = tp === 'b' ? 'c' : tp === 'f' ? 'f' : tp === 'r' ? 'r' : 's';
-            const titles = {
-                b: 'Топ по балансу',
-                f: 'Топ по фармам',
-                r: 'Топ по рефералам',
-                s: 'Топ по осколкам'
-            };
-            const symbols = {
-                b: '💰',
-                f: '⛏',
-                r: '👥',
-                s: '💎'
-            };
+            const titles = { b: 'Топ по балансу', f: 'Топ по фармам', r: 'Топ по рефералам', s: 'Топ по осколкам' };
+            const symbols = { b: '💰', f: '⛏', r: '👥', s: '💎' };
 
             document.getElementById('TOP_t').textContent = titles[tp];
 
@@ -3372,8 +3366,438 @@
             }).join('');
         }
 
+        let topLastType = 'b';
+
+        function getShardCount() {
+            return Object.keys(G.shards).filter(k => G.shards[k] > 0).length;
+        }
+
         // ============================================================
-        // 20. РУЛЕТКА
+        // 13. НАВИГАЦИЯ
+        // ============================================================
+        window.goSc = function(nm) {
+            document.querySelectorAll('.sc').forEach(s => s.classList.remove('on'));
+            document.querySelectorAll('.nb').forEach(b => b.classList.remove('on'));
+            document.getElementById('sc-' + nm).classList.add('on');
+
+            if (nm === 'chat') {
+                initChat();
+                setTimeout(() => {
+                    if (document.getElementById('chatMessagesWrap').classList.contains('show')) {
+                        loadChatMessages();
+                    }
+                }, 100);
+            }
+            renderUI();
+        };
+
+        window.gTab = function(t, el) {
+            ['rl', 'dc', 'au'].forEach(x => {
+                const d = document.getElementById('G_' + x);
+                if (d) d.style.display = x === t ? 'block' : 'none';
+            });
+            if (t === 'rl') setTimeout(() => window.drawRoulette(0, null), 40);
+            if (t === 'dc') window.renderDiceIdle();
+            if (t === 'au') renderPodium();
+        };
+
+        window.topTab = function(t, el) {
+            document.querySelectorAll('#sc-top .tab').forEach(e => e.classList.remove('on'));
+            if (el) el.classList.add('on');
+            renderTop(t);
+        };
+
+        window.conf = function(title, body, fn) {
+            document.getElementById('M_t').textContent = title;
+            document.getElementById('M_b').textContent = body;
+            _pFn = fn;
+            document.getElementById('M_conf').classList.add('on');
+            document.getElementById('M_ok').onclick = () => { window.closeMod();
+                if (_pFn) { _pFn();
+                    _pFn = null; } };
+        };
+
+        window.closeMod = function() { document.getElementById('M_conf').classList.remove('on'); };
+        window.openNickMod = function() { document.getElementById('NK_i').value = G.name;
+            document.getElementById('M_nick').classList.add('on'); };
+        window.closeNickMod = function() { document.getElementById('M_nick').classList.remove('on'); };
+
+        window.saveNick = function() {
+            const v = document.getElementById('NK_i').value.trim();
+            if (v.length < 3 || v.length > 16) { window.toast('3–16 символов', 'err'); return; }
+            G.name = v;
+            scheduleSave();
+            renderUI();
+            window.closeNickMod();
+            window.toast('Ник изменён!', 'ok');
+        };
+
+        // ============================================================
+        // 14. ОТРИСОВКА UI
+        // ============================================================
+        function renderUI() {
+            const sets = {
+                H_c: G.coins,
+                S_c: G.coins,
+                S_f: G.farms,
+                S_r: G.refs,
+                S_k: G.keys,
+                PNAME: G.name,
+                F_lv: G.farmLv,
+                F_mx: '×' + (1 + (G.farmLv - 1) * .2).toFixed(1),
+                F_uc: G.farmLv >= 5 ? 'макс' : window.getFarmCost() + ' монет',
+                K_b: G.keys + ' 🔑',
+                CH_c: G.chests,
+                MY_REF: G.refCode || UID?.slice(0, 8) || '—',
+                ACT_REF: G.activatedRef || '—'
+            };
+            Object.entries(sets).forEach(([id, v]) => {
+                const el = document.getElementById(id);
+                if (el) el.textContent = typeof v === 'number' ? fmt(v) : v;
+            });
+
+            updateAvatarPreview();
+
+            const an = G.nicks.a ? NICK_S[G.nicks.a] : null;
+            document.getElementById('NICK_L').textContent = an ? `${an.e} ${an.n}` : 'Стиль не выбран';
+
+            const cb = document.getElementById('CH_btn');
+            if (cb) cb.disabled = G.chests <= 0;
+
+            renderFarmTimer();
+            renderShards();
+            renderNicks();
+            renderMissions();
+            renderBoss();
+            renderClan();
+            renderTop(topLastType || 'b');
+            renderPodium();
+        }
+
+        // ============================================================
+        // 15. ИГРОВЫЕ ДЕЙСТВИЯ
+        // ============================================================
+        window.doFarm = function() {
+            const now = Date.now();
+            if (now - G.lastFarm < 3600000 && G.lastFarm) { window.toast('Кулдаун ещё не прошёл!', 'err'); return; }
+            const mult = 1 + (G.farmLv - 1) * .2;
+            const earned = Math.round((Math.floor(Math.random() * 5) + 1) * mult);
+            G.coins += earned;
+            G.farms++;
+            G.lastFarm = now;
+            const m = G.missions?.active;
+            if (m?.f8) m.f8.prog = Math.min(m.f8.t, (m.f8.prog || 0) + 1);
+            let sm = '';
+            for (const [nm, info] of Object.entries(SHARDS_C)) {
+                if (Math.random() < info.c) {
+                    G.shards[nm] = (G.shards[nm] || 0) + 1;
+                    sm = `\n✨ ${nm}`;
+                    if (m?.s1) m.s1.prog = 1;
+                    break;
+                }
+            }
+            scheduleSave();
+            renderUI();
+            window.toast(`+${earned} монет!${sm}`, 'gld');
+        };
+
+        window.upFarm = function() {
+            if (G.farmLv >= 5) { window.toast('Максимальный уровень!', 'err'); return; }
+            const cost = window.getFarmCost();
+            if (G.coins < cost) { window.toast(`Нужно ${cost} монет`, 'err'); return; }
+            G.coins -= cost;
+            G.farmLv++;
+            scheduleSave();
+            renderUI();
+            window.toast('Шахта ур. ' + G.farmLv + '!', 'ok');
+        };
+
+        window.atkBoss = function() {
+            if (G.coins < 20) { window.toast('Нужно 20 монет', 'err'); return; }
+            if (BOSS_STATE.hp <= 0) { window.toast('Босс мёртв, ждите 16:00', 'err'); return; }
+            G.coins -= 20;
+            const dmg = Math.floor(Math.random() * 41) + 10;
+            BOSS_STATE.hp = Math.max(0, BOSS_STATE.hp - dmg);
+            let msg = '⚔️ Урон: ' + dmg;
+            if (Math.random() < .2) { G.chests++;
+                msg += ' 🎁 Сундук!'; }
+            if (BOSS_STATE.hp <= 0) { msg += ' 🎉 Рябчик повержён!';
+                G.chests += 3;
+                BOSS_STATE.lastKill = Date.now(); }
+            document.getElementById('ATK_l').textContent = msg;
+            scheduleSave();
+            renderUI();
+            window.toast(msg, 'gld');
+        };
+
+        window.openChest = function() {
+            if (G.chests <= 0) return;
+            G.chests--;
+            const r = Math.random();
+            let rw;
+            if (r < .5) { const a = Math.floor(Math.random() * 40) + 10;
+                G.coins += a;
+                rw = `+${a} монет`; } else if (r < .8) { const k = Math.floor(Math.random() * 3) + 1;
+                G.keys += k;
+                rw = `+${k} ключей`; } else { const sn = SHARDS_LIST[Math.floor(Math.random() * SHARDS_LIST.length)];
+                G.shards[sn] = (G.shards[sn] || 0) + 1;
+                rw = '✨ ' + sn; }
+            scheduleSave();
+            renderUI();
+            window.toast('🎁 Сундук: ' + rw, 'gld');
+        };
+
+        window.claimM = function(id) {
+            const m = G.missions?.active?.[id];
+            if (!m || m.claimed || m.prog < m.t) return;
+            m.claimed = true;
+            G.keys += m.rw;
+            scheduleSave();
+            renderUI();
+            window.toast(`+${m.rw} ключ!`, 'gld');
+        };
+
+        window.createClan = function() {
+            if (G.coins < 1500) { window.toast('Нужно 1500 монет', 'err'); return; }
+            const names = ['Kingdom Squad', 'Empire Crew', 'Dragon Force', 'Shadow Order', 'Titan Clan', 'Neon Warriors',
+                'Phoenix Legion', 'Frost Giants'
+            ];
+            G.coins -= 1500;
+            G.clan = { nm: names[Math.floor(Math.random() * names.length)], d: 0, m: [G.name] };
+            G.clanLF = 0;
+            scheduleSave();
+            renderUI();
+            window.toast('🏰 Клан создан!', 'ok');
+        };
+
+        window.disbandClan = function() { G.clan = null;
+            scheduleSave();
+            renderUI();
+            window.toast('Клан распущен', 'info'); };
+
+        window.clanFarm = function() {
+            if (!G.clan) return;
+            if (Date.now() - G.clanLF < 6 * 3600000) { window.toast('6 часов кулдаун', 'err'); return; }
+            const m = Math.floor(Math.random() * 3) + 1;
+            G.clan.d += m;
+            G.clanLF = Date.now();
+            scheduleSave();
+            renderUI();
+            window.toast(`+${m} алмазов!`, 'gld');
+        };
+
+        window.exDiam = function(n) {
+            if (!G.clan || G.clan.d < n) { window.toast('Нет алмазов', 'err'); return; }
+            G.clan.d -= n;
+            G.coins += n * 5;
+            scheduleSave();
+            renderUI();
+            window.toast(`+${n*5} монет!`, 'gld');
+        };
+
+        window.bid = function(a) {
+            if (G.coins < a) { window.toast('Мало монет', 'err'); return; }
+            G.coins -= a;
+            G.auctionBid = (G.auctionBid || 0) + a;
+            const existing = G.auctionBidders.find(b => b.name === G.name);
+            if (existing) { existing.bid += a; } else { G.auctionBidders.push({ name: G.name, avatar: G.nicks.a ? NICK_S[
+                    G.nicks.a]?.e || '👤' : '👤', bid: G.auctionBid }); }
+            G.auctionBidders.sort((a, b) => b.bid - a.bid);
+            if (G.auctionBidders.length > 10) G.auctionBidders = G.auctionBidders.slice(0, 10);
+            document.getElementById('AU_a').textContent = G.auctionBid;
+            document.getElementById('MY_b').textContent = G.auctionBid;
+            document.getElementById('AU_l').textContent = 'Вы лидируете!';
+            renderPodium();
+            scheduleSave();
+            renderUI();
+            window.toast('Ставка: ' + G.auctionBid, 'gld');
+        };
+
+        window.useRefCode = async function() {
+            const code = document.getElementById('REF_I').value.trim();
+            if (!code) { window.toast('Введите код', 'err'); return; }
+            if (code === G.refCode) { window.toast('Это ваш код', 'err'); return; }
+            if (G.activatedRef) { window.toast('Код уже активирован', 'err'); return; }
+            try {
+                const { ok, data } = await sbFetch(
+                    `/rest/v1/users?data->>refCode=eq.${encodeURIComponent(code)}&select=id`
+                );
+                if (!ok || !data || data.length === 0) { window.toast('Код не найден', 'err'); return; }
+                G.activatedRef = code;
+                G.coins += 25;
+                G.refs++;
+                document.getElementById('REF_I').value = '';
+                scheduleSave();
+                renderUI();
+                window.toast('🎁 Код активирован! +25 монет', 'gld');
+            } catch (e) { window.toast('Ошибка поиска', 'err'); }
+        };
+
+        window.changeRefCode = async function() {
+            if (!UID) { window.toast('Сначала войдите в аккаунт', 'err'); return; }
+            const newCode = prompt('Введите новый реферальный код (4-8 символов, только буквы и цифры):');
+            if (!newCode) return;
+            if (newCode.length < 4 || newCode.length > 8) { window.toast('Код должен быть 4-8 символов', 'err'); return; }
+            if (!/^[a-zA-Z0-9]+$/.test(newCode)) { window.toast('Только буквы и цифры', 'err'); return; }
+            const { data: taken } = await sbFetch(
+                `/rest/v1/users?data->>refCode=eq.${encodeURIComponent(newCode)}&select=id`
+            );
+            if (taken && taken.length > 0) { window.toast('Этот код уже занят', 'err'); return; }
+            G.refCode = newCode;
+            scheduleSave();
+            renderUI();
+            window.toast('Реферальный код изменён на: ' + newCode, 'ok');
+        };
+
+        window.nickAct = function(id, owned) {
+            if (owned) {
+                G.nicks.a = G.nicks.a === id ? null : id;
+                scheduleSave();
+                renderUI();
+                window.toast('Стиль изменён!', 'ok');
+            } else {
+                if (G.coins < 250) { window.toast('Нужно 250 монет', 'err'); return; }
+                window.conf(`Купить стиль «${NICK_S[id].n}»?`, 'Стоимость 250 монет. Стиль сразу станет активным.', () => {
+                    G.coins -= 250;
+                    G.nicks.p.push(id);
+                    G.nicks.a = id;
+                    scheduleSave();
+                    renderUI();
+                    window.toast('Стиль куплен!', 'gld');
+                });
+            }
+        };
+
+        window.buyCoins = function(amt) { G.coins += amt;
+            scheduleSave();
+            renderUI();
+            window.toast(`+${fmt(amt)} монет!`, 'gld'); };
+        window.usePromo = function() {
+            const v = document.getElementById('PR_i').value.trim().toLowerCase();
+            if (v) window.activatePromo(v);
+            document.getElementById('PR_i').value = '';
+        };
+        window.activatePromo = function(c) {
+            if (!PROMOS[c]) { window.toast('Промокод не найден', 'err'); return; }
+            if (G.promos[c]) { window.toast('Уже использован', 'err'); return; }
+            G.coins += PROMOS[c];
+            G.promos[c] = true;
+            scheduleSave();
+            renderUI();
+            window.toast(`+${PROMOS[c]} монет!`, 'gld');
+        };
+
+        // ============================================================
+        // 16. ПОКАЗ ПРИЛОЖЕНИЯ
+        // ============================================================
+        function showApp() {
+            document.getElementById('authWrap').style.display = 'none';
+            document.getElementById('appWrap').classList.add('on');
+
+            if (!G.refCode) G.refCode = UID.slice(0, 8);
+            initMissions();
+            renderUI();
+            setTimeout(() => window.drawRoulette(0, null), 100);
+            updateAvatarPreview();
+
+            initMusic();
+            initChat();
+            updateOnlineStatus();
+
+            const startMusic = function() {
+                if (music && !musicPlaying) {
+                    music.play();
+                    window.toast('🎵 Музыка включена!', 'ok');
+                }
+                document.removeEventListener('click', startMusic);
+                document.removeEventListener('touchstart', startMusic);
+            };
+            document.addEventListener('click', startMusic, { once: true });
+            document.addEventListener('touchstart', startMusic, { once: true });
+
+            setInterval(renderFarmTimer, 1000);
+            setInterval(renderBoss, 30000);
+            setInterval(() => { if (UID) saveUserData(); }, CONFIG.AUTO_SAVE_INTERVAL);
+            setInterval(() => { if (UID) updateOnlineStatus(); }, 30000);
+
+            window.addEventListener('beforeunload', () => { if (UID) { saveUserData();
+                    updateOnlineStatus(); } });
+            window.addEventListener('online', restoreOfflineQueue);
+
+            window.toast('💾 Данные синхронизируются', 'info');
+        }
+
+        function initMissions() {
+            const now = Date.now();
+            if (now - (G.missions?.lastReset || 0) > 86400000 || !G.missions?.active) {
+                G.missions = { active: {}, lastReset: now };
+                const picked = [...MISSIONS_DEF].sort(() => Math.random() - .5).slice(0, 3);
+                picked.forEach(m => { G.missions.active[m.id] = { ...m, prog: 0, claimed: false }; });
+            }
+        }
+
+        // ============================================================
+        // 17. АВТОРИЗАЦИЯ UI
+        // ============================================================
+        window.setAuthMode = function(m) {
+            authMode = m;
+            document.querySelectorAll('.auth-tab').forEach((el, i) => {
+                el.classList.toggle('on', (i === 0 && m === 'login') || (i === 1 && m === 'register'));
+            });
+            document.getElementById('authBtn').textContent = m === 'login' ? '⚡ Войти' : '🚀 Зарегистрироваться';
+            document.getElementById('authSub').textContent = m === 'login' ? 'Войдите в свой аккаунт' :
+            'Создайте новый аккаунт';
+            aStat(m === 'login' ? 'Войдите в аккаунт' : 'Создайте аккаунт');
+        };
+
+        window.handleAuth = async function() {
+            const username = document.getElementById('authUsername').value.trim();
+            const pass = document.getElementById('authPass').value.trim();
+
+            if (!username || !pass) { aStat('Заполните все поля', 'err'); return; }
+            if (username.length < 3 || username.length > 16) { aStat('Логин 3-16 символов', 'err'); return; }
+            if (pass.length < 6) { aStat('Пароль минимум 6 символов', 'err'); return; }
+            if (!/^[a-zA-Z0-9_]+$/.test(username)) {
+                aStat('Только буквы, цифры и _', 'err');
+                return;
+            }
+
+            aStat('⏳ Обработка...', 'ld');
+            document.getElementById('authBtn').disabled = true;
+
+            try {
+                let user;
+                if (authMode === 'register') {
+                    user = await authRegister(username, pass, FINGERPRINT);
+                    aStat('✅ Аккаунт создан!', 'ok');
+                    window.toast('Добро пожаловать, ' + username + '!');
+                } else {
+                    user = await authLogin(username, pass);
+                    aStat('✅ Вход выполнен!', 'ok');
+                    window.toast('С возвращением, ' + username + '!');
+                }
+                showApp();
+            } catch (e) {
+                aStat('❌ ' + e.message, 'err');
+                console.error('Ошибка:', e);
+            }
+            document.getElementById('authBtn').disabled = false;
+        };
+
+        window.logoutUser = async function() {
+            if (!confirm('Выйти из аккаунта?')) return;
+            await forceSave();
+            localStorage.removeItem('cm_uid');
+            localStorage.removeItem('cm_username');
+            UID = null;
+            document.getElementById('appWrap').classList.remove('on');
+            document.getElementById('authWrap').style.display = 'flex';
+            aStat('Вы вышли', 'ok');
+            window.toast('До встречи!', 'ok');
+        };
+
+        // ============================================================
+        // 18. РУЛЕТКА
         // ============================================================
         const RC = document.getElementById('rouletteCanvas');
         const rctx = RC.getContext('2d');
@@ -3402,7 +3826,6 @@
         let raf = null;
         let resultDisplayed = false;
         let spinBet = 25;
-
         let _pendingWinColor = null;
         let _targetIndex = null;
         let _spinStartW = 0;
@@ -3544,9 +3967,7 @@
             rctx.lineWidth = 1;
             rctx.stroke();
 
-            if (!spinning && resultDisplayed) {
-                return;
-            }
+            if (!spinning && resultDisplayed) return;
 
             if (spinning || !resultDisplayed) {
                 const bx = CX + Math.cos(bAngle) * bR;
@@ -3626,12 +4047,10 @@
 
                 resultEl.textContent = `✅ Выпало: ${seg.label} (${seg.c === 'red' ? '🔴' : seg.c === 'black' ? '⚫' : '🟢'}) +${gain} монет!`;
                 resultEl.className = 'rl-result win';
-
                 window.toast(`🎉 +${gain} монет!`, 'gld');
             } else {
                 resultEl.textContent = `❌ Выпало: ${seg.label} (${seg.c === 'red' ? '🔴' : seg.c === 'black' ? '⚫' : '🟢'}) -${spinBet} монет`;
                 resultEl.className = 'rl-result lose';
-
                 window.toast(`😞 -${spinBet} монет`, 'err');
             }
 
@@ -3664,10 +4083,6 @@
             document.querySelectorAll('.rl-btns button').forEach(b => b.disabled = true);
             betInput.disabled = true;
 
-            startSpinAnimation(col);
-        };
-
-        function startSpinAnimation(col) {
             const n = SEGS.length;
             const segAngle = (Math.PI * 2) / n;
 
@@ -3675,17 +4090,14 @@
             _targetIndex = weighted[Math.floor(Math.random() * weighted.length)];
 
             const extraSpins = 6 + Math.floor(Math.random() * 3);
-            _finalWAngle =
-                -Math.PI / 2 -
-                (_targetIndex + 0.5) * segAngle +
-                extraSpins * Math.PI * 2;
+            _finalWAngle = -Math.PI / 2 - (_targetIndex + 0.5) * segAngle + extraSpins * Math.PI * 2;
 
             _spinStartW = wheelAngle;
             _spinT0 = performance.now();
 
             cancelAnimationFrame(raf);
             animSpin();
-        }
+        };
 
         let idleAngle = 0;
 
@@ -3701,7 +4113,7 @@
         idleSpin();
 
         // ============================================================
-        // 21. КУБИК
+        // 19. КУБИК
         // ============================================================
         const PIP_LAYOUTS = {
             1: [
@@ -3926,242 +4338,59 @@
         };
 
         // ============================================================
-        // 22. ОСТАЛЬНЫЕ ДЕЙСТВИЯ
+        // 20. ТОП-10
         // ============================================================
-        function renderPodium() {
-            const podiumEl = document.getElementById('podiumList');
-            if (!podiumEl) return;
-            const bidders = G.auctionBidders || [];
-            if (bidders.length === 0) { podiumEl.innerHTML =
-                    `<div class="tm tc" style="padding:12px;">Пока нет ставок</div>`; return; }
-            const sorted = [...bidders].sort((a, b) => b.bid - a.bid);
-            const top3 = sorted.slice(0, 3);
-            const medals = ['🥇', '🥈', '🥉'];
-            podiumEl.innerHTML = top3.map((bidder, index) => {
-                return `<div class="row" style="justify-content:space-between;padding:8px 0;">
-                    <span>${medals[index]} ${bidder.name}</span>
-                    <span style="color:var(--gld);font-weight:700;">${fmt(bidder.bid)} 💰</span>
-                </div>`;
-            }).join('');
-            if (sorted.length > 3) {
-                podiumEl.innerHTML += `<div class="tm tc" style="padding:4px;">+ ещё ${sorted.length - 3} участников</div>`;
+        async function loadTopPlayers(tp = 'b') {
+            const now = Date.now();
+            if (topCache.data && topCache.type === tp && now - topCache.timestamp < CONFIG.TOP_CACHE_TIME) {
+                return topCache.data;
+            }
+
+            try {
+                const { data, ok } = await sbFetch(
+                    `/rest/v1/users?select=id,username,data&limit=${CONFIG.TOP_LIMIT + 5}`
+                );
+
+                if (ok && data) {
+                    let players = data
+                        .filter(u => u.username && u.data)
+                        .map(u => {
+                            const shardCount = u.data.shards ?
+                                Object.keys(u.data.shards).filter(k => u.data.shards[k] > 0).length : 0;
+                            return {
+                                id: u.id,
+                                n: u.data.name || u.username,
+                                username: u.username,
+                                c: u.data.coins || 0,
+                                f: u.data.farms || 0,
+                                r: u.data.refs || 0,
+                                s: shardCount,
+                                a: u.data.avatar || AVATAR_LIST[0]
+                            };
+                        });
+
+                    const sortKey = tp === 'b' ? 'c' : tp === 'f' ? 'f' : tp === 'r' ? 'r' : 's';
+                    players.sort((a, b) => (b[sortKey] || 0) - (a[sortKey] || 0));
+                    players = players.slice(0, CONFIG.TOP_LIMIT);
+
+                    topCache.data = players;
+                    topCache.timestamp = now;
+                    topCache.type = tp;
+
+                    return players;
+                }
+                return topCache.data || [];
+            } catch (e) {
+                console.error('❌ Ошибка загрузки топа:', e);
+                return topCache.data || [];
             }
         }
 
-        window.bid = function(a) {
-            if (G.coins < a) { window.toast('Мало монет', 'err'); return; }
-            G.coins -= a;
-            G.auctionBid = (G.auctionBid || 0) + a;
-            const existing = G.auctionBidders.find(b => b.name === G.name);
-            if (existing) { existing.bid += a; } else { G.auctionBidders.push({ name: G.name, avatar: G.nicks.a ? NICK_S[
-                    G.nicks.a]?.e || '👤' : '👤', bid: G.auctionBid }); }
-            G.auctionBidders.sort((a, b) => b.bid - a.bid);
-            if (G.auctionBidders.length > 10) G.auctionBidders = G.auctionBidders.slice(0, 10);
-            document.getElementById('AU_a').textContent = G.auctionBid;
-            document.getElementById('MY_b').textContent = G.auctionBid;
-            document.getElementById('AU_l').textContent = 'Вы лидируете!';
-            renderPodium();
-            scheduleSave();
-            renderUI();
-            window.toast('Ставка: ' + G.auctionBid, 'gld');
-        };
-
-        window.doFarm = function() {
-            const now = Date.now();
-            if (now - G.lastFarm < 3600000 && G.lastFarm) { window.toast('Кулдаун ещё не прошёл!', 'err'); return; }
-            const mult = 1 + (G.farmLv - 1) * .2;
-            const earned = Math.round((Math.floor(Math.random() * 5) + 1) * mult);
-            G.coins += earned;
-            G.farms++;
-            G.lastFarm = now;
-            const m = G.missions?.active;
-            if (m?.f8) m.f8.prog = Math.min(m.f8.t, (m.f8.prog || 0) + 1);
-            let sm = '';
-            for (const [nm, info] of Object.entries(SHARDS_C)) {
-                if (Math.random() < info.c) {
-                    G.shards[nm] = (G.shards[nm] || 0) + 1;
-                    sm = `\n✨ ${nm}`;
-                    if (m?.s1) m.s1.prog = 1;
-                    break;
-                }
-            }
-            scheduleSave();
-            renderUI();
-            window.toast(`+${earned} монет!${sm}`, 'gld');
-        };
-
-        window.upFarm = function() {
-            if (G.farmLv >= 5) { window.toast('Максимальный уровень!', 'err'); return; }
-            const cost = window.getFarmCost();
-            if (G.coins < cost) { window.toast(`Нужно ${cost} монет`, 'err'); return; }
-            G.coins -= cost;
-            G.farmLv++;
-            scheduleSave();
-            renderUI();
-            window.toast('Шахта ур. ' + G.farmLv + '!', 'ok');
-        };
-
-        window.atkBoss = function() {
-            if (G.coins < 20) { window.toast('Нужно 20 монет', 'err'); return; }
-            if (BOSS_STATE.hp <= 0) { window.toast('Босс мёртв, ждите 16:00', 'err'); return; }
-            G.coins -= 20;
-            const dmg = Math.floor(Math.random() * 41) + 10;
-            BOSS_STATE.hp = Math.max(0, BOSS_STATE.hp - dmg);
-            let msg = '⚔️ Урон: ' + dmg;
-            if (Math.random() < .2) { G.chests++;
-                msg += ' 🎁 Сундук!'; }
-            if (BOSS_STATE.hp <= 0) { msg += ' 🎉 Рябчик повержён!';
-                G.chests += 3;
-                BOSS_STATE.lastKill = Date.now(); }
-            document.getElementById('ATK_l').textContent = msg;
-            scheduleSave();
-            renderUI();
-            window.toast(msg, 'gld');
-        };
-
-        window.openChest = function() {
-            if (G.chests <= 0) return;
-            G.chests--;
-            const r = Math.random();
-            let rw;
-            if (r < .5) { const a = Math.floor(Math.random() * 40) + 10;
-                G.coins += a;
-                rw = `+${a} монет`; } else if (r < .8) { const k = Math.floor(Math.random() * 3) + 1;
-                G.keys += k;
-                rw = `+${k} ключей`; } else { const sn = SHARDS_LIST[Math.floor(Math.random() * SHARDS_LIST.length)];
-                G.shards[sn] = (G.shards[sn] || 0) + 1;
-                rw = '✨ ' + sn; }
-            scheduleSave();
-            renderUI();
-            window.toast('🎁 Сундук: ' + rw, 'gld');
-        };
-
-        window.claimM = function(id) {
-            const m = G.missions?.active?.[id];
-            if (!m || m.claimed || m.prog < m.t) return;
-            m.claimed = true;
-            G.keys += m.rw;
-            scheduleSave();
-            renderUI();
-            window.toast(`+${m.rw} ключ!`, 'gld');
-        };
-
-        window.createClan = function() {
-            if (G.coins < 1500) { window.toast('Нужно 1500 монет', 'err'); return; }
-            const names = ['Kingdom Squad', 'Empire Crew', 'Dragon Force', 'Shadow Order', 'Titan Clan', 'Neon Warriors',
-                'Phoenix Legion', 'Frost Giants'
-            ];
-            G.coins -= 1500;
-            G.clan = { nm: names[Math.floor(Math.random() * names.length)], d: 0, m: [G.name] };
-            G.clanLF = 0;
-            scheduleSave();
-            renderUI();
-            window.toast('🏰 Клан создан!', 'ok');
-        };
-
-        window.disbandClan = function() { G.clan = null;
-            scheduleSave();
-            renderUI();
-            window.toast('Клан распущен', 'info'); };
-        window.clanFarm = function() {
-            if (!G.clan) return;
-            if (Date.now() - G.clanLF < 6 * 3600000) { window.toast('6 часов кулдаун', 'err'); return; }
-            const m = Math.floor(Math.random() * 3) + 1;
-            G.clan.d += m;
-            G.clanLF = Date.now();
-            scheduleSave();
-            renderUI();
-            window.toast(`+${m} алмазов!`, 'gld');
-        };
-        window.exDiam = function(n) {
-            if (!G.clan || G.clan.d < n) { window.toast('Нет алмазов', 'err'); return; }
-            G.clan.d -= n;
-            G.coins += n * 5;
-            scheduleSave();
-            renderUI();
-            window.toast(`+${n*5} монет!`, 'gld');
-        };
-
-        window.useRefCode = async function() {
-            const code = document.getElementById('REF_I').value.trim();
-            if (!code) { window.toast('Введите код', 'err'); return; }
-            if (code === G.refCode) { window.toast('Это ваш код', 'err'); return; }
-            if (G.activatedRef) { window.toast('Код уже активирован', 'err'); return; }
-            try {
-                const { ok, data } = await sbFetch(
-                    `/rest/v1/users?data->>refCode=eq.${encodeURIComponent(code)}&select=id`
-                );
-                if (!ok || !data || data.length === 0) { window.toast('Код не найден', 'err'); return; }
-                G.activatedRef = code;
-                G.coins += 25;
-                G.refs++;
-                document.getElementById('REF_I').value = '';
-                scheduleSave();
-                renderUI();
-                window.toast('🎁 Код активирован! +25 монет', 'gld');
-            } catch (e) { window.toast('Ошибка поиска', 'err'); }
-        };
-
-        window.changeRefCode = async function() {
-            if (!UID) { window.toast('Сначала войдите в аккаунт', 'err'); return; }
-            const newCode = prompt('Введите новый реферальный код (4-8 символов, только буквы и цифры):');
-            if (!newCode) return;
-            if (newCode.length < 4 || newCode.length > 8) { window.toast('Код должен быть 4-8 символов', 'err'); return; }
-            if (!/^[a-zA-Z0-9]+$/.test(newCode)) { window.toast('Только буквы и цифры', 'err'); return; }
-            const { data: taken } = await sbFetch(
-                `/rest/v1/users?data->>refCode=eq.${encodeURIComponent(newCode)}&select=id`
-            );
-            if (taken && taken.length > 0) { window.toast('Этот код уже занят', 'err'); return; }
-            G.refCode = newCode;
-            scheduleSave();
-            renderUI();
-            window.toast('Реферальный код изменён на: ' + newCode, 'ok');
-        };
-
-        window.nickAct = function(id, owned) {
-            if (owned) {
-                G.nicks.a = G.nicks.a === id ? null : id;
-                scheduleSave();
-                renderUI();
-                window.toast('Стиль изменён!', 'ok');
-            } else {
-                if (G.coins < 250) { window.toast('Нужно 250 монет', 'err'); return; }
-                window.conf(`Купить стиль «${NICK_S[id].n}»?`, 'Стоимость 250 монет. Стиль сразу станет активным.', () => {
-                    G.coins -= 250;
-                    G.nicks.p.push(id);
-                    G.nicks.a = id;
-                    scheduleSave();
-                    renderUI();
-                    window.toast('Стиль куплен!', 'gld');
-                });
-            }
-        };
-
-        window.buyCoins = function(amt) { G.coins += amt;
-            scheduleSave();
-            renderUI();
-            window.toast(`+${fmt(amt)} монет!`, 'gld'); };
-        window.usePromo = function() {
-            const v = document.getElementById('PR_i').value.trim().toLowerCase();
-            if (v) window.activatePromo(v);
-            document.getElementById('PR_i').value = '';
-        };
-        window.activatePromo = function(c) {
-            if (!PROMOS[c]) { window.toast('Промокод не найден', 'err'); return; }
-            if (G.promos[c]) { window.toast('Уже использован', 'err'); return; }
-            G.coins += PROMOS[c];
-            G.promos[c] = true;
-            scheduleSave();
-            renderUI();
-            window.toast(`+${PROMOS[c]} монет!`, 'gld');
-        };
-
         // ============================================================
-        // 23. ЗАПУСК
+        // 21. ЗАПУСК
         // ============================================================
         document.addEventListener('DOMContentLoaded', async () => {
             aStat('⏳ Проверка сессии...', 'ld');
-            window.renderDiceIdle();
 
             const restored = await restoreSession();
 
@@ -4169,12 +4398,6 @@
                 showApp();
                 aStat('✅ Сессия восстановлена', 'ok');
                 window.toast('Добро пожаловать, ' + currentUsername + '!', 'ok');
-                console.log('📊 Данные:', { coins: G.coins, farms: G.farms, shards: Object.keys(G.shards).length });
-                console.log('⚡ Оптимизация включена:',
-                    `Сохранение=${CONFIG.SAVE_INTERVAL/1000}с, ` +
-                    `Кеш=${CONFIG.TOP_CACHE_TIME/60000}мин, ` +
-                    `Топ=${CONFIG.TOP_LIMIT} игроков`
-                );
             } else {
                 aStat('Готово ко входу');
             }
@@ -4183,11 +4406,11 @@
         });
 
         console.log('✅ Чат полностью переработан:');
-        console.log('  - Время в чате УБРАНО полностью');
-        console.log('  - Отображаются только имя и текст');
-        console.log('  - Удобный поиск для ЛС с онлайн-статусом');
-        console.log('  - При отправке сообщение сразу появляется в чате');
-        console.log('  - Плавная анимация новых сообщений');
+        console.log('  - Время в чате УБРАНО');
+        console.log('  - Сообщения всегда в правильном порядке (новые снизу)');
+        console.log('  - Удобный список диалогов для ЛС с онлайн-статусом');
+        console.log('  - Клик по имени в общем чате → ЛС');
+        console.log('  - Авто-очистка старых сообщений');
         console.log('  - Полная поддержка мобильных устройств');
     </script>
 </body>
