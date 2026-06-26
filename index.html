@@ -2831,48 +2831,67 @@ async function loadMessages() {
         // ----- РЕНДЕР (ПОЛНАЯ ПЕРЕРИСОВКА) -----
         // Переменная для хранения ID последнего отрисованного сообщения, чтобы не перерисовывать всё подряд
 // Переменные для контроля состояния чата
-let lastRenderedChatType = null; // Хранит тип текущего чата ('global' или id пользователя ЛС)
+let lastRenderedChatType = null;
+let lastMessagesCount = 0; // Будем следить за реальным количеством сообщений
 
 function renderChatMessages() {
     const container = document.getElementById('chatMessages');
     if (!container || !chatMessagesCache) return;
 
-    // Определяем уникальный идентификатор текущего экрана чата
     const currentChatId = currentChat === 'global' ? 'global' : String(currentChatTarget?.id || '');
-
-    // Проверяем скролл ДО обновления: находится ли юзер внизу?
     const isAtBottom = container.scrollTop + container.clientHeight >= container.scrollHeight - 150;
 
-    // ЕСЛИ: изменился чат (перешли из глобального в ЛС или сменили друга) ИЛИ чат пустой
+    // Считаем, сколько сообщений сейчас фактически отображается на экране
+    const DOMMessagesCount = container.getElementsByClassName('message').length; 
+
+    // Условие 1: Сменился чат или экран абсолютно пуст
     if (lastRenderedChatType !== currentChatId || container.innerHTML === "") {
         let fullHtml = '';
         chatMessagesCache.forEach(msg => {
             fullHtml += generateMessageHtml(msg);
         });
         container.innerHTML = fullHtml;
-        
-        // При смене чата ВСЕГДА жестко скроллим в самый низ
         container.scrollTop = container.scrollHeight;
+        
         lastRenderedChatType = currentChatId;
-        return; 
+        lastMessagesCount = chatMessagesCache.length;
+        return;
     }
 
-    // ЕСЛИ это просто фоновое автообновление того же самого чата:
-    // Добавляем только те сообщения, которых физически ещё нет на экране
+    // Условие 2: Синхронизация между ПК и телефоном.
+    // Если в кэше прилетело БОЛЬШЕ сообщений, чем было, или длина массивов разошлась — 
+    // значит, кто-то написал с другого устройства. Перерисовываем полностью во избежание багов.
+    if (chatMessagesCache.length !== lastMessagesCount || chatMessagesCache.length !== DOMMessagesCount) {
+        let fullHtml = '';
+        chatMessagesCache.forEach(msg => {
+            fullHtml += generateMessageHtml(msg);
+        });
+        container.innerHTML = fullHtml;
+        
+        // Обновляем счетчики
+        lastMessagesCount = chatMessagesCache.length;
+
+        // Если это мы сами отправили или были внизу — докручиваем
+        if (isAtBottom) {
+            container.scrollTop = container.scrollHeight;
+        }
+        return;
+    }
+
+    // Условие 3: Обычное фоновое добавление одиночных сообщений (без дубликатов)
     chatMessagesCache.forEach(msg => {
-        if (!document.getElementById(`msg-${msg.id}`)) {
+        // Защита: добавляем только если у сообщения есть ID и его ТОЧНО нет на экране
+        if (msg.id && !document.getElementById(`msg-${msg.id}`)) {
             container.insertAdjacentHTML('beforeend', generateMessageHtml(msg));
         }
     });
 
-    // Возвращаем скролл вниз, только если пользователь до этого не листал историю наверх
     if (isAtBottom) {
         requestAnimationFrame(() => {
             container.scrollTop = container.scrollHeight;
         });
     }
 }
-
         window.searchUsers = function(query) {
             clearTimeout(searchTimeout);
             const results = document.getElementById('chatSearchResults');
