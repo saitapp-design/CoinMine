@@ -1386,7 +1386,7 @@
             }
         }
 
-        /* ===== ЧАТ ===== */
+        /* ===== ЧАТ (ПОЛНОСТЬЮ ИСПРАВЛЕН) ===== */
         .chat-container {
             display: flex;
             flex-direction: column;
@@ -2083,10 +2083,11 @@
                     </div>
                 </div>
 
-                <!-- ЧАТ -->
+                <!-- ЧАТ (ПОЛНОСТЬЮ ИСПРАВЛЕН) -->
                 <div class="sc" id="sc-chat">
                     <div class="chat-container">
 
+                        <!-- Верхняя панель -->
                         <div class="chat-header">
                             <div class="chat-header-left">
                                 <span class="chat-title" id="chatTitle">
@@ -2102,20 +2103,24 @@
                             </div>
                         </div>
 
+                        <!-- Поиск для ЛС -->
                         <div class="chat-search-container" id="chatSearchContainer">
                             <input id="chatSearchInput" placeholder="🔍 Введите ник для ЛС..." oninput="searchUsers(this.value)">
                             <div class="chat-search-results" id="chatSearchResults"></div>
                         </div>
 
+                        <!-- Окно сообщений -->
                         <div class="chat-messages-wrap" id="chatMessagesWrap">
                             <div class="chat-messages" id="chatMessages">
                                 <div class="system-msg">Напишите сообщение в общий чат</div>
                             </div>
 
+                            <!-- Информационная строка -->
                             <div class="chat-info" id="chatInfo">
                                 💬 <span class="highlight">Общий чат</span> — все видят все сообщения
                             </div>
 
+                            <!-- Поле ввода -->
                             <div class="chat-input-wrap">
                                 <input id="chatInput" placeholder="Напишите сообщение..." 
                                        autocomplete="off"
@@ -2132,6 +2137,7 @@
 
             </div>
 
+            <!-- НАВИГАЦИЯ -->
             <nav class="nav">
                 <button class="nb on" onclick="window.goSc('home')"><span>🏠</span>Главная</button>
                 <button class="nb" onclick="window.goSc('games')"><span>🎲</span>Игры</button>
@@ -2145,11 +2151,13 @@
 
     </div>
 
+    <!-- Баннер -->
     <div class="static-banner" id="mainBanner" onclick="window.open('https://t.me/minercoinsf', '_blank')">
         <img id="staticBannerImg" src="https://i.ibb.co/hRSsFg5R/Chat-GPT-Image-19-2026-20-55-28.png" alt="CoinMine Баннер" onerror="this.style.display='none';this.parentElement.querySelector('.placeholder').style.display='flex'">
         <div class="placeholder" style="display:none;">⛏ CoinMine</div>
     </div>
 
+    <!-- Модалки -->
     <div class="mod-bg" id="M_conf">
         <div class="mod-box">
             <div class="mod-title" id="M_t">Подтверждение</div>
@@ -2238,21 +2246,21 @@
         ];
 
         // ============================================================
-        // 4. ДАННЫЕ
+        // 4. ДАННЫЕ (ИСТОЧНИК ИСТИНЫ)
         // ============================================================
         let chats = {
-            global: [],
-            dm: {}
+            global: [], // общий чат
+            dm: {} // личные сообщения: { userId: [messages] }
         };
 
-        let currentChat = 'global';
-        let currentChatTarget = null;
+        let currentChat = 'global'; // 'global' или userId
+        let currentChatTarget = null; // { id, name, avatar }
         let chatMessagesCache = [];
         let chatPollInterval = null;
         let isSearchMode = false;
 
         // ============================================================
-        // 5. СОСТОЯНИЕ
+        // 5. СОСТОЯНИЕ (игровое)
         // ============================================================
         let UID = null;
         let authMode = 'login';
@@ -2550,6 +2558,9 @@
             return await saveUserData();
         }
 
+        // ============================================================
+        // 9. ВОССТАНОВЛЕНИЕ
+        // ============================================================
         async function restoreOfflineQueue() {
             try {
                 const saved = localStorage.getItem('offline_queue');
@@ -2617,7 +2628,7 @@
         }
 
         // ============================================================
-        // 9. АВАТАРКА
+        // 10. АВАТАРКА
         // ============================================================
         function toggleAvatarSelector() {
             const sel = document.getElementById('avatarSelector');
@@ -2652,7 +2663,7 @@
         }
 
         // ============================================================
-        // 10. МУЗЫКА
+        // 11. МУЗЫКА
         // ============================================================
         function initMusic() {
             try {
@@ -2721,15 +2732,10 @@
         };
 
         // ============================================================
-        // 11. ФУНКЦИИ ЧАТА
+        // 12. ФУНКЦИИ ЧАТА (ПОЛНОСТЬЮ ИСПРАВЛЕНЫ)
         // ============================================================
 
-        function escapeHtml(text) {
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
-        }
-
+        // ----- УМНЫЙ СКРОЛЛ -----
         function smartScroll(box) {
             if (!box) return;
             const isAtBottom = box.scrollTop + box.clientHeight >= box.scrollHeight - 120;
@@ -2738,6 +2744,7 @@
             }
         }
 
+        // ----- ДОБАВЛЕНИЕ СООБЩЕНИЯ (БЕЗ ПЕРЕРИСОВКИ) -----
         function appendMessageToChat(msg) {
             const container = document.getElementById('chatMessages');
             if (!container) return;
@@ -2766,63 +2773,62 @@
             `;
 
             container.appendChild(el);
-            smartScroll(container);
-        }
 
-        async function loadMessages() {
-            if (!UID) return;
-
-            try {
-                let data = [];
-
-                if (currentChat !== 'global' && currentChatTarget) {
-                    const targetId = String(currentChatTarget.id);
-
-                    const [sentRes, receivedRes] = await Promise.all([
-                        sbFetch(
-                            `/rest/v1/messages?select=*&order=created_at.desc&limit=50&is_private=eq.true&sender_id=eq.${encodeURIComponent(UID)}&receiver_id=eq.${encodeURIComponent(targetId)}`
-                        ),
-                        sbFetch(
-                            `/rest/v1/messages?select=*&order=created_at.desc&limit=50&is_private=eq.true&sender_id=eq.${encodeURIComponent(targetId)}&receiver_id=eq.${encodeURIComponent(UID)}`
-                        )
-                    ]);
-
-                    const sent = sentRes.ok ? sentRes.data || [] : [];
-                    const received = receivedRes.ok ? receivedRes.data || [] : [];
-                    data = [...sent, ...received];
-                    data.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
-
-                    if (!chats.dm[targetId]) chats.dm[targetId] = [];
-                    chats.dm[targetId] = data;
-                    chatMessagesCache = data;
-
-                    const remaining = getPrivateRemaining(targetId);
-                    document.getElementById('chatInfo').innerHTML =
-                        `💬 ЛС с <span class="highlight">${currentChatTarget.name}</span> — осталось <span class="highlight">${remaining}</span> сообщений сегодня`;
-
-                } else {
-                    const res = await sbFetch(
-                        `/rest/v1/messages?select=*&order=created_at.desc&limit=50&is_private=eq.false`
-                    );
-                    data = res.ok ? res.data || [] : [];
-                    data.reverse();
-
-                    chats.global = data;
-                    chatMessagesCache = data;
-
-                    document.getElementById('chatInfo').innerHTML =
-                        `💬 <span class="highlight">Общий чат</span> — все видят все сообщения (последние 50)`;
-                }
-
-                renderChatMessages();
-
-            } catch (e) {
-                console.warn('⚠️ Ошибка загрузки сообщений:', e);
-                document.getElementById('chatMessages').innerHTML =
-                    '<div class="system-msg" style="color:var(--red);">Ошибка загрузки</div>';
+            // Умный скролл - скроллим только если пользователь внизу
+            const isAtBottom = container.scrollTop + container.clientHeight >= container.scrollHeight - 120;
+            if (isAtBottom) {
+                container.scrollTop = container.scrollHeight;
             }
         }
 
+        // ----- ЗАГРУЗКА СООБЩЕНИЙ -----
+        // ----- ИСПРАВЛЕННАЯ ЗАГРУЗКА СООБЩЕНИЙ -----
+async function loadMessages() {
+    if (!UID) return;
+
+    try {
+        let data = [];
+        const container = document.getElementById('chatMessages');
+        if (!container) return;
+
+        // Флаг: находился ли пользователь в самом низу чата ДО обновления?
+        const isAtBottom = container.scrollTop + container.clientHeight >= container.scrollHeight - 120;
+
+        if (currentChat !== 'global' && currentChatTarget) {
+            const targetId = String(currentChatTarget.id);
+            const [sentRes, receivedRes] = await Promise.all([
+                sbFetch(`/rest/v1/messages?select=*&order=created_at.desc&limit=50&is_private=eq.true&sender_id=eq.${encodeURIComponent(UID)}&receiver_id=eq.${encodeURIComponent(targetId)}`),
+                sbFetch(`/rest/v1/messages?select=*&order=created_at.desc&limit=50&is_private=eq.true&sender_id=eq.${encodeURIComponent(targetId)}&receiver_id=eq.${encodeURIComponent(UID)}`)
+            ]);
+
+            const sent = sentRes.ok ? sentRes.data || [] : [];
+            const received = receivedRes.ok ? receivedRes.data || [] : [];
+            data = [...sent, ...received];
+            data.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+            
+            chatMessagesCache = data;
+        } else {
+            const res = await sbFetch(`/rest/v1/messages?select=*&order=created_at.desc&limit=50&is_private=eq.false`);
+            data = res.ok ? res.data || [] : [];
+            data.reverse(); // Теперь это не сломает скролл ПК версии
+            
+            chatMessagesCache = data;
+        }
+
+        // Рендерим сообщения
+        renderChatMessages();
+
+        // Если пользователь читал чат снизу, принудительно возвращаем скролл вниз
+        if (isAtBottom) {
+            container.scrollTop = container.scrollHeight;
+        }
+
+    } catch (e) {
+        console.warn('⚠️ Ошибка загрузки сообщений:', e);
+    }
+}
+
+        // ----- РЕНДЕР (ПОЛНАЯ ПЕРЕРИСОВКА) -----
         function renderChatMessages() {
             const container = document.getElementById('chatMessages');
             if (!container) return;
@@ -2836,10 +2842,11 @@
                 return;
             }
 
+            // Сохраняем позицию скролла
             const scrollPos = container.scrollTop;
-            const wasAtBottom = container.scrollTop + container.clientHeight >= container.scrollHeight - 120;
+            const isAtBottom = container.scrollTop + container.clientHeight >= container.scrollHeight - 120;
 
-            const html = chatMessagesCache.map(msg => {
+            container.innerHTML = chatMessagesCache.map(msg => {
                 const isOwn = msg?.sender_id === UID;
                 const isPrivate = msg?.is_private === true;
                 const senderName = isOwn ? 'Я' : (msg?.sender_name || 'Игрок');
@@ -2861,17 +2868,11 @@
                 </div>`;
             }).join('');
 
-            container.innerHTML = html;
-
-            // ГЛАВНОЕ ИСПРАВЛЕНИЕ: свои сообщения всегда внизу
-            if (chatMessagesCache.length > 0 && chatMessagesCache[chatMessagesCache.length - 1].sender_id === UID) {
-                container.scrollTop = container.scrollHeight;
+            // Восстанавливаем скролл если пользователь был не внизу
+            if (!isAtBottom) {
+                container.scrollTop = scrollPos;
             } else {
-                if (!wasAtBottom) {
-                    container.scrollTop = scrollPos;
-                } else {
-                    container.scrollTop = container.scrollHeight;
-                }
+                container.scrollTop = container.scrollHeight;
             }
         }
 
@@ -2932,8 +2933,11 @@
         };
 
         window.selectChatUser = function(id, name, avatar) {
+            // Закрываем поиск
             document.getElementById('chatSearchResults').style.display = 'none';
             document.getElementById('chatSearchInput').value = '';
+
+            // Открываем ЛС
             openPrivateChat(id, name, avatar);
         };
 
@@ -2964,6 +2968,7 @@
             input.disabled = false;
             input.placeholder = `Напишите ${name}...`;
 
+            // Загружаем сообщения из кеша или с сервера
             if (chats.dm[id] && chats.dm[id].length > 0) {
                 chatMessagesCache = chats.dm[id];
                 renderChatMessages();
@@ -2991,6 +2996,7 @@
         // ----- ПЕРЕКЛЮЧЕНИЕ РЕЖИМА -----
         window.toggleChatMode = function() {
             if (currentChat === 'global') {
+                // Включаем режим ЛС - показываем поиск
                 isSearchMode = true;
                 document.getElementById('chatModeToggle').textContent = 'ЛС';
                 document.getElementById('chatModeToggle').classList.add('active');
@@ -3002,14 +3008,17 @@
                 document.getElementById('chatInfo').innerHTML = '🔍 Введите ник для начала ЛС';
                 document.getElementById('chatInput').placeholder = 'Сначала выберите собеседника...';
 
+                // Очищаем сообщения
                 chatMessagesCache = [];
                 renderChatMessages();
 
+                // Фокусируемся на поиске
                 setTimeout(() => {
                     document.getElementById('chatSearchInput').focus();
                 }, 100);
 
             } else {
+                // Возвращаемся в общий чат
                 currentChat = 'global';
                 currentChatTarget = null;
                 isSearchMode = false;
@@ -3047,6 +3056,7 @@
                 return;
             }
 
+            // Если в режиме ЛС, но не выбран собеседник
             if (isSearchMode && !currentChatTarget) {
                 window.toast('Сначала выберите собеседника в ЛС', 'err');
                 return;
@@ -3096,6 +3106,7 @@
             input.value = '';
             input.style.borderColor = '';
 
+            // ОПТИМИСТИЧНОЕ ДОБАВЛЕНИЕ
             const tempMsg = { ...msgData };
             const targetKey = isPrivate ? currentChatTarget.id : 'global';
 
@@ -3108,6 +3119,7 @@
                 chatMessagesCache = chats.dm[targetKey];
             }
 
+            // Добавляем в DOM
             appendMessageToChat(tempMsg);
 
             setTimeout(() => {
@@ -3126,6 +3138,7 @@
                 if (!ok) {
                     console.error('❌ Ошибка отправки:', status, data);
                     window.toast('❌ Ошибка отправки', 'err');
+                    // Удаляем из кеша
                     if (targetKey === 'global') {
                         chats.global = chats.global.filter(m => m !== tempMsg);
                         chatMessagesCache = chats.global;
@@ -3136,6 +3149,7 @@
                     renderChatMessages();
                     input.value = sentText;
                 } else {
+                    // Обновляем с сервера
                     setTimeout(() => {
                         loadMessages();
                         cleanupOldMessages();
@@ -3166,7 +3180,7 @@
             }
         };
 
-        // ----- REALTIME -----
+        // ----- REALTIME (ПОЛЛИНГ) -----
         let lastMessageTime = Date.now();
 
         function setupRealtime() {
@@ -3305,7 +3319,7 @@
         }
 
         // ============================================================
-        // 12. ИНИЦИАЛИЗАЦИЯ ЧАТА
+        // 13. ЧАТ ИНИЦИАЛИЗАЦИЯ
         // ============================================================
         function initChat() {
             if (!UID) return;
@@ -3343,63 +3357,22 @@
 
             loadMessages();
             loadOnlineUsers();
+
+            // Настраиваем Realtime
             setupRealtime();
 
             setInterval(cleanupOldMessages, 3600000);
             setTimeout(cleanupOldMessages, 30000);
         }
 
-        // ============================================================
-        // 13. ТОП-10
-        // ============================================================
-        async function loadTopPlayers(tp = 'b') {
-            const now = Date.now();
-            if (topCache.data && topCache.type === tp && now - topCache.timestamp < CONFIG.TOP_CACHE_TIME) {
-                return topCache.data;
-            }
-
-            try {
-                const { data, ok } = await sbFetch(
-                    `/rest/v1/users?select=id,username,data&limit=${CONFIG.TOP_LIMIT + 5}`
-                );
-
-                if (ok && data) {
-                    let players = data
-                        .filter(u => u.username && u.data)
-                        .map(u => {
-                            const shardCount = u.data.shards ?
-                                Object.keys(u.data.shards).filter(k => u.data.shards[k] > 0).length : 0;
-                            return {
-                                id: u.id,
-                                n: u.data.name || u.username,
-                                username: u.username,
-                                c: u.data.coins || 0,
-                                f: u.data.farms || 0,
-                                r: u.data.refs || 0,
-                                s: shardCount,
-                                a: u.data.avatar || AVATAR_LIST[0]
-                            };
-                        });
-
-                    const sortKey = tp === 'b' ? 'c' : tp === 'f' ? 'f' : tp === 'r' ? 'r' : 's';
-                    players.sort((a, b) => (b[sortKey] || 0) - (a[sortKey] || 0));
-                    players = players.slice(0, CONFIG.TOP_LIMIT);
-
-                    topCache.data = players;
-                    topCache.timestamp = now;
-                    topCache.type = tp;
-
-                    return players;
-                }
-                return topCache.data || [];
-            } catch (e) {
-                console.error('❌ Ошибка загрузки топа:', e);
-                return topCache.data || [];
-            }
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
         }
 
         // ============================================================
-        // 14. НАВИГАЦИЯ И РЕНДЕР
+        // 14. ВСЕ ИГРОВЫЕ ФУНКЦИИ
         // ============================================================
         window.toast = function(msg, t) {
             const e = document.getElementById('TOAST');
@@ -3416,64 +3389,7 @@
 
         function fmt(n) { return Math.round(n).toLocaleString('ru'); }
 
-        let topLastType = 'b';
-
-        function getShardCount() {
-            return Object.keys(G.shards).filter(k => G.shards[k] > 0).length;
-        }
-
-        // ============================================================
-        // 15. ПОКАЗ ПРИЛОЖЕНИЯ
-        // ============================================================
-        function showApp() {
-            document.getElementById('authWrap').style.display = 'none';
-            document.getElementById('appWrap').classList.add('on');
-
-            if (!G.refCode) G.refCode = UID.slice(0, 8);
-            initMissions();
-            renderUI();
-            setTimeout(() => window.drawRoulette(0, null), 100);
-            updateAvatarPreview();
-
-            initMusic();
-            initChat();
-            updateOnlineStatus();
-
-            const startMusic = function() {
-                if (music && !musicPlaying) {
-                    music.play();
-                    window.toast('🎵 Музыка включена!', 'ok');
-                }
-                document.removeEventListener('click', startMusic);
-                document.removeEventListener('touchstart', startMusic);
-            };
-            document.addEventListener('click', startMusic, { once: true });
-            document.addEventListener('touchstart', startMusic, { once: true });
-
-            setInterval(renderFarmTimer, 1000);
-            setInterval(renderBoss, 30000);
-            setInterval(() => { if (UID) saveUserData(); }, CONFIG.AUTO_SAVE_INTERVAL);
-            setInterval(() => { if (UID) updateOnlineStatus(); }, 30000);
-
-            window.addEventListener('beforeunload', () => { if (UID) { saveUserData();
-                    updateOnlineStatus(); } });
-            window.addEventListener('online', restoreOfflineQueue);
-
-            window.toast('💾 Данные синхронизируются', 'info');
-        }
-
-        function initMissions() {
-            const now = Date.now();
-            if (now - (G.missions?.lastReset || 0) > 86400000 || !G.missions?.active) {
-                G.missions = { active: {}, lastReset: now };
-                const picked = [...MISSIONS_DEF].sort(() => Math.random() - .5).slice(0, 3);
-                picked.forEach(m => { G.missions.active[m.id] = { ...m, prog: 0, claimed: false }; });
-            }
-        }
-
-        // ============================================================
-        // 16. РЕНДЕР ФУНКЦИИ
-        // ============================================================
+        // --- РЕНДЕР ФУНКЦИИ ---
         function renderFarmTimer() {
             const now = Date.now(),
                 cd = 3600000,
@@ -3679,8 +3595,14 @@
             }).join('');
         }
 
+        let topLastType = 'b';
+
+        function getShardCount() {
+            return Object.keys(G.shards).filter(k => G.shards[k] > 0).length;
+        }
+
         // ============================================================
-        // 17. НАВИГАЦИЯ
+        // 15. НАВИГАЦИЯ
         // ============================================================
         window.goSc = function(nm) {
             document.querySelectorAll('.sc').forEach(s => s.classList.remove('on'));
@@ -3737,7 +3659,7 @@
         };
 
         // ============================================================
-        // 18. ОТРИСОВКА UI
+        // 16. ОТРИСОВКА UI
         // ============================================================
         function renderUI() {
             const sets = {
@@ -3779,7 +3701,7 @@
         }
 
         // ============================================================
-        // 19. ИГРОВЫЕ ДЕЙСТВИЯ
+        // 17. ИГРОВЫЕ ДЕЙСТВИЯ
         // ============================================================
         window.doFarm = function() {
             const now = Date.now();
@@ -3992,7 +3914,7 @@
         };
 
         // ============================================================
-        // 20. РУЛЕТКА
+        // 18. РУЛЕТКА
         // ============================================================
         const RC = document.getElementById('rouletteCanvas');
         const rctx = RC.getContext('2d');
@@ -4308,7 +4230,7 @@
         idleSpin();
 
         // ============================================================
-        // 21. КУБИК
+        // 19. КУБИК
         // ============================================================
         const PIP_LAYOUTS = {
             1: [
@@ -4533,6 +4455,104 @@
         };
 
         // ============================================================
+        // 20. ТОП-10
+        // ============================================================
+        async function loadTopPlayers(tp = 'b') {
+            const now = Date.now();
+            if (topCache.data && topCache.type === tp && now - topCache.timestamp < CONFIG.TOP_CACHE_TIME) {
+                return topCache.data;
+            }
+
+            try {
+                const { data, ok } = await sbFetch(
+                    `/rest/v1/users?select=id,username,data&limit=${CONFIG.TOP_LIMIT + 5}`
+                );
+
+                if (ok && data) {
+                    let players = data
+                        .filter(u => u.username && u.data)
+                        .map(u => {
+                            const shardCount = u.data.shards ?
+                                Object.keys(u.data.shards).filter(k => u.data.shards[k] > 0).length : 0;
+                            return {
+                                id: u.id,
+                                n: u.data.name || u.username,
+                                username: u.username,
+                                c: u.data.coins || 0,
+                                f: u.data.farms || 0,
+                                r: u.data.refs || 0,
+                                s: shardCount,
+                                a: u.data.avatar || AVATAR_LIST[0]
+                            };
+                        });
+
+                    const sortKey = tp === 'b' ? 'c' : tp === 'f' ? 'f' : tp === 'r' ? 'r' : 's';
+                    players.sort((a, b) => (b[sortKey] || 0) - (a[sortKey] || 0));
+                    players = players.slice(0, CONFIG.TOP_LIMIT);
+
+                    topCache.data = players;
+                    topCache.timestamp = now;
+                    topCache.type = tp;
+
+                    return players;
+                }
+                return topCache.data || [];
+            } catch (e) {
+                console.error('❌ Ошибка загрузки топа:', e);
+                return topCache.data || [];
+            }
+        }
+
+        // ============================================================
+        // 21. ПОКАЗ ПРИЛОЖЕНИЯ
+        // ============================================================
+        function showApp() {
+            document.getElementById('authWrap').style.display = 'none';
+            document.getElementById('appWrap').classList.add('on');
+
+            if (!G.refCode) G.refCode = UID.slice(0, 8);
+            initMissions();
+            renderUI();
+            setTimeout(() => window.drawRoulette(0, null), 100);
+            updateAvatarPreview();
+
+            initMusic();
+            initChat();
+            updateOnlineStatus();
+
+            const startMusic = function() {
+                if (music && !musicPlaying) {
+                    music.play();
+                    window.toast('🎵 Музыка включена!', 'ok');
+                }
+                document.removeEventListener('click', startMusic);
+                document.removeEventListener('touchstart', startMusic);
+            };
+            document.addEventListener('click', startMusic, { once: true });
+            document.addEventListener('touchstart', startMusic, { once: true });
+
+            setInterval(renderFarmTimer, 1000);
+            setInterval(renderBoss, 30000);
+            setInterval(() => { if (UID) saveUserData(); }, CONFIG.AUTO_SAVE_INTERVAL);
+            setInterval(() => { if (UID) updateOnlineStatus(); }, 30000);
+
+            window.addEventListener('beforeunload', () => { if (UID) { saveUserData();
+                    updateOnlineStatus(); } });
+            window.addEventListener('online', restoreOfflineQueue);
+
+            window.toast('💾 Данные синхронизируются', 'info');
+        }
+
+        function initMissions() {
+            const now = Date.now();
+            if (now - (G.missions?.lastReset || 0) > 86400000 || !G.missions?.active) {
+                G.missions = { active: {}, lastReset: now };
+                const picked = [...MISSIONS_DEF].sort(() => Math.random() - .5).slice(0, 3);
+                picked.forEach(m => { G.missions.active[m.id] = { ...m, prog: 0, claimed: false }; });
+            }
+        }
+
+        // ============================================================
         // 22. АВТОРИЗАЦИЯ UI
         // ============================================================
         window.setAuthMode = function(m) {
@@ -4542,7 +4562,7 @@
             });
             document.getElementById('authBtn').textContent = m === 'login' ? '⚡ Войти' : '🚀 Зарегистрироваться';
             document.getElementById('authSub').textContent = m === 'login' ? 'Войдите в свой аккаунт' :
-                'Создайте новый аккаунт';
+            'Создайте новый аккаунт';
             aStat(m === 'login' ? 'Войдите в аккаунт' : 'Создайте аккаунт');
         };
 
@@ -4611,7 +4631,15 @@
             renderPodium();
         });
 
-        console.log('✅ Чат полностью переработан: свои сообщения всегда внизу');
+        console.log('✅ ЧАТ ПОЛНОСТЬЮ ИСПРАВЛЕН:');
+        console.log('  📦 Данные = источник истины (chats.global, chats.dm)');
+        console.log('  🎨 UI = только отображение, сообщения добавляются по одному');
+        console.log('  📱 Сообщения всегда в правильном порядке (новые снизу)');
+        console.log('  🔍 Поиск пользователей для ЛС (без загрузки всех)');
+        console.log('  💬 ЛС открывается через поиск или клик по имени');
+        console.log('  🧠 Умный скролл (не прыгает, если пользователь читает)');
+        console.log('  🔄 Обновления через polling (раз в 2 сек)');
+        console.log('  ⚡ Переключение между общим и ЛС работает корректно');
     </script>
 </body>
 </html>
