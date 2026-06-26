@@ -12,7 +12,6 @@
     </script>
     
     <style>
-        /* ===== ПОЛНЫЙ CSS (все стили из предыдущей версии) ===== */
         * {
             box-sizing: border-box;
             margin: 0;
@@ -731,7 +730,7 @@
             border-radius: 10px;
         }
 
-        /* === РУЛЕТКА === */
+        /* РУЛЕТКА */
         .rl-section {
             display: flex;
             flex-direction: column;
@@ -809,15 +808,9 @@
             opacity: .5;
             cursor: not-allowed;
         }
-        .btn-red {
-            border-color: #b91c1c !important;
-            color: #b91c1c !important;
-        }
+        .btn-red { border-color: #b91c1c !important; color: #b91c1c !important; }
         .btn-blk { border-color: #555 !important; }
-        .btn-grn {
-            border-color: #15803d !important;
-            color: #15803d !important;
-        }
+        .btn-grn { border-color: #15803d !important; color: #15803d !important; }
         .rl-coeff {
             font-size: 12px;
             color: var(--color-text-secondary);
@@ -825,7 +818,7 @@
             padding: 4px 0;
         }
 
-        /* === КУБИК === */
+        /* КУБИК */
         .dice-section {
             display: flex;
             flex-direction: column;
@@ -922,7 +915,7 @@
             background: var(--color-border-tertiary);
         }
 
-        /* === КЛАН === */
+        /* КЛАН */
         .clan-icon {
             font-size: 60px;
             text-align: center;
@@ -1238,7 +1231,7 @@
             .top-avatar .placeholder { font-size: 11px; }
         }
 
-        /* === ЧАТ === */
+        /* ЧАТ */
         .chat-container {
             display: flex;
             flex-direction: column;
@@ -1575,7 +1568,7 @@
             font-size: 11px;
         }
 
-        /* === МОБИЛЬНАЯ АДАПТАЦИЯ === */
+        /* МОБИЛЬНАЯ АДАПТАЦИЯ */
         @media (max-width: 600px) {
             .chat-container {
                 height: 80vh !important;
@@ -1700,7 +1693,7 @@
 </head>
 <body>
 
-    <!-- ===== APP ===== -->
+    <!-- APP -->
     <div class="app" id="appRoot">
 
         <!-- AUTH -->
@@ -2002,7 +1995,7 @@
                     </div>
                 </div>
 
-                <!-- ===== ЧАТ ===== -->
+                <!-- ЧАТ -->
                 <div class="sc" id="sc-chat">
                     <div class="chat-container">
 
@@ -2120,24 +2113,190 @@
         const SB_URL = 'https://mazccbkzurbryzusajqc.supabase.co';
         const SB_ANON_KEY = 'sb_publishable_GLQvPbCZrDYgd7FCSp861g_poX1-Hwy';
 
-        const CONFIG = {
-            SAVE_INTERVAL: 10000,
-            TOP_CACHE_TIME: 600000,
-            TOP_LIMIT: 10,
-            AUTO_SAVE_INTERVAL: 60000,
-            MAX_RETRIES: 3,
-            BATCH_SIZE: 10
-        };
+        // ============================================================
+        // 2. ПОДКЛЮЧЕНИЕ К SUPABASE
+        // ============================================================
+        const supabaseClient = {
+            url: SB_URL,
+            key: SB_ANON_KEY,
+            
+            async fetch(path, opts = {}) {
+                const headers = {
+                    'apikey': this.key,
+                    'Content-Type': 'application/json',
+                    ...(opts.headers || {})
+                };
 
-        const CHAT_CONFIG = {
-            MAX_PUBLIC_MESSAGES: 50,
-            MAX_PRIVATE_MESSAGES: 10,
-            DAILY_PRIVATE_LIMIT: 10,
-            CLEANUP_INTERVAL: 3600000,
+                if (!opts.headers?.Prefer) {
+                    headers['Prefer'] = 'return=representation';
+                }
+
+                let body = opts.body;
+                if (body && typeof body === 'object') {
+                    body = JSON.stringify(body);
+                }
+
+                try {
+                    const r = await fetch(this.url + path, {
+                        ...opts,
+                        body: body,
+                        headers,
+                        signal: AbortSignal.timeout(10000)
+                    });
+
+                    const txt = await r.text();
+                    let d;
+                    try { d = JSON.parse(txt); } catch (e) { d = txt; }
+
+                    return { ok: r.ok, status: r.status, data: d };
+                } catch (e) {
+                    console.error('❌ Ошибка запроса:', e);
+                    return { ok: false, status: 0, data: null, error: e };
+                }
+            },
+
+            async from(table) {
+                return {
+                    _table: table,
+                    _select: '*',
+                    _filter: {},
+                    _order: null,
+                    _limit: null,
+                    
+                    select(cols) {
+                        this._select = cols || '*';
+                        return this;
+                    },
+                    
+                    eq(col, val) {
+                        this._filter[col] = val;
+                        return this;
+                    },
+                    
+                    order(col, opts = {}) {
+                        this._order = { col, ascending: opts.ascending !== false };
+                        return this;
+                    },
+                    
+                    limit(n) {
+                        this._limit = n;
+                        return this;
+                    },
+                    
+                    async then(resolve, reject) {
+                        try {
+                            let path = `/rest/v1/${this._table}?select=${this._select}`;
+                            
+                            const filters = Object.entries(this._filter);
+                            for (const [col, val] of filters) {
+                                path += `&${col}=eq.${encodeURIComponent(val)}`;
+                            }
+                            
+                            if (this._order) {
+                                path += `&order=${this._order.col}.${this._order.ascending ? 'asc' : 'desc'}`;
+                            }
+                            
+                            if (this._limit) {
+                                path += `&limit=${this._limit}`;
+                            }
+                            
+                            const result = await supabaseClient.fetch(path);
+                            resolve(result);
+                        } catch (e) {
+                            reject(e);
+                        }
+                    },
+                    
+                    async insert(data) {
+                        const result = await supabaseClient.fetch(`/rest/v1/${this._table}`, {
+                            method: 'POST',
+                            body: data
+                        });
+                        return result;
+                    },
+                    
+                    async update(data) {
+                        let path = `/rest/v1/${this._table}`;
+                        const filters = Object.entries(this._filter);
+                        for (let i = 0; i < filters.length; i++) {
+                            const [col, val] = filters[i];
+                            path += (i === 0 ? '?' : '&') + `${col}=eq.${encodeURIComponent(val)}`;
+                        }
+                        const result = await supabaseClient.fetch(path, {
+                            method: 'PATCH',
+                            body: data
+                        });
+                        return result;
+                    },
+                    
+                    async delete() {
+                        let path = `/rest/v1/${this._table}`;
+                        const filters = Object.entries(this._filter);
+                        for (let i = 0; i < filters.length; i++) {
+                            const [col, val] = filters[i];
+                            path += (i === 0 ? '?' : '&') + `${col}=eq.${encodeURIComponent(val)}`;
+                        }
+                        const result = await supabaseClient.fetch(path, {
+                            method: 'DELETE'
+                        });
+                        return result;
+                    }
+                };
+            },
+
+            channel(name) {
+                // Имитация Realtime через polling
+                let listeners = [];
+                let interval = null;
+                let lastCheck = 0;
+                
+                return {
+                    on(event, config, callback) {
+                        if (event === 'postgres_changes' && config.event === 'INSERT') {
+                            listeners.push({ table: config.table, callback });
+                        }
+                        return this;
+                    },
+                    
+                    subscribe() {
+                        // Запускаем polling для имитации realtime
+                        if (interval) clearInterval(interval);
+                        interval = setInterval(async () => {
+                            try {
+                                for (const listener of listeners) {
+                                    const result = await supabaseClient
+                                        .from(listener.table)
+                                        .select('*')
+                                        .order('created_at', { ascending: false })
+                                        .limit(5);
+                                    
+                                    if (result.ok && result.data) {
+                                        for (const row of result.data) {
+                                            const rowTime = new Date(row.created_at).getTime();
+                                            if (rowTime > lastCheck) {
+                                                listener.callback({ new: row });
+                                            }
+                                        }
+                                    }
+                                }
+                                lastCheck = Date.now();
+                            } catch (e) {
+                                // Игнорируем ошибки polling
+                            }
+                        }, 2000);
+                        return this;
+                    },
+                    
+                    unsubscribe() {
+                        if (interval) clearInterval(interval);
+                        interval = null;
+                    }
+                };
+            }
         };
 
         // ============================================================
-        // 2. РАБОТА С ВРЕМЕНЕМ ЧЕРЕЗ LUXON
+        // 3. РАБОТА С ВРЕМЕНЕМ ЧЕРЕЗ LUXON
         // ============================================================
         
         const LUXON_LOADED = typeof luxon !== 'undefined';
@@ -2188,59 +2347,8 @@
             }
         }
 
-        function formatTimeInZone(dateString, timezone = 'Europe/Moscow') {
-            if (!dateString) return '--:--';
-            try {
-                if (LUXON_LOADED) {
-                    const dt = luxon.DateTime.fromISO(dateString, { zone: 'utc' });
-                    const local = dt.setZone(timezone);
-                    return local.toFormat('HH:mm');
-                }
-                const offsets = {
-                    'Europe/Moscow': 3,
-                    'America/New_York': -4,
-                    'America/Los_Angeles': -7,
-                    'America/Denver': -6,
-                    'America/Chicago': -5,
-                    'Europe/London': 1,
-                    'Europe/Paris': 2,
-                    'Asia/Dubai': 4,
-                    'Asia/Tokyo': 9,
-                    'Australia/Sydney': 10,
-                    'UTC': 0
-                };
-                const offset = offsets[timezone] || 0;
-                const date = new Date(dateString);
-                if (isNaN(date.getTime())) return '--:--';
-                const targetTime = new Date(date.getTime() + (offset * 60 * 60 * 1000));
-                const hours = String(targetTime.getUTCHours()).padStart(2, '0');
-                const minutes = String(targetTime.getUTCMinutes()).padStart(2, '0');
-                return `${hours}:${minutes}`;
-            } catch (e) {
-                return '--:--';
-            }
-        }
-
-        function getUserTimezone() {
-            try {
-                const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
-                if (tz) return tz;
-            } catch (e) {}
-            return 'Europe/Moscow';
-        }
-
-        function debugTime() {
-            const now = new Date().toISOString();
-            console.log('🕐 ТЕКУЩЕЕ ВРЕМЯ:');
-            console.log('  UTC:', now);
-            console.log('  МСК:', formatDateTime(now));
-            console.log('  Только время:', formatTime(now));
-            console.log('  Ваш часовой пояс:', getUserTimezone());
-            console.log('  Luxon загружен:', LUXON_LOADED);
-        }
-
         // ============================================================
-        // 3. ВСПОМОГАТЕЛЬНЫЕ
+        // 4. ВСПОМОГАТЕЛЬНЫЕ
         // ============================================================
         function aStat(text, type) {
             const e = document.getElementById('authStatus');
@@ -2270,11 +2378,11 @@
         const FINGERPRINT = getFingerprint();
 
         // ============================================================
-        // 4. АВАТАРКИ
+        // 5. АВАТАРКИ
         // ============================================================
         const AVATAR_LIST = [
             'https://i.postimg.cc/ydqnTq7J/1b5e1ca8f182156f9106095981de17b7.png',
-            'https://i.postimg.cc/cHZwHdsh/Skrinsot-21-06-2026-121235.jpg',
+            'https://i.postimg.cc/cHZwHdSH/Skrinsot-21-06-2026-121235.jpg',
             'https://i.postimg.cc/QMDHgSRZ/Skrinsot-21-06-2026-121524.jpg',
             'https://i.postimg.cc/4NhdrrGx/image.png',
             'https://i.postimg.cc/RFFCGYdk/image.png',
@@ -2286,7 +2394,7 @@
         ];
 
         // ============================================================
-        // 5. СОСТОЯНИЕ
+        // 6. СОСТОЯНИЕ
         // ============================================================
         let UID = null;
         let authMode = 'login';
@@ -2304,6 +2412,7 @@
         let chatMessagesCache = [];
         let chatPollInterval = null;
         let chatDialogsCache = [];
+        let chatChannel = null;
 
         const NICK_S = {
             gold: { e: '🌟', n: 'Золотой' },
@@ -2365,120 +2474,24 @@
         let BOSS_STATE = { hp: 0, lastKill: 0 };
 
         // ============================================================
-        // 6. API
-        // ============================================================
-        async function sbFetch(path, opts = {}) {
-            const headers = {
-                'apikey': SB_ANON_KEY,
-                'Content-Type': 'application/json',
-                ...(opts.headers || {})
-            };
-
-            if (!opts.headers?.Prefer) {
-                headers['Prefer'] = 'return=representation';
-            }
-
-            let body = opts.body;
-            if (body && typeof body === 'object') {
-                body = JSON.stringify(body);
-            }
-
-            let attempts = 0;
-            while (attempts < CONFIG.MAX_RETRIES) {
-                try {
-                    const r = await fetch(SB_URL + path, {
-                        ...opts,
-                        body: body,
-                        headers,
-                        signal: AbortSignal.timeout(10000)
-                    });
-
-                    const txt = await r.text();
-                    let d;
-                    try { d = JSON.parse(txt); } catch (e) { d = txt; }
-
-                    if (!r.ok) {
-                        console.warn(`⚠️ API Error ${r.status}:`, {
-                            path,
-                            status: r.status,
-                            data: d,
-                            body: body
-                        });
-                    }
-
-                    return { ok: r.ok, status: r.status, data: d };
-                } catch (e) {
-                    attempts++;
-                    if (attempts >= CONFIG.MAX_RETRIES) throw e;
-                    await new Promise(r => setTimeout(r, 1000 * attempts));
-                }
-            }
-        }
-
-        // ============================================================
-        // 7. ТОП-10
-        // ============================================================
-        async function loadTopPlayers(tp = 'b') {
-            const now = Date.now();
-            if (topCache.data && topCache.type === tp && now - topCache.timestamp < CONFIG.TOP_CACHE_TIME) {
-                return topCache.data;
-            }
-
-            try {
-                const { data, ok } = await sbFetch(
-                    `/rest/v1/users?select=id,username,data&limit=${CONFIG.TOP_LIMIT + 5}`
-                );
-
-                if (ok && data) {
-                    let players = data
-                        .filter(u => u.username && u.data)
-                        .map(u => {
-                            const shardCount = u.data.shards ?
-                                Object.keys(u.data.shards).filter(k => u.data.shards[k] > 0).length : 0;
-                            return {
-                                id: u.id,
-                                n: u.data.name || u.username,
-                                username: u.username,
-                                c: u.data.coins || 0,
-                                f: u.data.farms || 0,
-                                r: u.data.refs || 0,
-                                s: shardCount,
-                                a: u.data.avatar || AVATAR_LIST[0]
-                            };
-                        });
-
-                    const sortKey = tp === 'b' ? 'c' : tp === 'f' ? 'f' : tp === 'r' ? 'r' : 's';
-                    players.sort((a, b) => (b[sortKey] || 0) - (a[sortKey] || 0));
-                    players = players.slice(0, CONFIG.TOP_LIMIT);
-
-                    topCache.data = players;
-                    topCache.timestamp = now;
-                    topCache.type = tp;
-
-                    return players;
-                }
-                return topCache.data || [];
-            } catch (e) {
-                console.error('❌ Ошибка загрузки топа:', e);
-                return topCache.data || [];
-            }
-        }
-
-        // ============================================================
-        // 8. АВТОРИЗАЦИЯ
+        // 7. АВТОРИЗАЦИЯ
         // ============================================================
         async function authRegister(username, password, fingerprint) {
-            const { data: existing } = await sbFetch(
-                `/rest/v1/users?fingerprint=eq.${encodeURIComponent(fingerprint)}&select=id`
-            );
-            if (existing && existing.length > 0) {
+            const result = await supabaseClient
+                .from('users')
+                .select('id')
+                .eq('fingerprint', fingerprint);
+            
+            if (result.ok && result.data && result.data.length > 0) {
                 throw new Error('На этом устройстве уже есть аккаунт');
             }
 
-            const { data: taken } = await sbFetch(
-                `/rest/v1/users?username=eq.${encodeURIComponent(username)}&select=id`
-            );
-            if (taken && taken.length > 0) {
+            const taken = await supabaseClient
+                .from('users')
+                .select('id')
+                .eq('username', username);
+            
+            if (taken.ok && taken.data && taken.data.length > 0) {
                 throw new Error('Этот логин уже занят');
             }
 
@@ -2514,13 +2527,12 @@
                 updated_at: new Date().toISOString()
             };
 
-            const { ok, data, status } = await sbFetch('/rest/v1/users', {
-                method: 'POST',
-                body: newUser
-            });
+            const result2 = await supabaseClient
+                .from('users')
+                .insert(newUser);
 
-            if (!ok) {
-                const msg = data?.details || data?.message || 'Ошибка регистрации';
+            if (!result2.ok) {
+                const msg = result2.data?.details || result2.data?.message || 'Ошибка регистрации';
                 throw new Error(msg);
             }
 
@@ -2528,25 +2540,27 @@
         }
 
         async function authLogin(username, password) {
-            const { data, ok } = await sbFetch(
-                `/rest/v1/users?username=eq.${encodeURIComponent(username)}&password=eq.${encodeURIComponent(password)}&select=id,username,data,boss,fingerprint`
-            );
+            const result = await supabaseClient
+                .from('users')
+                .select('id,username,data,boss,fingerprint')
+                .eq('username', username)
+                .eq('password', password);
 
-            if (!ok || !data || data.length === 0) {
+            if (!result.ok || !result.data || result.data.length === 0) {
                 throw new Error('Неверный логин или пароль');
             }
 
-            const user = data[0];
+            const user = result.data[0];
 
             if (user.fingerprint && user.fingerprint !== FINGERPRINT) {
                 throw new Error('Этот аккаунт привязан к другому устройству');
             }
 
             if (!user.fingerprint) {
-                await sbFetch(`/rest/v1/users?id=eq.${user.id}`, {
-                    method: 'PATCH',
-                    body: { fingerprint: FINGERPRINT }
-                });
+                await supabaseClient
+                    .from('users')
+                    .update({ fingerprint: FINGERPRINT })
+                    .eq('id', user.id);
             }
 
             if (user.data) {
@@ -2577,7 +2591,7 @@
         }
 
         // ============================================================
-        // 9. СОХРАНЕНИЕ
+        // 8. СОХРАНЕНИЕ
         // ============================================================
         function scheduleSave() {
             pendingChanges = true;
@@ -2587,7 +2601,7 @@
                     saveUserData();
                     pendingChanges = false;
                 }
-            }, CONFIG.SAVE_INTERVAL);
+            }, 5000);
         }
 
         async function saveUserData() {
@@ -2605,13 +2619,13 @@
                     updated_at: new Date().toISOString()
                 };
 
-                const { ok, status, data } = await sbFetch(`/rest/v1/users?id=eq.${UID}`, {
-                    method: 'PATCH',
-                    body: payload
-                });
+                const result = await supabaseClient
+                    .from('users')
+                    .update(payload)
+                    .eq('id', UID);
 
-                if (!ok) {
-                    console.error('❌ Ошибка сохранения:', status, data);
+                if (!result.ok) {
+                    console.error('❌ Ошибка сохранения:', result.status, result.data);
                     offlineQueue.push({
                         uid: UID,
                         data: payload,
@@ -2640,7 +2654,7 @@
         }
 
         // ============================================================
-        // 10. ВОССТАНОВЛЕНИЕ
+        // 9. ВОССТАНОВЛЕНИЕ
         // ============================================================
         async function restoreOfflineQueue() {
             try {
@@ -2652,10 +2666,10 @@
 
                 for (const item of queue) {
                     if (item.uid === UID) {
-                        await sbFetch(`/rest/v1/users?id=eq.${item.uid}`, {
-                            method: 'PATCH',
-                            body: item.data
-                        });
+                        await supabaseClient
+                            .from('users')
+                            .update(item.data)
+                            .eq('id', item.uid);
                     }
                 }
 
@@ -2675,12 +2689,13 @@
             currentUsername = username;
 
             try {
-                const { data, ok } = await sbFetch(
-                    `/rest/v1/users?id=eq.${UID}&select=id,username,data,boss,fingerprint`
-                );
+                const result = await supabaseClient
+                    .from('users')
+                    .select('id,username,data,boss,fingerprint')
+                    .eq('id', UID);
 
-                if (ok && data && data.length > 0) {
-                    const user = data[0];
+                if (result.ok && result.data && result.data.length > 0) {
+                    const user = result.data[0];
                     if (user.data) {
                         const p = user.data;
                         Object.keys(G).forEach(k => { if (p[k] !== undefined) G[k] = p[k]; });
@@ -2709,7 +2724,7 @@
         }
 
         // ============================================================
-        // 11. АВАТАРКА
+        // 10. АВАТАРКА
         // ============================================================
         function toggleAvatarSelector() {
             const sel = document.getElementById('avatarSelector');
@@ -2744,7 +2759,7 @@
         }
 
         // ============================================================
-        // 12. МУЗЫКА
+        // 11. МУЗЫКА
         // ============================================================
         function initMusic() {
             try {
@@ -2813,7 +2828,7 @@
         };
 
         // ============================================================
-        // 13. ФУНКЦИИ ЧАТА
+        // 12. ФУНКЦИИ ЧАТА
         // ============================================================
         function getPrivateRemaining(receiverId) {
             const now = Date.now();
@@ -2823,7 +2838,7 @@
                 scheduleSave();
             }
             const count = G.privateMessages[receiverId] || 0;
-            return Math.max(0, CHAT_CONFIG.DAILY_PRIVATE_LIMIT - count);
+            return Math.max(0, 10 - count);
         }
 
         function showDialogs() {
@@ -2871,31 +2886,38 @@
             container.innerHTML = '<div class="system-msg">Загрузка диалогов...</div>';
 
             try {
-                const { data, ok } = await sbFetch(
-                    `/rest/v1/users?select=id,username,data&limit=50`
-                );
+                const result = await supabaseClient
+                    .from('users')
+                    .select('id,username,data')
+                    .limit(50);
 
-                if (!ok || !data) {
+                if (!result.ok || !result.data) {
                     container.innerHTML = '<div class="system-msg">Ошибка загрузки</div>';
                     return;
                 }
 
-                const users = data.filter(u => u.id !== UID);
+                const users = result.data.filter(u => u.id !== UID);
 
                 const dialogs = [];
                 for (const user of users) {
                     const name = user.data?.name || user.username;
                     const avatar = user.data?.avatar || AVATAR_LIST[0];
 
-                    const { data: msgs } = await sbFetch(
-                        `/rest/v1/messages?select=*&order=created_at.desc&limit=1&is_private=eq.true&sender_id=eq.${UID}&receiver_id=eq.${user.id}`
-                    );
+                    const msgs = await supabaseClient
+                        .from('messages')
+                        .select('*')
+                        .eq('is_private', true)
+                        .order('created_at', { ascending: false })
+                        .limit(1);
+                    
+                    const msgs2 = await supabaseClient
+                        .from('messages')
+                        .select('*')
+                        .eq('is_private', true)
+                        .order('created_at', { ascending: false })
+                        .limit(1);
 
-                    const { data: msgs2 } = await sbFetch(
-                        `/rest/v1/messages?select=*&order=created_at.desc&limit=1&is_private=eq.true&sender_id=eq.${user.id}&receiver_id=eq.${UID}`
-                    );
-
-                    const allMsgs = [...(msgs || []), ...(msgs2 || [])];
+                    const allMsgs = [...(msgs.ok ? msgs.data || [] : []), ...(msgs2.ok ? msgs2.data || [] : [])];
                     allMsgs.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
 
                     const lastMsg = allMsgs[0] || null;
@@ -2931,7 +2953,7 @@
                             <div class="name">${d.name}</div>
                             <div class="last-msg">${d.lastMsg ? escapeHtml(d.lastMsg.message) : 'Нет сообщений'}</div>
                         </div>
-                        ${d.remaining < CHAT_CONFIG.DAILY_PRIVATE_LIMIT ? `<span class="badge">${d.remaining}</span>` : ''}
+                        ${d.remaining < 10 ? `<span class="badge">${d.remaining}</span>` : ''}
                     </div>`
                 ).join('');
 
@@ -3008,18 +3030,27 @@
                 if (chatMode === 'private' && chatTarget) {
                     const targetId = String(chatTarget.id);
 
-                    const [sentRes, receivedRes] = await Promise.all([
-                        sbFetch(
-                            `/rest/v1/messages?select=*&order=created_at.desc&limit=${CHAT_CONFIG.MAX_PRIVATE_MESSAGES}&is_private=eq.true&sender_id=eq.${encodeURIComponent(UID)}&receiver_id=eq.${encodeURIComponent(targetId)}`
-                        ),
-                        sbFetch(
-                            `/rest/v1/messages?select=*&order=created_at.desc&limit=${CHAT_CONFIG.MAX_PRIVATE_MESSAGES}&is_private=eq.true&sender_id=eq.${encodeURIComponent(targetId)}&receiver_id=eq.${encodeURIComponent(UID)}`
-                        )
-                    ]);
+                    const sent = await supabaseClient
+                        .from('messages')
+                        .select('*')
+                        .eq('is_private', true)
+                        .eq('sender_id', UID)
+                        .eq('receiver_id', targetId)
+                        .order('created_at', { ascending: false })
+                        .limit(10);
 
-                    const sent = sentRes.ok ? sentRes.data || [] : [];
-                    const received = receivedRes.ok ? receivedRes.data || [] : [];
-                    data = [...sent, ...received];
+                    const received = await supabaseClient
+                        .from('messages')
+                        .select('*')
+                        .eq('is_private', true)
+                        .eq('sender_id', targetId)
+                        .eq('receiver_id', UID)
+                        .order('created_at', { ascending: false })
+                        .limit(10);
+
+                    const sentData = sent.ok ? sent.data || [] : [];
+                    const receivedData = received.ok ? received.data || [] : [];
+                    data = [...sentData, ...receivedData];
                     data.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
 
                     const remaining = getPrivateRemaining(chatTarget.id);
@@ -3027,14 +3058,18 @@
                         `💬 ЛС с <span class="highlight">${chatTarget.name}</span> — осталось <span class="highlight">${remaining}</span> сообщений сегодня`;
 
                 } else {
-                    const res = await sbFetch(
-                        `/rest/v1/messages?select=*&order=created_at.desc&limit=${CHAT_CONFIG.MAX_PUBLIC_MESSAGES}&is_private=eq.false`
-                    );
-                    data = res.ok ? res.data || [] : [];
+                    const result = await supabaseClient
+                        .from('messages')
+                        .select('*')
+                        .eq('is_private', false)
+                        .order('created_at', { ascending: false })
+                        .limit(50);
+
+                    data = result.ok ? result.data || [] : [];
                     data.reverse();
 
                     document.getElementById('chatInfo').innerHTML =
-                        `💬 <span class="highlight">Общий чат</span> — все видят все сообщения (последние ${CHAT_CONFIG.MAX_PUBLIC_MESSAGES})`;
+                        `💬 <span class="highlight">Общий чат</span> — все видят все сообщения (последние 50)`;
                 }
 
                 chatMessagesCache = data.length > 0 ? data : [];
@@ -3137,8 +3172,8 @@
                 }
 
                 const count = G.privateMessages[chatTarget.id] || 0;
-                if (count >= CHAT_CONFIG.DAILY_PRIVATE_LIMIT) {
-                    window.toast(`❌ Лимит ЛС: ${CHAT_CONFIG.DAILY_PRIVATE_LIMIT} сообщений в день`, 'err');
+                if (count >= 10) {
+                    window.toast('❌ Лимит ЛС: 10 сообщений в день', 'err');
                     return;
                 }
 
@@ -3182,13 +3217,12 @@
             }, 100);
 
             try {
-                const { ok, status, data } = await sbFetch('/rest/v1/messages', {
-                    method: 'POST',
-                    body: msgData
-                });
+                const result = await supabaseClient
+                    .from('messages')
+                    .insert(msgData);
 
-                if (!ok) {
-                    console.error('❌ Ошибка отправки:', status, data);
+                if (!result.ok) {
+                    console.error('❌ Ошибка отправки:', result.status, result.data);
                     window.toast('❌ Ошибка отправки', 'err');
                     chatMessagesCache = chatMessagesCache.filter(m => m !== tempMsg);
                     renderChatMessages();
@@ -3222,37 +3256,46 @@
             if (!UID) return;
 
             try {
-                const { data: publicMessages } = await sbFetch(
-                    `/rest/v1/messages?select=id&is_private=eq.false&order=created_at.desc&limit=${CHAT_CONFIG.MAX_PUBLIC_MESSAGES}`
-                );
+                const publicMsgs = await supabaseClient
+                    .from('messages')
+                    .select('id')
+                    .eq('is_private', false)
+                    .order('created_at', { ascending: false })
+                    .limit(50);
 
-                if (publicMessages && publicMessages.length > 0) {
-                    const oldestId = publicMessages[publicMessages.length - 1]?.id;
+                if (publicMsgs.ok && publicMsgs.data && publicMsgs.data.length > 0) {
+                    const oldestId = publicMsgs.data[publicMsgs.data.length - 1]?.id;
                     if (oldestId) {
-                        await sbFetch(
-                            `/rest/v1/messages?is_private=eq.false&id=lt.${oldestId}`,
-                            { method: 'DELETE' }
-                        );
+                        await supabaseClient
+                            .from('messages')
+                            .delete()
+                            .eq('is_private', false)
+                            .lt('id', oldestId);
                     }
                 }
 
-                const { data: privateChats } = await sbFetch(
-                    `/rest/v1/messages?select=id,sender_id,receiver_id&is_private=eq.true&order=created_at.desc`
-                );
+                const privateChats = await supabaseClient
+                    .from('messages')
+                    .select('id,sender_id,receiver_id')
+                    .eq('is_private', true)
+                    .order('created_at', { ascending: false });
 
-                if (privateChats && privateChats.length > 0) {
+                if (privateChats.ok && privateChats.data && privateChats.data.length > 0) {
                     const chatPairs = {};
-                    privateChats.forEach(msg => {
+                    privateChats.data.forEach(msg => {
                         const key = [msg.sender_id, msg.receiver_id].sort().join('_');
                         if (!chatPairs[key]) chatPairs[key] = [];
                         chatPairs[key].push(msg.id);
                     });
 
                     for (const [key, ids] of Object.entries(chatPairs)) {
-                        if (ids.length > CHAT_CONFIG.MAX_PRIVATE_MESSAGES) {
-                            const toDelete = ids.slice(CHAT_CONFIG.MAX_PRIVATE_MESSAGES);
+                        if (ids.length > 10) {
+                            const toDelete = ids.slice(10);
                             for (const id of toDelete) {
-                                await sbFetch(`/rest/v1/messages?id=eq.${id}`, { method: 'DELETE' });
+                                await supabaseClient
+                                    .from('messages')
+                                    .delete()
+                                    .eq('id', id);
                             }
                         }
                     }
@@ -3266,12 +3309,14 @@
         async function loadOnlineUsers() {
             try {
                 const fiveMinAgo = new Date(Date.now() - 5 * 60 * 1000).toISOString();
-                const { data, ok } = await sbFetch(
-                    `/rest/v1/users?select=id&updated_at=gte.${encodeURIComponent(fiveMinAgo)}&limit=50`
-                );
+                const result = await supabaseClient
+                    .from('users')
+                    .select('id')
+                    .gte('updated_at', fiveMinAgo)
+                    .limit(50);
 
-                if (ok && data) {
-                    const online = data.filter(u => u.id !== UID);
+                if (result.ok && result.data) {
+                    const online = result.data.filter(u => u.id !== UID);
                     document.getElementById('chatOnline').textContent = `● ${online.length + 1} онлайн`;
                 }
             } catch (e) {
@@ -3282,72 +3327,53 @@
         async function updateOnlineStatus() {
             if (!UID) return;
             try {
-                await sbFetch(`/rest/v1/users?id=eq.${UID}`, {
-                    method: 'PATCH',
-                    body: { updated_at: new Date().toISOString() }
-                });
+                await supabaseClient
+                    .from('users')
+                    .update({ updated_at: new Date().toISOString() })
+                    .eq('id', UID);
             } catch (e) {
                 console.warn('⚠️ Ошибка обновления статуса:', e);
             }
         }
 
-        function initChat() {
-            if (!UID) return;
+        // ============================================================
+        // 13. ЧАТ REALTIME
+        // ============================================================
+        function initChatRealtime() {
+            if (chatChannel) {
+                chatChannel.unsubscribe();
+                chatChannel = null;
+            }
 
-            chatMode = 'public';
-            chatTarget = null;
-            chatMessagesCache = [];
+            chatChannel = supabaseClient.channel('chat');
             
-            const toggle = document.getElementById('chatModeToggle');
-            toggle.textContent = 'Общий';
-            toggle.classList.remove('active');
-            
-            const input = document.getElementById('chatInput');
-            if (input) {
-                input.disabled = false;
-                input.readOnly = false;
-                input.style.opacity = '1';
-                input.style.pointerEvents = 'auto';
-                input.placeholder = 'Напишите в общий чат...';
-                input.value = '';
+            chatChannel.on('postgres_changes', {
+                event: 'INSERT',
+                schema: 'public',
+                table: 'messages'
+            }, (payload) => {
+                const msg = payload.new;
+                if (!msg) return;
                 
-                setTimeout(() => {
-                    input.focus();
-                    if ('ontouchstart' in window) {
-                        input.click();
+                const isRelevant = 
+                    !msg.is_private ||
+                    msg.sender_id === UID ||
+                    msg.receiver_id === UID ||
+                    (chatTarget && (msg.sender_id === chatTarget.id || msg.receiver_id === chatTarget.id));
+                
+                if (!isRelevant) return;
+                
+                if (document.getElementById('sc-chat').classList.contains('on') &&
+                    document.getElementById('chatMessagesWrap').classList.contains('show')) {
+                    chatMessagesCache.push(msg);
+                    if (chatMessagesCache.length > 100) {
+                        chatMessagesCache = chatMessagesCache.slice(-100);
                     }
-                }, 300);
-            }
-
-            const hasSeenTutorial = localStorage.getItem('chat_tutorial_seen');
-            if (!hasSeenTutorial) {
-                document.getElementById('chatTutorial').classList.add('show');
-                setTimeout(() => {
-                    document.getElementById('chatTutorial').classList.remove('show');
-                    localStorage.setItem('chat_tutorial_seen', 'true');
-                }, 20000);
-            }
-
-            showMessages();
-            loadOnlineUsers();
-
-            if (chatPollInterval) clearInterval(chatPollInterval);
-            chatPollInterval = setInterval(() => {
-                if (document.getElementById('sc-chat').classList.contains('on')) {
-                    if (document.getElementById('chatMessagesWrap').classList.contains('show')) {
-                        loadChatMessages();
-                    }
-                    if (document.getElementById('chatDialogs').classList.contains('show')) {
-                        loadDialogs();
-                    }
-                    loadOnlineUsers();
+                    renderChatMessages();
                 }
-            }, 3000);
-
-            setInterval(cleanupOldMessages, CHAT_CONFIG.CLEANUP_INTERVAL);
-            setTimeout(cleanupOldMessages, 30000);
+            });
             
-            debugTime();
+            chatChannel.subscribe();
         }
 
         // ============================================================
@@ -3513,14 +3539,14 @@
             topLastType = tp;
 
             const now = Date.now();
-            const isCacheValid = topCache.data && topCache.type === tp && now - topCache.timestamp < CONFIG.TOP_CACHE_TIME;
+            const isCacheValid = topCache.data && topCache.type === tp && now - topCache.timestamp < 600000;
 
             if (!isCacheValid) {
                 document.getElementById('TOP_u').textContent = '⏳ загрузка...';
                 await loadTopPlayers(tp);
             }
 
-            const rem = Math.max(0, Math.ceil((topCache.timestamp + CONFIG.TOP_CACHE_TIME - now) / 1000));
+            const rem = Math.max(0, Math.ceil((topCache.timestamp + 600000 - now) / 1000));
             document.getElementById('TOP_u').textContent = rem > 30 ? `обновление через ${Math.round(rem/60)}м` : 'только что';
 
             const shardCount = getShardCount();
@@ -3554,7 +3580,7 @@
             document.getElementById('TOP_t').textContent = titles[tp];
 
             all.sort((a, b) => (b[key] || 0) - (a[key] || 0));
-            const top10 = all.slice(0, CONFIG.TOP_LIMIT);
+            const top10 = all.slice(0, 10);
             const clrs = ['var(--gld)', '#c0c0d0', '#cd7f32'];
 
             document.getElementById('TOP_l').innerHTML = top10.map((p, i) => {
@@ -3827,10 +3853,12 @@
             if (code === G.refCode) { window.toast('Это ваш код', 'err'); return; }
             if (G.activatedRef) { window.toast('Код уже активирован', 'err'); return; }
             try {
-                const { ok, data } = await sbFetch(
-                    `/rest/v1/users?data->>refCode=eq.${encodeURIComponent(code)}&select=id`
-                );
-                if (!ok || !data || data.length === 0) { window.toast('Код не найден', 'err'); return; }
+                const result = await supabaseClient
+                    .from('users')
+                    .select('id')
+                    .eq('data->>refCode', code);
+                    
+                if (!result.ok || !result.data || result.data.length === 0) { window.toast('Код не найден', 'err'); return; }
                 G.activatedRef = code;
                 G.coins += 25;
                 G.refs++;
@@ -3847,10 +3875,12 @@
             if (!newCode) return;
             if (newCode.length < 4 || newCode.length > 8) { window.toast('Код должен быть 4-8 символов', 'err'); return; }
             if (!/^[a-zA-Z0-9]+$/.test(newCode)) { window.toast('Только буквы и цифры', 'err'); return; }
-            const { data: taken } = await sbFetch(
-                `/rest/v1/users?data->>refCode=eq.${encodeURIComponent(newCode)}&select=id`
-            );
-            if (taken && taken.length > 0) { window.toast('Этот код уже занят', 'err'); return; }
+            const result = await supabaseClient
+                .from('users')
+                .select('id')
+                .eq('data->>refCode', newCode);
+                
+            if (result.ok && result.data && result.data.length > 0) { window.toast('Этот код уже занят', 'err'); return; }
             G.refCode = newCode;
             scheduleSave();
             renderUI();
@@ -3925,7 +3955,7 @@
 
             setInterval(renderFarmTimer, 1000);
             setInterval(renderBoss, 30000);
-            setInterval(() => { if (UID) saveUserData(); }, CONFIG.AUTO_SAVE_INTERVAL);
+            setInterval(() => { if (UID) saveUserData(); }, 60000);
             setInterval(() => { if (UID) updateOnlineStatus(); }, 30000);
 
             window.addEventListener('beforeunload', () => { if (UID) { saveUserData();
@@ -4005,7 +4035,7 @@
         };
 
         // ============================================================
-        // 20. РУЛЕТКА (сокращена для краткости, но работает)
+        // 20. РУЛЕТКА
         // ============================================================
         const RC = document.getElementById('rouletteCanvas');
         const rctx = RC.getContext('2d');
@@ -4546,7 +4576,130 @@
         };
 
         // ============================================================
-        // 22. ЗАПУСК
+        // 22. ТОП-10
+        // ============================================================
+        async function loadTopPlayers(tp = 'b') {
+            const now = Date.now();
+            if (topCache.data && topCache.type === tp && now - topCache.timestamp < 600000) {
+                return topCache.data;
+            }
+
+            try {
+                const result = await supabaseClient
+                    .from('users')
+                    .select('id,username,data')
+                    .limit(15);
+
+                if (result.ok && result.data) {
+                    let players = result.data
+                        .filter(u => u.username && u.data)
+                        .map(u => {
+                            const shardCount = u.data.shards ?
+                                Object.keys(u.data.shards).filter(k => u.data.shards[k] > 0).length : 0;
+                            return {
+                                id: u.id,
+                                n: u.data.name || u.username,
+                                username: u.username,
+                                c: u.data.coins || 0,
+                                f: u.data.farms || 0,
+                                r: u.data.refs || 0,
+                                s: shardCount,
+                                a: u.data.avatar || AVATAR_LIST[0]
+                            };
+                        });
+
+                    const sortKey = tp === 'b' ? 'c' : tp === 'f' ? 'f' : tp === 'r' ? 'r' : 's';
+                    players.sort((a, b) => (b[sortKey] || 0) - (a[sortKey] || 0));
+                    players = players.slice(0, 10);
+
+                    topCache.data = players;
+                    topCache.timestamp = now;
+                    topCache.type = tp;
+
+                    return players;
+                }
+                return topCache.data || [];
+            } catch (e) {
+                console.error('❌ Ошибка загрузки топа:', e);
+                return topCache.data || [];
+            }
+        }
+
+        // ============================================================
+        // 23. ЧАТ ИНИЦИАЛИЗАЦИЯ
+        // ============================================================
+        function initChat() {
+            if (!UID) return;
+
+            chatMode = 'public';
+            chatTarget = null;
+            chatMessagesCache = [];
+            
+            const toggle = document.getElementById('chatModeToggle');
+            toggle.textContent = 'Общий';
+            toggle.classList.remove('active');
+            
+            const input = document.getElementById('chatInput');
+            if (input) {
+                input.disabled = false;
+                input.readOnly = false;
+                input.style.opacity = '1';
+                input.style.pointerEvents = 'auto';
+                input.placeholder = 'Напишите в общий чат...';
+                input.value = '';
+                
+                setTimeout(() => {
+                    input.focus();
+                    if ('ontouchstart' in window) {
+                        input.click();
+                    }
+                }, 300);
+            }
+
+            const hasSeenTutorial = localStorage.getItem('chat_tutorial_seen');
+            if (!hasSeenTutorial) {
+                document.getElementById('chatTutorial').classList.add('show');
+                setTimeout(() => {
+                    document.getElementById('chatTutorial').classList.remove('show');
+                    localStorage.setItem('chat_tutorial_seen', 'true');
+                }, 20000);
+            }
+
+            showMessages();
+            loadOnlineUsers();
+            
+            initChatRealtime();
+
+            if (chatPollInterval) clearInterval(chatPollInterval);
+            chatPollInterval = setInterval(() => {
+                if (document.getElementById('sc-chat').classList.contains('on')) {
+                    if (document.getElementById('chatMessagesWrap').classList.contains('show')) {
+                        loadChatMessages();
+                    }
+                    if (document.getElementById('chatDialogs').classList.contains('show')) {
+                        loadDialogs();
+                    }
+                    loadOnlineUsers();
+                }
+            }, 5000);
+
+            setInterval(cleanupOldMessages, 3600000);
+            setTimeout(cleanupOldMessages, 30000);
+            
+            debugTime();
+        }
+
+        function debugTime() {
+            const now = new Date().toISOString();
+            console.log('🕐 ТЕКУЩЕЕ ВРЕМЯ:');
+            console.log('  UTC:', now);
+            console.log('  МСК:', formatDateTime(now));
+            console.log('  Только время:', formatTime(now));
+            console.log('  Luxon загружен:', LUXON_LOADED);
+        }
+
+        // ============================================================
+        // 24. ЗАПУСК
         // ============================================================
         document.addEventListener('DOMContentLoaded', async () => {
             aStat('⏳ Проверка сессии...', 'ld');
@@ -4573,6 +4726,7 @@
         console.log('  - Время показывается по МСК (через Luxon)');
         console.log('  - Полная поддержка мобильных устройств');
         console.log('  - Все игровые функции работают');
+        console.log('  - Realtime через Supabase (polling)');
     </script>
 </body>
 </html>
