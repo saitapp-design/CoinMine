@@ -577,7 +577,7 @@
             border-top: 1px solid var(--bd);
             padding: 4px 0 max(4px, env(safe-area-inset-bottom));
             display: grid;
-            grid-template-columns: repeat(6, 1fr);
+            grid-template-columns: repeat(5, 1fr);
             position: fixed;
             bottom: 0;
             left: 0;
@@ -1386,7 +1386,7 @@
             }
         }
 
-        /* ===== ЧАТ (ПОЛНОСТЬЮ ИСПРАВЛЕН) ===== */
+        /* ===== ЧАТ ===== */
         .chat-container {
             display: flex;
             flex-direction: column;
@@ -1785,21 +1785,20 @@
     <div class="app" id="appRoot">
 
         <!-- AUTH -->
-       <div id="authWrap">
-    <div class="auth-box">
-        <!-- Баннер удалён -->
-        <div class="auth-title">CoinMine</div>
-        <div class="auth-sub" id="authSub">Войдите или создайте аккаунт</div>
-        <div class="auth-tabs">
-            <button class="auth-tab on" onclick="window.setAuthMode('login')">Войти</button>
-            <button class="auth-tab" onclick="window.setAuthMode('register')">Регистрация</button>
+        <div id="authWrap">
+            <div class="auth-box">
+                <div class="auth-title">CoinMine</div>
+                <div class="auth-sub" id="authSub">Войдите или создайте аккаунт</div>
+                <div class="auth-tabs">
+                    <button class="auth-tab on" onclick="window.setAuthMode('login')">Войти</button>
+                    <button class="auth-tab" onclick="window.setAuthMode('register')">Регистрация</button>
+                </div>
+                <input class="inp" id="authUsername" type="text" placeholder="Логин (3-16 символов)">
+                <input class="inp" id="authPass" type="password" placeholder="Пароль (мин. 6 символов)">
+                <button class="btn bp" id="authBtn" onclick="window.handleAuth()">⚡ Войти</button>
+                <div class="astat" id="authStatus">Готово ко входу</div>
+            </div>
         </div>
-        <input class="inp" id="authUsername" type="text" placeholder="Логин (3-16 символов)">
-        <input class="inp" id="authPass" type="password" placeholder="Пароль (мин. 6 символов)">
-        <button class="btn bp" id="authBtn" onclick="window.handleAuth()">⚡ Войти</button>
-        <div class="astat" id="authStatus">Готово ко входу</div>
-    </div>
-</div>
 
         <!-- APP -->
         <div id="appWrap">
@@ -1966,7 +1965,7 @@
                         <div class="boss-wrap">
                             <div class="boss-avatar" id="BS_i">👹</div>
                             <div class="boss-name" id="BS_n">Рябчик</div>
-                            <div class="boss-status" id="BS_s">Появляется в 16:00 МСК</div>
+                            <div class="boss-status" id="BS_s">Появляется в 12:00 МСК</div>
                         </div>
                         <div class="hp-bar"><div class="hp-fill" id="BS_h" style="width:0%"></div></div>
                         <div class="fl" style="justify-content:space-between;font-size:12px;color:var(--tx2)">
@@ -1986,33 +1985,6 @@
                             <span class="tm">Всего ключей</span>
                             <span style="font-size:16px;font-weight:700;color:var(--gld)" id="K_b">0 🔑</span>
                         </div>
-                    </div>
-                </div>
-
-                <!-- CLAN -->
-                <div class="sc" id="sc-clan">
-                    <div id="CL_no">
-                        <div class="card tc" style="padding:20px;animation:float 3s ease-in-out infinite;">
-                            <div class="clan-icon">🏰</div>
-                            <div style="font-size:16px;font-weight:700;margin-bottom:6px">Вы не в клане</div>
-                            <div class="tm mb8">Создайте клан за 1500 монет и добывайте алмазы командой</div>
-                            <button class="btn bp" onclick="window.conf('Создать клан за 1500 монет?','Вы получите случайное название. Можно пригласить до 4 участников и вместе добывать алмазы каждые 6 часов.',window.createClan)">➕ Создать клан</button>
-                        </div>
-                    </div>
-                    <div id="CL_yes" style="display:none">
-                        <div style="background:#0a0620;border:1px solid #4c1d95;border-radius:var(--r);padding:16px;text-align:center;margin-bottom:10px">
-                            <div class="clan-icon" id="CL_i">⚔️</div>
-                            <div class="clan-name" id="CL_n">—</div>
-                            <div class="clan-diamonds" id="CL_d">0 💎</div>
-                            <div class="tm" id="CL_cd">Фарм доступен!</div>
-                        </div>
-                        <div class="card">
-                            <div class="ct">участники (<span id="CL_m">1</span>/5)</div>
-                            <div id="CL_ml"></div>
-                        </div>
-                        <button class="btn bp mb8" onclick="window.conf('Добыть алмазы?','Клановый фарм раз в 6 часов. Алмазы идут в казну клана.',window.clanFarm)">⛏ Добыть алмазы</button>
-                        <button class="btn bs mb8" onclick="window.conf('Обменять 5 💎 → 25 монет?','5 алмазов из казны клана = 25 монет на ваш баланс.',()=>window.exDiam(5))">🔄 5 💎 → 25 монет</button>
-                        <button class="btn bred" onclick="window.conf('Распустить клан?','Клан удалится навсегда. Все алмазы сгорят.',window.disbandClan)">🗑 Распустить</button>
                     </div>
                 </div>
 
@@ -2081,7 +2053,7 @@
                     </div>
                 </div>
 
-                <!-- ЧАТ (ПОЛНОСТЬЮ ИСПРАВЛЕН) -->
+                <!-- ЧАТ -->
                 <div class="sc" id="sc-chat">
                     <div class="chat-container">
 
@@ -2135,12 +2107,11 @@
 
             </div>
 
-            <!-- НАВИГАЦИЯ -->
+            <!-- НАВИГАЦИЯ (5 пунктов, без кланов) -->
             <nav class="nav">
                 <button class="nb on" onclick="window.goSc('home')"><span>🏠</span>Главная</button>
                 <button class="nb" onclick="window.goSc('games')"><span>🎲</span>Игры</button>
                 <button class="nb" onclick="window.goSc('arena')"><span>⚔️</span>Арена</button>
-                <button class="nb" onclick="window.goSc('clan')"><span>🛡️</span>Клан</button>
                 <button class="nb" onclick="window.goSc('shop')"><span>🛒</span>Магазин</button>
                 <button class="nb" onclick="window.goSc('top')"><span>🏆</span>Топ</button>
             </nav>
@@ -2149,7 +2120,7 @@
 
     </div>
 
-    <!-- Баннер CoinMine (восстановлен) -->
+    <!-- Баннер CoinMine -->
     <div class="static-banner show" id="mainBanner" onclick="window.open('https://t.me/minercoinsf', '_blank')">
         <img id="staticBannerImg" src="https://i.ibb.co/hRSsFg5R/Chat-GPT-Image-19-2026-20-55-28.png" alt="CoinMine Баннер" onerror="this.style.display='none';this.parentElement.querySelector('.placeholder').style.display='flex'">
         <div class="placeholder" style="display:none;">⛏ CoinMine</div>
@@ -2244,21 +2215,21 @@
         ];
 
         // ============================================================
-        // 4. ДАННЫЕ (ИСТОЧНИК ИСТИНЫ)
+        // 4. ДАННЫЕ
         // ============================================================
         let chats = {
-            global: [], // общий чат
-            dm: {} // личные сообщения: { userId: [messages] }
+            global: [],
+            dm: {}
         };
 
-        let currentChat = 'global'; // 'global' или userId
-        let currentChatTarget = null; // { id, name, avatar }
+        let currentChat = 'global';
+        let currentChatTarget = null;
         let chatMessagesCache = [];
         let chatPollInterval = null;
         let isSearchMode = false;
 
         // ============================================================
-        // 5. СОСТОЯНИЕ (игровое)
+        // 5. СОСТОЯНИЕ
         // ============================================================
         let UID = null;
         let authMode = 'login';
@@ -2305,7 +2276,7 @@
         let topCache = { data: null, timestamp: 0, type: 'b' };
 
         let G = {
-            coins: 0,
+            coins: 150,
             farms: 0,
             refs: 0,
             keys: 0,
@@ -2314,8 +2285,6 @@
             name: 'Шахтёр',
             nicks: { p: [], a: null },
             shards: {},
-            clan: null,
-            clanLF: 0,
             promos: {},
             missions: { active: null, lastReset: 0 },
             auctionBid: 0,
@@ -2399,6 +2368,14 @@
                 throw new Error('Этот логин уже занят');
             }
 
+            // Проверка уникальности ника
+            const { data: nameTaken } = await sbFetch(
+                `/rest/v1/users?data->>name=eq.${encodeURIComponent(username)}&select=id`
+            );
+            if (nameTaken && nameTaken.length > 0) {
+                throw new Error('Этот никнейм уже занят');
+            }
+
             const newUser = {
                 username: username.substring(0, 30),
                 password: password.substring(0, 50),
@@ -2413,8 +2390,6 @@
                     name: username.substring(0, 16),
                     nicks: { p: [], a: null },
                     shards: {},
-                    clan: null,
-                    clanLF: 0,
                     promos: {},
                     missions: { active: null, lastReset: 0 },
                     auctionBid: 0,
@@ -2730,10 +2705,9 @@
         };
 
         // ============================================================
-        // 12. ФУНКЦИИ ЧАТА (ПОЛНОСТЬЮ ИСПРАВЛЕНЫ)
+        // 12. ФУНКЦИИ ЧАТА
         // ============================================================
 
-        // ----- УМНЫЙ СКРОЛЛ -----
         function smartScroll(box) {
             if (!box) return;
             const isAtBottom = box.scrollTop + box.clientHeight >= box.scrollHeight - 120;
@@ -2742,7 +2716,6 @@
             }
         }
 
-        // ----- ДОБАВЛЕНИЕ СООБЩЕНИЯ (БЕЗ ПЕРЕРИСОВКИ) -----
         function appendMessageToChat(msg) {
             const container = document.getElementById('chatMessages');
             if (!container) return;
@@ -2772,14 +2745,12 @@
 
             container.appendChild(el);
 
-            // Умный скролл - скроллим только если пользователь внизу
             const isAtBottom = container.scrollTop + container.clientHeight >= container.scrollHeight - 120;
             if (isAtBottom) {
                 container.scrollTop = container.scrollHeight;
             }
         }
 
-        // ----- ЗАГРУЗКА СООБЩЕНИЙ -----
         async function loadMessages() {
             if (!UID) return;
 
@@ -2834,7 +2805,6 @@
             }
         }
 
-        // ----- РЕНДЕР (ПОЛНАЯ ПЕРЕРИСОВКА) -----
         function renderChatMessages() {
             const container = document.getElementById('chatMessages');
             if (!container) return;
@@ -2848,7 +2818,6 @@
                 return;
             }
 
-            // Сохраняем позицию скролла
             const scrollPos = container.scrollTop;
             const isAtBottom = container.scrollTop + container.clientHeight >= container.scrollHeight - 120;
 
@@ -2874,7 +2843,6 @@
                 </div>`;
             }).join('');
 
-            // Восстанавливаем скролл если пользователь был не внизу
             if (!isAtBottom) {
                 container.scrollTop = scrollPos;
             } else {
@@ -2882,7 +2850,6 @@
             }
         }
 
-        // ----- ПОИСК ПОЛЬЗОВАТЕЛЕЙ ДЛЯ ЛС -----
         let searchTimeout = null;
 
         window.searchUsers = function(query) {
@@ -2939,15 +2906,11 @@
         };
 
         window.selectChatUser = function(id, name, avatar) {
-            // Закрываем поиск
             document.getElementById('chatSearchResults').style.display = 'none';
             document.getElementById('chatSearchInput').value = '';
-
-            // Открываем ЛС
             openPrivateChat(id, name, avatar);
         };
 
-        // ----- ЛИЧНЫЕ СООБЩЕНИЯ -----
         function getPrivateRemaining(receiverId) {
             const now = Date.now();
             if (now - G.lastPrivateReset > 86400000) {
@@ -2974,7 +2937,6 @@
             input.disabled = false;
             input.placeholder = `Напишите ${name}...`;
 
-            // Загружаем сообщения из кеша или с сервера
             if (chats.dm[id] && chats.dm[id].length > 0) {
                 chatMessagesCache = chats.dm[id];
                 renderChatMessages();
@@ -2999,10 +2961,8 @@
             openPrivateChat(userId, userName, userAvatar);
         }
 
-        // ----- ПЕРЕКЛЮЧЕНИЕ РЕЖИМА -----
         window.toggleChatMode = function() {
             if (currentChat === 'global') {
-                // Включаем режим ЛС - показываем поиск
                 isSearchMode = true;
                 document.getElementById('chatModeToggle').textContent = 'ЛС';
                 document.getElementById('chatModeToggle').classList.add('active');
@@ -3014,17 +2974,14 @@
                 document.getElementById('chatInfo').innerHTML = '🔍 Введите ник для начала ЛС';
                 document.getElementById('chatInput').placeholder = 'Сначала выберите собеседника...';
 
-                // Очищаем сообщения
                 chatMessagesCache = [];
                 renderChatMessages();
 
-                // Фокусируемся на поиске
                 setTimeout(() => {
                     document.getElementById('chatSearchInput').focus();
                 }, 100);
 
             } else {
-                // Возвращаемся в общий чат
                 currentChat = 'global';
                 currentChatTarget = null;
                 isSearchMode = false;
@@ -3043,7 +3000,6 @@
             }
         };
 
-        // ----- ОТПРАВКА СООБЩЕНИЯ -----
         window.sendMessage = async function() {
             const input = document.getElementById('chatInput');
             const text = input.value.trim();
@@ -3062,7 +3018,6 @@
                 return;
             }
 
-            // Если в режиме ЛС, но не выбран собеседник
             if (isSearchMode && !currentChatTarget) {
                 window.toast('Сначала выберите собеседника в ЛС', 'err');
                 return;
@@ -3112,7 +3067,6 @@
             input.value = '';
             input.style.borderColor = '';
 
-            // ОПТИМИСТИЧНОЕ ДОБАВЛЕНИЕ
             const tempMsg = { ...msgData };
             const targetKey = isPrivate ? currentChatTarget.id : 'global';
 
@@ -3125,7 +3079,6 @@
                 chatMessagesCache = chats.dm[targetKey];
             }
 
-            // Добавляем в DOM
             appendMessageToChat(tempMsg);
 
             setTimeout(() => {
@@ -3144,7 +3097,6 @@
                 if (!ok) {
                     console.error('❌ Ошибка отправки:', status, data);
                     window.toast('❌ Ошибка отправки', 'err');
-                    // Удаляем из кеша
                     if (targetKey === 'global') {
                         chats.global = chats.global.filter(m => m !== tempMsg);
                         chatMessagesCache = chats.global;
@@ -3155,7 +3107,6 @@
                     renderChatMessages();
                     input.value = sentText;
                 } else {
-                    // Обновляем с сервера
                     setTimeout(() => {
                         loadMessages();
                         cleanupOldMessages();
@@ -3186,7 +3137,6 @@
             }
         };
 
-        // ----- REALTIME (ПОЛЛИНГ) -----
         let lastMessageTime = Date.now();
 
         function setupRealtime() {
@@ -3249,7 +3199,6 @@
             }, 2000);
         }
 
-        // ----- ОЧИСТКА СТАРЫХ СООБЩЕНИЙ -----
         async function cleanupOldMessages() {
             if (!UID) return;
 
@@ -3295,7 +3244,6 @@
             }
         }
 
-        // ----- ОНЛАЙН -----
         async function loadOnlineUsers() {
             try {
                 const fiveMinAgo = new Date(Date.now() - 5 * 60 * 1000).toISOString();
@@ -3324,9 +3272,6 @@
             }
         }
 
-        // ============================================================
-        // 13. ЧАТ ИНИЦИАЛИЗАЦИЯ
-        // ============================================================
         function initChat() {
             if (!UID) return;
 
@@ -3363,8 +3308,6 @@
 
             loadMessages();
             loadOnlineUsers();
-
-            // Настраиваем Realtime
             setupRealtime();
 
             setInterval(cleanupOldMessages, 3600000);
@@ -3378,7 +3321,7 @@
         }
 
         // ============================================================
-        // 14. ВСЕ ИГРОВЫЕ ФУНКЦИИ
+        // 13. ВСЕ ИГРОВЫЕ ФУНКЦИИ
         // ============================================================
         window.toast = function(msg, t) {
             const e = document.getElementById('TOAST');
@@ -3464,16 +3407,18 @@
         }
 
         function renderBoss() {
-            const now = Date.now(),
-                msk = new Date(now + 3 * 3600000),
-                h = msk.getUTCHours();
-            const active = (h >= 16 && h < 22);
+            const now = Date.now();
+            const msk = new Date(now + 3 * 3600000);
+            const h = msk.getUTCHours();
+
+            const active = (h >= 12 && h < 18);
+
             if (active && BOSS_STATE.hp <= 0) {
                 const today = msk.toISOString().slice(0, 10);
                 const killDay = new Date(BOSS_STATE.lastKill + 3 * 3600000).toISOString().slice(0, 10);
                 if (today !== killDay) BOSS_STATE.hp = 1000;
             }
-            if (!active && h >= 22) BOSS_STATE.hp = 0;
+            if (!active && h >= 18) BOSS_STATE.hp = 0;
 
             const pct = Math.max(0, Math.round(BOSS_STATE.hp / 1000 * 100));
             document.getElementById('BS_h').style.width = pct + '%';
@@ -3482,38 +3427,22 @@
             const atkBtn = document.getElementById('ATK_btn');
             if (active && BOSS_STATE.hp > 0) {
                 document.getElementById('BS_s').textContent = '⚔️ Активен! Атакуйте!';
-                document.getElementById('BS_rs').textContent = 'Исчезнет в 22:00 МСК';
+                document.getElementById('BS_rs').textContent = 'Исчезнет в 18:00 МСК';
                 if (atkBtn) atkBtn.disabled = false;
             } else if (active && BOSS_STATE.hp <= 0) {
                 document.getElementById('BS_s').textContent = '💀 Повержён! Ждите завтра.';
-                document.getElementById('BS_rs').textContent = 'Следующий в 16:00 МСК';
+                document.getElementById('BS_rs').textContent = 'Следующий в 12:00 МСК';
                 if (atkBtn) atkBtn.disabled = true;
             } else {
-                const next16 = new Date(msk);
-                next16.setUTCHours(16, 0, 0, 0);
-                if (h >= 22) next16.setUTCDate(next16.getUTCDate() + 1);
-                const rem = next16 - msk;
-                document.getElementById('BS_s').textContent = `Появится в 16:00 МСК`;
+                const next12 = new Date(msk);
+                next12.setUTCHours(12, 0, 0, 0);
+                if (h >= 18) next12.setUTCDate(next12.getUTCDate() + 1);
+                const rem = next12 - msk;
+                document.getElementById('BS_s').textContent = `Появится в 12:00 МСК`;
                 document.getElementById('BS_rs').textContent =
                     `Через ${Math.floor(rem/3600000)}ч ${Math.floor((rem%3600000)/60000)}м`;
                 if (atkBtn) atkBtn.disabled = true;
             }
-        }
-
-        function renderClan() {
-            document.getElementById('CL_no').style.display = G.clan ? 'none' : 'block';
-            document.getElementById('CL_yes').style.display = G.clan ? 'block' : 'none';
-            if (!G.clan) return;
-            document.getElementById('CL_n').textContent = G.clan.nm;
-            document.getElementById('CL_d').textContent = G.clan.d + ' 💎';
-            document.getElementById('CL_m').textContent = G.clan.m.length;
-            document.getElementById('CL_ml').innerHTML = G.clan.m.map(n => `<div class="row">👤 <span>${n}</span></div>`)
-                .join('');
-            const el = Date.now() - G.clanLF,
-                cd = 6 * 3600000;
-            document.getElementById('CL_cd').textContent = el >= cd ? 'Фарм доступен!' : 'Фарм через ' + Math.ceil((cd - el) /
-                3600000) + 'ч';
-            document.getElementById('CL_i').textContent = ['⚔️', '🛡️', '🏹', '🗡️', '🔮'][Math.floor(Math.random() * 5)];
         }
 
         function renderPodium() {
@@ -3536,71 +3465,6 @@
             }
         }
 
-        async function renderTop(tp) {
-            topLastType = tp;
-
-            const now = Date.now();
-            const isCacheValid = topCache.data && topCache.type === tp && now - topCache.timestamp < CONFIG.TOP_CACHE_TIME;
-
-            if (!isCacheValid) {
-                document.getElementById('TOP_u').textContent = '⏳ загрузка...';
-                await loadTopPlayers(tp);
-            }
-
-            const rem = Math.max(0, Math.ceil((topCache.timestamp + CONFIG.TOP_CACHE_TIME - now) / 1000));
-            document.getElementById('TOP_u').textContent = rem > 30 ? `обновление через ${Math.round(rem/60)}м` : 'только что';
-
-            const shardCount = getShardCount();
-            const topPlayers = topCache.data || [];
-
-            const all = [...topPlayers];
-            const exists = all.some(p => p.id === UID);
-            if (!exists && G.name) {
-                all.push({
-                    id: UID,
-                    n: G.name,
-                    username: currentUsername,
-                    c: G.coins,
-                    f: G.farms,
-                    r: G.refs,
-                    s: shardCount,
-                    a: G.avatar || AVATAR_LIST[0]
-                });
-            }
-
-            if (all.length === 0) {
-                document.getElementById('TOP_l').innerHTML =
-                    `<div class="tm tc" style="padding:16px;">Нет игроков для отображения</div>`;
-                return;
-            }
-
-            const key = tp === 'b' ? 'c' : tp === 'f' ? 'f' : tp === 'r' ? 'r' : 's';
-            const titles = { b: 'Топ по балансу', f: 'Топ по фармам', r: 'Топ по рефералам', s: 'Топ по осколкам' };
-            const symbols = { b: '💰', f: '⛏', r: '👥', s: '💎' };
-
-            document.getElementById('TOP_t').textContent = titles[tp];
-
-            all.sort((a, b) => (b[key] || 0) - (a[key] || 0));
-            const top10 = all.slice(0, CONFIG.TOP_LIMIT);
-            const clrs = ['var(--gld)', '#c0c0d0', '#cd7f32'];
-
-            document.getElementById('TOP_l').innerHTML = top10.map((p, i) => {
-                const val = tp === 's' ? `${p.s} осколков` : fmt(p[key] || 0) + ' ' + symbols[tp];
-                const isPlayer = p.id === UID;
-                const avatarUrl = p.a || AVATAR_LIST[0];
-
-                return `<div class="top-row" style="${isPlayer ? 'background:var(--bg4);border-radius:6px;' : ''}">
-                    <div style="font-size:15px;font-weight:700;min-width:22px;color:${clrs[i]||'var(--tx2)'}">${i+1}</div>
-                    <div class="top-avatar">
-                        <img src="${avatarUrl}" alt="${p.n}" loading="lazy" onerror="this.style.display='none';this.parentElement.innerHTML='<span class=\\'placeholder\\'>👤</span>'">
-                    </div>
-                    <div style="flex:1;font-size:13px">${p.n} ${isPlayer ? '👈' : ''}</div>
-                    <div style="color:var(--tx2);font-size:10px;margin-right:6px;">#${p.id.slice(0, 4)}</div>
-                    <div style="color:var(--gld);font-weight:700;font-size:13px">${val}</div>
-                </div>`;
-            }).join('');
-        }
-
         let topLastType = 'b';
 
         function getShardCount() {
@@ -3608,7 +3472,7 @@
         }
 
         // ============================================================
-        // 15. НАВИГАЦИЯ
+        // 14. НАВИГАЦИЯ
         // ============================================================
         window.goSc = function(nm) {
             document.querySelectorAll('.sc').forEach(s => s.classList.remove('on'));
@@ -3636,6 +3500,7 @@
         window.topTab = function(t, el) {
             document.querySelectorAll('#sc-top .tab').forEach(e => e.classList.remove('on'));
             if (el) el.classList.add('on');
+            topLastType = t;
             renderTop(t);
         };
 
@@ -3654,9 +3519,24 @@
             document.getElementById('M_nick').classList.add('on'); };
         window.closeNickMod = function() { document.getElementById('M_nick').classList.remove('on'); };
 
-        window.saveNick = function() {
+        window.saveNick = async function() {
             const v = document.getElementById('NK_i').value.trim();
             if (v.length < 3 || v.length > 16) { window.toast('3–16 символов', 'err'); return; }
+
+            // Проверка уникальности ника
+            try {
+                const { data, ok } = await sbFetch(
+                    `/rest/v1/users?data->>name=eq.${encodeURIComponent(v)}&select=id`
+                );
+                if (ok && data && data.length > 0 && data[0].id !== UID) {
+                    window.toast('Этот никнейм уже занят!', 'err');
+                    return;
+                }
+            } catch (e) {
+                window.toast('Ошибка проверки ника', 'err');
+                return;
+            }
+
             G.name = v;
             scheduleSave();
             renderUI();
@@ -3665,7 +3545,7 @@
         };
 
         // ============================================================
-        // 16. ОТРИСОВКА UI
+        // 15. ОТРИСОВКА UI
         // ============================================================
         function renderUI() {
             const sets = {
@@ -3701,13 +3581,12 @@
             renderNicks();
             renderMissions();
             renderBoss();
-            renderClan();
             renderTop(topLastType || 'b');
             renderPodium();
         }
 
         // ============================================================
-        // 17. ИГРОВЫЕ ДЕЙСТВИЯ
+        // 16. ИГРОВЫЕ ДЕЙСТВИЯ
         // ============================================================
         window.doFarm = function() {
             const now = Date.now();
@@ -3746,7 +3625,7 @@
 
         window.atkBoss = function() {
             if (G.coins < 20) { window.toast('Нужно 20 монет', 'err'); return; }
-            if (BOSS_STATE.hp <= 0) { window.toast('Босс мёртв, ждите 16:00', 'err'); return; }
+            if (BOSS_STATE.hp <= 0) { window.toast('Босс мёртв, ждите 12:00', 'err'); return; }
             G.coins -= 20;
             const dmg = Math.floor(Math.random() * 41) + 10;
             BOSS_STATE.hp = Math.max(0, BOSS_STATE.hp - dmg);
@@ -3787,44 +3666,6 @@
             scheduleSave();
             renderUI();
             window.toast(`+${m.rw} ключ!`, 'gld');
-        };
-
-        window.createClan = function() {
-            if (G.coins < 1500) { window.toast('Нужно 1500 монет', 'err'); return; }
-            const names = ['Kingdom Squad', 'Empire Crew', 'Dragon Force', 'Shadow Order', 'Titan Clan', 'Neon Warriors',
-                'Phoenix Legion', 'Frost Giants'
-            ];
-            G.coins -= 1500;
-            G.clan = { nm: names[Math.floor(Math.random() * names.length)], d: 0, m: [G.name] };
-            G.clanLF = 0;
-            scheduleSave();
-            renderUI();
-            window.toast('🏰 Клан создан!', 'ok');
-        };
-
-        window.disbandClan = function() { G.clan = null;
-            scheduleSave();
-            renderUI();
-            window.toast('Клан распущен', 'info'); };
-
-        window.clanFarm = function() {
-            if (!G.clan) return;
-            if (Date.now() - G.clanLF < 6 * 3600000) { window.toast('6 часов кулдаун', 'err'); return; }
-            const m = Math.floor(Math.random() * 3) + 1;
-            G.clan.d += m;
-            G.clanLF = Date.now();
-            scheduleSave();
-            renderUI();
-            window.toast(`+${m} алмазов!`, 'gld');
-        };
-
-        window.exDiam = function(n) {
-            if (!G.clan || G.clan.d < n) { window.toast('Нет алмазов', 'err'); return; }
-            G.clan.d -= n;
-            G.coins += n * 5;
-            scheduleSave();
-            renderUI();
-            window.toast(`+${n*5} монет!`, 'gld');
         };
 
         window.bid = function(a) {
@@ -3920,7 +3761,7 @@
         };
 
         // ============================================================
-        // 18. РУЛЕТКА
+        // 17. РУЛЕТКА
         // ============================================================
         const RC = document.getElementById('rouletteCanvas');
         const rctx = RC.getContext('2d');
@@ -4162,17 +4003,18 @@
             const win = seg.c === _pendingWinColor;
 
             const resultEl = document.getElementById('rlResult');
+            const colorEmoji = seg.c === 'red' ? '🔴' : seg.c === 'black' ? '⚫' : '🟢';
 
             if (win) {
                 const mult = seg.c === 'green' ? 5 : 1.75;
                 const gain = Math.floor(spinBet * mult);
                 G.coins += gain;
 
-                resultEl.textContent = `✅ Выпало: ${seg.label} (${seg.c === 'red' ? '🔴' : seg.c === 'black' ? '⚫' : '🟢'}) +${gain} монет!`;
+                resultEl.textContent = `✅ Выпало: ${seg.label} (${colorEmoji} ${seg.c}) +${gain} монет!`;
                 resultEl.className = 'rl-result win';
                 window.toast(`🎉 +${gain} монет!`, 'gld');
             } else {
-                resultEl.textContent = `❌ Выпало: ${seg.label} (${seg.c === 'red' ? '🔴' : seg.c === 'black' ? '⚫' : '🟢'}) -${spinBet} монет`;
+                resultEl.textContent = `❌ Выпало: ${seg.label} (${colorEmoji} ${seg.c}) -${spinBet} монет`;
                 resultEl.className = 'rl-result lose';
                 window.toast(`😞 -${spinBet} монет`, 'err');
             }
@@ -4236,7 +4078,7 @@
         idleSpin();
 
         // ============================================================
-        // 19. КУБИК
+        // 18. КУБИК
         // ============================================================
         const PIP_LAYOUTS = {
             1: [
@@ -4461,7 +4303,7 @@
         };
 
         // ============================================================
-        // 20. ТОП-10
+        // 19. ТОП-10
         // ============================================================
         async function loadTopPlayers(tp = 'b') {
             const now = Date.now();
@@ -4509,8 +4351,73 @@
             }
         }
 
+        async function renderTop(tp) {
+            topLastType = tp;
+
+            const now = Date.now();
+            const isCacheValid = topCache.data && topCache.type === tp && now - topCache.timestamp < CONFIG.TOP_CACHE_TIME;
+
+            if (!isCacheValid) {
+                document.getElementById('TOP_u').textContent = '⏳ загрузка...';
+                await loadTopPlayers(tp);
+            }
+
+            const rem = Math.max(0, Math.ceil((topCache.timestamp + CONFIG.TOP_CACHE_TIME - now) / 1000));
+            document.getElementById('TOP_u').textContent = rem > 30 ? `обновление через ${Math.round(rem/60)}м` : 'только что';
+
+            const shardCount = getShardCount();
+            const topPlayers = topCache.data || [];
+
+            const all = [...topPlayers];
+            const exists = all.some(p => p.id === UID);
+            if (!exists && G.name) {
+                all.push({
+                    id: UID,
+                    n: G.name,
+                    username: currentUsername,
+                    c: G.coins,
+                    f: G.farms,
+                    r: G.refs,
+                    s: shardCount,
+                    a: G.avatar || AVATAR_LIST[0]
+                });
+            }
+
+            if (all.length === 0) {
+                document.getElementById('TOP_l').innerHTML =
+                    `<div class="tm tc" style="padding:16px;">Нет игроков для отображения</div>`;
+                return;
+            }
+
+            const key = tp === 'b' ? 'c' : tp === 'f' ? 'f' : tp === 'r' ? 'r' : 's';
+            const titles = { b: 'Топ по балансу', f: 'Топ по фармам', r: 'Топ по рефералам', s: 'Топ по осколкам' };
+            const symbols = { b: '💰', f: '⛏', r: '👥', s: '💎' };
+
+            document.getElementById('TOP_t').textContent = titles[tp];
+
+            all.sort((a, b) => (b[key] || 0) - (a[key] || 0));
+            const top10 = all.slice(0, CONFIG.TOP_LIMIT);
+            const clrs = ['var(--gld)', '#c0c0d0', '#cd7f32'];
+
+            document.getElementById('TOP_l').innerHTML = top10.map((p, i) => {
+                const val = tp === 's' ? `${p.s} осколков` : fmt(p[key] || 0) + ' ' + symbols[tp];
+                const isPlayer = p.id === UID;
+                const avatarUrl = p.a || AVATAR_LIST[0];
+
+                return `<div class="top-row" style="${isPlayer ? 'background:var(--bg4);border-radius:6px;' : ''}">
+                    <div style="font-size:15px;font-weight:700;min-width:22px;color:${clrs[i]||'var(--tx2)'}">${i+1}</div>
+                    <div class="top-avatar">
+                        <img src="${avatarUrl}" alt="${p.n}" loading="lazy" onerror="this.style.display='none';this.parentElement.innerHTML='<span class=\\'placeholder\\'>👤</span>'">
+                    </div>
+                    <div style="flex:1;font-size:13px">${p.n} ${isPlayer ? '👈' : ''}</div>
+                    <div style="color:var(--tx2);font-size:10px;margin-right:6px;">#${p.id.slice(0, 4)}</div>
+                    <div style="color:var(--gld);font-weight:700;font-size:13px">${val}</div>
+                </div>`;
+            }).join('');
+        }
+
         // ============================================================
-        // 21. ПОКАЗ ПРИЛОЖЕНИЯ
+        // 20. ПОКАЗ ПРИЛОЖЕНИЯ
         // ============================================================
         function showApp() {
             document.getElementById('authWrap').style.display = 'none';
@@ -4559,7 +4466,7 @@
         }
 
         // ============================================================
-        // 22. АВТОРИЗАЦИЯ UI
+        // 21. АВТОРИЗАЦИЯ UI
         // ============================================================
         window.setAuthMode = function(m) {
             authMode = m;
@@ -4568,7 +4475,7 @@
             });
             document.getElementById('authBtn').textContent = m === 'login' ? '⚡ Войти' : '🚀 Зарегистрироваться';
             document.getElementById('authSub').textContent = m === 'login' ? 'Войдите в свой аккаунт' :
-            'Создайте новый аккаунт';
+                'Создайте новый аккаунт';
             aStat(m === 'login' ? 'Войдите в аккаунт' : 'Создайте аккаунт');
         };
 
@@ -4619,7 +4526,7 @@
         };
 
         // ============================================================
-        // 23. ЗАПУСК
+        // 22. ЗАПУСК
         // ============================================================
         document.addEventListener('DOMContentLoaded', async () => {
             aStat('⏳ Проверка сессии...', 'ld');
@@ -4637,15 +4544,13 @@
             renderPodium();
         });
 
-        console.log('✅ ЧАТ ПОЛНОСТЬЮ ИСПРАВЛЕН:');
-        console.log('  📦 Данные = источник истины (chats.global, chats.dm)');
-        console.log('  🎨 UI = только отображение, сообщения добавляются по одному');
-        console.log('  📱 Сообщения всегда в правильном порядке (новые снизу)');
-        console.log('  🔍 Поиск пользователей для ЛС (без загрузки всех)');
-        console.log('  💬 ЛС открывается через поиск или клик по имени');
-        console.log('  🧠 Умный скролл (не прыгает, если пользователь читает)');
-        console.log('  🔄 Обновления через polling (раз в 2 сек)');
-        console.log('  ⚡ Переключение между общим и ЛС работает корректно');
+        console.log('✅ ВСЁ ИСПРАВЛЕНО:');
+        console.log('  💬 Чат полностью рабочий (общий + ЛС)');
+        console.log('  👹 Босс появляется в 12:00 МСК');
+        console.log('  🎰 Рулетка возвращает число и цвет');
+        console.log('  📛 Никнеймы уникальны');
+        console.log('  🏆 Топ отображается корректно');
+        console.log('  🚫 Кланы удалены');
     </script>
 </body>
 </html>
