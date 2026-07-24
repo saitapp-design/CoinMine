@@ -93,60 +93,6 @@
             padding-bottom: 180px;
             padding-top: 10px;
         }
-        /* ===== ИСПРАВЛЕНИЕ ДЛЯ АВАТАРОК ===== */
-/* Телефонная версия */
-@media (max-width: 700px) {
-    /* Все контейнеры с аватарками */
-    .fl, .top-row, .chat-messages .msg .sender {
-        display: flex !important;
-        align-items: center !important;
-        gap: 6px !important;
-        flex-wrap: nowrap !important;
-        max-width: 100% !important;
-        overflow: hidden !important;
-    }
-    
-    /* Все аватарки */
-    .avatar-preview, .top-avatar, .chat-messages .msg .sender .top-avatar {
-        flex-shrink: 0 !important;
-        flex-grow: 0 !important;
-        margin: 0 !important;
-        display: inline-flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-    }
-    
-    /* Текст рядом с аватаркой */
-    .f1, .top-row .f1, .chat-messages .msg .sender .name {
-        flex: 1 !important;
-        min-width: 0 !important;
-        overflow: hidden !important;
-        text-overflow: ellipsis !important;
-        white-space: nowrap !important;
-    }
-    
-    /* Аватарка в главном меню */
-    #sc-home .fl .avatar-wrap {
-        flex-shrink: 0 !important;
-        flex-grow: 0 !important;
-    }
-    
-    /* Уменьшаем аватарки на телефоне */
-    .avatar-preview {
-        width: 36px !important;
-        height: 36px !important;
-    }
-    
-    .top-avatar {
-        width: 24px !important;
-        height: 24px !important;
-    }
-    
-    .chat-messages .msg .sender .top-avatar {
-        width: 20px !important;
-        height: 20px !important;
-    }
-}
         @media (max-width: 700px) {
             .app {
                 max-width: 100%;
@@ -1831,6 +1777,57 @@
                 font-size: 13px !important;
             }
         }
+        /* ===== ПРОСТОЕ ИСПРАВЛЕНИЕ ===== */
+.app, .card, .fl, .top-row, .chat-messages .msg .sender {
+    overflow: hidden !important;
+    max-width: 100% !important;
+}
+
+.fl, .top-row, .chat-messages .msg .sender {
+    display: flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    flex-wrap: nowrap !important;
+}
+
+.f1, .top-row .f1 {
+    flex: 1 !important;
+    min-width: 0 !important;
+    overflow: hidden !important;
+}
+
+.f1 strong, .top-row .f1 {
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+}
+
+.avatar-preview, .top-avatar {
+    flex-shrink: 0 !important;
+    flex-grow: 0 !important;
+}
+
+@media (max-width: 700px) {
+    .app {
+        padding-left: 6px !important;
+        padding-right: 6px !important;
+    }
+    
+    .avatar-preview {
+        width: 34px !important;
+        height: 34px !important;
+    }
+    
+    .top-avatar {
+        width: 20px !important;
+        height: 20px !important;
+    }
+    
+    .f1 strong {
+        font-size: 12px !important;
+        max-width: 80px !important;
+    }
+}
     </style>
 </head>
 <body>
