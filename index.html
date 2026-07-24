@@ -3889,7 +3889,7 @@
         };
 
   // ============================================================
-// 17. РУЛЕТКА (СНАЧАЛА ОПРЕДЕЛЯЕТСЯ ЧИСЛО, ПОТОМ ДОКРУЧИВАЕТСЯ)
+// 17. РУЛЕТКА (ТОЧНОЕ СООТВЕТСТВИЕ ЧИСЛА И СЕКТОРА)
 // ============================================================
 const RC = document.getElementById('rouletteCanvas');
 const rctx = RC.getContext('2d');
@@ -3898,23 +3898,31 @@ const CX = 160,
     OR = 148,
     IR = 28;
 
-// === 20 СЕКТОРОВ: 9 КРАСНЫХ, 9 ЧЁРНЫХ, 2 ЗЕЛЁНЫХ ===
-const SEGS = [];
-for (let i = 0; i < 20; i++) {
-    if (i === 0) {
-        SEGS.push({ c: 'green', label: '0', num: 0 });
-    } else if (i === 10) {
-        SEGS.push({ c: 'green', label: '00', num: 0 });
-    } else {
-        const num = i < 10 ? i : i - 1;
-        const isRed = (num % 2 === 1);
-        SEGS.push({ 
-            c: isRed ? 'red' : 'black', 
-            label: String(num), 
-            num: num 
-        });
-    }
-}
+// === 20 СЕКТОРОВ С ПРАВИЛЬНЫМ СООТВЕТСТВИЕМ ===
+// Индекс 0 → 0, индекс 1 → 1, индекс 2 → 2, ... индекс 9 → 9
+// Индекс 10 → 00, индекс 11 → 10, индекс 12 → 11, ... индекс 19 → 18
+const SEGS = [
+    { c: 'green', label: '0', num: 0 },      // индекс 0
+    { c: 'red', label: '1', num: 1 },        // индекс 1
+    { c: 'black', label: '2', num: 2 },      // индекс 2
+    { c: 'red', label: '3', num: 3 },        // индекс 3
+    { c: 'black', label: '4', num: 4 },      // индекс 4
+    { c: 'red', label: '5', num: 5 },        // индекс 5
+    { c: 'black', label: '6', num: 6 },      // индекс 6
+    { c: 'red', label: '7', num: 7 },        // индекс 7
+    { c: 'black', label: '8', num: 8 },      // индекс 8
+    { c: 'red', label: '9', num: 9 },        // индекс 9
+    { c: 'green', label: '00', num: 0 },     // индекс 10
+    { c: 'black', label: '10', num: 10 },    // индекс 11
+    { c: 'red', label: '11', num: 11 },      // индекс 12
+    { c: 'black', label: '12', num: 12 },    // индекс 13
+    { c: 'red', label: '13', num: 13 },      // индекс 14
+    { c: 'black', label: '14', num: 14 },    // индекс 15
+    { c: 'red', label: '15', num: 15 },      // индекс 16
+    { c: 'black', label: '16', num: 16 },    // индекс 17
+    { c: 'red', label: '17', num: 17 },      // индекс 18
+    { c: 'black', label: '18', num: 18 }     // индекс 19
+];
 
 const SEG_FILL = {
     red: ['#7f1d1d', '#b91c1c', '#dc2626'],
@@ -4084,41 +4092,40 @@ function getSectorAtPointer(angle) {
     return Math.floor(rawAngle / sa) % n;
 }
 
-// === ОСНОВНАЯ ЛОГИКА: СНАЧАЛА ОПРЕДЕЛЯЕТСЯ РЕЗУЛЬТАТ ===
+// === ПОЛУЧИТЬ ЧИСЛО ПО ИНДЕКСУ ===
+function getNumberByIndex(index) {
+    return SEGS[index].label;
+}
+
+// === ОПРЕДЕЛЕНИЕ РЕЗУЛЬТАТА ===
 function determineResult(selectedColor, bet) {
-    // 1. Сначала выбираем случайный сектор
     const n = SEGS.length;
+    // Выбираем случайный индекс
     const targetIndex = Math.floor(Math.random() * n);
     const seg = SEGS[targetIndex];
     
-    // 2. Определяем результат
-    const win = seg.c === selectedColor;
-    const colorEmoji = seg.c === 'red' ? '🔴' : seg.c === 'black' ? '⚫' : '🟢';
-    let gain = 0;
-    
-    if (win) {
-        const mult = seg.c === 'green' ? 5 : 1.75;
-        gain = Math.floor(bet * mult);
-        G.coins += gain;
-    }
-    
-    // 3. Сохраняем результат для показа после анимации
-    _resultNumber = seg.label;
+    // Сохраняем результат
+    _resultNumber = seg.label;  // ТОЧНОЕ ЧИСЛО ИЗ СЕКТОРА
     _resultColor = seg.c;
-    _isWin = win;
-    _winAmount = gain;
+    _isWin = seg.c === selectedColor;
     _targetIndex = targetIndex;
     
-    // 4. Возвращаем индекс для анимации
+    if (_isWin) {
+        const mult = seg.c === 'green' ? 5 : 1.75;
+        _winAmount = Math.floor(bet * mult);
+        G.coins += _winAmount;
+    } else {
+        _winAmount = 0;
+    }
+    
     return targetIndex;
 }
 
-// === АНИМАЦИЯ ВРАЩЕНИЯ К ЗАДАННОМУ СЕКТОРУ ===
+// === АНИМАЦИЯ ===
 function animateToSector(targetIndex, callback) {
     const n = SEGS.length;
     const segAngle = (Math.PI * 2) / n;
     
-    // Рассчитываем угол остановки
     const extraSpins = 5 + Math.floor(Math.random() * 3);
     const targetAngle = -Math.PI / 2 - (targetIndex + 0.5) * segAngle + extraSpins * Math.PI * 2;
     
@@ -4137,14 +4144,13 @@ function animateToSector(targetIndex, callback) {
         if (progress < 1) {
             requestAnimationFrame(animate);
         } else {
-            // Финальная корректировка для точности
+            // Проверяем, что остановились на правильном секторе
             const landedIdx = getSectorAtPointer(wheelAngle);
             if (landedIdx !== targetIndex) {
                 const correction = (targetIndex - landedIdx) * segAngle;
                 wheelAngle += correction;
                 window.drawRoulette(wheelAngle);
             }
-            // Вызываем колбэк
             if (callback) callback();
         }
     }
@@ -4167,12 +4173,10 @@ function showResult() {
         window.toast(`😞 Выпало ${_resultNumber}! -${spinBet} монет`, 'err');
     }
     
-    // Сбрасываем состояние
     spinning = false;
     resultDisplayed = true;
     _pendingWinColor = null;
     
-    // Разблокируем кнопки
     document.querySelectorAll('.rl-btns button').forEach(b => b.disabled = false);
     document.getElementById('rlBetInput').disabled = false;
     
@@ -4196,7 +4200,6 @@ window.spinTo = function(color) {
         return;
     }
     
-    // Списываем монеты
     G.coins -= bet;
     spinBet = bet;
     _pendingWinColor = color;
@@ -4210,12 +4213,11 @@ window.spinTo = function(color) {
     document.querySelectorAll('.rl-btns button').forEach(b => b.disabled = true);
     betInput.disabled = true;
     
-    // === ГЛАВНАЯ ЛОГИКА: СНАЧАЛА ОПРЕДЕЛЯЕМ РЕЗУЛЬТАТ ===
+    // === ОПРЕДЕЛЯЕМ РЕЗУЛЬТАТ ===
     const targetIndex = determineResult(color, bet);
     
-    // === ПОТОМ ЗАПУСКАЕМ АНИМАЦИЮ К ЭТОМУ СЕКТОРУ ===
+    // === ЗАПУСКАЕМ АНИМАЦИЮ ===
     animateToSector(targetIndex, function() {
-        // После завершения анимации показываем результат
         setTimeout(showResult, 300);
     });
 };
