@@ -3889,35 +3889,34 @@
         };
 
  // ============================================================
-// 17. РУЛЕТКА (РЕАЛЬНОЕ КАЗИНО - БЫСТРАЯ АНИМАЦИЯ)
+// 17. РУЛЕТКА (ГАРАНТИРОВАННО РАБОТАЕТ)
 // ============================================================
-
 const RC = document.getElementById('rouletteCanvas');
 const rctx = RC.getContext('2d');
 const CX = 160, CY = 160, OR = 148, IR = 28;
 
-// === 20 СЕКТОРОВ: 9 КРАСНЫХ, 9 ЧЁРНЫХ, 2 ЗЕЛЁНЫХ ===
+// === ПРОСТОЙ МАССИВ: ИНДЕКС = ЧИСЛО ===
 const SEGS = [
-    { c: 'green', label: '0', num: 0 },
-    { c: 'red', label: '1', num: 1 },
-    { c: 'black', label: '2', num: 2 },
-    { c: 'red', label: '3', num: 3 },
-    { c: 'black', label: '4', num: 4 },
-    { c: 'red', label: '5', num: 5 },
-    { c: 'black', label: '6', num: 6 },
-    { c: 'red', label: '7', num: 7 },
-    { c: 'black', label: '8', num: 8 },
-    { c: 'red', label: '9', num: 9 },
-    { c: 'green', label: '00', num: 0 },
-    { c: 'black', label: '10', num: 10 },
-    { c: 'red', label: '11', num: 11 },
-    { c: 'black', label: '12', num: 12 },
-    { c: 'red', label: '13', num: 13 },
-    { c: 'black', label: '14', num: 14 },
-    { c: 'red', label: '15', num: 15 },
-    { c: 'black', label: '16', num: 16 },
-    { c: 'red', label: '17', num: 17 },
-    { c: 'black', label: '18', num: 18 }
+    { c: 'green', label: '0' },   // индекс 0 → число 0
+    { c: 'red', label: '1' },     // индекс 1 → число 1
+    { c: 'black', label: '2' },   // индекс 2 → число 2
+    { c: 'red', label: '3' },     // индекс 3 → число 3
+    { c: 'black', label: '4' },   // индекс 4 → число 4
+    { c: 'red', label: '5' },     // индекс 5 → число 5
+    { c: 'black', label: '6' },   // индекс 6 → число 6
+    { c: 'red', label: '7' },     // индекс 7 → число 7
+    { c: 'black', label: '8' },   // индекс 8 → число 8
+    { c: 'red', label: '9' },     // индекс 9 → число 9
+    { c: 'green', label: '00' },  // индекс 10 → число 00
+    { c: 'black', label: '10' },  // индекс 11 → число 10
+    { c: 'red', label: '11' },    // индекс 12 → число 11
+    { c: 'black', label: '12' },  // индекс 13 → число 12
+    { c: 'red', label: '13' },    // индекс 14 → число 13
+    { c: 'black', label: '14' },  // индекс 15 → число 14
+    { c: 'red', label: '15' },    // индекс 16 → число 15
+    { c: 'black', label: '16' },  // индекс 17 → число 16
+    { c: 'red', label: '17' },    // индекс 18 → число 17
+    { c: 'black', label: '18' }   // индекс 19 → число 18
 ];
 
 const SEG_FILL = {
@@ -3931,16 +3930,9 @@ let spinning = false;
 let spinBet = 25;
 let resultDisplayed = true;
 let _pendingWinColor = null;
-let _targetIndex = null;
-let _resultLabel = null;
-let _resultColor = null;
-let _isWin = false;
-let _winAmount = 0;
-let _fastSpinCount = 0;
-let _fastSpinInterval = null;
 
 // === ОТРИСОВКА ===
-window.drawRoulette = function(angle, highlightIndex) {
+window.drawRoulette = function(angle) {
     rctx.clearRect(0, 0, 320, 320);
 
     const validR = OR + 14;
@@ -3994,19 +3986,6 @@ window.drawRoulette = function(angle, highlightIndex) {
         rctx.closePath();
         rctx.fillStyle = fills[1];
         rctx.fill();
-
-        // Подсветка выигрышного сектора
-        if (highlightIndex === i) {
-            rctx.beginPath();
-            rctx.moveTo(CX, CY);
-            rctx.arc(CX, CY, OR - 16, a1, a2);
-            rctx.closePath();
-            rctx.fillStyle = 'rgba(255, 215, 0, 0.25)';
-            rctx.fill();
-            rctx.strokeStyle = '#ffd700';
-            rctx.lineWidth = 2;
-            rctx.stroke();
-        }
 
         const mid = a1 + (a2 - a1) / 2;
         const sheen = rctx.createLinearGradient(
@@ -4093,84 +4072,24 @@ window.drawRoulette = function(angle, highlightIndex) {
     rctx.shadowBlur = 0;
 };
 
-// === БЫСТРОЕ ВРАЩЕНИЕ (КАК В РЕАЛЬНОМ КАЗИНО) ===
-function fastSpin(targetIndex, callback) {
+// === ПОЛУЧИТЬ ИНДЕКС ПО УГЛУ ===
+function getIndexFromAngle(angle) {
     const n = SEGS.length;
-    const segAngle = (Math.PI * 2) / n;
-    
-    // Быстрое мелькание секторов (игрок не видит число)
-    let count = 0;
-    const maxCount = 8 + Math.floor(Math.random() * 5);
-    
-    if (_fastSpinInterval) clearInterval(_fastSpinInterval);
-    
-    _fastSpinInterval = setInterval(() => {
-        const randomIdx = Math.floor(Math.random() * n);
-        wheelAngle = -Math.PI / 2 - (randomIdx + 0.5) * segAngle + 6 * Math.PI * 2;
-        window.drawRoulette(wheelAngle);
-        count++;
-        
-        if (count >= maxCount) {
-            clearInterval(_fastSpinInterval);
-            _fastSpinInterval = null;
-            
-            // Замедленное вращение к целевому сектору
-            const extraSpins = 2 + Math.random();
-            const targetAngle = -Math.PI / 2 - (targetIndex + 0.5) * segAngle + extraSpins * Math.PI * 2;
-            const startAngle = wheelAngle;
-            const duration = 1500 + Math.random() * 500;
-            const startTime = performance.now();
-            
-            function slowAnimate(time) {
-                const elapsed = time - startTime;
-                const progress = Math.min(elapsed / duration, 1);
-                const eased = 1 - Math.pow(1 - progress, 3);
-                
-                wheelAngle = startAngle + (targetAngle - startAngle) * eased;
-                window.drawRoulette(wheelAngle);
-                
-                if (progress < 1) {
-                    requestAnimationFrame(slowAnimate);
-                } else {
-                    // Финальная корректировка
-                    const segAngle2 = (Math.PI * 2) / n;
-                    let raw = (-Math.PI / 2 - wheelAngle) % (Math.PI * 2);
-                    if (raw < 0) raw += Math.PI * 2;
-                    const landedIdx = Math.floor(raw / segAngle2) % n;
-                    
-                    if (landedIdx !== targetIndex) {
-                        const correction = (targetIndex - landedIdx) * segAngle2;
-                        wheelAngle += correction;
-                        window.drawRoulette(wheelAngle);
-                    }
-                    
-                    // Подсветка выигрышного сектора
-                    window.drawRoulette(wheelAngle, targetIndex);
-                    
-                    if (callback) callback();
-                }
-            }
-            
-            requestAnimationFrame(slowAnimate);
-        }
-    }, 80);
+    const sa = (Math.PI * 2) / n;
+    let raw = (-Math.PI / 2 - angle) % (Math.PI * 2);
+    if (raw < 0) raw += Math.PI * 2;
+    return Math.floor(raw / sa) % n;
 }
 
-// === ЗАПУСК ВРАЩЕНИЯ ===
+// === ГЛАВНАЯ ФУНКЦИЯ ===
 window.spinTo = function(color) {
     if (spinning) return;
     
     const betInput = document.getElementById('rlBetInput');
     const bet = parseInt(betInput.value) || 25;
     
-    if (bet < 1) {
-        window.toast('Минимальная ставка 1 монета', 'err');
-        return;
-    }
-    if (bet > G.coins) {
-        window.toast('Недостаточно монет!', 'err');
-        return;
-    }
+    if (bet < 1) { window.toast('Минимальная ставка 1 монета', 'err'); return; }
+    if (bet > G.coins) { window.toast('Недостаточно монет!', 'err'); return; }
     
     G.coins -= bet;
     spinning = true;
@@ -4185,56 +4104,79 @@ window.spinTo = function(color) {
     document.querySelectorAll('.rl-btns button').forEach(b => b.disabled = true);
     betInput.disabled = true;
     
-    // === ВЫБИРАЕМ СЛУЧАЙНЫЙ СЕКТОР ===
+    // === ВЫБИРАЕМ СЛУЧАЙНЫЙ ИНДЕКС ===
     const n = SEGS.length;
     const targetIndex = Math.floor(Math.random() * n);
     const seg = SEGS[targetIndex];
     
-    // Сохраняем результат
-    _targetIndex = targetIndex;
-    _resultLabel = seg.label;
-    _resultColor = seg.c;
-    _isWin = seg.c === color;
+    // === СОХРАНЯЕМ РЕЗУЛЬТАТ ===
+    const resultLabel = seg.label;
+    const resultColor = seg.c;
+    const isWin = seg.c === color;
+    let winAmount = 0;
     
-    if (_isWin) {
+    if (isWin) {
         const mult = seg.c === 'green' ? 5 : 1.75;
-        _winAmount = Math.floor(bet * mult);
-        G.coins += _winAmount;
-    } else {
-        _winAmount = 0;
+        winAmount = Math.floor(bet * mult);
+        G.coins += winAmount;
     }
     
-    // === ЗАПУСКАЕМ БЫСТРУЮ АНИМАЦИЮ ===
-    fastSpin(targetIndex, function() {
-        // === ПОКАЗЫВАЕМ РЕЗУЛЬТАТ ===
-        spinning = false;
-        resultDisplayed = true;
+    // === РАССЧИТЫВАЕМ УГОЛ ОСТАНОВКИ ===
+    const segAngle = (Math.PI * 2) / n;
+    const extraSpins = 5 + Math.floor(Math.random() * 3);
+    const targetAngle = -Math.PI / 2 - (targetIndex + 0.5) * segAngle + extraSpins * Math.PI * 2;
+    
+    const startAngle = wheelAngle;
+    const duration = 3500 + Math.random() * 500;
+    const startTime = performance.now();
+    
+    // === АНИМАЦИЯ ===
+    function animate(time) {
+        const elapsed = time - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        const eased = 1 - Math.pow(1 - progress, 3);
         
-        const colorEmoji = _resultColor === 'red' ? '🔴' : _resultColor === 'black' ? '⚫' : '🟢';
+        wheelAngle = startAngle + (targetAngle - startAngle) * eased;
+        window.drawRoulette(wheelAngle);
         
-        if (_isWin) {
-            resultEl.textContent = `✅ Выпало: ${_resultLabel} (${colorEmoji} ${_resultColor}) +${_winAmount} монет!`;
-            resultEl.className = 'rl-result win';
-            window.toast(`🎉 Выпало ${_resultLabel}! +${_winAmount} монет!`, 'gld');
+        if (progress < 1) {
+            requestAnimationFrame(animate);
         } else {
-            resultEl.textContent = `❌ Выпало: ${_resultLabel} (${colorEmoji} ${_resultColor}) -${spinBet} монет`;
-            resultEl.className = 'rl-result lose';
-            window.toast(`😞 Выпало ${_resultLabel}! -${spinBet} монет`, 'err');
+            // === ПРОВЕРКА И КОРРЕКТИРОВКА ===
+            const landedIdx = getIndexFromAngle(wheelAngle);
+            if (landedIdx !== targetIndex) {
+                const correction = (targetIndex - landedIdx) * segAngle;
+                wheelAngle += correction;
+                window.drawRoulette(wheelAngle);
+            }
+            
+            // === ПОКАЗЫВАЕМ РЕЗУЛЬТАТ ===
+            spinning = false;
+            resultDisplayed = true;
+            
+            const colorEmoji = resultColor === 'red' ? '🔴' : resultColor === 'black' ? '⚫' : '🟢';
+            
+            if (isWin) {
+                resultEl.textContent = `✅ Выпало: ${resultLabel} (${colorEmoji} ${resultColor}) +${winAmount} монет!`;
+                resultEl.className = 'rl-result win';
+                window.toast(`🎉 Выпало ${resultLabel}! +${winAmount} монет!`, 'gld');
+            } else {
+                resultEl.textContent = `❌ Выпало: ${resultLabel} (${colorEmoji} ${resultColor}) -${spinBet} монет`;
+                resultEl.className = 'rl-result lose';
+                window.toast(`😞 Выпало ${resultLabel}! -${spinBet} монет`, 'err');
+            }
+            
+            _pendingWinColor = null;
+            
+            document.querySelectorAll('.rl-btns button').forEach(b => b.disabled = false);
+            document.getElementById('rlBetInput').disabled = false;
+            
+            scheduleSave();
+            renderUI();
         }
-        
-        _pendingWinColor = null;
-        
-        document.querySelectorAll('.rl-btns button').forEach(b => b.disabled = false);
-        document.getElementById('rlBetInput').disabled = false;
-        
-        scheduleSave();
-        renderUI();
-        
-        // Через 2 секунды убираем подсветку
-        setTimeout(() => {
-            window.drawRoulette(wheelAngle);
-        }, 2000);
-    });
+    }
+    
+    requestAnimationFrame(animate);
 };
 
 // === ФОНОВОЕ ВРАЩЕНИЕ ===
