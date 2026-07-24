@@ -98,34 +98,7 @@
                 max-width: 100%;
             }
         }
-/* КРИТИЧЕСКИ ВАЖНО для телефонов */
-#chatInput {
-    -webkit-appearance: none !important;
-    appearance: none !important;
-    -webkit-user-select: text !important;
-    user-select: text !important;
-    text-transform: none !important;
-    -webkit-text-transform: none !important;
-    -webkit-writing-mode: horizontal-tb !important;
-    writing-mode: horizontal-tb !important;
-}
 
-@media (max-width: 600px) {
-    .chat-input-wrap input {
-        font-size: 16px !important;
-        height: 48px !important;
-        padding: 10px 14px !important;
-        text-transform: none !important;
-        -webkit-user-select: text !important;
-        user-select: text !important;
-        -webkit-text-transform: none !important;
-        text-transform: none !important;
-        -webkit-appearance: none !important;
-        appearance: none !important;
-        -webkit-writing-mode: horizontal-tb !important;
-        writing-mode: horizontal-tb !important;
-    }
-}
         .static-banner {
             display: none;
             position: fixed;
@@ -2109,21 +2082,19 @@
             </div>
 
             <!-- Поле ввода -->
+            <!-- Поле ввода - ПРОСТОЙ ВАРИАНТ С TEXTAREA -->
 <div class="chat-input-wrap">
-    <input id="chatInput" 
-           placeholder="Напишите сообщение..." 
-           autocomplete="off"
-           inputmode="text"
-           lang="ru"
-           spellcheck="true"
-           enterkeyhint="send"
-           type="text"
-           onfocus="window.fixInput(this)"
-           onclick="window.fixInput(this)"
-           ontouchstart="window.fixInput(this)"
-           onkeydown="if(event.key==='Enter') sendMessage()">
-    <button class="btn bp" id="sendBtn" onclick="sendMessage()">
-        <span>➤</span>
+    <textarea id="chatInput" 
+              placeholder="Напишите сообщение..." 
+              autocomplete="off"
+              lang="ru"
+              spellcheck="true"
+              rows="1"
+              style="flex:1;min-width:60px;height:48px;padding:12px 14px;font-size:16px;border-radius:25px;background:var(--bg3);border:1.5px solid var(--bd2);color:var(--tx);outline:none;resize:none;overflow:hidden;font-family:inherit;"
+              onkeydown="if(event.key==='Enter' && !event.shiftKey){event.preventDefault();sendMessage();}"
+              oninput="this.style.height='48px';this.style.height=Math.min(this.scrollHeight,120)+'px'"></textarea>
+    <button class="btn bp" id="sendBtn" onclick="sendMessage()" style="width:48px;height:48px;min-width:48px;padding:0;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,var(--acc),var(--acc2));box-shadow:0 4px 16px rgba(124,58,237,0.3);border:none;cursor:pointer;">
+        <span style="font-size:22px;line-height:1;color:#fff;">➤</span>
     </button>
 </div>
         </div>
@@ -2378,42 +2349,7 @@
                 }
             }
         }
-// ============================================================
-// 2. ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ (в самом начале)
-// ============================================================
-function escapeHtml(text) {
-    if (!text) return '';
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
-}
 
-function aStat(text, type) {
-    const e = document.getElementById('authStatus');
-    if (e) { e.textContent = text;
-        e.className = 'astat ' + (type || ''); }
-}
-
-function getFingerprint() {
-    let fp = localStorage.getItem('coinmine_fp');
-    if (fp) return fp;
-    const parts = [
-        navigator.userAgent, navigator.language,
-        screen.width + 'x' + screen.height, screen.colorDepth,
-        navigator.hardwareConcurrency || 'unknown',
-        new Date().getTimezoneOffset()
-    ];
-    let hash = 0;
-    for (let c of parts.join('|')) {
-        hash = ((hash << 5) - hash) + c.charCodeAt(0);
-        hash = hash & hash;
-    }
-    fp = 'fp_' + Math.abs(hash).toString(36);
-    localStorage.setItem('coinmine_fp', fp);
-    return fp;
-}
-
-const FINGERPRINT = getFingerprint();
         // ============================================================
         // 7. АВТОРИЗАЦИЯ
         // ============================================================
@@ -2482,64 +2418,7 @@ const FINGERPRINT = getFingerprint();
 
             return await authLogin(username, password);
         }
-// === КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ ДЛЯ ТЕЛЕФОНОВ ===
-window.fixInput = function(input) {
-    if (!input) return;
-    
-    // Сохраняем текущую позицию курсора
-    const cursorPos = input.selectionStart;
-    const currentValue = input.value;
-    
-    // Меняем тип на text (принудительно)
-    input.type = 'text';
-    input.inputMode = 'text';
-    input.setAttribute('type', 'text');
-    input.setAttribute('inputmode', 'text');
-    
-    // КРИТИЧЕСКИ ВАЖНО: вставляем и удаляем пробел
-    // Это "пробуждает" клавиатуру на телефоне
-    if (currentValue === '') {
-        input.value = ' ';
-        input.value = '';
-    } else {
-        // Переустанавливаем значение
-        input.value = currentValue;
-        // Восстанавливаем позицию курсора
-        try {
-            input.setSelectionRange(cursorPos, cursorPos);
-        } catch(e) {}
-    }
-    
-    // Принудительно убираем авто-капитализацию
-    input.style.textTransform = 'none';
-    input.style.webkitTextTransform = 'none';
-};
 
-// Функция для принудительной активации клавиатуры
-window.forceKeyboard = function() {
-    const input = document.getElementById('chatInput');
-    if (!input) return;
-    
-    // Переключаем тип несколько раз
-    input.type = 'number';
-    input.type = 'text';
-    input.inputMode = 'text';
-    input.setAttribute('inputmode', 'text');
-    
-    // Вставляем и удаляем пробел
-    input.value = ' ';
-    input.value = '';
-    
-    // Фокусируемся
-    input.focus();
-    
-    // Ещё раз переключаем
-    setTimeout(() => {
-        input.type = 'text';
-        input.inputMode = 'text';
-        input.setAttribute('inputmode', 'text');
-    }, 50);
-};
         async function authLogin(username, password) {
             const { data, ok } = await sbFetch(
                 `/rest/v1/users?username=eq.${encodeURIComponent(username)}&password=eq.${encodeURIComponent(password)}&select=id,username,data,boss,fingerprint`
@@ -3121,91 +3000,144 @@ window.forceKeyboard = function() {
             }
         };
 
-       window.sendMessage = async function() {
-    const input = document.getElementById('chatInput');
-    const text = input.value.trim();
+        window.sendMessage = async function() {
+            const input = document.getElementById('chatInput');
+            const text = input.value.trim();
 
-    if (!text) {
-        input.style.borderColor = 'var(--red)';
-        setTimeout(() => {
+            if (!text) {
+                input.style.borderColor = 'var(--red)';
+                setTimeout(() => {
+                    input.style.borderColor = '';
+                }, 1000);
+                window.toast('Введите сообщение', 'err');
+                return;
+            }
+
+            if (text.length > 200) {
+                window.toast('Слишком длинное сообщение (макс. 200 символов)', 'err');
+                return;
+            }
+
+            if (isSearchMode && !currentChatTarget) {
+                window.toast('Сначала выберите собеседника в ЛС', 'err');
+                return;
+            }
+
+            const isPrivate = currentChat !== 'global' && currentChatTarget;
+
+            if (isPrivate) {
+                const now = Date.now();
+                if (now - G.lastPrivateReset > 86400000) {
+                    G.privateMessages = {};
+                    G.lastPrivateReset = now;
+                    scheduleSave();
+                }
+
+                const count = G.privateMessages[currentChatTarget.id] || 0;
+                if (count >= 10) {
+                    window.toast('❌ Лимит ЛС: 10 сообщений в день', 'err');
+                    return;
+                }
+
+                G.privateMessages[currentChatTarget.id] = count + 1;
+                scheduleSave();
+            }
+
+            const receiverId = isPrivate ? currentChatTarget.id : null;
+            const receiverName = isPrivate ? currentChatTarget.name : null;
+
+            const safeText = text.replace(/[<>]/g, '').trim();
+            if (!safeText) {
+                window.toast('Недопустимые символы', 'err');
+                return;
+            }
+
+            const msgData = {
+                sender_id: String(UID),
+                sender_name: String((G.name || currentUsername || 'Игрок').substring(0, 30)),
+                sender_avatar: String(G.avatar || AVATAR_LIST[0]),
+                receiver_id: receiverId ? String(receiverId) : null,
+                receiver_name: receiverName ? String(receiverName.substring(0, 30)) : null,
+                message: String(safeText.substring(0, 200)),
+                is_private: Boolean(isPrivate),
+                created_at: new Date().toISOString()
+            };
+
+            const sentText = text;
+            input.value = '';
             input.style.borderColor = '';
-        }, 1000);
-        window.toast('Введите сообщение', 'err');
-        // ВСЕГДА ПЕРЕКЛЮЧАЕМ РЕЖИМ ВВОДА
-        window.fixInput(input);
-        return;
-    }
 
-    if (text.length > 200) {
-        window.toast('Слишком длинное сообщение (макс. 200 символов)', 'err');
-        window.fixInput(input);
-        return;
-    }
+            const tempMsg = { ...msgData };
+            const targetKey = isPrivate ? currentChatTarget.id : 'global';
 
-    // === ВАЖНО: Сохраняем текст перед очисткой ===
-    const sentText = text;
-    
-    // Очищаем поле
-    input.value = '';
-    input.style.borderColor = '';
+            if (targetKey === 'global') {
+                chats.global.push(tempMsg);
+                chatMessagesCache = chats.global;
+            } else {
+                if (!chats.dm[targetKey]) chats.dm[targetKey] = [];
+                chats.dm[targetKey].push(tempMsg);
+                chatMessagesCache = chats.dm[targetKey];
+            }
 
-    const safeText = text.replace(/[<>]/g, '').trim();
-    
-    const msgData = {
-        sender_id: String(UID),
-        sender_name: String((G.name || currentUsername || 'Игрок').substring(0, 30)),
-        sender_avatar: String(G.avatar || AVATAR_LIST[0]),
-        receiver_id: null,
-        receiver_name: null,
-        message: String(safeText.substring(0, 200)),
-        is_private: false,
-        created_at: new Date().toISOString()
-    };
+            appendMessageToChat(tempMsg);
 
-    const tempMsg = { ...msgData };
-    chats.global.push(tempMsg);
-    chatMessagesCache = chats.global;
-    appendMessageToChat(tempMsg);
-
-    try {
-        const { ok, status, data } = await sbFetch('/rest/v1/messages', {
-            method: 'POST',
-            body: msgData
-        });
-
-        if (!ok) {
-            console.error('❌ Ошибка отправки:', status, data);
-            window.toast('❌ Ошибка отправки', 'err');
-            chats.global = chats.global.filter(m => m !== tempMsg);
-            chatMessagesCache = chats.global;
-            renderChatMessages();
-            input.value = sentText;
-        } else {
             setTimeout(() => {
-                loadMessages();
-                cleanupOldMessages();
-            }, 300);
-            
-            setTimeout(() => {
-                const container = document.getElementById('chatMessages');
-                if (container) container.scrollTop = container.scrollHeight;
+                input.focus();
+                if ('ontouchstart' in window) {
+                    input.click();
+                }
             }, 100);
-        }
-    } catch (e) {
-        console.error('❌ Ошибка соединения:', e);
-        window.toast('❌ Ошибка соединения', 'err');
-        chats.global = chats.global.filter(m => m !== tempMsg);
-        chatMessagesCache = chats.global;
-        renderChatMessages();
-        input.value = sentText;
-    }
-    
-    // === КРИТИЧЕСКИ ВАЖНО: после отправки переключаем режим ===
-    setTimeout(() => {
-        window.fixInput(input);
-        input.focus();
-    }, 200);
-};
+
+            try {
+                const { ok, status, data } = await sbFetch('/rest/v1/messages', {
+                    method: 'POST',
+                    body: msgData
+                });
+
+                if (!ok) {
+                    console.error('❌ Ошибка отправки:', status, data);
+                    window.toast('❌ Ошибка отправки', 'err');
+                    if (targetKey === 'global') {
+                        chats.global = chats.global.filter(m => m !== tempMsg);
+                        chatMessagesCache = chats.global;
+                    } else {
+                        chats.dm[targetKey] = chats.dm[targetKey].filter(m => m !== tempMsg);
+                        chatMessagesCache = chats.dm[targetKey];
+                    }
+                    renderChatMessages();
+                    input.value = sentText;
+                } else {
+                    setTimeout(() => {
+                        loadMessages();
+                        cleanupOldMessages();
+                    }, 300);
+
+                    if (isPrivate) {
+                        const remaining = getPrivateRemaining(currentChatTarget.id);
+                        document.getElementById('chatInfo').innerHTML =
+                            `💬 ЛС с <span class="highlight">${currentChatTarget.name}</span> — осталось <span class="highlight">${remaining}</span> сообщений сегодня`;
+                    }
+
+                    if (navigator.vibrate) {
+                        navigator.vibrate(10);
+                    }
+                }
+            } catch (e) {
+                console.error('❌ Ошибка соединения:', e);
+                window.toast('❌ Ошибка соединения', 'err');
+                if (targetKey === 'global') {
+                    chats.global = chats.global.filter(m => m !== tempMsg);
+                    chatMessagesCache = chats.global;
+                } else {
+                    chats.dm[targetKey] = chats.dm[targetKey].filter(m => m !== tempMsg);
+                    chatMessagesCache = chats.dm[targetKey];
+                }
+                renderChatMessages();
+                input.value = sentText;
+            }
+        };
+
+        let lastMessageTime = Date.now();
 
         function setupRealtime() {
             if (chatPollInterval) {
@@ -3355,69 +3287,23 @@ window.forceKeyboard = function() {
         input.disabled = false;
         input.placeholder = 'Напишите в общий чат...';
         input.value = '';
-        
-        // === ГЛАВНОЕ ИСПРАВЛЕНИЕ ===
-        // Принудительно переключаем режим ввода
-        input.type = 'text';
-        input.inputMode = 'text';
-        input.setAttribute('type', 'text');
-        input.setAttribute('inputmode', 'text');
-        
-        // Отключаем авто-капитализацию
-        input.style.textTransform = 'none';
-        input.style.webkitTextTransform = 'none';
-        
-        // Принудительная активация клавиатуры
-        setTimeout(() => {
-            // Переключаем туда-сюда для активации
-            input.type = 'number';
-            setTimeout(() => {
-                input.type = 'text';
-                input.inputMode = 'text';
-                input.setAttribute('inputmode', 'text');
-                input.focus();
-                
-                // Вставляем и удаляем пробел (ключевой момент!)
-                input.value = ' ';
-                input.value = '';
-            }, 50);
-        }, 300);
-        
-        // Обработчик касания
-        input.addEventListener('touchstart', function(e) {
-            window.fixInput(this);
-        });
-        
-        // Обработчик фокуса
-        input.addEventListener('focus', function() {
-            window.fixInput(this);
-        });
-        
-        // Обработчик клика
-        input.addEventListener('click', function() {
-            window.fixInput(this);
-        });
     }
 
     loadMessages();
     loadOnlineUsers();
     setupRealtime();
 
-    // АВТОПРОКРУТКА ВНИЗ
+    // АВТОПРОКРУТКА
     setTimeout(() => {
         const container = document.getElementById('chatMessages');
-        if (container) {
-            container.scrollTop = container.scrollHeight;
-        }
+        if (container) container.scrollTop = container.scrollHeight;
     }, 500);
-    
-    setTimeout(() => {
-        const container = document.getElementById('chatMessages');
-        if (container) {
-            container.scrollTop = container.scrollHeight;
-        }
-    }, 1000);
 }
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
 
         // ============================================================
         // 13. ВСЕ ИГРОВЫЕ ФУНКЦИИ
@@ -4632,19 +4518,6 @@ window.forceKeyboard = function() {
         // ============================================================
         // 22. ЗАПУСК
         // ============================================================
-        // Глобальный обработчик для всех полей ввода
-document.addEventListener('DOMContentLoaded', function() {
-    // Принудительно чиним все поля ввода
-    const inputs = document.querySelectorAll('input[type="text"]');
-    inputs.forEach(input => {
-        input.addEventListener('focus', function() {
-            window.fixInput(this);
-        });
-        input.addEventListener('touchstart', function() {
-            window.fixInput(this);
-        });
-    });
-});
         document.addEventListener('DOMContentLoaded', async () => {
             aStat('⏳ Проверка сессии...', 'ld');
 
