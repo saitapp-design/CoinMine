@@ -3889,7 +3889,7 @@
         };
 
         // ============================================================
-// 17. РУЛЕТКА
+// 17. РУЛЕТКА (ИСПРАВЛЕННАЯ)
 // ============================================================
 const RC = document.getElementById('rouletteCanvas');
 const rctx = RC.getContext('2d');
@@ -3898,25 +3898,49 @@ const CY = 160;
 const OR = 148;
 const IR = 28;
 
-// Сектора рулетки
-const SEGS = [];
-for (let i = 0; i < 20; i++) {
-    if (i === 0) {
-        SEGS.push({ c: 'green', label: '0', num: 0 });
-    } else if (i === 10) {
-        SEGS.push({ c: 'green', label: '00', num: 0 });
-    } else {
-        const isRed = (i % 2 === 1) || (i > 10 && i % 2 === 0);
-        SEGS.push({ 
-            c: isRed ? 'red' : 'black', 
-            label: String(i < 10 ? i : i + 1), 
-            num: i < 10 ? i : i + 1 
-        });
-    }
-}
+// === ПРАВИЛЬНЫЕ СЕКТОРА РУЛЕТКИ (как в реальной рулетке) ===
+const SEGS = [
+    { c: 'green', label: '0', num: 0 },
+    { c: 'red', label: '32', num: 32 },
+    { c: 'black', label: '15', num: 15 },
+    { c: 'red', label: '19', num: 19 },
+    { c: 'black', label: '4', num: 4 },
+    { c: 'red', label: '21', num: 21 },
+    { c: 'black', label: '2', num: 2 },
+    { c: 'red', label: '25', num: 25 },
+    { c: 'black', label: '17', num: 17 },
+    { c: 'red', label: '34', num: 34 },
+    { c: 'black', label: '6', num: 6 },
+    { c: 'red', label: '27', num: 27 },
+    { c: 'black', label: '13', num: 13 },
+    { c: 'red', label: '36', num: 36 },
+    { c: 'black', label: '11', num: 11 },
+    { c: 'red', label: '30', num: 30 },
+    { c: 'black', label: '8', num: 8 },
+    { c: 'red', label: '23', num: 23 },
+    { c: 'black', label: '10', num: 10 },
+    { c: 'red', label: '5', num: 5 },
+    { c: 'black', label: '24', num: 24 },
+    { c: 'red', label: '16', num: 16 },
+    { c: 'black', label: '33', num: 33 },
+    { c: 'red', label: '1', num: 1 },
+    { c: 'black', label: '20', num: 20 },
+    { c: 'red', label: '14', num: 14 },
+    { c: 'black', label: '31', num: 31 },
+    { c: 'red', label: '9', num: 9 },
+    { c: 'black', label: '22', num: 22 },
+    { c: 'red', label: '18', num: 18 },
+    { c: 'black', label: '29', num: 29 },
+    { c: 'red', label: '7', num: 7 },
+    { c: 'black', label: '28', num: 28 },
+    { c: 'red', label: '12', num: 12 },
+    { c: 'black', label: '35', num: 35 },
+    { c: 'red', label: '3', num: 3 },
+    { c: 'black', label: '26', num: 26 }
+];
 
 const SEG_FILL = {
-    red: ['#7f1d1d', '#991b1b', '#b91c1c'],
+    red: ['#7f1d1d', '#b91c1c', '#dc2626'],
     black: ['#18181b', '#27272a', '#3f3f46'],
     green: ['#14532d', '#15803d', '#16a34a']
 };
@@ -3927,7 +3951,7 @@ let ballAngle = 0;
 let ballR = OR - 14;
 let spinning = false;
 let raf = null;
-let resultDisplayed = false;
+let resultDisplayed = true;
 let spinBet = 25;
 let _pendingWinColor = null;
 let _targetIndex = null;
@@ -3935,6 +3959,7 @@ let _spinStartW = 0;
 let _spinT0 = 0;
 let _finalWAngle = 0;
 let idleAngle = 0;
+let currentLandedIndex = -1;
 
 // Отрисовка рулетки
 window.drawRoulette = function(wAngle, bAngle, bR, landed) {
@@ -3996,7 +4021,7 @@ window.drawRoulette = function(wAngle, bAngle, bR, landed) {
         rctx.fillStyle = fills[1];
         rctx.fill();
 
-        // Блик на секторе
+        // Блик
         const mid = a1 + (a2 - a1) / 2;
         const sheen = rctx.createLinearGradient(
             CX + Math.cos(mid) * (OR - 40), CY + Math.sin(mid) * (OR - 40),
@@ -4019,21 +4044,21 @@ window.drawRoulette = function(wAngle, bAngle, bR, landed) {
         rctx.lineWidth = 0.8;
         rctx.stroke();
 
-        // Число на секторе
+        // Число
         const tmid = a1 + (a2 - a1) / 2;
         const tr = OR - 30;
         rctx.save();
         rctx.translate(CX + Math.cos(tmid) * tr, CY + Math.sin(tmid) * tr);
         rctx.rotate(tmid + Math.PI / 2);
-        rctx.font = 'bold ' + (n <= 20 ? 9 : 7) + 'px sans-serif';
-        rctx.fillStyle = 'rgba(255,255,255,.85)';
+        rctx.font = 'bold 8px sans-serif';
+        rctx.fillStyle = 'rgba(255,255,255,.9)';
         rctx.textAlign = 'center';
         rctx.textBaseline = 'middle';
         rctx.fillText(SEGS[i].label, 0, 0);
         rctx.restore();
     }
 
-    // Центральный конус
+    // Центр
     const coneGrad = rctx.createRadialGradient(CX, CY, 0, CX, CY, IR + 14);
     coneGrad.addColorStop(0, '#5c3a1e');
     coneGrad.addColorStop(.7, '#3d2109');
@@ -4049,7 +4074,6 @@ window.drawRoulette = function(wAngle, bAngle, bR, landed) {
     rctx.lineWidth = 2;
     rctx.stroke();
 
-    // Центр
     const hubGrad = rctx.createRadialGradient(CX - 4, CY - 4, 0, CX, CY, IR);
     hubGrad.addColorStop(0, '#e8d060');
     hubGrad.addColorStop(.5, '#c8a020');
@@ -4058,18 +4082,6 @@ window.drawRoulette = function(wAngle, bAngle, bR, landed) {
     rctx.arc(CX, CY, IR, 0, Math.PI * 2);
     rctx.fillStyle = hubGrad;
     rctx.fill();
-
-    // Декоративные линии
-    rctx.strokeStyle = 'rgba(0,0,0,.35)';
-    rctx.lineWidth = 1.5;
-    rctx.beginPath();
-    rctx.moveTo(CX - IR + 4, CY);
-    rctx.lineTo(CX + IR - 4, CY);
-    rctx.stroke();
-    rctx.beginPath();
-    rctx.moveTo(CX, CY - IR + 4);
-    rctx.lineTo(CX, CY + IR - 4);
-    rctx.stroke();
 
     // Стрелка
     rctx.shadowColor = 'rgba(255, 215, 0, 0.5)';
@@ -4084,15 +4096,7 @@ window.drawRoulette = function(wAngle, bAngle, bR, landed) {
     rctx.strokeStyle = '#b8860b';
     rctx.lineWidth = 2;
     rctx.stroke();
-    
     rctx.shadowBlur = 0;
-    rctx.beginPath();
-    rctx.moveTo(CX - 6, 8);
-    rctx.lineTo(CX + 6, 8);
-    rctx.lineTo(CX, 20);
-    rctx.closePath();
-    rctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
-    rctx.fill();
     
     rctx.shadowColor = '#ffd700';
     rctx.shadowBlur = 25;
@@ -4155,6 +4159,7 @@ function animSpin() {
     } else {
         spinning = false;
         resultDisplayed = true;
+        currentLandedIndex = _targetIndex;
 
         document.querySelectorAll('.rl-btns button').forEach(b => b.disabled = false);
         document.getElementById('rlBetInput').disabled = false;
@@ -4164,8 +4169,8 @@ function animSpin() {
 }
 
 function resolveSpin() {
-    const idx = _targetIndex;
-    if (idx === null || idx === undefined) {
+    const idx = currentLandedIndex;
+    if (idx === null || idx === undefined || idx === -1) {
         window.toast('Ошибка рулетки', 'err');
         return;
     }
@@ -4176,6 +4181,7 @@ function resolveSpin() {
     const resultEl = document.getElementById('rlResult');
     const colorEmoji = seg.c === 'red' ? '🔴' : seg.c === 'black' ? '⚫' : '🟢';
     const numberText = seg.label;
+    const number = seg.num;
 
     if (win) {
         const mult = seg.c === 'green' ? 5 : 1.75;
@@ -4193,6 +4199,7 @@ function resolveSpin() {
 
     _pendingWinColor = null;
     _targetIndex = null;
+    currentLandedIndex = -1;
 
     scheduleSave();
     renderUI();
@@ -4211,6 +4218,7 @@ window.spinTo = function(col) {
     G.coins -= spinBet;
     spinning = true;
     resultDisplayed = false;
+    currentLandedIndex = -1;
 
     _pendingWinColor = col;
 
@@ -4224,10 +4232,14 @@ window.spinTo = function(col) {
     const n = SEGS.length;
     const segAngle = (Math.PI * 2) / n;
 
+    // Выбираем случайный сектор нужного цвета
     const validIndices = SEGS.map((s, i) => s.c === col ? i : -1).filter(i => i !== -1);
     _targetIndex = validIndices[Math.floor(Math.random() * validIndices.length)];
     
-    const extraSpins = 6 + Math.floor(Math.random() * 3);
+    // Рассчитываем угол остановки
+    // Нужно чтобы сектор _targetIndex оказался под стрелкой (вверху)
+    // Стрелка находится вверху (угол -PI/2)
+    const extraSpins = 6 + Math.floor(Math.random() * 4);
     _finalWAngle = -Math.PI / 2 - (_targetIndex + 0.5) * segAngle + extraSpins * Math.PI * 2;
 
     _spinStartW = wheelAngle;
@@ -4239,7 +4251,7 @@ window.spinTo = function(col) {
 
 // Фоновое вращение
 function idleSpin() {
-    if (!spinning && !resultDisplayed) {
+    if (!spinning && resultDisplayed) {
         idleAngle += 0.003;
         wheelAngle = idleAngle;
         window.drawRoulette(wheelAngle, -Math.PI / 2, OR - 14, null);
