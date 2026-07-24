@@ -2082,15 +2082,19 @@
             </div>
 
             <!-- Поле ввода -->
-            <div class="chat-input-wrap">
-                <input id="chatInput" placeholder="Напишите сообщение..." 
-                       autocomplete="off"
-                       inputmode="text"
-                       onkeydown="if(event.key==='Enter') sendMessage()">
-                <button class="btn bp" id="sendBtn" onclick="sendMessage()">
-                    <span>➤</span>
-                </button>
-            </div>
+<div class="chat-input-wrap">
+    <input id="chatInput" 
+           placeholder="Напишите сообщение..." 
+           autocomplete="off"
+           inputmode="text"
+           lang="ru"
+           spellcheck="true"
+           enterkeyhint="send"
+           onkeydown="if(event.key==='Enter') sendMessage()">
+    <button class="btn bp" id="sendBtn" onclick="sendMessage()">
+        <span>➤</span>
+    </button>
+</div>
         </div>
 
     </div>
