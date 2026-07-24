@@ -2767,7 +2767,7 @@
     const avatar = msg?.sender_avatar || AVATAR_LIST[0];
     const text = escapeHtml(msg?.message || '');
     
-    // === ПОЛУЧАЕМ СТИЛЬ НИКА ===
+    // === ПОЛУЧАЕМ СТИЛЬ НИКА ДЛЯ ВСЕХ ===
     let nickStyle = '';
     if (isOwn) {
         if (G.nicks && G.nicks.a) {
@@ -2801,58 +2801,91 @@
 }
 
         async function loadMessages() {
-            if (!UID) return;
+    if (!UID) return;
 
-            try {
-                let data = [];
+    try {
+        let data = [];
 
-                if (currentChat !== 'global' && currentChatTarget) {
-                    const targetId = String(currentChatTarget.id);
+        if (currentChat !== 'global' && currentChatTarget) {
+            const targetId = String(currentChatTarget.id);
 
-                    const [sentRes, receivedRes] = await Promise.all([
-                        sbFetch(
-                            `/rest/v1/messages?select=*&order=created_at.desc&limit=50&is_private=eq.true&sender_id=eq.${encodeURIComponent(UID)}&receiver_id=eq.${encodeURIComponent(targetId)}`
-                        ),
-                        sbFetch(
-                            `/rest/v1/messages?select=*&order=created_at.desc&limit=50&is_private=eq.true&sender_id=eq.${encodeURIComponent(targetId)}&receiver_id=eq.${encodeURIComponent(UID)}`
-                        )
-                    ]);
+            const [sentRes, receivedRes] = await Promise.all([
+                sbFetch(
+                    `/rest/v1/messages?select=*&order=created_at.desc&limit=50&is_private=eq.true&sender_id=eq.${encodeURIComponent(UID)}&receiver_id=eq.${encodeURIComponent(targetId)}`
+                ),
+                sbFetch(
+                    `/rest/v1/messages?select=*&order=created_at.desc&limit=50&is_private=eq.true&sender_id=eq.${encodeURIComponent(targetId)}&receiver_id=eq.${encodeURIComponent(UID)}`
+                )
+            ]);
 
-                    const sent = sentRes.ok ? sentRes.data || [] : [];
-                    const received = receivedRes.ok ? receivedRes.data || [] : [];
-                    data = [...sent, ...received];
-                    data.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+            const sent = sentRes.ok ? sentRes.data || [] : [];
+            const received = receivedRes.ok ? receivedRes.data || [] : [];
+            data = [...sent, ...received];
+            data.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
 
-                    if (!chats.dm[targetId]) chats.dm[targetId] = [];
-                    chats.dm[targetId] = data;
-                    chatMessagesCache = data;
+            if (!chats.dm[targetId]) chats.dm[targetId] = [];
+            chats.dm[targetId] = data;
+            chatMessagesCache = data;
 
-                    const remaining = getPrivateRemaining(targetId);
-                    document.getElementById('chatInfo').innerHTML =
-                        `💬 ЛС с <span class="highlight">${currentChatTarget.name}</span> — осталось <span class="highlight">${remaining}</span> сообщений сегодня`;
+            const remaining = getPrivateRemaining(targetId);
+            document.getElementById('chatInfo').innerHTML =
+                `💬 ЛС с <span class="highlight">${currentChatTarget.name}</span> — осталось <span class="highlight">${remaining}</span> сообщений сегодня`;
 
-                } else {
-                    const res = await sbFetch(
-                        `/rest/v1/messages?select=*&order=created_at.desc&limit=50&is_private=eq.false`
-                    );
-                    data = res.ok ? res.data || [] : [];
-                    data.reverse();
+        } else {
+            const res = await sbFetch(
+                `/rest/v1/messages?select=*&order=created_at.desc&limit=50&is_private=eq.false`
+            );
+            data = res.ok ? res.data || [] : [];
+            data.reverse();
 
+            chats.global = data;
+            chatMessagesCache = data;
+
+            document.getElementById('chatInfo').innerHTML =
+                `💬 <span class="highlight">Общий чат</span> — все видят все сообщения (последние 50)`;
+        }
+
+        // === ЗАГРУЖАЕМ СТИЛИ ДЛЯ ВСЕХ ПОЛЬЗОВАТЕЛЕЙ ===
+        const userIds = [...new Set(data.map(m => m.sender_id).filter(id => id && id !== UID))];
+        if (userIds.length > 0) {
+            const { data: users } = await sbFetch(
+                `/rest/v1/users?select=id,data&id=in.(${userIds.join(',')})`
+            );
+            if (users) {
+                const usersData = {};
+                users.forEach(u => {
+                    usersData[u.id] = u.data;
+                });
+                // Добавляем стили к сообщениям
+                data = data.map(msg => {
+                    if (usersData[msg.sender_id] && usersData[msg.sender_id].nicks) {
+                        return {
+                            ...msg,
+                            sender_data: {
+                                nicks: usersData[msg.sender_id].nicks
+                            }
+                        };
+                    }
+                    return msg;
+                });
+                // Обновляем кеш
+                if (currentChat === 'global') {
                     chats.global = data;
-                    chatMessagesCache = data;
-
-                    document.getElementById('chatInfo').innerHTML =
-                        `💬 <span class="highlight">Общий чат</span> — все видят все сообщения (последние 50)`;
+                } else {
+                    chats.dm[currentChatTarget.id] = data;
                 }
-
-                renderChatMessages();
-
-            } catch (e) {
-                console.warn('⚠️ Ошибка загрузки сообщений:', e);
-                document.getElementById('chatMessages').innerHTML =
-                    '<div class="system-msg" style="color:var(--red);">Ошибка загрузки</div>';
+                chatMessagesCache = data;
             }
         }
+
+        renderChatMessages();
+
+    } catch (e) {
+        console.warn('⚠️ Ошибка загрузки сообщений:', e);
+        document.getElementById('chatMessages').innerHTML =
+            '<div class="system-msg" style="color:var(--red);">Ошибка загрузки</div>';
+    }
+}
 
         function renderChatMessages() {
     const container = document.getElementById('chatMessages');
@@ -2877,15 +2910,16 @@
         const avatar = msg?.sender_avatar || AVATAR_LIST[0];
         const text = escapeHtml(msg?.message || '');
         
-        // === ПОЛУЧАЕМ СТИЛЬ НИКА ===
+        // === ПОЛУЧАЕМ СТИЛЬ НИКА ДЛЯ ВСЕХ ===
         let nickStyle = '';
         if (isOwn) {
+            // Свой стиль
             if (G.nicks && G.nicks.a) {
                 const style = NICK_S[G.nicks.a];
                 if (style) nickStyle = style.e;
             }
         } else {
-            // Для чужих сообщений - пробуем получить стиль из данных пользователя
+            // Стиль другого пользователя из данных сообщения
             if (msg?.sender_data && msg.sender_data.nicks && msg.sender_data.nicks.a) {
                 const style = NICK_S[msg.sender_data.nicks.a];
                 if (style) nickStyle = style.e;
@@ -3200,64 +3234,108 @@
         let lastMessageTime = Date.now();
 
         function setupRealtime() {
-            if (chatPollInterval) {
-                clearInterval(chatPollInterval);
-                chatPollInterval = null;
-            }
+    if (chatPollInterval) {
+        clearInterval(chatPollInterval);
+        chatPollInterval = null;
+    }
 
-            chatPollInterval = setInterval(async () => {
-                if (!UID) return;
-                if (!document.getElementById('sc-chat').classList.contains('on')) return;
+    chatPollInterval = setInterval(async () => {
+        if (!UID) return;
+        if (!document.getElementById('sc-chat').classList.contains('on')) return;
 
-                try {
-                    const isPrivate = currentChat !== 'global' && currentChatTarget;
+        try {
+            const isPrivate = currentChat !== 'global' && currentChatTarget;
 
-                    if (isPrivate) {
-                        const targetId = String(currentChatTarget.id);
-                        const { data, ok } = await sbFetch(
-                            `/rest/v1/messages?select=*&order=created_at.desc&limit=5&is_private=eq.true&created_at=gt.${encodeURIComponent(new Date(lastMessageTime).toISOString())}&or=(sender_id.eq.${UID},receiver_id.eq.${UID})&or=(sender_id.eq.${targetId},receiver_id.eq.${targetId})`
+            if (isPrivate) {
+                const targetId = String(currentChatTarget.id);
+                const { data, ok } = await sbFetch(
+                    `/rest/v1/messages?select=*&order=created_at.desc&limit=5&is_private=eq.true&created_at=gt.${encodeURIComponent(new Date(lastMessageTime).toISOString())}&or=(sender_id.eq.${UID},receiver_id.eq.${UID})&or=(sender_id.eq.${targetId},receiver_id.eq.${targetId})`
+                );
+
+                if (ok && data && data.length > 0) {
+                    const newMsgs = data.reverse();
+                    
+                    // Загружаем стили для новых сообщений
+                    const userIds = [...new Set(newMsgs.map(m => m.sender_id).filter(id => id !== UID))];
+                    let usersData = {};
+                    if (userIds.length > 0) {
+                        const { data: users } = await sbFetch(
+                            `/rest/v1/users?select=id,data&id=in.(${userIds.join(',')})`
                         );
-
-                        if (ok && data && data.length > 0) {
-                            const newMsgs = data.reverse();
-                            for (const msg of newMsgs) {
-                                if (!chats.dm[targetId]) chats.dm[targetId] = [];
-                                const exists = chats.dm[targetId].some(m => m.id === msg.id);
-                                if (!exists) {
-                                    chats.dm[targetId].push(msg);
-                                    chatMessagesCache = chats.dm[targetId];
-                                    appendMessageToChat(msg);
-                                }
-                            }
-                            if (newMsgs.length > 0) {
-                                lastMessageTime = new Date(newMsgs[newMsgs.length - 1].created_at).getTime();
-                            }
-                        }
-                    } else {
-                        const { data, ok } = await sbFetch(
-                            `/rest/v1/messages?select=*&order=created_at.desc&limit=5&is_private=eq.false&created_at=gt.${encodeURIComponent(new Date(lastMessageTime).toISOString())}`
-                        );
-
-                        if (ok && data && data.length > 0) {
-                            const newMsgs = data.reverse();
-                            for (const msg of newMsgs) {
-                                const exists = chats.global.some(m => m.id === msg.id);
-                                if (!exists) {
-                                    chats.global.push(msg);
-                                    chatMessagesCache = chats.global;
-                                    appendMessageToChat(msg);
-                                }
-                            }
-                            if (newMsgs.length > 0) {
-                                lastMessageTime = new Date(newMsgs[newMsgs.length - 1].created_at).getTime();
-                            }
+                        if (users) {
+                            users.forEach(u => {
+                                usersData[u.id] = u.data;
+                            });
                         }
                     }
-                } catch (e) {
-                    // Игнорируем ошибки polling
+                    
+                    for (const msg of newMsgs) {
+                        if (!chats.dm[targetId]) chats.dm[targetId] = [];
+                        const exists = chats.dm[targetId].some(m => m.id === msg.id);
+                        if (!exists) {
+                            // Добавляем стиль к сообщению
+                            const enrichedMsg = { ...msg };
+                            if (usersData[msg.sender_id] && usersData[msg.sender_id].nicks) {
+                                enrichedMsg.sender_data = {
+                                    nicks: usersData[msg.sender_id].nicks
+                                };
+                            }
+                            chats.dm[targetId].push(enrichedMsg);
+                            chatMessagesCache = chats.dm[targetId];
+                            appendMessageToChat(enrichedMsg);
+                        }
+                    }
+                    if (newMsgs.length > 0) {
+                        lastMessageTime = new Date(newMsgs[newMsgs.length - 1].created_at).getTime();
+                    }
                 }
-            }, 2000);
+            } else {
+                const { data, ok } = await sbFetch(
+                    `/rest/v1/messages?select=*&order=created_at.desc&limit=5&is_private=eq.false&created_at=gt.${encodeURIComponent(new Date(lastMessageTime).toISOString())}`
+                );
+
+                if (ok && data && data.length > 0) {
+                    const newMsgs = data.reverse();
+                    
+                    // Загружаем стили для новых сообщений
+                    const userIds = [...new Set(newMsgs.map(m => m.sender_id).filter(id => id !== UID))];
+                    let usersData = {};
+                    if (userIds.length > 0) {
+                        const { data: users } = await sbFetch(
+                            `/rest/v1/users?select=id,data&id=in.(${userIds.join(',')})`
+                        );
+                        if (users) {
+                            users.forEach(u => {
+                                usersData[u.id] = u.data;
+                            });
+                        }
+                    }
+                    
+                    for (const msg of newMsgs) {
+                        const exists = chats.global.some(m => m.id === msg.id);
+                        if (!exists) {
+                            // Добавляем стиль к сообщению
+                            const enrichedMsg = { ...msg };
+                            if (usersData[msg.sender_id] && usersData[msg.sender_id].nicks) {
+                                enrichedMsg.sender_data = {
+                                    nicks: usersData[msg.sender_id].nicks
+                                };
+                            }
+                            chats.global.push(enrichedMsg);
+                            chatMessagesCache = chats.global;
+                            appendMessageToChat(enrichedMsg);
+                        }
+                    }
+                    if (newMsgs.length > 0) {
+                        lastMessageTime = new Date(newMsgs[newMsgs.length - 1].created_at).getTime();
+                    }
+                }
+            }
+        } catch (e) {
+            // Игнорируем ошибки polling
         }
+    }, 2000);
+}
 
         async function cleanupOldMessages() {
             if (!UID) return;
@@ -4430,7 +4508,6 @@
     const all = [...topPlayers];
     const exists = all.some(p => p.id === UID);
     if (!exists && G.name) {
-        // === ДОБАВЛЯЕМ СТИЛЬ ДЛЯ ТЕКУЩЕГО ПОЛЬЗОВАТЕЛЯ ===
         let nickStyle = '';
         if (G.nicks && G.nicks.a) {
             const style = NICK_S[G.nicks.a];
