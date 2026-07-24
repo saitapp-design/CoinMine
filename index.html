@@ -3898,26 +3898,32 @@ const CX = 160,
     OR = 148,
     IR = 28;
 
-// === 20 СЕКТОРОВ: 9 КРАСНЫХ, 9 ЧЁРНЫХ, 2 ЗЕЛЁНЫХ ===
-// Порядок: 0(зел), 1-9(крас/черн по очереди), 00(зел), 10-18(крас/черн по очереди)
-const SEGS = [];
-for (let i = 0; i < 20; i++) {
-    if (i === 0) {
-        SEGS.push({ c: 'green', label: '0', num: 0 });
-    } else if (i === 10) {
-        SEGS.push({ c: 'green', label: '00', num: 0 });
-    } else {
-        // Для i от 1 до 9 и от 11 до 19
-        const num = i < 10 ? i : i - 1; // 1-9 и 10-18
-        // Красные на нечетных позициях (1,3,5,7,9,11,13,15,17)
-        const isRed = (num % 2 === 1);
-        SEGS.push({ 
-            c: isRed ? 'red' : 'black', 
-            label: String(num), 
-            num: num 
-        });
-    }
-}
+// === 20 СЕКТОРОВ С ЧЁТКОЙ НУМЕРАЦИЕЙ И ЦВЕТАМИ ===
+// 0 - зеленый, 1-9 - чередование красный/черный, 00 - зеленый, 10-18 - чередование черный/красный
+const SEGS = [
+    // Первая половина: 0 и 1-9
+    { c: 'green', label: '0', num: 0 },      // 0 - зеленый
+    { c: 'red', label: '1', num: 1 },        // 1 - красный
+    { c: 'black', label: '2', num: 2 },      // 2 - черный
+    { c: 'red', label: '3', num: 3 },        // 3 - красный
+    { c: 'black', label: '4', num: 4 },      // 4 - черный
+    { c: 'red', label: '5', num: 5 },        // 5 - красный
+    { c: 'black', label: '6', num: 6 },      // 6 - черный
+    { c: 'red', label: '7', num: 7 },        // 7 - красный
+    { c: 'black', label: '8', num: 8 },      // 8 - черный
+    { c: 'red', label: '9', num: 9 },        // 9 - красный
+    // Вторая половина: 00 и 10-18
+    { c: 'green', label: '00', num: 0 },     // 00 - зеленый
+    { c: 'black', label: '10', num: 10 },    // 10 - черный
+    { c: 'red', label: '11', num: 11 },      // 11 - красный
+    { c: 'black', label: '12', num: 12 },    // 12 - черный
+    { c: 'red', label: '13', num: 13 },      // 13 - красный
+    { c: 'black', label: '14', num: 14 },    // 14 - черный
+    { c: 'red', label: '15', num: 15 },      // 15 - красный
+    { c: 'black', label: '16', num: 16 },    // 16 - черный
+    { c: 'red', label: '17', num: 17 },      // 17 - красный
+    { c: 'black', label: '18', num: 18 }     // 18 - черный
+];
 
 const SEG_FILL = {
     red: ['#7f1d1d', '#b91c1c', '#dc2626'],
@@ -4015,7 +4021,7 @@ window.drawRoulette = function(angle) {
         rctx.save();
         rctx.translate(CX + Math.cos(tmid) * tr, CY + Math.sin(tmid) * tr);
         rctx.rotate(tmid + Math.PI / 2);
-        rctx.font = `bold ${n <= 20 ? 9 : 7}px sans-serif`;
+        rctx.font = `bold 9px sans-serif`;
         rctx.fillStyle = 'rgba(255,255,255,.85)';
         rctx.textAlign = 'center';
         rctx.textBaseline = 'middle';
@@ -4196,7 +4202,6 @@ window.drawRoulette(0);
 idleSpin();
 document.getElementById('rlResult').textContent = '🎰 Выберите цвет';
 document.getElementById('rlResult').className = 'rl-result';
-
         // ============================================================
         // 18. КУБИК
         // ============================================================
