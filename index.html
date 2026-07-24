@@ -2378,7 +2378,42 @@
                 }
             }
         }
+// ============================================================
+// 2. ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ (в самом начале)
+// ============================================================
+function escapeHtml(text) {
+    if (!text) return '';
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
 
+function aStat(text, type) {
+    const e = document.getElementById('authStatus');
+    if (e) { e.textContent = text;
+        e.className = 'astat ' + (type || ''); }
+}
+
+function getFingerprint() {
+    let fp = localStorage.getItem('coinmine_fp');
+    if (fp) return fp;
+    const parts = [
+        navigator.userAgent, navigator.language,
+        screen.width + 'x' + screen.height, screen.colorDepth,
+        navigator.hardwareConcurrency || 'unknown',
+        new Date().getTimezoneOffset()
+    ];
+    let hash = 0;
+    for (let c of parts.join('|')) {
+        hash = ((hash << 5) - hash) + c.charCodeAt(0);
+        hash = hash & hash;
+    }
+    fp = 'fp_' + Math.abs(hash).toString(36);
+    localStorage.setItem('coinmine_fp', fp);
+    return fp;
+}
+
+const FINGERPRINT = getFingerprint();
         // ============================================================
         // 7. АВТОРИЗАЦИЯ
         // ============================================================
