@@ -141,51 +141,6 @@
             color: var(--gld);
             background: var(--bg3);
         }
-        /* Подсказка для телефона */
-.phone-hint {
-    display: none;
-    position: fixed;
-    bottom: 100px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: rgba(124, 58, 237, 0.95);
-    color: #fff;
-    padding: 12px 20px;
-    border-radius: 16px;
-    font-size: 14px;
-    font-weight: 600;
-    z-index: 999;
-    text-align: center;
-    max-width: 90%;
-    box-shadow: 0 8px 40px rgba(0,0,0,0.6);
-    border: 2px solid rgba(255,255,255,0.2);
-    animation: fadeIn 0.3s ease;
-    pointer-events: none;
-}
-
-.phone-hint.show {
-    display: block;
-}
-
-.phone-hint .icon {
-    font-size: 24px;
-    display: block;
-    margin-bottom: 4px;
-}
-
-.phone-hint .sub {
-    font-size: 12px;
-    opacity: 0.8;
-    font-weight: 400;
-}
-
-@media (max-width: 700px) {
-    .phone-hint {
-        bottom: 120px;
-        padding: 14px 20px;
-        font-size: 15px;
-    }
-}
         @media (max-width: 700px) {
             .static-banner {
                 max-width: 95%;
@@ -1825,14 +1780,7 @@
     </style>
 </head>
 <body>
-<!-- Подсказка для телефона -->
-<div class="phone-hint" id="phoneHint">
-    <span class="icon">📱</span>
-    Чтобы написать сообщение<br>
-    сначала введите <b>любую цифру</b> (например, <b>1</b>),<br>
-    затем удалите её и пишите текст
-    <div class="sub">Это нужно для активации клавиатуры</div>
-</div>
+
     <!-- APP -->
     <div class="app" id="appRoot">
 
@@ -2118,13 +2066,14 @@
             </div>
             <div class="chat-header-right">
                 <span class="online-count" id="chatOnline">● 0 онлайн</span>
+                <!-- КНОПКА ПЕРЕКЛЮЧЕНИЯ УДАЛЕНА -->
             </div>
         </div>
 
         <!-- Окно сообщений -->
         <div class="chat-messages-wrap" id="chatMessagesWrap">
             <div class="chat-messages" id="chatMessages">
-                <div class="system-msg">Напишите сообщение в общий чат</div>
+                <div class="system-msg">Напишите сообщение в общий чат (сначала отправьте цыфру потом текст)</div>
             </div>
 
             <!-- Информационная строка -->
@@ -2132,27 +2081,25 @@
                 💬 <span class="highlight">Общий чат</span> — все видят все сообщения
             </div>
 
-            <!-- Поле ввода - ГАРАНТИРОВАННО РАБОТАЕТ -->
-<div class="chat-input-wrap">
-    <input id="chatInput" 
-           type="text"
-           inputmode="text"
-           placeholder="Напишите сообщение..." 
-           autocomplete="off"
-           lang="ru"
-           style="flex:1;min-width:60px;height:48px;padding:10px 14px;font-size:16px;border-radius:25px;background:var(--bg3);border:1.5px solid var(--bd2);color:var(--tx);outline:none;font-family:inherit;"
-           onfocus="this.type='text';this.inputMode='text';"
-           onclick="this.type='text';this.inputMode='text';"
-           ontouchstart="this.type='text';this.inputMode='text';"
-           onkeydown="if(event.key==='Enter'){event.preventDefault();sendMessage();}">
-    <button class="btn bp" id="sendBtn" onclick="sendMessage()" style="width:48px;height:48px;min-width:48px;padding:0;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,var(--acc),var(--acc2));box-shadow:0 4px 16px rgba(124,58,237,0.3);border:none;cursor:pointer;">
-        <span style="font-size:22px;line-height:1;color:#fff;">➤</span>
-    </button>
-</div>
+            <!-- Поле ввода -->
+            <div class="chat-input-wrap">
+                <input id="chatInput" placeholder="Напишите сообщение..." 
+                       autocomplete="off"
+                       inputmode="text"
+                       onkeydown="if(event.key==='Enter') sendMessage()">
+                <button class="btn bp" id="sendBtn" onclick="sendMessage()">
+                    <span>➤</span>
+                </button>
+            </div>
         </div>
 
     </div>
 </div>
+
+                    </div>
+                </div>
+
+            </div>
 
             <!-- НАВИГАЦИЯ (5 пунктов, без кланов) -->
             <nav class="nav">
@@ -2242,132 +2189,7 @@
             localStorage.setItem('coinmine_fp', fp);
             return fp;
         }
-        // ============================================================
-// ПОДСКАЗКА ДЛЯ ТЕЛЕФОНА
-// ============================================================
-let phoneHintTimeout = null;
 
-function showPhoneHint() {
-    const hint = document.getElementById('phoneHint');
-    if (!hint) return;
-    
-    // Показываем только на телефонах
-    if (window.innerWidth > 700) return;
-    
-    hint.classList.add('show');
-    
-    // Автоматически скрываем через 4 секунды
-    clearTimeout(phoneHintTimeout);
-    phoneHintTimeout = setTimeout(() => {
-        hint.classList.remove('show');
-    }, 4000);
-}
-
-function hidePhoneHint() {
-    const hint = document.getElementById('phoneHint');
-    if (hint) hint.classList.remove('show');
-    clearTimeout(phoneHintTimeout);
-}
-
-// При клике на поле ввода показываем подсказку
-document.addEventListener('DOMContentLoaded', function() {
-    const input = document.getElementById('chatInput');
-    if (input) {
-        input.addEventListener('focus', function() {
-            // Если поле пустое - показываем подсказку
-            if (this.value.trim() === '') {
-                showPhoneHint();
-            } else {
-                hidePhoneHint();
-            }
-        });
-        
-        input.addEventListener('input', function() {
-            // Если пользователь что-то ввёл - скрываем подсказку
-            if (this.value.trim() !== '') {
-                hidePhoneHint();
-            }
-        });
-        
-        // При нажатии на кнопку отправки - проверяем
-        const sendBtn = document.getElementById('sendBtn');
-        if (sendBtn) {
-            sendBtn.addEventListener('click', function() {
-                if (input.value.trim() === '') {
-                    showPhoneHint();
-                }
-            });
-        }
-    }
-});
-
-// Также показываем подсказку при переходе в чат
-function initChatWithHint() {
-    initChat();
-    
-    // Показываем подсказку при открытии чата
-    setTimeout(() => {
-        const input = document.getElementById('chatInput');
-        if (input && input.value.trim() === '') {
-            showPhoneHint();
-        }
-    }, 1000);
-}
-// ============================================================
-// ПРИНУДИТЕЛЬНОЕ ИСПРАВЛЕНИЕ ДЛЯ ТЕЛЕФОНОВ
-// ============================================================
-(function fixPhoneInput() {
-    // Ждём загрузки страницы
-    document.addEventListener('DOMContentLoaded', function() {
-        const input = document.getElementById('chatInput');
-        if (!input) return;
-        
-        // Функция принудительного переключения
-        function forceTextMode() {
-            input.type = 'text';
-            input.inputMode = 'text';
-            input.setAttribute('type', 'text');
-            input.setAttribute('inputmode', 'text');
-            
-            // КРИТИЧЕСКИ ВАЖНО: вставляем и удаляем пробел
-            if (input.value === '') {
-                input.value = ' ';
-                input.value = '';
-            }
-        }
-        
-        // Срабатывает при каждом касании
-        input.addEventListener('touchstart', function(e) {
-            forceTextMode();
-            // Небольшая задержка для активации
-            setTimeout(() => {
-                this.focus();
-                forceTextMode();
-            }, 10);
-        });
-        
-        // Срабатывает при фокусе
-        input.addEventListener('focus', function() {
-            forceTextMode();
-        });
-        
-        // Срабатывает при клике
-        input.addEventListener('click', function() {
-            forceTextMode();
-        });
-        
-        // Принудительно активируем при загрузке
-        setTimeout(forceTextMode, 500);
-        setTimeout(forceTextMode, 1000);
-        
-        // Каждые 3 секунды проверяем и исправляем
-        setInterval(function() {
-            if (document.activeElement === input) {
-                forceTextMode();
-            }
-        }, 3000);
-    });
-})();
         const FINGERPRINT = getFingerprint();
 
         // ============================================================
@@ -3172,266 +2994,144 @@ function initChatWithHint() {
             }
         };
 
-        // ============================================================
-// ФУНКЦИИ ДЛЯ CHAT С TEXTAREA
-// ============================================================
+        window.sendMessage = async function() {
+            const input = document.getElementById('chatInput');
+            const text = input.value.trim();
 
-// Отправка сообщения
-window.sendMessage = async function() {
-    const input = document.getElementById('chatInput');
-    const text = input.value.trim();
-
-    // Проверка на пустое сообщение
-    if (!text) {
-        input.style.borderColor = 'var(--red)';
-        showPhoneHint(); // ПОКАЗЫВАЕМ ПОДСКАЗКУ
-        setTimeout(() => {
-            input.style.borderColor = '';
-            input.focus();
-        }, 1000);
-        window.toast('Введите сообщение', 'err');
-        return;
-    }
-
-    // Если текст состоит только из цифр - показываем подсказку
-    if (/^\d+$/.test(text)) {
-        showPhoneHint();
-        window.toast('❌ Введите текст, а не только цифры', 'err');
-        input.value = '';
-        input.focus();
-        return;
-    }
-
-    // Если пользователь ввёл цифры в начале - очищаем их
-    const cleanText = text.replace(/^\d+\s*/, '');
-    if (cleanText.trim() === '' && text.length > 0) {
-        showPhoneHint();
-        window.toast('❌ Удалите цифры и напишите текст', 'err');
-        input.value = '';
-        input.focus();
-        return;
-    }
-
-    // Проверка длины
-    if (text.length > 200) {
-        window.toast('Слишком длинное сообщение (макс. 200 символов)', 'err');
-        input.focus();
-        return;
-    }
-
-    // Экранирование опасных символов
-    const safeText = text.replace(/[<>]/g, '').trim();
-    if (!safeText) {
-        window.toast('Недопустимые символы', 'err');
-        input.focus();
-        return;
-    }
-
-    // Сохраняем текст и очищаем поле
-    const sentText = text;
-    input.value = '';
-    input.style.borderColor = '';
-    hidePhoneHint(); // Скрываем подсказку
-
-    // Формируем данные сообщения
-    const msgData = {
-        sender_id: String(UID),
-        sender_name: String((G.name || currentUsername || 'Игрок').substring(0, 30)),
-        sender_avatar: String(G.avatar || AVATAR_LIST[0]),
-        receiver_id: null,
-        receiver_name: null,
-        message: String(safeText.substring(0, 200)),
-        is_private: false,
-        created_at: new Date().toISOString()
-    };
-
-    // Оптимистичное добавление сообщения
-    const tempMsg = { ...msgData };
-    chats.global.push(tempMsg);
-    chatMessagesCache = chats.global;
-    appendMessageToChat(tempMsg);
-
-    // Фокусируемся на поле ввода
-    setTimeout(() => {
-        input.focus();
-    }, 100);
-
-    try {
-        // Отправка сообщения на сервер
-        const { ok, status, data } = await sbFetch('/rest/v1/messages', {
-            method: 'POST',
-            body: msgData
-        });
-
-        if (!ok) {
-            console.error('❌ Ошибка отправки:', status, data);
-            window.toast('❌ Ошибка отправки', 'err');
-            // Удаляем оптимистичное сообщение
-            chats.global = chats.global.filter(m => m !== tempMsg);
-            chatMessagesCache = chats.global;
-            renderChatMessages();
-            input.value = sentText;
-            input.focus();
-        } else {
-            // Обновляем сообщения с сервера
-            setTimeout(() => {
-                loadMessages();
-                cleanupOldMessages();
-            }, 300);
-            
-            // Вибрация на телефоне
-            if (navigator.vibrate) {
-                navigator.vibrate(10);
+            if (!text) {
+                input.style.borderColor = 'var(--red)';
+                setTimeout(() => {
+                    input.style.borderColor = '';
+                }, 1000);
+                window.toast('Введите сообщение', 'err');
+                return;
             }
-        }
-    } catch (e) {
-        console.error('❌ Ошибка соединения:', e);
-        window.toast('❌ Ошибка соединения', 'err');
-        // Удаляем оптимистичное сообщение
-        chats.global = chats.global.filter(m => m !== tempMsg);
-        chatMessagesCache = chats.global;
-        renderChatMessages();
-        input.value = sentText;
-        input.focus();
-    }
-};
 
-// Добавление сообщения в чат с автопрокруткой
-function appendMessageToChat(msg) {
-    const container = document.getElementById('chatMessages');
-    if (!container) return;
+            if (text.length > 200) {
+                window.toast('Слишком длинное сообщение (макс. 200 символов)', 'err');
+                return;
+            }
 
-    const isOwn = msg?.sender_id === UID;
-    const senderName = isOwn ? 'Я' : (msg?.sender_name || 'Игрок');
-    const avatar = msg?.sender_avatar || AVATAR_LIST[0];
-    const text = escapeHtml(msg?.message || '');
+            if (isSearchMode && !currentChatTarget) {
+                window.toast('Сначала выберите собеседника в ЛС', 'err');
+                return;
+            }
 
-    const el = document.createElement('div');
-    el.className = `msg ${isOwn ? 'own' : 'other'}`;
+            const isPrivate = currentChat !== 'global' && currentChatTarget;
 
-    el.innerHTML = `
-        <div class="sender">
-            ${!isOwn ? `<div class="top-avatar" style="width:22px;height:22px;"><img src="${avatar}" alt="${escapeHtml(senderName)}" loading="lazy"></div>` : ''}
-            <span class="name">${escapeHtml(senderName)}</span>
-        </div>
-        <div class="text">${text}</div>
-    `;
+            if (isPrivate) {
+                const now = Date.now();
+                if (now - G.lastPrivateReset > 86400000) {
+                    G.privateMessages = {};
+                    G.lastPrivateReset = now;
+                    scheduleSave();
+                }
 
-    container.appendChild(el);
-    container.scrollTop = container.scrollHeight;
-}
+                const count = G.privateMessages[currentChatTarget.id] || 0;
+                if (count >= 10) {
+                    window.toast('❌ Лимит ЛС: 10 сообщений в день', 'err');
+                    return;
+                }
 
-// Загрузка сообщений
-async function loadMessages() {
-    if (!UID) return;
+                G.privateMessages[currentChatTarget.id] = count + 1;
+                scheduleSave();
+            }
 
-    try {
-        const res = await sbFetch(
-            `/rest/v1/messages?select=*&order=created_at.desc&limit=50&is_private=eq.false`
-        );
-        const data = res.ok ? res.data || [] : [];
-        data.reverse();
+            const receiverId = isPrivate ? currentChatTarget.id : null;
+            const receiverName = isPrivate ? currentChatTarget.name : null;
 
-        chats.global = data;
-        chatMessagesCache = data;
+            const safeText = text.replace(/[<>]/g, '').trim();
+            if (!safeText) {
+                window.toast('Недопустимые символы', 'err');
+                return;
+            }
 
-        document.getElementById('chatInfo').innerHTML =
-            `💬 <span class="highlight">Общий чат</span> — все видят все сообщения (последние 50)`;
+            const msgData = {
+                sender_id: String(UID),
+                sender_name: String((G.name || currentUsername || 'Игрок').substring(0, 30)),
+                sender_avatar: String(G.avatar || AVATAR_LIST[0]),
+                receiver_id: receiverId ? String(receiverId) : null,
+                receiver_name: receiverName ? String(receiverName.substring(0, 30)) : null,
+                message: String(safeText.substring(0, 200)),
+                is_private: Boolean(isPrivate),
+                created_at: new Date().toISOString()
+            };
 
-        renderChatMessages();
-        
-        // Автопрокрутка вниз
-        setTimeout(() => {
-            const container = document.getElementById('chatMessages');
-            if (container) container.scrollTop = container.scrollHeight;
-        }, 300);
+            const sentText = text;
+            input.value = '';
+            input.style.borderColor = '';
 
-    } catch (e) {
-        console.warn('⚠️ Ошибка загрузки сообщений:', e);
-        document.getElementById('chatMessages').innerHTML =
-            '<div class="system-msg" style="color:var(--red);">Ошибка загрузки</div>';
-    }
-}
+            const tempMsg = { ...msgData };
+            const targetKey = isPrivate ? currentChatTarget.id : 'global';
 
-// Инициализация чата
-function initChat() {
-    if (!UID) return;
+            if (targetKey === 'global') {
+                chats.global.push(tempMsg);
+                chatMessagesCache = chats.global;
+            } else {
+                if (!chats.dm[targetKey]) chats.dm[targetKey] = [];
+                chats.dm[targetKey].push(tempMsg);
+                chatMessagesCache = chats.dm[targetKey];
+            }
 
-    currentChat = 'global';
-    chatMessagesCache = chats.global || [];
-    lastMessageTime = Date.now();
+            appendMessageToChat(tempMsg);
 
-    document.getElementById('chatTitle').innerHTML = '💬 Общий чат';
-    document.getElementById('chatInfo').innerHTML = '💬 <span class="highlight">Общий чат</span> — все видят все сообщения';
+            setTimeout(() => {
+                input.focus();
+                if ('ontouchstart' in window) {
+                    input.click();
+                }
+            }, 100);
 
-    const input = document.getElementById('chatInput');
-    if (input) {
-        input.disabled = false;
-        input.placeholder = 'Напишите в общий чат...';
-        input.value = '';
-        
-        // Для textarea - сбрасываем высоту
-        input.style.height = '48px';
-        
-        // Фокусируемся
-        setTimeout(() => {
-            input.focus();
-        }, 300);
-    }
+            try {
+                const { ok, status, data } = await sbFetch('/rest/v1/messages', {
+                    method: 'POST',
+                    body: msgData
+                });
 
-    loadMessages();
-    loadOnlineUsers();
-    setupRealtime();
-
-    // Автопрокрутка вниз
-    setTimeout(() => {
-        const container = document.getElementById('chatMessages');
-        if (container) container.scrollTop = container.scrollHeight;
-    }, 500);
-}
-
-// Realtime обновления (polling)
-function setupRealtime() {
-    if (chatPollInterval) {
-        clearInterval(chatPollInterval);
-        chatPollInterval = null;
-    }
-
-    chatPollInterval = setInterval(async () => {
-        if (!UID) return;
-        if (!document.getElementById('sc-chat').classList.contains('on')) return;
-
-        try {
-            const { data, ok } = await sbFetch(
-                `/rest/v1/messages?select=*&order=created_at.desc&limit=5&is_private=eq.false&created_at=gt.${encodeURIComponent(new Date(lastMessageTime).toISOString())}`
-            );
-
-            if (ok && data && data.length > 0) {
-                const newMsgs = data.reverse();
-                let hasNew = false;
-                for (const msg of newMsgs) {
-                    const exists = chats.global.some(m => m.id === msg.id);
-                    if (!exists) {
-                        chats.global.push(msg);
+                if (!ok) {
+                    console.error('❌ Ошибка отправки:', status, data);
+                    window.toast('❌ Ошибка отправки', 'err');
+                    if (targetKey === 'global') {
+                        chats.global = chats.global.filter(m => m !== tempMsg);
                         chatMessagesCache = chats.global;
-                        appendMessageToChat(msg);
-                        hasNew = true;
+                    } else {
+                        chats.dm[targetKey] = chats.dm[targetKey].filter(m => m !== tempMsg);
+                        chatMessagesCache = chats.dm[targetKey];
+                    }
+                    renderChatMessages();
+                    input.value = sentText;
+                } else {
+                    setTimeout(() => {
+                        loadMessages();
+                        cleanupOldMessages();
+                    }, 300);
+
+                    if (isPrivate) {
+                        const remaining = getPrivateRemaining(currentChatTarget.id);
+                        document.getElementById('chatInfo').innerHTML =
+                            `💬 ЛС с <span class="highlight">${currentChatTarget.name}</span> — осталось <span class="highlight">${remaining}</span> сообщений сегодня`;
+                    }
+
+                    if (navigator.vibrate) {
+                        navigator.vibrate(10);
                     }
                 }
-                if (hasNew) {
-                    lastMessageTime = new Date(newMsgs[newMsgs.length - 1].created_at).getTime();
-                    // Автопрокрутка при новых сообщениях
-                    setTimeout(() => {
-                        const container = document.getElementById('chatMessages');
-                        if (container) container.scrollTop = container.scrollHeight;
-                    }, 100);
+            } catch (e) {
+                console.error('❌ Ошибка соединения:', e);
+                window.toast('❌ Ошибка соединения', 'err');
+                if (targetKey === 'global') {
+                    chats.global = chats.global.filter(m => m !== tempMsg);
+                    chatMessagesCache = chats.global;
+                } else {
+                    chats.dm[targetKey] = chats.dm[targetKey].filter(m => m !== tempMsg);
+                    chatMessagesCache = chats.dm[targetKey];
                 }
+                renderChatMessages();
+                input.value = sentText;
             }
-        } catch (e) {
-            // Игнорируем ошибки polling
-        }
-    }, 2000);
-}
+        };
+
+        let lastMessageTime = Date.now();
 
         function setupRealtime() {
             if (chatPollInterval) {
@@ -3760,7 +3460,7 @@ function setupRealtime() {
 
     if (nm === 'chat') {
         setTimeout(() => {
-            initChatWithHint(); // Используем новую функцию
+            initChat();
             // АВТОПРОКРУТКА ВНИЗ
             setTimeout(() => {
                 const container = document.getElementById('chatMessages');
