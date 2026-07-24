@@ -3899,11 +3899,21 @@
             IR = 28;
 
         const SEGS = [];
-        for (let i = 0; i < 20; i++) {
-            if (i === 0 || i === 10) SEGS.push({ c: 'green', label: i === 0 ? '0' : '00', num: i === 0 ? 0 : 00 });
-            else SEGS.push({ c: i % 2 === 0 ? 'black' : 'red', label: String(i * 2 - 1 + ((i > 10) ? 1 : 0)), num: i * 2 -
-                    1 + ((i > 10) ? 1 : 0) });
-        }
+for (let i = 0; i < 20; i++) {
+    if (i === 0) {
+        SEGS.push({ c: 'green', label: '0', num: 0 });
+    } else if (i === 10) {
+        SEGS.push({ c: 'green', label: '00', num: 0 });
+    } else {
+        // Чередуем красный и чёрный
+        const isRed = (i % 2 === 1) || (i > 10 && i % 2 === 0);
+        SEGS.push({ 
+            c: isRed ? 'red' : 'black', 
+            label: String(i < 10 ? i : i + 1), 
+            num: i < 10 ? i : i + 1 
+        });
+    }
+}
 
         const SEG_FILL = {
             red: ['#7f1d1d', '#991b1b', '#b91c1c'],
@@ -3925,166 +3935,190 @@
         let _finalWAngle = 0;
 
         window.drawRoulette = function(wAngle, bAngle, bR, landed) {
-            rctx.clearRect(0, 0, 320, 320);
+    rctx.clearRect(0, 0, 320, 320);
 
-            const validR = OR + 14;
-            const woodGrad = rctx.createRadialGradient(CX, CY, 0, CX, CY, validR);
-            woodGrad.addColorStop(0, '#5c3a1e');
-            woodGrad.addColorStop(.5, '#8b5e3c');
-            woodGrad.addColorStop(1, '#3d2109');
+    const validR = OR + 14;
+    const woodGrad = rctx.createRadialGradient(CX, CY, 0, CX, CY, validR);
+    woodGrad.addColorStop(0, '#5c3a1e');
+    woodGrad.addColorStop(.5, '#8b5e3c');
+    woodGrad.addColorStop(1, '#3d2109');
+    rctx.beginPath();
+    rctx.arc(CX, CY, validR, 0, Math.PI * 2);
+    rctx.fillStyle = woodGrad;
+    rctx.fill();
+
+    rctx.beginPath();
+    rctx.arc(CX, CY, OR + 14, 0, Math.PI * 2);
+    rctx.strokeStyle = '#d4a017';
+    rctx.lineWidth = 2.5;
+    rctx.stroke();
+    rctx.beginPath();
+    rctx.arc(CX, CY, OR + 1, 0, Math.PI * 2);
+    rctx.strokeStyle = '#b8860b';
+    rctx.lineWidth = 1.5;
+    rctx.stroke();
+
+    rctx.beginPath();
+    rctx.arc(CX, CY, OR - 6, 0, Math.PI * 2);
+    rctx.strokeStyle = '#1a0a00';
+    rctx.lineWidth = 12;
+    rctx.stroke();
+    rctx.beginPath();
+    rctx.arc(CX, CY, OR - 6, 0, Math.PI * 2);
+    rctx.strokeStyle = '#4a2c10';
+    rctx.lineWidth = 10;
+    rctx.stroke();
+    rctx.beginPath();
+    rctx.arc(CX, CY, OR - 6, 0, Math.PI * 2);
+    rctx.strokeStyle = '#2a1505';
+    rctx.lineWidth = 8;
+    rctx.stroke();
+
+    const n = SEGS.length;
+    const sa = Math.PI * 2 / n;
+    for (let i = 0; i < n; i++) {
+        const a1 = wAngle + i * sa - Math.PI / 2;
+        const a2 = wAngle + (i + 1) * sa - Math.PI / 2;
+        const col = SEGS[i].c;
+        const fills = SEG_FILL[col];
+
+        rctx.beginPath();
+        rctx.moveTo(CX, CY);
+        rctx.arc(CX, CY, OR - 16, a1, a2);
+        rctx.closePath();
+        rctx.fillStyle = fills[1];
+        rctx.fill();
+
+        const mid = a1 + (a2 - a1) / 2;
+        const sheen = rctx.createLinearGradient(
+            CX + Math.cos(mid) * (OR - 40), CY + Math.sin(mid) * (OR - 40),
+            CX + Math.cos(mid) * (OR - 16), CY + Math.sin(mid) * (OR - 16)
+        );
+        sheen.addColorStop(0, 'transparent');
+        sheen.addColorStop(1, 'rgba(255,255,255,.12)');
+        rctx.beginPath();
+        rctx.moveTo(CX, CY);
+        rctx.arc(CX, CY, OR - 16, a1, a2);
+        rctx.closePath();
+        rctx.fillStyle = sheen;
+        rctx.fill();
+
+        rctx.beginPath();
+        rctx.moveTo(CX + Math.cos(a1) * (IR + 4), CY + Math.sin(a1) * (IR + 4));
+        rctx.lineTo(CX + Math.cos(a1) * (OR - 16), CY + Math.sin(a1) * (OR - 16));
+        rctx.strokeStyle = 'rgba(255,255,255,.22)';
+        rctx.lineWidth = 0.8;
+        rctx.stroke();
+
+        const tmid = a1 + (a2 - a1) / 2;
+        const tr = OR - 30;
+        rctx.save();
+        rctx.translate(CX + Math.cos(tmid) * tr, CY + Math.sin(tmid) * tr);
+        rctx.rotate(tmid + Math.PI / 2);
+        rctx.font = `bold ${n <= 20 ? 9 : 7}px sans-serif`;
+        rctx.fillStyle = 'rgba(255,255,255,.85)';
+        rctx.textAlign = 'center';
+        rctx.textBaseline = 'middle';
+        rctx.fillText(SEGS[i].label, 0, 0);
+        rctx.restore();
+    }
+
+    const coneGrad = rctx.createRadialGradient(CX, CY, 0, CX, CY, IR + 14);
+    coneGrad.addColorStop(0, '#5c3a1e');
+    coneGrad.addColorStop(.7, '#3d2109');
+    coneGrad.addColorStop(1, '#1a0a00');
+    rctx.beginPath();
+    rctx.arc(CX, CY, IR + 14, 0, Math.PI * 2);
+    rctx.fillStyle = coneGrad;
+    rctx.fill();
+
+    rctx.beginPath();
+    rctx.arc(CX, CY, IR + 4, 0, Math.PI * 2);
+    rctx.strokeStyle = '#d4a017';
+    rctx.lineWidth = 2;
+    rctx.stroke();
+
+    const hubGrad = rctx.createRadialGradient(CX - 4, CY - 4, 0, CX, CY, IR);
+    hubGrad.addColorStop(0, '#e8d060');
+    hubGrad.addColorStop(.5, '#c8a020');
+    hubGrad.addColorStop(1, '#6b4e0b');
+    rctx.beginPath();
+    rctx.arc(CX, CY, IR, 0, Math.PI * 2);
+    rctx.fillStyle = hubGrad;
+    rctx.fill();
+
+    rctx.strokeStyle = 'rgba(0,0,0,.35)';
+    rctx.lineWidth = 1.5;
+    rctx.beginPath();
+    rctx.moveTo(CX - IR + 4, CY);
+    rctx.lineTo(CX + IR - 4, CY);
+    rctx.stroke();
+    rctx.beginPath();
+    rctx.moveTo(CX, CY - IR + 4);
+    rctx.lineTo(CX, CY + IR - 4);
+    rctx.stroke();
+
+    // === СТРЕЛКА (исправленная) ===
+    // Тень стрелки
+    rctx.shadowColor = 'rgba(255, 215, 0, 0.5)';
+    rctx.shadowBlur = 15;
+    
+    // Основная стрелка
+    rctx.beginPath();
+    rctx.moveTo(CX - 12, 6);
+    rctx.lineTo(CX + 12, 6);
+    rctx.lineTo(CX, 26);
+    rctx.closePath();
+    rctx.fillStyle = '#ffd700';
+    rctx.fill();
+    rctx.strokeStyle = '#b8860b';
+    rctx.lineWidth = 2;
+    rctx.stroke();
+    
+    // Блики на стрелке
+    rctx.shadowBlur = 0;
+    rctx.beginPath();
+    rctx.moveTo(CX - 6, 8);
+    rctx.lineTo(CX + 6, 8);
+    rctx.lineTo(CX, 20);
+    rctx.closePath();
+    rctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+    rctx.fill();
+    
+    // Светящаяся точка на конце стрелки
+    rctx.shadowColor = '#ffd700';
+    rctx.shadowBlur = 25;
+    rctx.beginPath();
+    rctx.arc(CX, 26, 4, 0, Math.PI * 2);
+    rctx.fillStyle = 'rgba(255, 215, 0, 0.6)';
+    rctx.fill();
+    rctx.shadowBlur = 0;
+
+    // Рисуем шарик (если нужно)
+    if (spinning || !resultDisplayed) {
+        const bx = CX + Math.cos(bAngle) * bR;
+        const by = CY + Math.sin(bAngle) * bR;
+
+        if (!isNaN(bx) && !isNaN(by) && isFinite(bx) && isFinite(by)) {
             rctx.beginPath();
-            rctx.arc(CX, CY, validR, 0, Math.PI * 2);
-            rctx.fillStyle = woodGrad;
+            rctx.arc(bx + 2, by + 2, 8, 0, Math.PI * 2);
+            rctx.fillStyle = 'rgba(0,0,0,.4)';
             rctx.fill();
 
+            const ballGrad = rctx.createRadialGradient(bx - 3, by - 3, 1, bx, by, 8);
+            ballGrad.addColorStop(0, '#ffffff');
+            ballGrad.addColorStop(.4, '#e0e0e0');
+            ballGrad.addColorStop(1, '#a0a0a0');
             rctx.beginPath();
-            rctx.arc(CX, CY, OR + 14, 0, Math.PI * 2);
-            rctx.strokeStyle = '#d4a017';
-            rctx.lineWidth = 2.5;
-            rctx.stroke();
-            rctx.beginPath();
-            rctx.arc(CX, CY, OR + 1, 0, Math.PI * 2);
-            rctx.strokeStyle = '#b8860b';
-            rctx.lineWidth = 1.5;
-            rctx.stroke();
-
-            rctx.beginPath();
-            rctx.arc(CX, CY, OR - 6, 0, Math.PI * 2);
-            rctx.strokeStyle = '#1a0a00';
-            rctx.lineWidth = 12;
-            rctx.stroke();
-            rctx.beginPath();
-            rctx.arc(CX, CY, OR - 6, 0, Math.PI * 2);
-            rctx.strokeStyle = '#4a2c10';
-            rctx.lineWidth = 10;
-            rctx.stroke();
-            rctx.beginPath();
-            rctx.arc(CX, CY, OR - 6, 0, Math.PI * 2);
-            rctx.strokeStyle = '#2a1505';
-            rctx.lineWidth = 8;
-            rctx.stroke();
-
-            const n = SEGS.length;
-            const sa = Math.PI * 2 / n;
-            for (let i = 0; i < n; i++) {
-                const a1 = wAngle + i * sa - Math.PI / 2;
-                const a2 = wAngle + (i + 1) * sa - Math.PI / 2;
-                const col = SEGS[i].c;
-                const fills = SEG_FILL[col];
-
-                rctx.beginPath();
-                rctx.moveTo(CX, CY);
-                rctx.arc(CX, CY, OR - 16, a1, a2);
-                rctx.closePath();
-                rctx.fillStyle = fills[1];
-                rctx.fill();
-
-                const mid = a1 + (a2 - a1) / 2;
-                const sheen = rctx.createLinearGradient(
-                    CX + Math.cos(mid) * (OR - 40), CY + Math.sin(mid) * (OR - 40),
-                    CX + Math.cos(mid) * (OR - 16), CY + Math.sin(mid) * (OR - 16)
-                );
-                sheen.addColorStop(0, 'transparent');
-                sheen.addColorStop(1, 'rgba(255,255,255,.12)');
-                rctx.beginPath();
-                rctx.moveTo(CX, CY);
-                rctx.arc(CX, CY, OR - 16, a1, a2);
-                rctx.closePath();
-                rctx.fillStyle = sheen;
-                rctx.fill();
-
-                rctx.beginPath();
-                rctx.moveTo(CX + Math.cos(a1) * (IR + 4), CY + Math.sin(a1) * (IR + 4));
-                rctx.lineTo(CX + Math.cos(a1) * (OR - 16), CY + Math.sin(a1) * (OR - 16));
-                rctx.strokeStyle = 'rgba(255,255,255,.22)';
-                rctx.lineWidth = 0.8;
-                rctx.stroke();
-
-                const tmid = a1 + (a2 - a1) / 2;
-                const tr = OR - 30;
-                rctx.save();
-                rctx.translate(CX + Math.cos(tmid) * tr, CY + Math.sin(tmid) * tr);
-                rctx.rotate(tmid + Math.PI / 2);
-                rctx.font = `bold ${n <= 20 ? 9 : 7}px sans-serif`;
-                rctx.fillStyle = 'rgba(255,255,255,.85)';
-                rctx.textAlign = 'center';
-                rctx.textBaseline = 'middle';
-                rctx.fillText(SEGS[i].label, 0, 0);
-                rctx.restore();
-            }
-
-            const coneGrad = rctx.createRadialGradient(CX, CY, 0, CX, CY, IR + 14);
-            coneGrad.addColorStop(0, '#5c3a1e');
-            coneGrad.addColorStop(.7, '#3d2109');
-            coneGrad.addColorStop(1, '#1a0a00');
-            rctx.beginPath();
-            rctx.arc(CX, CY, IR + 14, 0, Math.PI * 2);
-            rctx.fillStyle = coneGrad;
+            rctx.arc(bx, by, 8, 0, Math.PI * 2);
+            rctx.fillStyle = ballGrad;
             rctx.fill();
-
-            rctx.beginPath();
-            rctx.arc(CX, CY, IR + 4, 0, Math.PI * 2);
-            rctx.strokeStyle = '#d4a017';
-            rctx.lineWidth = 2;
+            rctx.strokeStyle = 'rgba(0,0,0,.3)';
+            rctx.lineWidth = 0.5;
             rctx.stroke();
-
-            const hubGrad = rctx.createRadialGradient(CX - 4, CY - 4, 0, CX, CY, IR);
-            hubGrad.addColorStop(0, '#e8d060');
-            hubGrad.addColorStop(.5, '#c8a020');
-            hubGrad.addColorStop(1, '#6b4e0b');
-            rctx.beginPath();
-            rctx.arc(CX, CY, IR, 0, Math.PI * 2);
-            rctx.fillStyle = hubGrad;
-            rctx.fill();
-
-            rctx.strokeStyle = 'rgba(0,0,0,.35)';
-            rctx.lineWidth = 1.5;
-            rctx.beginPath();
-            rctx.moveTo(CX - IR + 4, CY);
-            rctx.lineTo(CX + IR - 4, CY);
-            rctx.stroke();
-            rctx.beginPath();
-            rctx.moveTo(CX, CY - IR + 4);
-            rctx.lineTo(CX, CY + IR - 4);
-            rctx.stroke();
-
-            rctx.beginPath();
-            rctx.moveTo(CX - 7, 12);
-            rctx.lineTo(CX + 7, 12);
-            rctx.lineTo(CX, 22);
-            rctx.closePath();
-            rctx.fillStyle = '#ffd700';
-            rctx.fill();
-            rctx.strokeStyle = '#b8860b';
-            rctx.lineWidth = 1;
-            rctx.stroke();
-
-            if (!spinning && resultDisplayed) return;
-
-            if (spinning || !resultDisplayed) {
-                const bx = CX + Math.cos(bAngle) * bR;
-                const by = CY + Math.sin(bAngle) * bR;
-
-                if (!isNaN(bx) && !isNaN(by) && isFinite(bx) && isFinite(by)) {
-                    rctx.beginPath();
-                    rctx.arc(bx + 2, by + 2, 8, 0, Math.PI * 2);
-                    rctx.fillStyle = 'rgba(0,0,0,.4)';
-                    rctx.fill();
-
-                    const ballGrad = rctx.createRadialGradient(bx - 3, by - 3, 1, bx, by, 8);
-                    ballGrad.addColorStop(0, '#ffffff');
-                    ballGrad.addColorStop(.4, '#e0e0e0');
-                    ballGrad.addColorStop(1, '#a0a0a0');
-                    rctx.beginPath();
-                    rctx.arc(bx, by, 8, 0, Math.PI * 2);
-                    rctx.fillStyle = ballGrad;
-                    rctx.fill();
-                    rctx.strokeStyle = 'rgba(0,0,0,.3)';
-                    rctx.lineWidth = 0.5;
-                    rctx.stroke();
-                }
-            }
-        };
+        }
+    }
+};
 
         function easeOut(t) { return 1 - Math.pow(1 - t, 3.5); }
 
@@ -4121,78 +4155,44 @@
         }
 
         function resolveSpin() {
-            const idx = _targetIndex;
-            if (idx === null || idx === undefined) {
-                window.toast('Ошибка рулетки', 'err');
-                return;
-            }
+    const idx = _targetIndex;
+    if (idx === null || idx === undefined) {
+        window.toast('Ошибка рулетки', 'err');
+        return;
+    }
 
-            const seg = SEGS[idx];
-            const win = seg.c === _pendingWinColor;
+    const seg = SEGS[idx];
+    const win = seg.c === _pendingWinColor;
 
-            const resultEl = document.getElementById('rlResult');
-            const colorEmoji = seg.c === 'red' ? '🔴' : seg.c === 'black' ? '⚫' : '🟢';
+    const resultEl = document.getElementById('rlResult');
+    const colorEmoji = seg.c === 'red' ? '🔴' : seg.c === 'black' ? '⚫' : '🟢';
 
-            if (win) {
-                const mult = seg.c === 'green' ? 5 : 1.75;
-                const gain = Math.floor(spinBet * mult);
-                G.coins += gain;
+    // === ПОКАЗЫВАЕМ ТОЧНОЕ ЧИСЛО, КОТОРОЕ ВЫПАЛО ===
+    const numberText = seg.label; // "0", "1", "2", ... "18", "00"
 
-                resultEl.textContent = `✅ Выпало: ${seg.label} (${colorEmoji} ${seg.c}) +${gain} монет!`;
-                resultEl.className = 'rl-result win';
-                window.toast(`🎉 +${gain} монет!`, 'gld');
-            } else {
-                resultEl.textContent = `❌ Выпало: ${seg.label} (${colorEmoji} ${seg.c}) -${spinBet} монет`;
-                resultEl.className = 'rl-result lose';
-                window.toast(`😞 -${spinBet} монет`, 'err');
-            }
+    if (win) {
+        const mult = seg.c === 'green' ? 5 : 1.75;
+        const gain = Math.floor(spinBet * mult);
+        G.coins += gain;
 
-            _pendingWinColor = null;
-            _targetIndex = null;
+        resultEl.textContent = `✅ Выпало: ${numberText} (${colorEmoji} ${seg.c}) +${gain} монет!`;
+        resultEl.className = 'rl-result win';
+        window.toast(`🎉 Выпало ${numberText}! +${gain} монет!`, 'gld');
+    } else {
+        resultEl.textContent = `❌ Выпало: ${numberText} (${colorEmoji} ${seg.c}) -${spinBet} монет`;
+        resultEl.className = 'rl-result lose';
+        window.toast(`😞 Выпало ${numberText}! -${spinBet} монет`, 'err');
+    }
 
-            scheduleSave();
-            renderUI();
-        }
+    _pendingWinColor = null;
+    _targetIndex = null;
+    window._landedSeg = null;
 
-        window.spinTo = function(col) {
-            if (spinning) return;
+    scheduleSave();
+    renderUI();
+}
 
-            const betInput = document.getElementById('rlBetInput');
-            spinBet = parseInt(betInput.value) || 25;
-
-            if (spinBet < 1) { window.toast('Минимальная ставка 1 монета', 'err'); return; }
-            if (spinBet > G.coins) { window.toast('Недостаточно монет!', 'err'); return; }
-
-            G.coins -= spinBet;
-            spinning = true;
-            resultDisplayed = false;
-
-            _pendingWinColor = col;
-
-            const resultEl = document.getElementById('rlResult');
-            resultEl.textContent = 'Крутим...';
-            resultEl.className = 'rl-result';
-
-            document.querySelectorAll('.rl-btns button').forEach(b => b.disabled = true);
-            betInput.disabled = true;
-
-            const n = SEGS.length;
-            const segAngle = (Math.PI * 2) / n;
-
-            const weighted = SEGS.map((s, i) => s.c === col ? i : -1).filter(i => i !== -1);
-            _targetIndex = weighted[Math.floor(Math.random() * weighted.length)];
-
-            const extraSpins = 6 + Math.floor(Math.random() * 3);
-            _finalWAngle = -Math.PI / 2 - (_targetIndex + 0.5) * segAngle + extraSpins * Math.PI * 2;
-
-            _spinStartW = wheelAngle;
-            _spinT0 = performance.now();
-
-            cancelAnimationFrame(raf);
-            animSpin();
-        };
-
-        let idleAngle = 0;
+        window.spinTo = function(col)
 
         function idleSpin() {
             if (!spinning && !resultDisplayed) {
