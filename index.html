@@ -3888,8 +3888,8 @@
             window.toast(`+${PROMOS[c]} монет!`, 'gld');
         };
 
-  // ============================================================
-// 17. РУЛЕТКА (ПРОСТАЯ И ТОЧНАЯ)
+ // ============================================================
+// 17. РУЛЕТКА (ГАРАНТИРОВАННО ТОЧНАЯ)
 // ============================================================
 const RC = document.getElementById('rouletteCanvas');
 const rctx = RC.getContext('2d');
@@ -3898,10 +3898,7 @@ const CX = 160,
     OR = 148,
     IR = 28;
 
-// === ПРОСТОЙ МАССИВ: ИНДЕКС = ЧИСЛО НА РУЛЕТКЕ ===
-// В массиве 20 элементов, каждый элемент - это число на рулетке
-// Индекс 0 → '0', индекс 1 → '1', ... индекс 9 → '9'
-// Индекс 10 → '00', индекс 11 → '10', ... индекс 19 → '18'
+// === МАССИВ СЕКТОРОВ (ИНДЕКС = ЧИСЛО) ===
 const SEGS = [
     { c: 'green', label: '0', num: 0 },   // индекс 0
     { c: 'red', label: '1', num: 1 },     // индекс 1
@@ -4083,102 +4080,7 @@ window.drawRoulette = function(angle) {
     rctx.shadowBlur = 0;
 };
 
-// === ПОЛУЧИТЬ ИНДЕКС ПОД СТРЕЛКОЙ ===
-function getSectorAtPointer(angle) {
-    const n = SEGS.length;
-    const sa = (Math.PI * 2) / n;
-    let rawAngle = (-Math.PI / 2 - angle) % (Math.PI * 2);
-    if (rawAngle < 0) rawAngle += Math.PI * 2;
-    return Math.floor(rawAngle / sa) % n;
-}
-
-// === ОПРЕДЕЛЕНИЕ РЕЗУЛЬТАТА ===
-function determineResult(selectedColor, bet) {
-    const n = SEGS.length;
-    // Выбираем случайный индекс от 0 до 19
-    const targetIndex = Math.floor(Math.random() * n);
-    const seg = SEGS[targetIndex];
-    
-    // Сохраняем результат
-    _targetIndex = targetIndex;
-    _resultNumber = seg.label;  // ТОЧНОЕ ЧИСЛО ИЗ СЕКТОРА
-    _resultColor = seg.c;
-    _isWin = seg.c === selectedColor;
-    
-    if (_isWin) {
-        const mult = seg.c === 'green' ? 5 : 1.75;
-        _winAmount = Math.floor(bet * mult);
-        G.coins += _winAmount;
-    } else {
-        _winAmount = 0;
-    }
-    
-    return targetIndex;
-}
-
-// === АНИМАЦИЯ ===
-function animateToSector(targetIndex, callback) {
-    const n = SEGS.length;
-    const segAngle = (Math.PI * 2) / n;
-    
-    const extraSpins = 5 + Math.floor(Math.random() * 3);
-    const targetAngle = -Math.PI / 2 - (targetIndex + 0.5) * segAngle + extraSpins * Math.PI * 2;
-    
-    const startAngle = wheelAngle;
-    const duration = 4000 + Math.random() * 500;
-    const startTime = performance.now();
-    
-    function animate(time) {
-        const elapsed = time - startTime;
-        const progress = Math.min(elapsed / duration, 1);
-        const eased = 1 - Math.pow(1 - progress, 3);
-        
-        wheelAngle = startAngle + (targetAngle - startAngle) * eased;
-        window.drawRoulette(wheelAngle);
-        
-        if (progress < 1) {
-            requestAnimationFrame(animate);
-        } else {
-            const landedIdx = getSectorAtPointer(wheelAngle);
-            if (landedIdx !== targetIndex) {
-                const correction = (targetIndex - landedIdx) * segAngle;
-                wheelAngle += correction;
-                window.drawRoulette(wheelAngle);
-            }
-            if (callback) callback();
-        }
-    }
-    
-    requestAnimationFrame(animate);
-}
-
-// === ПОКАЗ РЕЗУЛЬТАТА ===
-function showResult() {
-    const resultEl = document.getElementById('rlResult');
-    const colorEmoji = _resultColor === 'red' ? '🔴' : _resultColor === 'black' ? '⚫' : '🟢';
-    
-    if (_isWin) {
-        resultEl.textContent = `✅ Выпало: ${_resultNumber} (${colorEmoji} ${_resultColor}) +${_winAmount} монет!`;
-        resultEl.className = 'rl-result win';
-        window.toast(`🎉 Выпало ${_resultNumber}! +${_winAmount} монет!`, 'gld');
-    } else {
-        resultEl.textContent = `❌ Выпало: ${_resultNumber} (${colorEmoji} ${_resultColor}) -${spinBet} монет`;
-        resultEl.className = 'rl-result lose';
-        window.toast(`😞 Выпало ${_resultNumber}! -${spinBet} монет`, 'err');
-    }
-    
-    spinning = false;
-    resultDisplayed = true;
-    _pendingWinColor = null;
-    
-    document.querySelectorAll('.rl-btns button').forEach(b => b.disabled = false);
-    document.getElementById('rlBetInput').disabled = false;
-    
-    scheduleSave();
-    renderUI();
-}
-
-// === ЗАПУСК ===
+// === ОПРЕДЕЛЕНИЕ РЕЗУЛЬТАТА (САМОЕ ПРОСТОЕ РЕШЕНИЕ) ===
 window.spinTo = function(color) {
     if (spinning) return;
     
@@ -4207,13 +4109,72 @@ window.spinTo = function(color) {
     document.querySelectorAll('.rl-btns button').forEach(b => b.disabled = true);
     betInput.disabled = true;
     
-    // Определяем результат
-    const targetIndex = determineResult(color, bet);
+    // === 1. ВЫБИРАЕМ СЛУЧАЙНЫЙ СЕКТОР ===
+    const n = SEGS.length;
+    const targetIndex = Math.floor(Math.random() * n);
+    const seg = SEGS[targetIndex];
     
-    // Запускаем анимацию
-    animateToSector(targetIndex, function() {
-        setTimeout(showResult, 300);
-    });
+    // === 2. СОХРАНЯЕМ РЕЗУЛЬТАТ ===
+    _targetIndex = targetIndex;
+    _resultNumber = seg.label;  // ТОЧНОЕ ЧИСЛО
+    _resultColor = seg.c;
+    _isWin = seg.c === color;
+    
+    if (_isWin) {
+        const mult = seg.c === 'green' ? 5 : 1.75;
+        _winAmount = Math.floor(bet * mult);
+        G.coins += _winAmount;
+    } else {
+        _winAmount = 0;
+    }
+    
+    // === 3. ЗАПУСКАЕМ АНИМАЦИЮ ===
+    const segAngle = (Math.PI * 2) / n;
+    const extraSpins = 5 + Math.floor(Math.random() * 4);
+    const targetAngle = -Math.PI / 2 - (targetIndex + 0.5) * segAngle + extraSpins * Math.PI * 2;
+    
+    const startAngle = wheelAngle;
+    const duration = 4000 + Math.random() * 500;
+    const startTime = performance.now();
+    
+    function animate(time) {
+        const elapsed = time - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        const eased = 1 - Math.pow(1 - progress, 3);
+        
+        wheelAngle = startAngle + (targetAngle - startAngle) * eased;
+        window.drawRoulette(wheelAngle);
+        
+        if (progress < 1) {
+            requestAnimationFrame(animate);
+        } else {
+            // === 4. ПОКАЗЫВАЕМ СОХРАНЁННЫЙ РЕЗУЛЬТАТ ===
+            spinning = false;
+            resultDisplayed = true;
+            
+            const colorEmoji = _resultColor === 'red' ? '🔴' : _resultColor === 'black' ? '⚫' : '🟢';
+            
+            if (_isWin) {
+                resultEl.textContent = `✅ Выпало: ${_resultNumber} (${colorEmoji} ${_resultColor}) +${_winAmount} монет!`;
+                resultEl.className = 'rl-result win';
+                window.toast(`🎉 Выпало ${_resultNumber}! +${_winAmount} монет!`, 'gld');
+            } else {
+                resultEl.textContent = `❌ Выпало: ${_resultNumber} (${colorEmoji} ${_resultColor}) -${spinBet} монет`;
+                resultEl.className = 'rl-result lose';
+                window.toast(`😞 Выпало ${_resultNumber}! -${spinBet} монет`, 'err');
+            }
+            
+            _pendingWinColor = null;
+            
+            document.querySelectorAll('.rl-btns button').forEach(b => b.disabled = false);
+            document.getElementById('rlBetInput').disabled = false;
+            
+            scheduleSave();
+            renderUI();
+        }
+    }
+    
+    requestAnimationFrame(animate);
 };
 
 // === ФОНОВОЕ ВРАЩЕНИЕ ===
