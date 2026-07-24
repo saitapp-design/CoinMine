@@ -3889,23 +3889,23 @@
         };
 
         // ============================================================
-        // 17. РУЛЕТКА
-        // ============================================================
-        const RC = document.getElementById('rouletteCanvas');
-        const rctx = RC.getContext('2d');
-        const CX = 160,
-            CY = 160,
-            OR = 148,
-            IR = 28;
+// 17. РУЛЕТКА
+// ============================================================
+const RC = document.getElementById('rouletteCanvas');
+const rctx = RC.getContext('2d');
+const CX = 160;
+const CY = 160;
+const OR = 148;
+const IR = 28;
 
-        const SEGS = [];
+// Сектора рулетки
+const SEGS = [];
 for (let i = 0; i < 20; i++) {
     if (i === 0) {
         SEGS.push({ c: 'green', label: '0', num: 0 });
     } else if (i === 10) {
         SEGS.push({ c: 'green', label: '00', num: 0 });
     } else {
-        // Чередуем красный и чёрный
         const isRed = (i % 2 === 1) || (i > 10 && i % 2 === 0);
         SEGS.push({ 
             c: isRed ? 'red' : 'black', 
@@ -3915,28 +3915,32 @@ for (let i = 0; i < 20; i++) {
     }
 }
 
-        const SEG_FILL = {
-            red: ['#7f1d1d', '#991b1b', '#b91c1c'],
-            black: ['#18181b', '#27272a', '#3f3f46'],
-            green: ['#14532d', '#15803d', '#16a34a']
-        };
-        let idleAngle = 0; // Добавьте эту строку перед функцией idleSpin
-        let wheelAngle = 0;
-        let ballAngle = 0;
-        let ballR = OR - 14;
-        let spinning = false;
-        let raf = null;
-        let resultDisplayed = false;
-        let spinBet = 25;
-        let _pendingWinColor = null;
-        let _targetIndex = null;
-        let _spinStartW = 0;
-        let _spinT0 = 0;
-        let _finalWAngle = 0;
+const SEG_FILL = {
+    red: ['#7f1d1d', '#991b1b', '#b91c1c'],
+    black: ['#18181b', '#27272a', '#3f3f46'],
+    green: ['#14532d', '#15803d', '#16a34a']
+};
 
-        window.drawRoulette = function(wAngle, bAngle, bR, landed) {
+// Переменные состояния
+let wheelAngle = 0;
+let ballAngle = 0;
+let ballR = OR - 14;
+let spinning = false;
+let raf = null;
+let resultDisplayed = false;
+let spinBet = 25;
+let _pendingWinColor = null;
+let _targetIndex = null;
+let _spinStartW = 0;
+let _spinT0 = 0;
+let _finalWAngle = 0;
+let idleAngle = 0;
+
+// Отрисовка рулетки
+window.drawRoulette = function(wAngle, bAngle, bR, landed) {
     rctx.clearRect(0, 0, 320, 320);
 
+    // Внешний круг
     const validR = OR + 14;
     const woodGrad = rctx.createRadialGradient(CX, CY, 0, CX, CY, validR);
     woodGrad.addColorStop(0, '#5c3a1e');
@@ -3947,6 +3951,7 @@ for (let i = 0; i < 20; i++) {
     rctx.fillStyle = woodGrad;
     rctx.fill();
 
+    // Ободки
     rctx.beginPath();
     rctx.arc(CX, CY, OR + 14, 0, Math.PI * 2);
     rctx.strokeStyle = '#d4a017';
@@ -3958,6 +3963,7 @@ for (let i = 0; i < 20; i++) {
     rctx.lineWidth = 1.5;
     rctx.stroke();
 
+    // Внутренний обод
     rctx.beginPath();
     rctx.arc(CX, CY, OR - 6, 0, Math.PI * 2);
     rctx.strokeStyle = '#1a0a00';
@@ -3974,6 +3980,7 @@ for (let i = 0; i < 20; i++) {
     rctx.lineWidth = 8;
     rctx.stroke();
 
+    // Сектора
     const n = SEGS.length;
     const sa = Math.PI * 2 / n;
     for (let i = 0; i < n; i++) {
@@ -3989,6 +3996,7 @@ for (let i = 0; i < 20; i++) {
         rctx.fillStyle = fills[1];
         rctx.fill();
 
+        // Блик на секторе
         const mid = a1 + (a2 - a1) / 2;
         const sheen = rctx.createLinearGradient(
             CX + Math.cos(mid) * (OR - 40), CY + Math.sin(mid) * (OR - 40),
@@ -4003,6 +4011,7 @@ for (let i = 0; i < 20; i++) {
         rctx.fillStyle = sheen;
         rctx.fill();
 
+        // Разделители
         rctx.beginPath();
         rctx.moveTo(CX + Math.cos(a1) * (IR + 4), CY + Math.sin(a1) * (IR + 4));
         rctx.lineTo(CX + Math.cos(a1) * (OR - 16), CY + Math.sin(a1) * (OR - 16));
@@ -4010,6 +4019,7 @@ for (let i = 0; i < 20; i++) {
         rctx.lineWidth = 0.8;
         rctx.stroke();
 
+        // Число на секторе
         const tmid = a1 + (a2 - a1) / 2;
         const tr = OR - 30;
         rctx.save();
@@ -4023,6 +4033,7 @@ for (let i = 0; i < 20; i++) {
         rctx.restore();
     }
 
+    // Центральный конус
     const coneGrad = rctx.createRadialGradient(CX, CY, 0, CX, CY, IR + 14);
     coneGrad.addColorStop(0, '#5c3a1e');
     coneGrad.addColorStop(.7, '#3d2109');
@@ -4038,6 +4049,7 @@ for (let i = 0; i < 20; i++) {
     rctx.lineWidth = 2;
     rctx.stroke();
 
+    // Центр
     const hubGrad = rctx.createRadialGradient(CX - 4, CY - 4, 0, CX, CY, IR);
     hubGrad.addColorStop(0, '#e8d060');
     hubGrad.addColorStop(.5, '#c8a020');
@@ -4047,6 +4059,7 @@ for (let i = 0; i < 20; i++) {
     rctx.fillStyle = hubGrad;
     rctx.fill();
 
+    // Декоративные линии
     rctx.strokeStyle = 'rgba(0,0,0,.35)';
     rctx.lineWidth = 1.5;
     rctx.beginPath();
@@ -4058,7 +4071,7 @@ for (let i = 0; i < 20; i++) {
     rctx.lineTo(CX, CY + IR - 4);
     rctx.stroke();
 
-    // === СТРЕЛКА ===
+    // Стрелка
     rctx.shadowColor = 'rgba(255, 215, 0, 0.5)';
     rctx.shadowBlur = 15;
     rctx.beginPath();
@@ -4089,6 +4102,7 @@ for (let i = 0; i < 20; i++) {
     rctx.fill();
     rctx.shadowBlur = 0;
 
+    // Шарик
     if (spinning || !resultDisplayed) {
         const bx = CX + Math.cos(bAngle) * bR;
         const by = CY + Math.sin(bAngle) * bR;
@@ -4114,41 +4128,42 @@ for (let i = 0; i < 20; i++) {
     }
 };
 
-        function easeOut(t) { return 1 - Math.pow(1 - t, 3.5); }
+// Анимация вращения
+function easeOut(t) { return 1 - Math.pow(1 - t, 3.5); }
 
-        function animSpin() {
-            const now = performance.now();
-            const t = Math.min(1, (now - _spinT0) / 4500);
-            const e = easeOut(t);
+function animSpin() {
+    const now = performance.now();
+    const t = Math.min(1, (now - _spinT0) / 4500);
+    const e = easeOut(t);
 
-            wheelAngle = _spinStartW + (_finalWAngle - _spinStartW) * e;
+    wheelAngle = _spinStartW + (_finalWAngle - _spinStartW) * e;
 
-            const ballE = easeOut(Math.min(1, t * 1.1));
-            ballAngle = -Math.PI / 2 + Math.PI * 2 * 10 * ballE;
+    const ballE = easeOut(Math.min(1, t * 1.1));
+    ballAngle = -Math.PI / 2 + Math.PI * 2 * 10 * ballE;
 
-            if (t > 0.7) {
-                const drop = (t - 0.7) / 0.3;
-                ballR = (OR - 14) - drop * (OR - 14 - (IR + 22));
-            } else {
-                ballR = OR - 14;
-            }
+    if (t > 0.7) {
+        const drop = (t - 0.7) / 0.3;
+        ballR = (OR - 14) - drop * (OR - 14 - (IR + 22));
+    } else {
+        ballR = OR - 14;
+    }
 
-            window.drawRoulette(wheelAngle, ballAngle, ballR, null);
+    window.drawRoulette(wheelAngle, ballAngle, ballR, null);
 
-            if (t < 1) {
-                raf = requestAnimationFrame(animSpin);
-            } else {
-                spinning = false;
-                resultDisplayed = true;
+    if (t < 1) {
+        raf = requestAnimationFrame(animSpin);
+    } else {
+        spinning = false;
+        resultDisplayed = true;
 
-                document.querySelectorAll('.rl-btns button').forEach(b => b.disabled = false);
-                document.getElementById('rlBetInput').disabled = false;
+        document.querySelectorAll('.rl-btns button').forEach(b => b.disabled = false);
+        document.getElementById('rlBetInput').disabled = false;
 
-                resolveSpin();
-            }
-        }
+        resolveSpin();
+    }
+}
 
-        function resolveSpin() {
+function resolveSpin() {
     const idx = _targetIndex;
     if (idx === null || idx === undefined) {
         window.toast('Ошибка рулетки', 'err');
@@ -4181,8 +4196,10 @@ for (let i = 0; i < 20; i++) {
 
     scheduleSave();
     renderUI();
-};
-        window.spinTo = function(col) {
+}
+
+// Запуск вращения
+window.spinTo = function(col) {
     if (spinning) return;
 
     const betInput = document.getElementById('rlBetInput');
@@ -4220,17 +4237,19 @@ for (let i = 0; i < 20; i++) {
     animSpin();
 };
 
-        function idleSpin() {
-            if (!spinning && !resultDisplayed) {
-                idleAngle += 0.003;
-                wheelAngle = idleAngle;
-                window.drawRoulette(wheelAngle, -Math.PI / 2, OR - 14, null);
-            }
-            requestAnimationFrame(idleSpin);
-        }
-        window.drawRoulette(0, -Math.PI / 2, OR - 14, null);
-        idleSpin();
+// Фоновое вращение
+function idleSpin() {
+    if (!spinning && !resultDisplayed) {
+        idleAngle += 0.003;
+        wheelAngle = idleAngle;
+        window.drawRoulette(wheelAngle, -Math.PI / 2, OR - 14, null);
+    }
+    requestAnimationFrame(idleSpin);
+}
 
+// Запуск
+window.drawRoulette(0, -Math.PI / 2, OR - 14, null);
+idleSpin();
         // ============================================================
         // 18. КУБИК
         // ============================================================
