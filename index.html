@@ -3889,7 +3889,7 @@
         };
 
         // ============================================================
-// 17. РУЛЕТКА (ИСПРАВЛЕННАЯ)
+// 17. РУЛЕТКА (ГАРАНТИРОВАННО РАБОТАЕТ)
 // ============================================================
 const RC = document.getElementById('rouletteCanvas');
 const rctx = RC.getContext('2d');
@@ -3898,7 +3898,7 @@ const CY = 160;
 const OR = 148;
 const IR = 28;
 
-// === ПРОСТЫЕ СЕКТОРА ===
+// Сектора рулетки (20 секторов)
 const SEGS = [];
 for (let i = 0; i < 20; i++) {
     if (i === 0) {
@@ -3920,12 +3920,14 @@ const SEG_FILL = {
     green: ['#14532d', '#15803d', '#16a34a']
 };
 
+// Состояние
 let wheelAngle = 0;
 let spinning = false;
-let spinBet = 25;
-let isResultShown = false;
+let currentBet = 25;
+let currentColor = null;
+let isFinished = true;
 
-// Отрисовка рулетки
+// Отрисовка
 function drawRoulette(angle) {
     rctx.clearRect(0, 0, 320, 320);
 
@@ -3991,7 +3993,6 @@ function drawRoulette(angle) {
     rctx.arc(CX, CY, IR + 14, 0, Math.PI * 2);
     rctx.fillStyle = coneGrad;
     rctx.fill();
-
     rctx.beginPath();
     rctx.arc(CX, CY, IR + 4, 0, Math.PI * 2);
     rctx.strokeStyle = '#d4a017';
@@ -4023,22 +4024,20 @@ function drawRoulette(angle) {
     rctx.shadowBlur = 0;
 }
 
-// Получить сектор под стрелкой
+// Получить индекс сектора под стрелкой
 function getLandedIndex(angle) {
     const n = SEGS.length;
     const sa = Math.PI * 2 / n;
-    let rawIndex = ((-Math.PI / 2 - angle + Math.PI * 2) % (Math.PI * 2)) / sa;
-    let index = Math.floor(rawIndex) % n;
-    if (index < 0) index += n;
-    return index;
+    // Стрелка вверху (угол -PI/2)
+    let rawIndex = ((-Math.PI / 2 - angle) % (Math.PI * 2));
+    if (rawIndex < 0) rawIndex += Math.PI * 2;
+    return Math.floor(rawIndex / sa) % n;
 }
 
-// Функция обработки результата
-function handleResult(targetColor, bet) {
-    const landedIndex = getLandedIndex(wheelAngle);
+// Обработка результата
+function processResult(landedIndex, color, bet) {
     const seg = SEGS[landedIndex];
-    const win = seg.c === targetColor;
-    
+    const win = seg.c === color;
     const resultEl = document.getElementById('rlResult');
     const colorEmoji = seg.c === 'red' ? '🔴' : seg.c === 'black' ? '⚫' : '🟢';
     
@@ -4055,46 +4054,63 @@ function handleResult(targetColor, bet) {
         window.toast('😞 Выпало ' + seg.label + '! -' + bet + ' монет', 'err');
     }
     
+    // Разблокируем кнопки
     document.querySelectorAll('.rl-btns button').forEach(b => b.disabled = false);
     document.getElementById('rlBetInput').disabled = false;
     spinning = false;
-    isResultShown = true;
+    isFinished = true;
     
     scheduleSave();
     renderUI();
 }
 
 // Вращение
-function spinRoulette(targetColor, bet) {
+window.spinTo = function(color) {
     if (spinning) return;
     
+    const betInput = document.getElementById('rlBetInput');
+    const bet = parseInt(betInput.value) || 25;
+    
+    if (bet < 1) { 
+        window.toast('Минимальная ставка 1 монета', 'err'); 
+        return; 
+    }
+    if (bet > G.coins) { 
+        window.toast('Недостаточно монет!', 'err'); 
+        return; 
+    }
+    
+    // Списываем ставку
+    G.coins -= bet;
     spinning = true;
-    isResultShown = false;
+    isFinished = false;
+    currentColor = color;
+    currentBet = bet;
     
     const resultEl = document.getElementById('rlResult');
     resultEl.textContent = 'Крутим...';
     resultEl.className = 'rl-result';
     
     document.querySelectorAll('.rl-btns button').forEach(b => b.disabled = true);
-    document.getElementById('rlBetInput').disabled = true;
-
+    betInput.disabled = true;
+    
     const n = SEGS.length;
     const sa = Math.PI * 2 / n;
     
-    // Выбираем случайный сектор
-    const validIndices = SEGS.map((s, i) => s.c === targetColor ? i : -1).filter(i => i !== -1);
+    // Выбираем случайный сектор нужного цвета
+    const validIndices = SEGS.map((s, i) => s.c === color ? i : -1).filter(i => i !== -1);
     const targetIndex = validIndices[Math.floor(Math.random() * validIndices.length)];
     
     // Рассчитываем угол остановки
-    const extraSpins = 6 + Math.floor(Math.random() * 4);
+    const extraSpins = 6 + Math.floor(Math.random() * 3);
     const targetAngle = -Math.PI / 2 - (targetIndex + 0.5) * sa + extraSpins * Math.PI * 2;
     
     const startAngle = wheelAngle;
     const duration = 4000;
-    const startTime = Date.now();
+    const startTime = performance.now();
     
-    function animate() {
-        const elapsed = Date.now() - startTime;
+    function animate(time) {
+        const elapsed = time - startTime;
         const progress = Math.min(elapsed / duration, 1);
         const eased = 1 - Math.pow(1 - progress, 3);
         
@@ -4104,42 +4120,27 @@ function spinRoulette(targetColor, bet) {
         if (progress < 1) {
             requestAnimationFrame(animate);
         } else {
-            // Завершение - обрабатываем результат
-            handleResult(targetColor, bet);
+            // Получаем результат
+            const landedIndex = getLandedIndex(wheelAngle);
+            processResult(landedIndex, color, bet);
         }
     }
     
-    animate();
-}
-
-// Запуск вращения
-window.spinTo = function(color) {
-    if (spinning) return;
-    
-    const betInput = document.getElementById('rlBetInput');
-    spinBet = parseInt(betInput.value) || 25;
-    
-    if (spinBet < 1) { window.toast('Минимальная ставка 1 монета', 'err'); return; }
-    if (spinBet > G.coins) { window.toast('Недостаточно монет!', 'err'); return; }
-    
-    G.coins -= spinBet;
-    spinRoulette(color, spinBet);
+    requestAnimationFrame(animate);
 };
 
 // Фоновое вращение
 function idleSpin() {
-    if (!spinning) {
+    if (!spinning && isFinished) {
         wheelAngle += 0.003;
         drawRoulette(wheelAngle);
     }
     requestAnimationFrame(idleSpin);
 }
 
-// Запуск
+// Инициализация
 drawRoulette(0);
 idleSpin();
-
-// Устанавливаем начальный текст
 document.getElementById('rlResult').textContent = 'Выберите цвет';
 document.getElementById('rlResult').className = 'rl-result';
         // ============================================================
