@@ -3286,23 +3286,77 @@
         input.disabled = false;
         input.placeholder = 'Напишите в общий чат...';
         input.value = '';
+        
+        // === ИСПРАВЛЕНИЕ ДЛЯ ТЕЛЕФОНОВ ===
+        // Принудительно устанавливаем атрибуты для правильного ввода
+        input.setAttribute('inputmode', 'text');
+        input.setAttribute('type', 'text');
+        input.setAttribute('lang', 'ru');
+        input.setAttribute('autocomplete', 'off');
+        
+        // Отключаем авто-капитализацию
+        input.style.textTransform = 'none';
+        input.style.webkitTextTransform = 'none';
+        
+        // Убираем возможные ограничения
+        input.removeAttribute('pattern');
+        input.removeAttribute('inputmode');
+        input.setAttribute('inputmode', 'text');
+        
+        // При фокусе - принудительно показываем текстовую клавиатуру
+        input.addEventListener('focus', function() {
+            this.setAttribute('inputmode', 'text');
+            // Небольшая задержка для активации клавиатуры
+            setTimeout(() => {
+                this.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }, 100);
+        });
+        
+        // Обработка касания на телефоне
+        input.addEventListener('touchstart', function() {
+            // Небольшая задержка для активации клавиатуры
+            setTimeout(() => {
+                this.focus();
+                this.setAttribute('inputmode', 'text');
+            }, 50);
+        });
+        
+        // Убираем автоматическое изменение регистра
+        input.addEventListener('input', function() {
+            // Сохраняем введённый текст как есть
+            const cursorPos = this.selectionStart;
+            const value = this.value;
+            this.value = value;
+            this.setSelectionRange(cursorPos, cursorPos);
+        });
     }
 
     loadMessages();
     loadOnlineUsers();
     setupRealtime();
 
-    // АВТОПРОКРУТКА
+    // АВТОПРОКРУТКА ВНИЗ
     setTimeout(() => {
         const container = document.getElementById('chatMessages');
-        if (container) container.scrollTop = container.scrollHeight;
-    }, 500);
-}
-        function escapeHtml(text) {
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
+        if (container) {
+            container.scrollTop = container.scrollHeight;
         }
+    }, 500);
+    
+    // Дополнительная автопрокрутка через 1 секунду (для надёжности)
+    setTimeout(() => {
+        const container = document.getElementById('chatMessages');
+        if (container) {
+            container.scrollTop = container.scrollHeight;
+        }
+    }, 1000);
+}
+
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
 
         // ============================================================
         // 13. ВСЕ ИГРОВЫЕ ФУНКЦИИ
