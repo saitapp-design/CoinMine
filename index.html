@@ -1687,6 +1687,24 @@
                 border-radius: 0 !important;
                 margin: -10px -10px 0 -10px;
             }
+            .chat-input-wrap input {
+        font-size: 16px !important;
+        /* Убираем авто-капитализацию */
+        text-transform: none !important;
+        /* Принудительно показываем русскую клавиатуру */
+        -webkit-user-select: text !important;
+        user-select: text !important;
+    }
+}
+
+/* Глобально для всех полей ввода */
+input, textarea {
+    /* Отключаем авто-капитализацию */
+    text-transform: none !important;
+    /* Разрешаем ввод любого текста */
+    -webkit-user-select: text !important;
+    user-select: text !important;
+}
             .chat-header {
                 padding: 8px 10px !important;
                 min-height: 48px;
