@@ -3889,18 +3889,11 @@
         };
 
  // ============================================================
-// 17. РУЛЕТКА (ПРОСТАЯ И ТОЧНАЯ)
+// 17. РУЛЕТКА (ПРОСТОЙ АВТОМАТ - ГАРАНТИРОВАННО РАБОТАЕТ)
 // ============================================================
-const RC = document.getElementById('rouletteCanvas');
-const rctx = RC.getContext('2d');
-const CX = 160,
-    CY = 160,
-    OR = 148,
-    IR = 28;
 
-// === СПИСОК ВСЕХ ВОЗМОЖНЫХ РЕЗУЛЬТАТОВ ===
-// Каждый элемент: { число, цвет }
-const POSSIBLE_RESULTS = [
+// === СПИСОК ВСЕХ ЧИСЕЛ С ЦВЕТАМИ ===
+const ROULETTE_NUMBERS = [
     { label: '0', color: 'green' },
     { label: '1', color: 'red' },
     { label: '2', color: 'black' },
@@ -3923,178 +3916,113 @@ const POSSIBLE_RESULTS = [
     { label: '18', color: 'black' }
 ];
 
-// === МАССИВ СЕКТОРОВ ДЛЯ ОТРИСОВКИ ===
-const SEGS = POSSIBLE_RESULTS.map(r => ({
-    c: r.color,
-    label: r.label,
-    num: parseInt(r.label) || 0
-}));
-
-const SEG_FILL = {
-    red: ['#7f1d1d', '#b91c1c', '#dc2626'],
-    black: ['#18181b', '#27272a', '#3f3f46'],
-    green: ['#14532d', '#15803d', '#16a34a']
-};
-
-let wheelAngle = 0;
-let spinning = false;
-let spinBet = 25;
+// Состояние
+let isSpinning = false;
+let currentBet = 25;
 let resultDisplayed = true;
-let _pendingWinColor = null;
-let _result = null; // { label, color }
 
-// === ОТРИСОВКА ===
-window.drawRoulette = function(angle) {
-    rctx.clearRect(0, 0, 320, 320);
-
-    const validR = OR + 14;
-    const woodGrad = rctx.createRadialGradient(CX, CY, 0, CX, CY, validR);
-    woodGrad.addColorStop(0, '#5c3a1e');
-    woodGrad.addColorStop(.5, '#8b5e3c');
-    woodGrad.addColorStop(1, '#3d2109');
-    rctx.beginPath();
-    rctx.arc(CX, CY, validR, 0, Math.PI * 2);
-    rctx.fillStyle = woodGrad;
-    rctx.fill();
-
-    rctx.beginPath();
-    rctx.arc(CX, CY, OR + 14, 0, Math.PI * 2);
-    rctx.strokeStyle = '#d4a017';
-    rctx.lineWidth = 2.5;
-    rctx.stroke();
-    rctx.beginPath();
-    rctx.arc(CX, CY, OR + 1, 0, Math.PI * 2);
-    rctx.strokeStyle = '#b8860b';
-    rctx.lineWidth = 1.5;
-    rctx.stroke();
-
-    rctx.beginPath();
-    rctx.arc(CX, CY, OR - 6, 0, Math.PI * 2);
-    rctx.strokeStyle = '#1a0a00';
-    rctx.lineWidth = 12;
-    rctx.stroke();
-    rctx.beginPath();
-    rctx.arc(CX, CY, OR - 6, 0, Math.PI * 2);
-    rctx.strokeStyle = '#4a2c10';
-    rctx.lineWidth = 10;
-    rctx.stroke();
-    rctx.beginPath();
-    rctx.arc(CX, CY, OR - 6, 0, Math.PI * 2);
-    rctx.strokeStyle = '#2a1505';
-    rctx.lineWidth = 8;
-    rctx.stroke();
-
-    const n = SEGS.length;
-    const sa = Math.PI * 2 / n;
+// === ОТРИСОВКА КРУГА (ПРОСТАЯ) ===
+function drawSimpleRoulette(highlightIndex) {
+    const canvas = document.getElementById('rouletteCanvas');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    const cx = 160, cy = 160, radius = 140;
+    
+    ctx.clearRect(0, 0, 320, 320);
+    
+    // Рисуем сектора
+    const n = ROULETTE_NUMBERS.length;
+    const angleStep = (Math.PI * 2) / n;
+    
     for (let i = 0; i < n; i++) {
-        const a1 = angle + i * sa - Math.PI / 2;
-        const a2 = angle + (i + 1) * sa - Math.PI / 2;
-        const col = SEGS[i].c;
-        const fills = SEG_FILL[col];
-
-        rctx.beginPath();
-        rctx.moveTo(CX, CY);
-        rctx.arc(CX, CY, OR - 16, a1, a2);
-        rctx.closePath();
-        rctx.fillStyle = fills[1];
-        rctx.fill();
-
-        const mid = a1 + (a2 - a1) / 2;
-        const sheen = rctx.createLinearGradient(
-            CX + Math.cos(mid) * (OR - 40), CY + Math.sin(mid) * (OR - 40),
-            CX + Math.cos(mid) * (OR - 16), CY + Math.sin(mid) * (OR - 16)
-        );
-        sheen.addColorStop(0, 'transparent');
-        sheen.addColorStop(1, 'rgba(255,255,255,.12)');
-        rctx.beginPath();
-        rctx.moveTo(CX, CY);
-        rctx.arc(CX, CY, OR - 16, a1, a2);
-        rctx.closePath();
-        rctx.fillStyle = sheen;
-        rctx.fill();
-
-        rctx.beginPath();
-        rctx.moveTo(CX + Math.cos(a1) * (IR + 4), CY + Math.sin(a1) * (IR + 4));
-        rctx.lineTo(CX + Math.cos(a1) * (OR - 16), CY + Math.sin(a1) * (OR - 16));
-        rctx.strokeStyle = 'rgba(255,255,255,.22)';
-        rctx.lineWidth = 0.8;
-        rctx.stroke();
-
-        const tmid = a1 + (a2 - a1) / 2;
-        const tr = OR - 30;
-        rctx.save();
-        rctx.translate(CX + Math.cos(tmid) * tr, CY + Math.sin(tmid) * tr);
-        rctx.rotate(tmid + Math.PI / 2);
-        rctx.font = 'bold 9px sans-serif';
-        rctx.fillStyle = 'rgba(255,255,255,.85)';
-        rctx.textAlign = 'center';
-        rctx.textBaseline = 'middle';
-        rctx.fillText(SEGS[i].label, 0, 0);
-        rctx.restore();
+        const startAngle = i * angleStep - Math.PI / 2;
+        const endAngle = (i + 1) * angleStep - Math.PI / 2;
+        const num = ROULETTE_NUMBERS[i];
+        
+        // Цвет сектора
+        let color;
+        if (num.color === 'red') color = '#b91c1c';
+        else if (num.color === 'black') color = '#1a1a1a';
+        else color = '#15803d';
+        
+        ctx.beginPath();
+        ctx.moveTo(cx, cy);
+        ctx.arc(cx, cy, radius, startAngle, endAngle);
+        ctx.closePath();
+        ctx.fillStyle = color;
+        ctx.fill();
+        ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+        ctx.lineWidth = 1;
+        ctx.stroke();
+        
+        // Подсветка выигрышного сектора
+        if (highlightIndex === i) {
+            ctx.beginPath();
+            ctx.moveTo(cx, cy);
+            ctx.arc(cx, cy, radius + 5, startAngle, endAngle);
+            ctx.closePath();
+            ctx.fillStyle = 'rgba(255, 215, 0, 0.3)';
+            ctx.fill();
+            ctx.strokeStyle = '#ffd700';
+            ctx.lineWidth = 3;
+            ctx.stroke();
+        }
+        
+        // Число
+        const midAngle = startAngle + angleStep / 2;
+        const textRadius = radius - 20;
+        const x = cx + Math.cos(midAngle) * textRadius;
+        const y = cy + Math.sin(midAngle) * textRadius;
+        
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.rotate(midAngle + Math.PI / 2);
+        ctx.fillStyle = '#fff';
+        ctx.font = 'bold 10px Arial';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(num.label, 0, 0);
+        ctx.restore();
     }
-
-    const coneGrad = rctx.createRadialGradient(CX, CY, 0, CX, CY, IR + 14);
-    coneGrad.addColorStop(0, '#5c3a1e');
-    coneGrad.addColorStop(.7, '#3d2109');
-    coneGrad.addColorStop(1, '#1a0a00');
-    rctx.beginPath();
-    rctx.arc(CX, CY, IR + 14, 0, Math.PI * 2);
-    rctx.fillStyle = coneGrad;
-    rctx.fill();
-
-    rctx.beginPath();
-    rctx.arc(CX, CY, IR + 4, 0, Math.PI * 2);
-    rctx.strokeStyle = '#d4a017';
-    rctx.lineWidth = 2;
-    rctx.stroke();
-
-    const hubGrad = rctx.createRadialGradient(CX - 4, CY - 4, 0, CX, CY, IR);
-    hubGrad.addColorStop(0, '#e8d060');
-    hubGrad.addColorStop(.5, '#c8a020');
-    hubGrad.addColorStop(1, '#6b4e0b');
-    rctx.beginPath();
-    rctx.arc(CX, CY, IR, 0, Math.PI * 2);
-    rctx.fillStyle = hubGrad;
-    rctx.fill();
-
-    rctx.strokeStyle = 'rgba(0,0,0,.35)';
-    rctx.lineWidth = 1.5;
-    rctx.beginPath();
-    rctx.moveTo(CX - IR + 4, CY);
-    rctx.lineTo(CX + IR - 4, CY);
-    rctx.stroke();
-    rctx.beginPath();
-    rctx.moveTo(CX, CY - IR + 4);
-    rctx.lineTo(CX, CY + IR - 4);
-    rctx.stroke();
-
+    
+    // Центр
+    const grad = ctx.createRadialGradient(cx - 5, cy - 5, 0, cx, cy, 25);
+    grad.addColorStop(0, '#f0e6d0');
+    grad.addColorStop(0.7, '#c4a87a');
+    grad.addColorStop(1, '#8b6b3e');
+    ctx.beginPath();
+    ctx.arc(cx, cy, 25, 0, Math.PI * 2);
+    ctx.fillStyle = grad;
+    ctx.fill();
+    ctx.strokeStyle = '#6b4b2e';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+    
     // Стрелка
-    rctx.shadowColor = 'rgba(255, 215, 0, 0.5)';
-    rctx.shadowBlur = 15;
-    rctx.beginPath();
-    rctx.moveTo(CX - 10, 10);
-    rctx.lineTo(CX + 10, 10);
-    rctx.lineTo(CX, 26);
-    rctx.closePath();
-    rctx.fillStyle = '#ffd700';
-    rctx.fill();
-    rctx.strokeStyle = '#b8860b';
-    rctx.lineWidth = 2;
-    rctx.stroke();
-    rctx.shadowBlur = 0;
-};
-
-// === НАЙТИ ИНДЕКС ПО ЧИСЛУ ===
-function findIndexByLabel(label) {
-    for (let i = 0; i < SEGS.length; i++) {
-        if (SEGS[i].label === label) return i;
-    }
-    return 0;
+    ctx.shadowColor = 'rgba(255, 215, 0, 0.5)';
+    ctx.shadowBlur = 15;
+    ctx.beginPath();
+    ctx.moveTo(cx - 10, 10);
+    ctx.lineTo(cx + 10, 10);
+    ctx.lineTo(cx, 28);
+    ctx.closePath();
+    ctx.fillStyle = '#ffd700';
+    ctx.fill();
+    ctx.strokeStyle = '#b8860b';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+    ctx.shadowBlur = 0;
 }
 
-// === ЗАПУСК ВРАЩЕНИЯ ===
+// === ПОЛУЧИТЬ СЛУЧАЙНОЕ ЧИСЛО ПО ЦВЕТУ ===
+function getRandomNumberByColor(color) {
+    const filtered = ROULETTE_NUMBERS.filter(n => n.color === color);
+    return filtered[Math.floor(Math.random() * filtered.length)];
+}
+
+// === ОСНОВНАЯ ФУНКЦИЯ ВРАЩЕНИЯ ===
 window.spinTo = function(color) {
-    if (spinning) return;
+    if (isSpinning) return;
     
     const betInput = document.getElementById('rlBetInput');
     const bet = parseInt(betInput.value) || 25;
@@ -4109,10 +4037,8 @@ window.spinTo = function(color) {
     }
     
     G.coins -= bet;
-    spinBet = bet;
-    _pendingWinColor = color;
-    spinning = true;
-    resultDisplayed = false;
+    isSpinning = true;
+    currentBet = bet;
     
     const resultEl = document.getElementById('rlResult');
     resultEl.textContent = '🎰 Крутим...';
@@ -4121,84 +4047,64 @@ window.spinTo = function(color) {
     document.querySelectorAll('.rl-btns button').forEach(b => b.disabled = true);
     betInput.disabled = true;
     
-    // === 1. ВЫБИРАЕМ СЛУЧАЙНЫЙ РЕЗУЛЬТАТ ИЗ СПИСКА ===
-    const possible = POSSIBLE_RESULTS.filter(r => r.color === color);
-    const selected = possible[Math.floor(Math.random() * possible.length)];
+    // === ВЫБИРАЕМ РЕЗУЛЬТАТ ===
+    const result = getRandomNumberByColor(color);
     
-    // === 2. СОХРАНЯЕМ РЕЗУЛЬТАТ ===
-    _result = selected;
-    
-    // === 3. НАХОДИМ ИНДЕКС В SEGS ===
-    const targetIndex = findIndexByLabel(selected.label);
-    
-    // === 4. ЗАПУСКАЕМ АНИМАЦИЮ ===
-    const n = SEGS.length;
-    const segAngle = (Math.PI * 2) / n;
-    const extraSpins = 5 + Math.floor(Math.random() * 4);
-    const targetAngle = -Math.PI / 2 - (targetIndex + 0.5) * segAngle + extraSpins * Math.PI * 2;
-    
-    const startAngle = wheelAngle;
-    const duration = 4000 + Math.random() * 500;
-    const startTime = performance.now();
-    
-    function animate(time) {
-        const elapsed = time - startTime;
-        const progress = Math.min(elapsed / duration, 1);
-        const eased = 1 - Math.pow(1 - progress, 3);
+    // === АНИМАЦИЯ ПРОКРУТКИ ===
+    let count = 0;
+    const maxCount = 20 + Math.floor(Math.random() * 10);
+    const interval = setInterval(() => {
+        const randomIdx = Math.floor(Math.random() * ROULETTE_NUMBERS.length);
+        drawSimpleRoulette(randomIdx);
+        count++;
         
-        wheelAngle = startAngle + (targetAngle - startAngle) * eased;
-        window.drawRoulette(wheelAngle);
-        
-        if (progress < 1) {
-            requestAnimationFrame(animate);
-        } else {
-            // === 5. ПОКАЗЫВАЕМ РЕЗУЛЬТАТ ===
-            spinning = false;
-            resultDisplayed = true;
+        if (count >= maxCount) {
+            clearInterval(interval);
             
-            const colorEmoji = _result.color === 'red' ? '🔴' : _result.color === 'black' ? '⚫' : '🟢';
-            const win = _result.color === color;
+            // === ПОКАЗЫВАЕМ РЕЗУЛЬТАТ ===
+            const win = result.color === color;
+            const colorEmoji = result.color === 'red' ? '🔴' : result.color === 'black' ? '⚫' : '🟢';
+            
+            // Находим индекс результата для подсветки
+            const resultIndex = ROULETTE_NUMBERS.findIndex(n => n.label === result.label);
+            drawSimpleRoulette(resultIndex);
             
             if (win) {
-                const mult = _result.color === 'green' ? 5 : 1.75;
+                const mult = result.color === 'green' ? 5 : 1.75;
                 const winAmount = Math.floor(bet * mult);
                 G.coins += winAmount;
-                resultEl.textContent = `✅ Выпало: ${_result.label} (${colorEmoji} ${_result.color}) +${winAmount} монет!`;
+                resultEl.textContent = `✅ Выпало: ${result.label} (${colorEmoji} ${result.color}) +${winAmount} монет!`;
                 resultEl.className = 'rl-result win';
-                window.toast(`🎉 Выпало ${_result.label}! +${winAmount} монет!`, 'gld');
+                window.toast(`🎉 Выпало ${result.label}! +${winAmount} монет!`, 'gld');
             } else {
-                resultEl.textContent = `❌ Выпало: ${_result.label} (${colorEmoji} ${_result.color}) -${spinBet} монет`;
+                resultEl.textContent = `❌ Выпало: ${result.label} (${colorEmoji} ${result.color}) -${bet} монет`;
                 resultEl.className = 'rl-result lose';
-                window.toast(`😞 Выпало ${_result.label}! -${spinBet} монет`, 'err');
+                window.toast(`😞 Выпало ${result.label}! -${bet} монет`, 'err');
             }
             
-            _pendingWinColor = null;
-            
+            isSpinning = false;
             document.querySelectorAll('.rl-btns button').forEach(b => b.disabled = false);
-            document.getElementById('rlBetInput').disabled = false;
+            betInput.disabled = false;
             
             scheduleSave();
             renderUI();
         }
-    }
-    
-    requestAnimationFrame(animate);
+    }, 100);
 };
 
 // === ФОНОВОЕ ВРАЩЕНИЕ ===
-let idleAngle = 0;
+let idleIndex = 0;
 
 function idleSpin() {
-    if (!spinning && resultDisplayed) {
-        idleAngle += 0.003;
-        wheelAngle = idleAngle;
-        window.drawRoulette(wheelAngle);
+    if (!isSpinning) {
+        idleIndex = (idleIndex + 1) % ROULETTE_NUMBERS.length;
+        drawSimpleRoulette(-1);
     }
     requestAnimationFrame(idleSpin);
 }
 
 // === ЗАПУСК ===
-window.drawRoulette(0);
+drawSimpleRoulette(-1);
 idleSpin();
 document.getElementById('rlResult').textContent = '🎰 Выберите цвет';
 document.getElementById('rlResult').className = 'rl-result';
