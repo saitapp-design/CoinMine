@@ -3888,314 +3888,323 @@
             window.toast(`+${PROMOS[c]} монет!`, 'gld');
         };
 
- // ============================================================
-// 17. РУЛЕТКА (ГАРАНТИРОВАННО РАБОТАЕТ)
-// ============================================================
-const RC = document.getElementById('rouletteCanvas');
-const rctx = RC.getContext('2d');
-const CX = 160, CY = 160, OR = 148, IR = 28;
+        // ============================================================
+        // 17. РУЛЕТКА
+        // ============================================================
+        const RC = document.getElementById('rouletteCanvas');
+        const rctx = RC.getContext('2d');
+        const CX = 160,
+            CY = 160,
+            OR = 148,
+            IR = 28;
 
-// === ПРОСТОЙ МАССИВ: ИНДЕКС = ЧИСЛО ===
-const SEGS = [
-    { c: 'green', label: '0' },   // индекс 0 → число 0
-    { c: 'red', label: '1' },     // индекс 1 → число 1
-    { c: 'black', label: '2' },   // индекс 2 → число 2
-    { c: 'red', label: '3' },     // индекс 3 → число 3
-    { c: 'black', label: '4' },   // индекс 4 → число 4
-    { c: 'red', label: '5' },     // индекс 5 → число 5
-    { c: 'black', label: '6' },   // индекс 6 → число 6
-    { c: 'red', label: '7' },     // индекс 7 → число 7
-    { c: 'black', label: '8' },   // индекс 8 → число 8
-    { c: 'red', label: '9' },     // индекс 9 → число 9
-    { c: 'green', label: '00' },  // индекс 10 → число 00
-    { c: 'black', label: '10' },  // индекс 11 → число 10
-    { c: 'red', label: '11' },    // индекс 12 → число 11
-    { c: 'black', label: '12' },  // индекс 13 → число 12
-    { c: 'red', label: '13' },    // индекс 14 → число 13
-    { c: 'black', label: '14' },  // индекс 15 → число 14
-    { c: 'red', label: '15' },    // индекс 16 → число 15
-    { c: 'black', label: '16' },  // индекс 17 → число 16
-    { c: 'red', label: '17' },    // индекс 18 → число 17
-    { c: 'black', label: '18' }   // индекс 19 → число 18
-];
+        const SEGS = [];
+        for (let i = 0; i < 20; i++) {
+            if (i === 0 || i === 10) SEGS.push({ c: 'green', label: i === 0 ? '0' : '00', num: i === 0 ? 0 : 00 });
+            else SEGS.push({ c: i % 2 === 0 ? 'black' : 'red', label: String(i * 2 - 1 + ((i > 10) ? 1 : 0)), num: i * 2 -
+                    1 + ((i > 10) ? 1 : 0) });
+        }
 
-const SEG_FILL = {
-    red: ['#7f1d1d', '#b91c1c', '#dc2626'],
-    black: ['#18181b', '#27272a', '#3f3f46'],
-    green: ['#14532d', '#15803d', '#16a34a']
-};
+        const SEG_FILL = {
+            red: ['#7f1d1d', '#991b1b', '#b91c1c'],
+            black: ['#18181b', '#27272a', '#3f3f46'],
+            green: ['#14532d', '#15803d', '#16a34a']
+        };
 
-let wheelAngle = 0;
-let spinning = false;
-let spinBet = 25;
-let resultDisplayed = true;
-let _pendingWinColor = null;
+        let wheelAngle = 0;
+        let ballAngle = 0;
+        let ballR = OR - 14;
+        let spinning = false;
+        let raf = null;
+        let resultDisplayed = false;
+        let spinBet = 25;
+        let _pendingWinColor = null;
+        let _targetIndex = null;
+        let _spinStartW = 0;
+        let _spinT0 = 0;
+        let _finalWAngle = 0;
 
-// === ОТРИСОВКА ===
-window.drawRoulette = function(angle) {
-    rctx.clearRect(0, 0, 320, 320);
+        window.drawRoulette = function(wAngle, bAngle, bR, landed) {
+            rctx.clearRect(0, 0, 320, 320);
 
-    const validR = OR + 14;
-    const woodGrad = rctx.createRadialGradient(CX, CY, 0, CX, CY, validR);
-    woodGrad.addColorStop(0, '#5c3a1e');
-    woodGrad.addColorStop(.5, '#8b5e3c');
-    woodGrad.addColorStop(1, '#3d2109');
-    rctx.beginPath();
-    rctx.arc(CX, CY, validR, 0, Math.PI * 2);
-    rctx.fillStyle = woodGrad;
-    rctx.fill();
+            const validR = OR + 14;
+            const woodGrad = rctx.createRadialGradient(CX, CY, 0, CX, CY, validR);
+            woodGrad.addColorStop(0, '#5c3a1e');
+            woodGrad.addColorStop(.5, '#8b5e3c');
+            woodGrad.addColorStop(1, '#3d2109');
+            rctx.beginPath();
+            rctx.arc(CX, CY, validR, 0, Math.PI * 2);
+            rctx.fillStyle = woodGrad;
+            rctx.fill();
 
-    rctx.beginPath();
-    rctx.arc(CX, CY, OR + 14, 0, Math.PI * 2);
-    rctx.strokeStyle = '#d4a017';
-    rctx.lineWidth = 2.5;
-    rctx.stroke();
-    rctx.beginPath();
-    rctx.arc(CX, CY, OR + 1, 0, Math.PI * 2);
-    rctx.strokeStyle = '#b8860b';
-    rctx.lineWidth = 1.5;
-    rctx.stroke();
+            rctx.beginPath();
+            rctx.arc(CX, CY, OR + 14, 0, Math.PI * 2);
+            rctx.strokeStyle = '#d4a017';
+            rctx.lineWidth = 2.5;
+            rctx.stroke();
+            rctx.beginPath();
+            rctx.arc(CX, CY, OR + 1, 0, Math.PI * 2);
+            rctx.strokeStyle = '#b8860b';
+            rctx.lineWidth = 1.5;
+            rctx.stroke();
 
-    rctx.beginPath();
-    rctx.arc(CX, CY, OR - 6, 0, Math.PI * 2);
-    rctx.strokeStyle = '#1a0a00';
-    rctx.lineWidth = 12;
-    rctx.stroke();
-    rctx.beginPath();
-    rctx.arc(CX, CY, OR - 6, 0, Math.PI * 2);
-    rctx.strokeStyle = '#4a2c10';
-    rctx.lineWidth = 10;
-    rctx.stroke();
-    rctx.beginPath();
-    rctx.arc(CX, CY, OR - 6, 0, Math.PI * 2);
-    rctx.strokeStyle = '#2a1505';
-    rctx.lineWidth = 8;
-    rctx.stroke();
+            rctx.beginPath();
+            rctx.arc(CX, CY, OR - 6, 0, Math.PI * 2);
+            rctx.strokeStyle = '#1a0a00';
+            rctx.lineWidth = 12;
+            rctx.stroke();
+            rctx.beginPath();
+            rctx.arc(CX, CY, OR - 6, 0, Math.PI * 2);
+            rctx.strokeStyle = '#4a2c10';
+            rctx.lineWidth = 10;
+            rctx.stroke();
+            rctx.beginPath();
+            rctx.arc(CX, CY, OR - 6, 0, Math.PI * 2);
+            rctx.strokeStyle = '#2a1505';
+            rctx.lineWidth = 8;
+            rctx.stroke();
 
-    const n = SEGS.length;
-    const sa = Math.PI * 2 / n;
-    for (let i = 0; i < n; i++) {
-        const a1 = angle + i * sa - Math.PI / 2;
-        const a2 = angle + (i + 1) * sa - Math.PI / 2;
-        const col = SEGS[i].c;
-        const fills = SEG_FILL[col];
+            const n = SEGS.length;
+            const sa = Math.PI * 2 / n;
+            for (let i = 0; i < n; i++) {
+                const a1 = wAngle + i * sa - Math.PI / 2;
+                const a2 = wAngle + (i + 1) * sa - Math.PI / 2;
+                const col = SEGS[i].c;
+                const fills = SEG_FILL[col];
 
-        rctx.beginPath();
-        rctx.moveTo(CX, CY);
-        rctx.arc(CX, CY, OR - 16, a1, a2);
-        rctx.closePath();
-        rctx.fillStyle = fills[1];
-        rctx.fill();
+                rctx.beginPath();
+                rctx.moveTo(CX, CY);
+                rctx.arc(CX, CY, OR - 16, a1, a2);
+                rctx.closePath();
+                rctx.fillStyle = fills[1];
+                rctx.fill();
 
-        const mid = a1 + (a2 - a1) / 2;
-        const sheen = rctx.createLinearGradient(
-            CX + Math.cos(mid) * (OR - 40), CY + Math.sin(mid) * (OR - 40),
-            CX + Math.cos(mid) * (OR - 16), CY + Math.sin(mid) * (OR - 16)
-        );
-        sheen.addColorStop(0, 'transparent');
-        sheen.addColorStop(1, 'rgba(255,255,255,.12)');
-        rctx.beginPath();
-        rctx.moveTo(CX, CY);
-        rctx.arc(CX, CY, OR - 16, a1, a2);
-        rctx.closePath();
-        rctx.fillStyle = sheen;
-        rctx.fill();
+                const mid = a1 + (a2 - a1) / 2;
+                const sheen = rctx.createLinearGradient(
+                    CX + Math.cos(mid) * (OR - 40), CY + Math.sin(mid) * (OR - 40),
+                    CX + Math.cos(mid) * (OR - 16), CY + Math.sin(mid) * (OR - 16)
+                );
+                sheen.addColorStop(0, 'transparent');
+                sheen.addColorStop(1, 'rgba(255,255,255,.12)');
+                rctx.beginPath();
+                rctx.moveTo(CX, CY);
+                rctx.arc(CX, CY, OR - 16, a1, a2);
+                rctx.closePath();
+                rctx.fillStyle = sheen;
+                rctx.fill();
 
-        rctx.beginPath();
-        rctx.moveTo(CX + Math.cos(a1) * (IR + 4), CY + Math.sin(a1) * (IR + 4));
-        rctx.lineTo(CX + Math.cos(a1) * (OR - 16), CY + Math.sin(a1) * (OR - 16));
-        rctx.strokeStyle = 'rgba(255,255,255,.22)';
-        rctx.lineWidth = 0.8;
-        rctx.stroke();
+                rctx.beginPath();
+                rctx.moveTo(CX + Math.cos(a1) * (IR + 4), CY + Math.sin(a1) * (IR + 4));
+                rctx.lineTo(CX + Math.cos(a1) * (OR - 16), CY + Math.sin(a1) * (OR - 16));
+                rctx.strokeStyle = 'rgba(255,255,255,.22)';
+                rctx.lineWidth = 0.8;
+                rctx.stroke();
 
-        const tmid = a1 + (a2 - a1) / 2;
-        const tr = OR - 30;
-        rctx.save();
-        rctx.translate(CX + Math.cos(tmid) * tr, CY + Math.sin(tmid) * tr);
-        rctx.rotate(tmid + Math.PI / 2);
-        rctx.font = 'bold 9px sans-serif';
-        rctx.fillStyle = 'rgba(255,255,255,.85)';
-        rctx.textAlign = 'center';
-        rctx.textBaseline = 'middle';
-        rctx.fillText(SEGS[i].label, 0, 0);
-        rctx.restore();
-    }
-
-    const coneGrad = rctx.createRadialGradient(CX, CY, 0, CX, CY, IR + 14);
-    coneGrad.addColorStop(0, '#5c3a1e');
-    coneGrad.addColorStop(.7, '#3d2109');
-    coneGrad.addColorStop(1, '#1a0a00');
-    rctx.beginPath();
-    rctx.arc(CX, CY, IR + 14, 0, Math.PI * 2);
-    rctx.fillStyle = coneGrad;
-    rctx.fill();
-
-    rctx.beginPath();
-    rctx.arc(CX, CY, IR + 4, 0, Math.PI * 2);
-    rctx.strokeStyle = '#d4a017';
-    rctx.lineWidth = 2;
-    rctx.stroke();
-
-    const hubGrad = rctx.createRadialGradient(CX - 4, CY - 4, 0, CX, CY, IR);
-    hubGrad.addColorStop(0, '#e8d060');
-    hubGrad.addColorStop(.5, '#c8a020');
-    hubGrad.addColorStop(1, '#6b4e0b');
-    rctx.beginPath();
-    rctx.arc(CX, CY, IR, 0, Math.PI * 2);
-    rctx.fillStyle = hubGrad;
-    rctx.fill();
-
-    rctx.strokeStyle = 'rgba(0,0,0,.35)';
-    rctx.lineWidth = 1.5;
-    rctx.beginPath();
-    rctx.moveTo(CX - IR + 4, CY);
-    rctx.lineTo(CX + IR - 4, CY);
-    rctx.stroke();
-    rctx.beginPath();
-    rctx.moveTo(CX, CY - IR + 4);
-    rctx.lineTo(CX, CY + IR - 4);
-    rctx.stroke();
-
-    // Стрелка
-    rctx.shadowColor = 'rgba(255, 215, 0, 0.5)';
-    rctx.shadowBlur = 15;
-    rctx.beginPath();
-    rctx.moveTo(CX - 10, 10);
-    rctx.lineTo(CX + 10, 10);
-    rctx.lineTo(CX, 26);
-    rctx.closePath();
-    rctx.fillStyle = '#ffd700';
-    rctx.fill();
-    rctx.strokeStyle = '#b8860b';
-    rctx.lineWidth = 2;
-    rctx.stroke();
-    rctx.shadowBlur = 0;
-};
-
-// === ПОЛУЧИТЬ ИНДЕКС ПО УГЛУ ===
-function getIndexFromAngle(angle) {
-    const n = SEGS.length;
-    const sa = (Math.PI * 2) / n;
-    let raw = (-Math.PI / 2 - angle) % (Math.PI * 2);
-    if (raw < 0) raw += Math.PI * 2;
-    return Math.floor(raw / sa) % n;
-}
-
-// === ГЛАВНАЯ ФУНКЦИЯ ===
-window.spinTo = function(color) {
-    if (spinning) return;
-    
-    const betInput = document.getElementById('rlBetInput');
-    const bet = parseInt(betInput.value) || 25;
-    
-    if (bet < 1) { window.toast('Минимальная ставка 1 монета', 'err'); return; }
-    if (bet > G.coins) { window.toast('Недостаточно монет!', 'err'); return; }
-    
-    G.coins -= bet;
-    spinning = true;
-    resultDisplayed = false;
-    _pendingWinColor = color;
-    spinBet = bet;
-    
-    const resultEl = document.getElementById('rlResult');
-    resultEl.textContent = '🎰 Крутим...';
-    resultEl.className = 'rl-result';
-    
-    document.querySelectorAll('.rl-btns button').forEach(b => b.disabled = true);
-    betInput.disabled = true;
-    
-    // === ВЫБИРАЕМ СЛУЧАЙНЫЙ ИНДЕКС ===
-    const n = SEGS.length;
-    const targetIndex = Math.floor(Math.random() * n);
-    const seg = SEGS[targetIndex];
-    
-    // === СОХРАНЯЕМ РЕЗУЛЬТАТ ===
-    const resultLabel = seg.label;
-    const resultColor = seg.c;
-    const isWin = seg.c === color;
-    let winAmount = 0;
-    
-    if (isWin) {
-        const mult = seg.c === 'green' ? 5 : 1.75;
-        winAmount = Math.floor(bet * mult);
-        G.coins += winAmount;
-    }
-    
-    // === РАССЧИТЫВАЕМ УГОЛ ОСТАНОВКИ ===
-    const segAngle = (Math.PI * 2) / n;
-    const extraSpins = 5 + Math.floor(Math.random() * 3);
-    const targetAngle = -Math.PI / 2 - (targetIndex + 0.5) * segAngle + extraSpins * Math.PI * 2;
-    
-    const startAngle = wheelAngle;
-    const duration = 3500 + Math.random() * 500;
-    const startTime = performance.now();
-    
-    // === АНИМАЦИЯ ===
-    function animate(time) {
-        const elapsed = time - startTime;
-        const progress = Math.min(elapsed / duration, 1);
-        const eased = 1 - Math.pow(1 - progress, 3);
-        
-        wheelAngle = startAngle + (targetAngle - startAngle) * eased;
-        window.drawRoulette(wheelAngle);
-        
-        if (progress < 1) {
-            requestAnimationFrame(animate);
-        } else {
-            // === ПРОВЕРКА И КОРРЕКТИРОВКА ===
-            const landedIdx = getIndexFromAngle(wheelAngle);
-            if (landedIdx !== targetIndex) {
-                const correction = (targetIndex - landedIdx) * segAngle;
-                wheelAngle += correction;
-                window.drawRoulette(wheelAngle);
+                const tmid = a1 + (a2 - a1) / 2;
+                const tr = OR - 30;
+                rctx.save();
+                rctx.translate(CX + Math.cos(tmid) * tr, CY + Math.sin(tmid) * tr);
+                rctx.rotate(tmid + Math.PI / 2);
+                rctx.font = `bold ${n <= 20 ? 9 : 7}px sans-serif`;
+                rctx.fillStyle = 'rgba(255,255,255,.85)';
+                rctx.textAlign = 'center';
+                rctx.textBaseline = 'middle';
+                rctx.fillText(SEGS[i].label, 0, 0);
+                rctx.restore();
             }
-            
-            // === ПОКАЗЫВАЕМ РЕЗУЛЬТАТ ===
-            spinning = false;
-            resultDisplayed = true;
-            
-            const colorEmoji = resultColor === 'red' ? '🔴' : resultColor === 'black' ? '⚫' : '🟢';
-            
-            if (isWin) {
-                resultEl.textContent = `✅ Выпало: ${resultLabel} (${colorEmoji} ${resultColor}) +${winAmount} монет!`;
-                resultEl.className = 'rl-result win';
-                window.toast(`🎉 Выпало ${resultLabel}! +${winAmount} монет!`, 'gld');
+
+            const coneGrad = rctx.createRadialGradient(CX, CY, 0, CX, CY, IR + 14);
+            coneGrad.addColorStop(0, '#5c3a1e');
+            coneGrad.addColorStop(.7, '#3d2109');
+            coneGrad.addColorStop(1, '#1a0a00');
+            rctx.beginPath();
+            rctx.arc(CX, CY, IR + 14, 0, Math.PI * 2);
+            rctx.fillStyle = coneGrad;
+            rctx.fill();
+
+            rctx.beginPath();
+            rctx.arc(CX, CY, IR + 4, 0, Math.PI * 2);
+            rctx.strokeStyle = '#d4a017';
+            rctx.lineWidth = 2;
+            rctx.stroke();
+
+            const hubGrad = rctx.createRadialGradient(CX - 4, CY - 4, 0, CX, CY, IR);
+            hubGrad.addColorStop(0, '#e8d060');
+            hubGrad.addColorStop(.5, '#c8a020');
+            hubGrad.addColorStop(1, '#6b4e0b');
+            rctx.beginPath();
+            rctx.arc(CX, CY, IR, 0, Math.PI * 2);
+            rctx.fillStyle = hubGrad;
+            rctx.fill();
+
+            rctx.strokeStyle = 'rgba(0,0,0,.35)';
+            rctx.lineWidth = 1.5;
+            rctx.beginPath();
+            rctx.moveTo(CX - IR + 4, CY);
+            rctx.lineTo(CX + IR - 4, CY);
+            rctx.stroke();
+            rctx.beginPath();
+            rctx.moveTo(CX, CY - IR + 4);
+            rctx.lineTo(CX, CY + IR - 4);
+            rctx.stroke();
+
+            rctx.beginPath();
+            rctx.moveTo(CX - 7, 12);
+            rctx.lineTo(CX + 7, 12);
+            rctx.lineTo(CX, 22);
+            rctx.closePath();
+            rctx.fillStyle = '#ffd700';
+            rctx.fill();
+            rctx.strokeStyle = '#b8860b';
+            rctx.lineWidth = 1;
+            rctx.stroke();
+
+            if (!spinning && resultDisplayed) return;
+
+            if (spinning || !resultDisplayed) {
+                const bx = CX + Math.cos(bAngle) * bR;
+                const by = CY + Math.sin(bAngle) * bR;
+
+                if (!isNaN(bx) && !isNaN(by) && isFinite(bx) && isFinite(by)) {
+                    rctx.beginPath();
+                    rctx.arc(bx + 2, by + 2, 8, 0, Math.PI * 2);
+                    rctx.fillStyle = 'rgba(0,0,0,.4)';
+                    rctx.fill();
+
+                    const ballGrad = rctx.createRadialGradient(bx - 3, by - 3, 1, bx, by, 8);
+                    ballGrad.addColorStop(0, '#ffffff');
+                    ballGrad.addColorStop(.4, '#e0e0e0');
+                    ballGrad.addColorStop(1, '#a0a0a0');
+                    rctx.beginPath();
+                    rctx.arc(bx, by, 8, 0, Math.PI * 2);
+                    rctx.fillStyle = ballGrad;
+                    rctx.fill();
+                    rctx.strokeStyle = 'rgba(0,0,0,.3)';
+                    rctx.lineWidth = 0.5;
+                    rctx.stroke();
+                }
+            }
+        };
+
+        function easeOut(t) { return 1 - Math.pow(1 - t, 3.5); }
+
+        function animSpin() {
+            const now = performance.now();
+            const t = Math.min(1, (now - _spinT0) / 4500);
+            const e = easeOut(t);
+
+            wheelAngle = _spinStartW + (_finalWAngle - _spinStartW) * e;
+
+            const ballE = easeOut(Math.min(1, t * 1.1));
+            ballAngle = -Math.PI / 2 + Math.PI * 2 * 10 * ballE;
+
+            if (t > 0.7) {
+                const drop = (t - 0.7) / 0.3;
+                ballR = (OR - 14) - drop * (OR - 14 - (IR + 22));
             } else {
-                resultEl.textContent = `❌ Выпало: ${resultLabel} (${colorEmoji} ${resultColor}) -${spinBet} монет`;
-                resultEl.className = 'rl-result lose';
-                window.toast(`😞 Выпало ${resultLabel}! -${spinBet} монет`, 'err');
+                ballR = OR - 14;
             }
-            
+
+            window.drawRoulette(wheelAngle, ballAngle, ballR, null);
+
+            if (t < 1) {
+                raf = requestAnimationFrame(animSpin);
+            } else {
+                spinning = false;
+                resultDisplayed = true;
+
+                document.querySelectorAll('.rl-btns button').forEach(b => b.disabled = false);
+                document.getElementById('rlBetInput').disabled = false;
+
+                resolveSpin();
+            }
+        }
+
+        function resolveSpin() {
+            const idx = _targetIndex;
+            if (idx === null || idx === undefined) {
+                window.toast('Ошибка рулетки', 'err');
+                return;
+            }
+
+            const seg = SEGS[idx];
+            const win = seg.c === _pendingWinColor;
+
+            const resultEl = document.getElementById('rlResult');
+            const colorEmoji = seg.c === 'red' ? '🔴' : seg.c === 'black' ? '⚫' : '🟢';
+
+            if (win) {
+                const mult = seg.c === 'green' ? 5 : 1.75;
+                const gain = Math.floor(spinBet * mult);
+                G.coins += gain;
+
+                resultEl.textContent = `✅ Выпало: ${seg.label} (${colorEmoji} ${seg.c}) +${gain} монет!`;
+                resultEl.className = 'rl-result win';
+                window.toast(`🎉 +${gain} монет!`, 'gld');
+            } else {
+                resultEl.textContent = `❌ Выпало: ${seg.label} (${colorEmoji} ${seg.c}) -${spinBet} монет`;
+                resultEl.className = 'rl-result lose';
+                window.toast(`😞 -${spinBet} монет`, 'err');
+            }
+
             _pendingWinColor = null;
-            
-            document.querySelectorAll('.rl-btns button').forEach(b => b.disabled = false);
-            document.getElementById('rlBetInput').disabled = false;
-            
+            _targetIndex = null;
+
             scheduleSave();
             renderUI();
         }
-    }
-    
-    requestAnimationFrame(animate);
-};
 
-// === ФОНОВОЕ ВРАЩЕНИЕ ===
-let idleAngle = 0;
+        window.spinTo = function(col) {
+            if (spinning) return;
 
-function idleSpin() {
-    if (!spinning && resultDisplayed) {
-        idleAngle += 0.003;
-        wheelAngle = idleAngle;
-        window.drawRoulette(wheelAngle);
-    }
-    requestAnimationFrame(idleSpin);
-}
+            const betInput = document.getElementById('rlBetInput');
+            spinBet = parseInt(betInput.value) || 25;
 
-// === ЗАПУСК ===
-window.drawRoulette(0);
-idleSpin();
-document.getElementById('rlResult').textContent = '🎰 Выберите цвет';
-document.getElementById('rlResult').className = 'rl-result';
+            if (spinBet < 1) { window.toast('Минимальная ставка 1 монета', 'err'); return; }
+            if (spinBet > G.coins) { window.toast('Недостаточно монет!', 'err'); return; }
+
+            G.coins -= spinBet;
+            spinning = true;
+            resultDisplayed = false;
+
+            _pendingWinColor = col;
+
+            const resultEl = document.getElementById('rlResult');
+            resultEl.textContent = 'Крутим...';
+            resultEl.className = 'rl-result';
+
+            document.querySelectorAll('.rl-btns button').forEach(b => b.disabled = true);
+            betInput.disabled = true;
+
+            const n = SEGS.length;
+            const segAngle = (Math.PI * 2) / n;
+
+            const weighted = SEGS.map((s, i) => s.c === col ? i : -1).filter(i => i !== -1);
+            _targetIndex = weighted[Math.floor(Math.random() * weighted.length)];
+
+            const extraSpins = 6 + Math.floor(Math.random() * 3);
+            _finalWAngle = -Math.PI / 2 - (_targetIndex + 0.5) * segAngle + extraSpins * Math.PI * 2;
+
+            _spinStartW = wheelAngle;
+            _spinT0 = performance.now();
+
+            cancelAnimationFrame(raf);
+            animSpin();
+        };
+
+        let idleAngle = 0;
+
+        function idleSpin() {
+            if (!spinning && !resultDisplayed) {
+                idleAngle += 0.003;
+                wheelAngle = idleAngle;
+                window.drawRoulette(wheelAngle, -Math.PI / 2, OR - 14, null);
+            }
+            requestAnimationFrame(idleSpin);
+        }
+        window.drawRoulette(0, -Math.PI / 2, OR - 14, null);
+        idleSpin();
+
         // ============================================================
         // 18. КУБИК
         // ============================================================
