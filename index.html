@@ -2054,53 +2054,47 @@
                 </div>
 
                 <!-- ЧАТ -->
-                <div class="sc" id="sc-chat">
-                    <div class="chat-container">
+<div class="sc" id="sc-chat">
+    <div class="chat-container">
 
-                        <!-- Верхняя панель -->
-                        <div class="chat-header">
-                            <div class="chat-header-left">
-                                <span class="chat-title" id="chatTitle">
-                                    💬 Чат
-                                    <span class="sub" id="chatSubTitle">Общий чат</span>
-                                </span>
-                            </div>
-                            <div class="chat-header-right">
-                                <span class="online-count" id="chatOnline">● 0 онлайн</span>
-                                <button class="chat-mode-toggle" id="chatModeToggle" onclick="toggleChatMode()">
-                                    Общий
-                                </button>
-                            </div>
-                        </div>
+        <!-- Верхняя панель -->
+        <div class="chat-header">
+            <div class="chat-header-left">
+                <span class="chat-title" id="chatTitle">
+                    💬 Общий чат
+                </span>
+            </div>
+            <div class="chat-header-right">
+                <span class="online-count" id="chatOnline">● 0 онлайн</span>
+                <!-- КНОПКА ПЕРЕКЛЮЧЕНИЯ УДАЛЕНА -->
+            </div>
+        </div>
 
-                        <!-- Поиск для ЛС -->
-                        <div class="chat-search-container" id="chatSearchContainer">
-                            <input id="chatSearchInput" placeholder="🔍 Введите ник для ЛС..." oninput="searchUsers(this.value)">
-                            <div class="chat-search-results" id="chatSearchResults"></div>
-                        </div>
+        <!-- Окно сообщений -->
+        <div class="chat-messages-wrap" id="chatMessagesWrap">
+            <div class="chat-messages" id="chatMessages">
+                <div class="system-msg">Напишите сообщение в общий чат</div>
+            </div>
 
-                        <!-- Окно сообщений -->
-                        <div class="chat-messages-wrap" id="chatMessagesWrap">
-                            <div class="chat-messages" id="chatMessages">
-                                <div class="system-msg">Напишите сообщение в общий чат</div>
-                            </div>
+            <!-- Информационная строка -->
+            <div class="chat-info" id="chatInfo">
+                💬 <span class="highlight">Общий чат</span> — все видят все сообщения
+            </div>
 
-                            <!-- Информационная строка -->
-                            <div class="chat-info" id="chatInfo">
-                                💬 <span class="highlight">Общий чат</span> — все видят все сообщения
-                            </div>
+            <!-- Поле ввода -->
+            <div class="chat-input-wrap">
+                <input id="chatInput" placeholder="Напишите сообщение..." 
+                       autocomplete="off"
+                       inputmode="text"
+                       onkeydown="if(event.key==='Enter') sendMessage()">
+                <button class="btn bp" id="sendBtn" onclick="sendMessage()">
+                    <span>➤</span>
+                </button>
+            </div>
+        </div>
 
-                            <!-- Поле ввода -->
-                            <div class="chat-input-wrap">
-                                <input id="chatInput" placeholder="Напишите сообщение..." 
-                                       autocomplete="off"
-                                       inputmode="text"
-                                       onkeydown="if(event.key==='Enter') sendMessage()">
-                                <button class="btn bp" id="sendBtn" onclick="sendMessage()">
-                                    <span>➤</span>
-                                </button>
-                            </div>
-                        </div>
+    </div>
+</div>
 
                     </div>
                 </div>
@@ -3273,47 +3267,32 @@
         }
 
         function initChat() {
-            if (!UID) return;
+    if (!UID) return;
 
-            currentChat = 'global';
-            currentChatTarget = null;
-            isSearchMode = false;
-            chatMessagesCache = chats.global || [];
-            lastMessageTime = Date.now();
+    currentChat = 'global';
+    chatMessagesCache = chats.global || [];
+    lastMessageTime = Date.now();
 
-            document.getElementById('chatModeToggle').textContent = 'Общий';
-            document.getElementById('chatModeToggle').classList.remove('active');
-            document.getElementById('chatTitle').innerHTML = '💬 Чат <span class="sub">Общий чат</span>';
-            document.getElementById('chatSearchContainer').style.display = 'none';
-            document.getElementById('chatSearchResults').style.display = 'none';
-            document.getElementById('chatInfo').innerHTML = '💬 <span class="highlight">Общий чат</span> — все видят все сообщения';
-            document.getElementById('chatSearchInput').value = '';
+    document.getElementById('chatTitle').innerHTML = '💬 Общий чат';
+    document.getElementById('chatInfo').innerHTML = '💬 <span class="highlight">Общий чат</span> — все видят все сообщения';
 
-            const input = document.getElementById('chatInput');
-            if (input) {
-                input.disabled = false;
-                input.readOnly = false;
-                input.style.opacity = '1';
-                input.style.pointerEvents = 'auto';
-                input.placeholder = 'Напишите в общий чат...';
-                input.value = '';
+    const input = document.getElementById('chatInput');
+    if (input) {
+        input.disabled = false;
+        input.placeholder = 'Напишите в общий чат...';
+        input.value = '';
+    }
 
-                setTimeout(() => {
-                    input.focus();
-                    if ('ontouchstart' in window) {
-                        input.click();
-                    }
-                }, 300);
-            }
+    loadMessages();
+    loadOnlineUsers();
+    setupRealtime();
 
-            loadMessages();
-            loadOnlineUsers();
-            setupRealtime();
-
-            setInterval(cleanupOldMessages, 3600000);
-            setTimeout(cleanupOldMessages, 30000);
-        }
-
+    // АВТОПРОКРУТКА
+    setTimeout(() => {
+        const container = document.getElementById('chatMessages');
+        if (container) container.scrollTop = container.scrollHeight;
+    }, 500);
+}
         function escapeHtml(text) {
             const div = document.createElement('div');
             div.textContent = text;
@@ -3475,17 +3454,22 @@
         // 14. НАВИГАЦИЯ
         // ============================================================
         window.goSc = function(nm) {
-            document.querySelectorAll('.sc').forEach(s => s.classList.remove('on'));
-            document.querySelectorAll('.nb').forEach(b => b.classList.remove('on'));
-            document.getElementById('sc-' + nm).classList.add('on');
+    document.querySelectorAll('.sc').forEach(s => s.classList.remove('on'));
+    document.querySelectorAll('.nb').forEach(b => b.classList.remove('on'));
+    document.getElementById('sc-' + nm).classList.add('on');
 
-            if (nm === 'chat') {
-                setTimeout(() => {
-                    initChat();
-                }, 50);
-            }
-            renderUI();
-        };
+    if (nm === 'chat') {
+        setTimeout(() => {
+            initChat();
+            // АВТОПРОКРУТКА ВНИЗ
+            setTimeout(() => {
+                const container = document.getElementById('chatMessages');
+                if (container) container.scrollTop = container.scrollHeight;
+            }, 300);
+        }, 50);
+    }
+    renderUI();
+};
 
         window.gTab = function(t, el) {
             ['rl', 'dc', 'au'].forEach(x => {
