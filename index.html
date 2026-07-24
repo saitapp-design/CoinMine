@@ -3297,7 +3297,29 @@ input, textarea {
 
     document.getElementById('chatTitle').innerHTML = '💬 Общий чат';
     document.getElementById('chatInfo').innerHTML = '💬 <span class="highlight">Общий чат</span> — все видят все сообщения';
-
+    // В функции initChat() добавьте:
+const input = document.getElementById('chatInput');
+if (input) {
+    // Принудительно устанавливаем тип ввода
+    input.setAttribute('inputmode', 'text');
+    input.setAttribute('lang', 'ru');
+    
+    // При фокусе - показываем клавиатуру
+    input.addEventListener('focus', function() {
+        this.setAttribute('inputmode', 'text');
+        // На некоторых устройствах помогает
+        this.blur();
+        setTimeout(() => this.focus(), 10);
+    });
+    
+    // Обработка нажатия на поле
+    input.addEventListener('touchstart', function() {
+        // Небольшая задержка для активации клавиатуры
+        setTimeout(() => {
+            this.focus();
+        }, 50);
+    });
+}
     const input = document.getElementById('chatInput');
     if (input) {
         input.disabled = false;
