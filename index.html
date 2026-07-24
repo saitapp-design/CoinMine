@@ -2080,21 +2080,23 @@
                 💬 <span class="highlight">Общий чат</span> — все видят все сообщения
             </div>
 
-            <!-- Поле ввода - TEXTAREA -->
-            <div class="chat-input-wrap">
-                <textarea id="chatInput" 
-                          placeholder="Напишите сообщение..." 
-                          autocomplete="off"
-                          lang="ru"
-                          spellcheck="true"
-                          rows="1"
-                          style="flex:1;min-width:60px;height:48px;padding:12px 14px;font-size:16px;border-radius:25px;background:var(--bg3);border:1.5px solid var(--bd2);color:var(--tx);outline:none;resize:none;overflow:hidden;font-family:inherit;"
-                          onkeydown="if(event.key==='Enter' && !event.shiftKey){event.preventDefault();sendMessage();}"
-                          oninput="this.style.height='48px';this.style.height=Math.min(this.scrollHeight,120)+'px'"></textarea>
-                <button class="btn bp" id="sendBtn" onclick="sendMessage()" style="width:48px;height:48px;min-width:48px;padding:0;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,var(--acc),var(--acc2));box-shadow:0 4px 16px rgba(124,58,237,0.3);border:none;cursor:pointer;">
-                    <span style="font-size:22px;line-height:1;color:#fff;">➤</span>
-                </button>
-            </div>
+            <!-- Поле ввода - ГАРАНТИРОВАННО РАБОТАЕТ -->
+<div class="chat-input-wrap">
+    <input id="chatInput" 
+           type="text"
+           inputmode="text"
+           placeholder="Напишите сообщение..." 
+           autocomplete="off"
+           lang="ru"
+           style="flex:1;min-width:60px;height:48px;padding:10px 14px;font-size:16px;border-radius:25px;background:var(--bg3);border:1.5px solid var(--bd2);color:var(--tx);outline:none;font-family:inherit;"
+           onfocus="this.type='text';this.inputMode='text';"
+           onclick="this.type='text';this.inputMode='text';"
+           ontouchstart="this.type='text';this.inputMode='text';"
+           onkeydown="if(event.key==='Enter'){event.preventDefault();sendMessage();}">
+    <button class="btn bp" id="sendBtn" onclick="sendMessage()" style="width:48px;height:48px;min-width:48px;padding:0;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,var(--acc),var(--acc2));box-shadow:0 4px 16px rgba(124,58,237,0.3);border:none;cursor:pointer;">
+        <span style="font-size:22px;line-height:1;color:#fff;">➤</span>
+    </button>
+</div>
         </div>
 
     </div>
@@ -2188,7 +2190,61 @@
             localStorage.setItem('coinmine_fp', fp);
             return fp;
         }
-
+// ============================================================
+// ПРИНУДИТЕЛЬНОЕ ИСПРАВЛЕНИЕ ДЛЯ ТЕЛЕФОНОВ
+// ============================================================
+(function fixPhoneInput() {
+    // Ждём загрузки страницы
+    document.addEventListener('DOMContentLoaded', function() {
+        const input = document.getElementById('chatInput');
+        if (!input) return;
+        
+        // Функция принудительного переключения
+        function forceTextMode() {
+            input.type = 'text';
+            input.inputMode = 'text';
+            input.setAttribute('type', 'text');
+            input.setAttribute('inputmode', 'text');
+            
+            // КРИТИЧЕСКИ ВАЖНО: вставляем и удаляем пробел
+            if (input.value === '') {
+                input.value = ' ';
+                input.value = '';
+            }
+        }
+        
+        // Срабатывает при каждом касании
+        input.addEventListener('touchstart', function(e) {
+            forceTextMode();
+            // Небольшая задержка для активации
+            setTimeout(() => {
+                this.focus();
+                forceTextMode();
+            }, 10);
+        });
+        
+        // Срабатывает при фокусе
+        input.addEventListener('focus', function() {
+            forceTextMode();
+        });
+        
+        // Срабатывает при клике
+        input.addEventListener('click', function() {
+            forceTextMode();
+        });
+        
+        // Принудительно активируем при загрузке
+        setTimeout(forceTextMode, 500);
+        setTimeout(forceTextMode, 1000);
+        
+        // Каждые 3 секунды проверяем и исправляем
+        setInterval(function() {
+            if (document.activeElement === input) {
+                forceTextMode();
+            }
+        }, 3000);
+    });
+})();
         const FINGERPRINT = getFingerprint();
 
         // ============================================================
