@@ -4098,18 +4098,21 @@ function resolveSpin() {
 
     const resultEl = document.getElementById('rlResult');
     const colorEmoji = seg.c === 'red' ? '🔴' : seg.c === 'black' ? '⚫' : '🟢';
+    
+    // === ИСПОЛЬЗУЕМ label (то что на рулетке) ===
+    const displayNumber = seg.label;  // показываем то, что написано на секторе
 
     if (win) {
         const mult = seg.c === 'green' ? 5 : 1.75;
         const gain = Math.floor(spinBet * mult);
         G.coins += gain;
-        resultEl.textContent = `✅ Выпало: ${seg.label} (${colorEmoji} ${seg.c}) +${gain} монет!`;
+        resultEl.textContent = `✅ Выпало: ${displayNumber} (${colorEmoji} ${seg.c}) +${gain} монет!`;
         resultEl.className = 'rl-result win';
-        window.toast(`🎉 Выпало ${seg.label}! +${gain} монет!`, 'gld');
+        window.toast(`🎉 Выпало ${displayNumber}! +${gain} монет!`, 'gld');
     } else {
-        resultEl.textContent = `❌ Выпало: ${seg.label} (${colorEmoji} ${seg.c}) -${spinBet} монет`;
+        resultEl.textContent = `❌ Выпало: ${displayNumber} (${colorEmoji} ${seg.c}) -${spinBet} монет`;
         resultEl.className = 'rl-result lose';
-        window.toast(`😞 Выпало ${seg.label}! -${spinBet} монет`, 'err');
+        window.toast(`😞 Выпало ${displayNumber}! -${spinBet} монет`, 'err');
     }
 
     _pendingWinColor = null;
@@ -4123,7 +4126,6 @@ function resolveSpin() {
     scheduleSave();
     renderUI();
 }
-
 // === ЗАПУСК ВРАЩЕНИЯ ===
 window.spinTo = function(col) {
     if (spinning) return;
