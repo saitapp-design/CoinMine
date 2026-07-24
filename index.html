@@ -141,6 +141,51 @@
             color: var(--gld);
             background: var(--bg3);
         }
+        /* Подсказка для телефона */
+.phone-hint {
+    display: none;
+    position: fixed;
+    bottom: 100px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(124, 58, 237, 0.95);
+    color: #fff;
+    padding: 12px 20px;
+    border-radius: 16px;
+    font-size: 14px;
+    font-weight: 600;
+    z-index: 999;
+    text-align: center;
+    max-width: 90%;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.6);
+    border: 2px solid rgba(255,255,255,0.2);
+    animation: fadeIn 0.3s ease;
+    pointer-events: none;
+}
+
+.phone-hint.show {
+    display: block;
+}
+
+.phone-hint .icon {
+    font-size: 24px;
+    display: block;
+    margin-bottom: 4px;
+}
+
+.phone-hint .sub {
+    font-size: 12px;
+    opacity: 0.8;
+    font-weight: 400;
+}
+
+@media (max-width: 700px) {
+    .phone-hint {
+        bottom: 120px;
+        padding: 14px 20px;
+        font-size: 15px;
+    }
+}
         @media (max-width: 700px) {
             .static-banner {
                 max-width: 95%;
@@ -1780,7 +1825,14 @@
     </style>
 </head>
 <body>
-
+<!-- Подсказка для телефона -->
+<div class="phone-hint" id="phoneHint">
+    <span class="icon">📱</span>
+    Чтобы написать сообщение<br>
+    сначала введите <b>любую цифру</b> (например, <b>1</b>),<br>
+    затем удалите её и пишите текст
+    <div class="sub">Это нужно для активации клавиатуры</div>
+</div>
     <!-- APP -->
     <div class="app" id="appRoot">
 
@@ -2190,6 +2242,77 @@
             localStorage.setItem('coinmine_fp', fp);
             return fp;
         }
+        // ============================================================
+// ПОДСКАЗКА ДЛЯ ТЕЛЕФОНА
+// ============================================================
+let phoneHintTimeout = null;
+
+function showPhoneHint() {
+    const hint = document.getElementById('phoneHint');
+    if (!hint) return;
+    
+    // Показываем только на телефонах
+    if (window.innerWidth > 700) return;
+    
+    hint.classList.add('show');
+    
+    // Автоматически скрываем через 4 секунды
+    clearTimeout(phoneHintTimeout);
+    phoneHintTimeout = setTimeout(() => {
+        hint.classList.remove('show');
+    }, 4000);
+}
+
+function hidePhoneHint() {
+    const hint = document.getElementById('phoneHint');
+    if (hint) hint.classList.remove('show');
+    clearTimeout(phoneHintTimeout);
+}
+
+// При клике на поле ввода показываем подсказку
+document.addEventListener('DOMContentLoaded', function() {
+    const input = document.getElementById('chatInput');
+    if (input) {
+        input.addEventListener('focus', function() {
+            // Если поле пустое - показываем подсказку
+            if (this.value.trim() === '') {
+                showPhoneHint();
+            } else {
+                hidePhoneHint();
+            }
+        });
+        
+        input.addEventListener('input', function() {
+            // Если пользователь что-то ввёл - скрываем подсказку
+            if (this.value.trim() !== '') {
+                hidePhoneHint();
+            }
+        });
+        
+        // При нажатии на кнопку отправки - проверяем
+        const sendBtn = document.getElementById('sendBtn');
+        if (sendBtn) {
+            sendBtn.addEventListener('click', function() {
+                if (input.value.trim() === '') {
+                    showPhoneHint();
+                }
+            });
+        }
+    }
+});
+
+// Также показываем подсказку при переходе в чат
+function initChatWithHint() {
+    initChat();
+    
+    // Показываем подсказку при открытии чата
+    setTimeout(() => {
+        const input = document.getElementById('chatInput');
+        if (input && input.value.trim() === '') {
+            showPhoneHint();
+        }
+    }, 1000);
+}
 // ============================================================
 // ПРИНУДИТЕЛЬНОЕ ИСПРАВЛЕНИЕ ДЛЯ ТЕЛЕФОНОВ
 // ============================================================
@@ -3058,8 +3181,10 @@ window.sendMessage = async function() {
     const input = document.getElementById('chatInput');
     const text = input.value.trim();
 
+    // Проверка на пустое сообщение
     if (!text) {
         input.style.borderColor = 'var(--red)';
+        showPhoneHint(); // ПОКАЗЫВАЕМ ПОДСКАЗКУ
         setTimeout(() => {
             input.style.borderColor = '';
             input.focus();
@@ -3068,12 +3193,33 @@ window.sendMessage = async function() {
         return;
     }
 
+    // Если текст состоит только из цифр - показываем подсказку
+    if (/^\d+$/.test(text)) {
+        showPhoneHint();
+        window.toast('❌ Введите текст, а не только цифры', 'err');
+        input.value = '';
+        input.focus();
+        return;
+    }
+
+    // Если пользователь ввёл цифры в начале - очищаем их
+    const cleanText = text.replace(/^\d+\s*/, '');
+    if (cleanText.trim() === '' && text.length > 0) {
+        showPhoneHint();
+        window.toast('❌ Удалите цифры и напишите текст', 'err');
+        input.value = '';
+        input.focus();
+        return;
+    }
+
+    // Проверка длины
     if (text.length > 200) {
         window.toast('Слишком длинное сообщение (макс. 200 символов)', 'err');
         input.focus();
         return;
     }
 
+    // Экранирование опасных символов
     const safeText = text.replace(/[<>]/g, '').trim();
     if (!safeText) {
         window.toast('Недопустимые символы', 'err');
@@ -3081,11 +3227,13 @@ window.sendMessage = async function() {
         return;
     }
 
+    // Сохраняем текст и очищаем поле
     const sentText = text;
     input.value = '';
-    input.style.height = '48px';
     input.style.borderColor = '';
+    hidePhoneHint(); // Скрываем подсказку
 
+    // Формируем данные сообщения
     const msgData = {
         sender_id: String(UID),
         sender_name: String((G.name || currentUsername || 'Игрок').substring(0, 30)),
@@ -3097,16 +3245,19 @@ window.sendMessage = async function() {
         created_at: new Date().toISOString()
     };
 
+    // Оптимистичное добавление сообщения
     const tempMsg = { ...msgData };
     chats.global.push(tempMsg);
     chatMessagesCache = chats.global;
     appendMessageToChat(tempMsg);
 
+    // Фокусируемся на поле ввода
     setTimeout(() => {
         input.focus();
     }, 100);
 
     try {
+        // Отправка сообщения на сервер
         const { ok, status, data } = await sbFetch('/rest/v1/messages', {
             method: 'POST',
             body: msgData
@@ -3115,17 +3266,20 @@ window.sendMessage = async function() {
         if (!ok) {
             console.error('❌ Ошибка отправки:', status, data);
             window.toast('❌ Ошибка отправки', 'err');
+            // Удаляем оптимистичное сообщение
             chats.global = chats.global.filter(m => m !== tempMsg);
             chatMessagesCache = chats.global;
             renderChatMessages();
             input.value = sentText;
             input.focus();
         } else {
+            // Обновляем сообщения с сервера
             setTimeout(() => {
                 loadMessages();
                 cleanupOldMessages();
             }, 300);
             
+            // Вибрация на телефоне
             if (navigator.vibrate) {
                 navigator.vibrate(10);
             }
@@ -3133,6 +3287,7 @@ window.sendMessage = async function() {
     } catch (e) {
         console.error('❌ Ошибка соединения:', e);
         window.toast('❌ Ошибка соединения', 'err');
+        // Удаляем оптимистичное сообщение
         chats.global = chats.global.filter(m => m !== tempMsg);
         chatMessagesCache = chats.global;
         renderChatMessages();
@@ -3605,7 +3760,7 @@ function setupRealtime() {
 
     if (nm === 'chat') {
         setTimeout(() => {
-            initChat();
+            initChatWithHint(); // Используем новую функцию
             // АВТОПРОКРУТКА ВНИЗ
             setTimeout(() => {
                 const container = document.getElementById('chatMessages');
