@@ -2066,7 +2066,6 @@
             </div>
             <div class="chat-header-right">
                 <span class="online-count" id="chatOnline">● 0 онлайн</span>
-                <!-- КНОПКА ПЕРЕКЛЮЧЕНИЯ УДАЛЕНА -->
             </div>
         </div>
 
@@ -2081,31 +2080,25 @@
                 💬 <span class="highlight">Общий чат</span> — все видят все сообщения
             </div>
 
-            <!-- Поле ввода -->
-            <!-- Поле ввода - ПРОСТОЙ ВАРИАНТ С TEXTAREA -->
-<div class="chat-input-wrap">
-    <textarea id="chatInput" 
-              placeholder="Напишите сообщение..." 
-              autocomplete="off"
-              lang="ru"
-              spellcheck="true"
-              rows="1"
-              style="flex:1;min-width:60px;height:48px;padding:12px 14px;font-size:16px;border-radius:25px;background:var(--bg3);border:1.5px solid var(--bd2);color:var(--tx);outline:none;resize:none;overflow:hidden;font-family:inherit;"
-              onkeydown="if(event.key==='Enter' && !event.shiftKey){event.preventDefault();sendMessage();}"
-              oninput="this.style.height='48px';this.style.height=Math.min(this.scrollHeight,120)+'px'"></textarea>
-    <button class="btn bp" id="sendBtn" onclick="sendMessage()" style="width:48px;height:48px;min-width:48px;padding:0;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,var(--acc),var(--acc2));box-shadow:0 4px 16px rgba(124,58,237,0.3);border:none;cursor:pointer;">
-        <span style="font-size:22px;line-height:1;color:#fff;">➤</span>
-    </button>
-</div>
+            <!-- Поле ввода - TEXTAREA -->
+            <div class="chat-input-wrap">
+                <textarea id="chatInput" 
+                          placeholder="Напишите сообщение..." 
+                          autocomplete="off"
+                          lang="ru"
+                          spellcheck="true"
+                          rows="1"
+                          style="flex:1;min-width:60px;height:48px;padding:12px 14px;font-size:16px;border-radius:25px;background:var(--bg3);border:1.5px solid var(--bd2);color:var(--tx);outline:none;resize:none;overflow:hidden;font-family:inherit;"
+                          onkeydown="if(event.key==='Enter' && !event.shiftKey){event.preventDefault();sendMessage();}"
+                          oninput="this.style.height='48px';this.style.height=Math.min(this.scrollHeight,120)+'px'"></textarea>
+                <button class="btn bp" id="sendBtn" onclick="sendMessage()" style="width:48px;height:48px;min-width:48px;padding:0;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,var(--acc),var(--acc2));box-shadow:0 4px 16px rgba(124,58,237,0.3);border:none;cursor:pointer;">
+                    <span style="font-size:22px;line-height:1;color:#fff;">➤</span>
+                </button>
+            </div>
         </div>
 
     </div>
 </div>
-
-                    </div>
-                </div>
-
-            </div>
 
             <!-- НАВИГАЦИЯ (5 пунктов, без кланов) -->
             <nav class="nav">
@@ -3000,144 +2993,234 @@
             }
         };
 
-        window.sendMessage = async function() {
-            const input = document.getElementById('chatInput');
-            const text = input.value.trim();
+        // ============================================================
+// ФУНКЦИИ ДЛЯ CHAT С TEXTAREA
+// ============================================================
 
-            if (!text) {
-                input.style.borderColor = 'var(--red)';
-                setTimeout(() => {
-                    input.style.borderColor = '';
-                }, 1000);
-                window.toast('Введите сообщение', 'err');
-                return;
-            }
+// Отправка сообщения
+window.sendMessage = async function() {
+    const input = document.getElementById('chatInput');
+    const text = input.value.trim();
 
-            if (text.length > 200) {
-                window.toast('Слишком длинное сообщение (макс. 200 символов)', 'err');
-                return;
-            }
-
-            if (isSearchMode && !currentChatTarget) {
-                window.toast('Сначала выберите собеседника в ЛС', 'err');
-                return;
-            }
-
-            const isPrivate = currentChat !== 'global' && currentChatTarget;
-
-            if (isPrivate) {
-                const now = Date.now();
-                if (now - G.lastPrivateReset > 86400000) {
-                    G.privateMessages = {};
-                    G.lastPrivateReset = now;
-                    scheduleSave();
-                }
-
-                const count = G.privateMessages[currentChatTarget.id] || 0;
-                if (count >= 10) {
-                    window.toast('❌ Лимит ЛС: 10 сообщений в день', 'err');
-                    return;
-                }
-
-                G.privateMessages[currentChatTarget.id] = count + 1;
-                scheduleSave();
-            }
-
-            const receiverId = isPrivate ? currentChatTarget.id : null;
-            const receiverName = isPrivate ? currentChatTarget.name : null;
-
-            const safeText = text.replace(/[<>]/g, '').trim();
-            if (!safeText) {
-                window.toast('Недопустимые символы', 'err');
-                return;
-            }
-
-            const msgData = {
-                sender_id: String(UID),
-                sender_name: String((G.name || currentUsername || 'Игрок').substring(0, 30)),
-                sender_avatar: String(G.avatar || AVATAR_LIST[0]),
-                receiver_id: receiverId ? String(receiverId) : null,
-                receiver_name: receiverName ? String(receiverName.substring(0, 30)) : null,
-                message: String(safeText.substring(0, 200)),
-                is_private: Boolean(isPrivate),
-                created_at: new Date().toISOString()
-            };
-
-            const sentText = text;
-            input.value = '';
+    if (!text) {
+        input.style.borderColor = 'var(--red)';
+        setTimeout(() => {
             input.style.borderColor = '';
+            input.focus();
+        }, 1000);
+        window.toast('Введите сообщение', 'err');
+        return;
+    }
 
-            const tempMsg = { ...msgData };
-            const targetKey = isPrivate ? currentChatTarget.id : 'global';
+    if (text.length > 200) {
+        window.toast('Слишком длинное сообщение (макс. 200 символов)', 'err');
+        input.focus();
+        return;
+    }
 
-            if (targetKey === 'global') {
-                chats.global.push(tempMsg);
-                chatMessagesCache = chats.global;
-            } else {
-                if (!chats.dm[targetKey]) chats.dm[targetKey] = [];
-                chats.dm[targetKey].push(tempMsg);
-                chatMessagesCache = chats.dm[targetKey];
-            }
+    const safeText = text.replace(/[<>]/g, '').trim();
+    if (!safeText) {
+        window.toast('Недопустимые символы', 'err');
+        input.focus();
+        return;
+    }
 
-            appendMessageToChat(tempMsg);
+    const sentText = text;
+    input.value = '';
+    input.style.height = '48px';
+    input.style.borderColor = '';
 
+    const msgData = {
+        sender_id: String(UID),
+        sender_name: String((G.name || currentUsername || 'Игрок').substring(0, 30)),
+        sender_avatar: String(G.avatar || AVATAR_LIST[0]),
+        receiver_id: null,
+        receiver_name: null,
+        message: String(safeText.substring(0, 200)),
+        is_private: false,
+        created_at: new Date().toISOString()
+    };
+
+    const tempMsg = { ...msgData };
+    chats.global.push(tempMsg);
+    chatMessagesCache = chats.global;
+    appendMessageToChat(tempMsg);
+
+    setTimeout(() => {
+        input.focus();
+    }, 100);
+
+    try {
+        const { ok, status, data } = await sbFetch('/rest/v1/messages', {
+            method: 'POST',
+            body: msgData
+        });
+
+        if (!ok) {
+            console.error('❌ Ошибка отправки:', status, data);
+            window.toast('❌ Ошибка отправки', 'err');
+            chats.global = chats.global.filter(m => m !== tempMsg);
+            chatMessagesCache = chats.global;
+            renderChatMessages();
+            input.value = sentText;
+            input.focus();
+        } else {
             setTimeout(() => {
-                input.focus();
-                if ('ontouchstart' in window) {
-                    input.click();
-                }
-            }, 100);
-
-            try {
-                const { ok, status, data } = await sbFetch('/rest/v1/messages', {
-                    method: 'POST',
-                    body: msgData
-                });
-
-                if (!ok) {
-                    console.error('❌ Ошибка отправки:', status, data);
-                    window.toast('❌ Ошибка отправки', 'err');
-                    if (targetKey === 'global') {
-                        chats.global = chats.global.filter(m => m !== tempMsg);
-                        chatMessagesCache = chats.global;
-                    } else {
-                        chats.dm[targetKey] = chats.dm[targetKey].filter(m => m !== tempMsg);
-                        chatMessagesCache = chats.dm[targetKey];
-                    }
-                    renderChatMessages();
-                    input.value = sentText;
-                } else {
-                    setTimeout(() => {
-                        loadMessages();
-                        cleanupOldMessages();
-                    }, 300);
-
-                    if (isPrivate) {
-                        const remaining = getPrivateRemaining(currentChatTarget.id);
-                        document.getElementById('chatInfo').innerHTML =
-                            `💬 ЛС с <span class="highlight">${currentChatTarget.name}</span> — осталось <span class="highlight">${remaining}</span> сообщений сегодня`;
-                    }
-
-                    if (navigator.vibrate) {
-                        navigator.vibrate(10);
-                    }
-                }
-            } catch (e) {
-                console.error('❌ Ошибка соединения:', e);
-                window.toast('❌ Ошибка соединения', 'err');
-                if (targetKey === 'global') {
-                    chats.global = chats.global.filter(m => m !== tempMsg);
-                    chatMessagesCache = chats.global;
-                } else {
-                    chats.dm[targetKey] = chats.dm[targetKey].filter(m => m !== tempMsg);
-                    chatMessagesCache = chats.dm[targetKey];
-                }
-                renderChatMessages();
-                input.value = sentText;
+                loadMessages();
+                cleanupOldMessages();
+            }, 300);
+            
+            if (navigator.vibrate) {
+                navigator.vibrate(10);
             }
-        };
+        }
+    } catch (e) {
+        console.error('❌ Ошибка соединения:', e);
+        window.toast('❌ Ошибка соединения', 'err');
+        chats.global = chats.global.filter(m => m !== tempMsg);
+        chatMessagesCache = chats.global;
+        renderChatMessages();
+        input.value = sentText;
+        input.focus();
+    }
+};
 
-        let lastMessageTime = Date.now();
+// Добавление сообщения в чат с автопрокруткой
+function appendMessageToChat(msg) {
+    const container = document.getElementById('chatMessages');
+    if (!container) return;
+
+    const isOwn = msg?.sender_id === UID;
+    const senderName = isOwn ? 'Я' : (msg?.sender_name || 'Игрок');
+    const avatar = msg?.sender_avatar || AVATAR_LIST[0];
+    const text = escapeHtml(msg?.message || '');
+
+    const el = document.createElement('div');
+    el.className = `msg ${isOwn ? 'own' : 'other'}`;
+
+    el.innerHTML = `
+        <div class="sender">
+            ${!isOwn ? `<div class="top-avatar" style="width:22px;height:22px;"><img src="${avatar}" alt="${escapeHtml(senderName)}" loading="lazy"></div>` : ''}
+            <span class="name">${escapeHtml(senderName)}</span>
+        </div>
+        <div class="text">${text}</div>
+    `;
+
+    container.appendChild(el);
+    container.scrollTop = container.scrollHeight;
+}
+
+// Загрузка сообщений
+async function loadMessages() {
+    if (!UID) return;
+
+    try {
+        const res = await sbFetch(
+            `/rest/v1/messages?select=*&order=created_at.desc&limit=50&is_private=eq.false`
+        );
+        const data = res.ok ? res.data || [] : [];
+        data.reverse();
+
+        chats.global = data;
+        chatMessagesCache = data;
+
+        document.getElementById('chatInfo').innerHTML =
+            `💬 <span class="highlight">Общий чат</span> — все видят все сообщения (последние 50)`;
+
+        renderChatMessages();
+        
+        // Автопрокрутка вниз
+        setTimeout(() => {
+            const container = document.getElementById('chatMessages');
+            if (container) container.scrollTop = container.scrollHeight;
+        }, 300);
+
+    } catch (e) {
+        console.warn('⚠️ Ошибка загрузки сообщений:', e);
+        document.getElementById('chatMessages').innerHTML =
+            '<div class="system-msg" style="color:var(--red);">Ошибка загрузки</div>';
+    }
+}
+
+// Инициализация чата
+function initChat() {
+    if (!UID) return;
+
+    currentChat = 'global';
+    chatMessagesCache = chats.global || [];
+    lastMessageTime = Date.now();
+
+    document.getElementById('chatTitle').innerHTML = '💬 Общий чат';
+    document.getElementById('chatInfo').innerHTML = '💬 <span class="highlight">Общий чат</span> — все видят все сообщения';
+
+    const input = document.getElementById('chatInput');
+    if (input) {
+        input.disabled = false;
+        input.placeholder = 'Напишите в общий чат...';
+        input.value = '';
+        
+        // Для textarea - сбрасываем высоту
+        input.style.height = '48px';
+        
+        // Фокусируемся
+        setTimeout(() => {
+            input.focus();
+        }, 300);
+    }
+
+    loadMessages();
+    loadOnlineUsers();
+    setupRealtime();
+
+    // Автопрокрутка вниз
+    setTimeout(() => {
+        const container = document.getElementById('chatMessages');
+        if (container) container.scrollTop = container.scrollHeight;
+    }, 500);
+}
+
+// Realtime обновления (polling)
+function setupRealtime() {
+    if (chatPollInterval) {
+        clearInterval(chatPollInterval);
+        chatPollInterval = null;
+    }
+
+    chatPollInterval = setInterval(async () => {
+        if (!UID) return;
+        if (!document.getElementById('sc-chat').classList.contains('on')) return;
+
+        try {
+            const { data, ok } = await sbFetch(
+                `/rest/v1/messages?select=*&order=created_at.desc&limit=5&is_private=eq.false&created_at=gt.${encodeURIComponent(new Date(lastMessageTime).toISOString())}`
+            );
+
+            if (ok && data && data.length > 0) {
+                const newMsgs = data.reverse();
+                let hasNew = false;
+                for (const msg of newMsgs) {
+                    const exists = chats.global.some(m => m.id === msg.id);
+                    if (!exists) {
+                        chats.global.push(msg);
+                        chatMessagesCache = chats.global;
+                        appendMessageToChat(msg);
+                        hasNew = true;
+                    }
+                }
+                if (hasNew) {
+                    lastMessageTime = new Date(newMsgs[newMsgs.length - 1].created_at).getTime();
+                    // Автопрокрутка при новых сообщениях
+                    setTimeout(() => {
+                        const container = document.getElementById('chatMessages');
+                        if (container) container.scrollTop = container.scrollHeight;
+                    }, 100);
+                }
+            }
+        } catch (e) {
+            // Игнорируем ошибки polling
+        }
+    }, 2000);
+}
 
         function setupRealtime() {
             if (chatPollInterval) {
