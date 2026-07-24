@@ -1687,24 +1687,6 @@
                 border-radius: 0 !important;
                 margin: -10px -10px 0 -10px;
             }
-            .chat-input-wrap input {
-        font-size: 16px !important;
-        /* Убираем авто-капитализацию */
-        text-transform: none !important;
-        /* Принудительно показываем русскую клавиатуру */
-        -webkit-user-select: text !important;
-        user-select: text !important;
-    }
-}
-
-/* Глобально для всех полей ввода */
-input, textarea {
-    /* Отключаем авто-капитализацию */
-    text-transform: none !important;
-    /* Разрешаем ввод любого текста */
-    -webkit-user-select: text !important;
-    user-select: text !important;
-}
             .chat-header {
                 padding: 8px 10px !important;
                 min-height: 48px;
@@ -2100,19 +2082,15 @@ input, textarea {
             </div>
 
             <!-- Поле ввода -->
-<div class="chat-input-wrap">
-    <input id="chatInput" 
-           placeholder="Напишите сообщение..." 
-           autocomplete="off"
-           inputmode="text"
-           lang="ru"
-           spellcheck="true"
-           enterkeyhint="send"
-           onkeydown="if(event.key==='Enter') sendMessage()">
-    <button class="btn bp" id="sendBtn" onclick="sendMessage()">
-        <span>➤</span>
-    </button>
-</div>
+            <div class="chat-input-wrap">
+                <input id="chatInput" placeholder="Напишите сообщение..." 
+                       autocomplete="off"
+                       inputmode="text"
+                       onkeydown="if(event.key==='Enter') sendMessage()">
+                <button class="btn bp" id="sendBtn" onclick="sendMessage()">
+                    <span>➤</span>
+                </button>
+            </div>
         </div>
 
     </div>
@@ -3297,29 +3275,7 @@ input, textarea {
 
     document.getElementById('chatTitle').innerHTML = '💬 Общий чат';
     document.getElementById('chatInfo').innerHTML = '💬 <span class="highlight">Общий чат</span> — все видят все сообщения';
-    // В функции initChat() добавьте:
-const input = document.getElementById('chatInput');
-if (input) {
-    // Принудительно устанавливаем тип ввода
-    input.setAttribute('inputmode', 'text');
-    input.setAttribute('lang', 'ru');
-    
-    // При фокусе - показываем клавиатуру
-    input.addEventListener('focus', function() {
-        this.setAttribute('inputmode', 'text');
-        // На некоторых устройствах помогает
-        this.blur();
-        setTimeout(() => this.focus(), 10);
-    });
-    
-    // Обработка нажатия на поле
-    input.addEventListener('touchstart', function() {
-        // Небольшая задержка для активации клавиатуры
-        setTimeout(() => {
-            this.focus();
-        }, 50);
-    });
-}
+
     const input = document.getElementById('chatInput');
     if (input) {
         input.disabled = false;
