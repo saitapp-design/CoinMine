@@ -90,12 +90,13 @@
             z-index: 1;
             min-height: 100vh;
             box-shadow: 0 0 60px rgba(0, 0, 0, 0.8);
-            padding-bottom: 180px;
+            padding-bottom: 160px;
             padding-top: 10px;
         }
         @media (max-width: 700px) {
             .app {
                 max-width: 100%;
+                padding-bottom: 150px;
             }
         }
 
@@ -144,8 +145,9 @@
         @media (max-width: 700px) {
             .static-banner {
                 max-width: 95%;
-                height: 75px;
-                bottom: 95px;
+                height: 65px;
+                bottom: 85px;
+                display: none !important;
             }
         }
 
@@ -383,7 +385,7 @@
             display: none;
             flex-direction: column;
             min-height: 100vh;
-            padding-bottom: 120px;
+            padding-bottom: 100px;
         }
         #appWrap.on {
             display: flex;
@@ -1063,23 +1065,6 @@
             background: var(--color-border-tertiary);
         }
 
-        .clan-icon {
-            font-size: 60px;
-            text-align: center;
-            margin-bottom: 4px;
-            filter: drop-shadow(0 0 20px #7c3aed66);
-            animation: float 3s ease-in-out infinite;
-        }
-        .clan-name {
-            font-size: 20px;
-            font-weight: 700;
-            color: var(--acc3);
-        }
-        .clan-diamonds {
-            font-size: 28px;
-            font-weight: 800;
-            color: var(--gld);
-        }
         .pkg-g {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -1448,6 +1433,7 @@
             transition: .3s;
             font-weight: 600;
             min-height: 30px;
+            display: none;
         }
         .chat-mode-toggle:active {
             transform: scale(0.95);
@@ -1698,6 +1684,7 @@
                 padding: 3px 10px !important;
                 font-size: 10px !important;
                 min-height: 28px;
+                display: none !important;
             }
             .chat-header-right .online-count {
                 font-size: 10px !important;
@@ -1728,6 +1715,7 @@
                 padding: 6px 8px !important;
                 gap: 6px !important;
                 background: var(--bg2) !important;
+                padding-bottom: 12px !important;
             }
             .chat-input-wrap input {
                 padding: 10px 14px !important;
@@ -1776,6 +1764,55 @@
                 padding: 6px 10px !important;
                 font-size: 13px !important;
             }
+        }
+
+        /* Аукцион */
+        .auction-status {
+            padding: 8px;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        .auction-status.active {
+            background: #064e3b;
+            color: #4ade80;
+            border: 1px solid #15803d;
+        }
+        .auction-status.inactive {
+            background: #450a0a;
+            color: #fca5a5;
+            border: 1px solid #991b1b;
+        }
+        .auction-code-input {
+            display: flex;
+            gap: 8px;
+            margin-top: 8px;
+        }
+        .auction-code-input input {
+            flex: 1;
+            padding: 8px 12px;
+            border-radius: 8px;
+            border: 1px solid var(--bd2);
+            background: var(--bg3);
+            color: var(--tx);
+            font-size: 13px;
+            outline: none;
+        }
+        .auction-code-input input:focus {
+            border-color: var(--acc2);
+        }
+        .auction-code-input button {
+            padding: 8px 16px;
+            border-radius: 8px;
+            border: none;
+            background: var(--acc);
+            color: #fff;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .auction-code-input button:hover {
+            background: var(--acc2);
         }
     </style>
 </head>
@@ -1941,6 +1978,7 @@
                     <div id="G_au" style="display:none">
                         <div class="card">
                             <div class="ct">🏛 аукцион</div>
+                            <div class="auction-status inactive" id="auctionStatus">⛔ Аукцион не активен</div>
                             <div class="tc" style="padding:8px 0">
                                 <div class="tm">Текущая лидирующая ставка</div>
                                 <div style="font-size:42px;font-weight:800;color:var(--gld)" id="AU_a">0</div>
@@ -1950,10 +1988,17 @@
                             <div class="podium" id="podiumList">
                                 <div class="tm tc" style="padding:12px;">Пока нет ставок</div>
                             </div>
-                            <div class="g3 mt8">
-                                <button class="btn bs" onclick="window.conf('+10 к ставке?','Ваши 10 монет зарезервируются.',()=>window.bid(10))">+10</button>
-                                <button class="btn bs" onclick="window.conf('+50 к ставке?','Ваши 50 монет зарезервируются. Победитель получает приз.',()=>window.bid(50))">+50</button>
-                                <button class="btn bs" onclick="window.conf('+100 к ставке?','Ваши 100 монет зарезервируются. Победитель определяется администратором.',()=>window.bid(100))">+100</button>
+                            <div id="auctionControls">
+                                <div class="g3 mt8">
+                                    <button class="btn bs" onclick="window.conf('+10 к ставке?','Ваши 10 монет зарезервируются.',()=>window.bid(10))">+10</button>
+                                    <button class="btn bs" onclick="window.conf('+50 к ставке?','Ваши 50 монет зарезервируются.',()=>window.bid(50))">+50</button>
+                                    <button class="btn bs" onclick="window.conf('+100 к ставке?','Ваши 100 монет зарезервируются.',()=>window.bid(100))">+100</button>
+                                </div>
+                                <div class="auction-code-input">
+                                    <input id="auctionCodeInput" placeholder="Код для запуска аукциона..." type="password" maxlength="20">
+                                    <button onclick="window.startAuction()">🚀 Запустить</button>
+                                </div>
+                                <div class="tm tc mt8" style="font-size:10px;color:var(--tx2)">Код запуска: <b style="color:var(--gld)">admin2026</b></div>
                             </div>
                         </div>
                     </div>
@@ -2067,16 +2112,10 @@
                             </div>
                             <div class="chat-header-right">
                                 <span class="online-count" id="chatOnline">● 0 онлайн</span>
-                                <button class="chat-mode-toggle" id="chatModeToggle" onclick="toggleChatMode()">
+                                <button class="chat-mode-toggle" id="chatModeToggle" onclick="toggleChatMode()" style="display:none;">
                                     Общий
                                 </button>
                             </div>
-                        </div>
-
-                        <!-- Поиск для ЛС -->
-                        <div class="chat-search-container" id="chatSearchContainer">
-                            <input id="chatSearchInput" placeholder="🔍 Введите ник для ЛС..." oninput="searchUsers(this.value)">
-                            <div class="chat-search-results" id="chatSearchResults"></div>
                         </div>
 
                         <!-- Окно сообщений -->
@@ -2107,7 +2146,7 @@
 
             </div>
 
-            <!-- НАВИГАЦИЯ (5 пунктов, без кланов) -->
+            <!-- НАВИГАЦИЯ (5 пунктов) -->
             <nav class="nav">
                 <button class="nb on" onclick="window.goSc('home')"><span>🏠</span>Главная</button>
                 <button class="nb" onclick="window.goSc('games')"><span>🎲</span>Игры</button>
@@ -2120,7 +2159,7 @@
 
     </div>
 
-    <!-- Баннер CoinMine -->
+    <!-- Баннер CoinMine (скрыт на телефонах) -->
     <div class="static-banner show" id="mainBanner" onclick="window.open('https://t.me/minercoinsf', '_blank')">
         <img id="staticBannerImg" src="https://i.ibb.co/hRSsFg5R/Chat-GPT-Image-19-2026-20-55-28.png" alt="CoinMine Баннер" onerror="this.style.display='none';this.parentElement.querySelector('.placeholder').style.display='flex'">
         <div class="placeholder" style="display:none;">⛏ CoinMine</div>
@@ -2158,6 +2197,7 @@
         // ============================================================
         const SB_URL = 'https://mazccbkzurbryzusajqc.supabase.co';
         const SB_ANON_KEY = 'sb_publishable_GLQvPbCZrDYgd7FCSp861g_poX1-Hwy';
+        const AUCTION_CODE = 'admin2026';
 
         const CONFIG = {
             SAVE_INTERVAL: 10000,
@@ -2241,6 +2281,7 @@
         let saveTimer = null;
         let music = null;
         let musicPlaying = false;
+        let auctionActive = false;
 
         const NICK_S = {
             gold: { e: '🌟', n: 'Золотой' },
@@ -2368,7 +2409,6 @@
                 throw new Error('Этот логин уже занят');
             }
 
-            // Проверка уникальности ника
             const { data: nameTaken } = await sbFetch(
                 `/rest/v1/users?data->>name=eq.${encodeURIComponent(username)}&select=id`
             );
@@ -3448,6 +3488,17 @@
         function renderPodium() {
             const podiumEl = document.getElementById('podiumList');
             if (!podiumEl) return;
+
+            // Обновляем статус аукциона
+            const statusEl = document.getElementById('auctionStatus');
+            if (auctionActive) {
+                statusEl.className = 'auction-status active';
+                statusEl.textContent = '✅ Аукцион активен! Делайте ставки!';
+            } else {
+                statusEl.className = 'auction-status inactive';
+                statusEl.textContent = '⛔ Аукцион не активен';
+            }
+
             const bidders = G.auctionBidders || [];
             if (bidders.length === 0) { podiumEl.innerHTML =
                     `<div class="tm tc" style="padding:12px;">Пока нет ставок</div>`; return; }
@@ -3482,6 +3533,11 @@
             if (nm === 'chat') {
                 setTimeout(() => {
                     initChat();
+                    // Скроллим вниз после загрузки
+                    setTimeout(() => {
+                        const container = document.getElementById('chatMessages');
+                        if (container) container.scrollTop = container.scrollHeight;
+                    }, 200);
                 }, 50);
             }
             renderUI();
@@ -3523,7 +3579,6 @@
             const v = document.getElementById('NK_i').value.trim();
             if (v.length < 3 || v.length > 16) { window.toast('3–16 символов', 'err'); return; }
 
-            // Проверка уникальности ника
             try {
                 const { data, ok } = await sbFetch(
                     `/rest/v1/users?data->>name=eq.${encodeURIComponent(v)}&select=id`
@@ -3583,6 +3638,15 @@
             renderBoss();
             renderTop(topLastType || 'b');
             renderPodium();
+
+            // Обновляем аукцион
+            document.getElementById('AU_a').textContent = G.auctionBid || 0;
+            document.getElementById('MY_b').textContent = G.auctionBid || 0;
+            if (G.auctionBid > 0) {
+                document.getElementById('AU_l').textContent = 'Вы лидируете!';
+            } else {
+                document.getElementById('AU_l').textContent = 'Ставок пока нет';
+            }
         }
 
         // ============================================================
@@ -3668,22 +3732,53 @@
             window.toast(`+${m.rw} ключ!`, 'gld');
         };
 
+        // --- АУКЦИОН ---
+        window.startAuction = function() {
+            const input = document.getElementById('auctionCodeInput');
+            const code = input.value.trim();
+            
+            if (code === AUCTION_CODE) {
+                auctionActive = true;
+                G.auctionBid = 0;
+                G.auctionBidders = [];
+                input.value = '';
+                renderPodium();
+                renderUI();
+                window.toast('🚀 Аукцион запущен! Делайте ставки!', 'ok');
+            } else {
+                window.toast('❌ Неверный код!', 'err');
+                input.value = '';
+            }
+        };
+
         window.bid = function(a) {
+            if (!auctionActive) {
+                window.toast('⛔ Аукцион не активен!', 'err');
+                return;
+            }
             if (G.coins < a) { window.toast('Мало монет', 'err'); return; }
+            
             G.coins -= a;
             G.auctionBid = (G.auctionBid || 0) + a;
+            
             const existing = G.auctionBidders.find(b => b.name === G.name);
-            if (existing) { existing.bid += a; } else { G.auctionBidders.push({ name: G.name, avatar: G.nicks.a ? NICK_S[
-                    G.nicks.a]?.e || '👤' : '👤', bid: G.auctionBid }); }
+            if (existing) { 
+                existing.bid += a; 
+            } else { 
+                G.auctionBidders.push({ 
+                    name: G.name, 
+                    avatar: G.nicks.a ? NICK_S[G.nicks.a]?.e || '👤' : '👤', 
+                    bid: G.auctionBid 
+                }); 
+            }
+            
             G.auctionBidders.sort((a, b) => b.bid - a.bid);
             if (G.auctionBidders.length > 10) G.auctionBidders = G.auctionBidders.slice(0, 10);
-            document.getElementById('AU_a').textContent = G.auctionBid;
-            document.getElementById('MY_b').textContent = G.auctionBid;
-            document.getElementById('AU_l').textContent = 'Вы лидируете!';
+            
             renderPodium();
-            scheduleSave();
             renderUI();
-            window.toast('Ставка: ' + G.auctionBid, 'gld');
+            window.toast(`Ставка: ${G.auctionBid} монет`, 'gld');
+            scheduleSave();
         };
 
         window.useRefCode = async function() {
@@ -3761,7 +3856,7 @@
         };
 
         // ============================================================
-        // 17. РУЛЕТКА
+        // 17. РУЛЕТКА (исправлена)
         // ============================================================
         const RC = document.getElementById('rouletteCanvas');
         const rctx = RC.getContext('2d');
@@ -3770,12 +3865,29 @@
             OR = 148,
             IR = 28;
 
-        const SEGS = [];
-        for (let i = 0; i < 20; i++) {
-            if (i === 0 || i === 10) SEGS.push({ c: 'green', label: i === 0 ? '0' : '00', num: i === 0 ? 0 : 00 });
-            else SEGS.push({ c: i % 2 === 0 ? 'black' : 'red', label: String(i * 2 - 1 + ((i > 10) ? 1 : 0)), num: i * 2 -
-                    1 + ((i > 10) ? 1 : 0) });
-        }
+        // Точное соответствие чисел на рулетке
+        const SEGS = [
+            { c: 'green', label: '0', num: 0 },
+            { c: 'red', label: '1', num: 1 },
+            { c: 'black', label: '2', num: 2 },
+            { c: 'red', label: '3', num: 3 },
+            { c: 'black', label: '4', num: 4 },
+            { c: 'red', label: '5', num: 5 },
+            { c: 'black', label: '6', num: 6 },
+            { c: 'red', label: '7', num: 7 },
+            { c: 'black', label: '8', num: 8 },
+            { c: 'red', label: '9', num: 9 },
+            { c: 'black', label: '10', num: 10 },
+            { c: 'red', label: '11', num: 11 },
+            { c: 'black', label: '12', num: 12 },
+            { c: 'red', label: '13', num: 13 },
+            { c: 'black', label: '14', num: 14 },
+            { c: 'red', label: '15', num: 15 },
+            { c: 'black', label: '16', num: 16 },
+            { c: 'red', label: '17', num: 17 },
+            { c: 'black', label: '18', num: 18 },
+            { c: 'green', label: '00', num: 0 }
+        ];
 
         const SEG_FILL = {
             red: ['#7f1d1d', '#991b1b', '#b91c1c'],
@@ -4010,11 +4122,11 @@
                 const gain = Math.floor(spinBet * mult);
                 G.coins += gain;
 
-                resultEl.textContent = `✅ Выпало: ${seg.label} (${colorEmoji} ${seg.c}) +${gain} монет!`;
+                resultEl.textContent = `✅ Выпало: ${seg.num} (${colorEmoji} ${seg.c}) +${gain} монет!`;
                 resultEl.className = 'rl-result win';
                 window.toast(`🎉 +${gain} монет!`, 'gld');
             } else {
-                resultEl.textContent = `❌ Выпало: ${seg.label} (${colorEmoji} ${seg.c}) -${spinBet} монет`;
+                resultEl.textContent = `❌ Выпало: ${seg.num} (${colorEmoji} ${seg.c}) -${spinBet} монет`;
                 resultEl.className = 'rl-result lose';
                 window.toast(`😞 -${spinBet} монет`, 'err');
             }
@@ -4051,6 +4163,7 @@
             const n = SEGS.length;
             const segAngle = (Math.PI * 2) / n;
 
+            // Выбираем случайный сектор нужного цвета
             const weighted = SEGS.map((s, i) => s.c === col ? i : -1).filter(i => i !== -1);
             _targetIndex = weighted[Math.floor(Math.random() * weighted.length)];
 
@@ -4078,7 +4191,7 @@
         idleSpin();
 
         // ============================================================
-        // 18. КУБИК
+        // 18. КУБИК (исправлен вывод)
         // ============================================================
         const PIP_LAYOUTS = {
             1: [
@@ -4289,14 +4402,19 @@
                     const colorName = resultCol === 'red' ? '🔴 красный' : '⚫ чёрный';
                     const resultEl = document.getElementById('diceResult');
                     const win = col === resultCol;
-                    resultEl.textContent = win ?
-                        `✅ Выпало ${val} (${colorName})! +${profit} монет` :
-                        `❌ Выпало ${val} (${colorName}) — получено ${total}`;
-                    resultEl.className = 'dice-result ' + (win ? 'win' : 'lose');
+                    
+                    if (win) {
+                        resultEl.textContent = `✅ Выпало ${val} (${colorName})! +${profit} монет`;
+                        resultEl.className = 'dice-result win';
+                        window.toast(`+${profit} монет!`, 'gld');
+                    } else {
+                        resultEl.textContent = `❌ Выпало ${val} (${colorName}) — получено ${total} монет`;
+                        resultEl.className = 'dice-result lose';
+                        window.toast(`-${50 - total} монет`, 'err');
+                    }
+                    
                     scheduleSave();
                     renderUI();
-                    window.toast(win ? `+${profit} монет!` : 'Не повезло', win ? 'gld' : 'err');
-
                     document.querySelectorAll('.dice-btns button').forEach(b => b.disabled = false);
                 }
             }, 100);
@@ -4542,15 +4660,23 @@
             }
             document.getElementById('authBtn').disabled = false;
             renderPodium();
+
+            // Автоматический скролл чата вниз при загрузке
+            setTimeout(() => {
+                const container = document.getElementById('chatMessages');
+                if (container) container.scrollTop = container.scrollHeight;
+            }, 1000);
         });
 
         console.log('✅ ВСЁ ИСПРАВЛЕНО:');
-        console.log('  💬 Чат полностью рабочий (общий + ЛС)');
+        console.log('  💬 Чат полностью рабочий (общий только)');
         console.log('  👹 Босс появляется в 12:00 МСК');
-        console.log('  🎰 Рулетка возвращает число и цвет');
+        console.log('  🎰 Рулетка показывает точное число и цвет');
+        console.log('  🎲 Кубик показывает +N или -N монет');
+        console.log('  🏛 Аукцион запускается по коду admin2026');
+        console.log('  📱 Баннер скрыт на телефонах');
         console.log('  📛 Никнеймы уникальны');
         console.log('  🏆 Топ отображается корректно');
-        console.log('  🚫 Кланы удалены');
     </script>
 </body>
 </html>
