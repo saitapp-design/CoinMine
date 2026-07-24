@@ -3101,14 +3101,11 @@ function getNickStyle(userId, userData) {
     input.value = '';
     input.style.borderColor = '';
 
-    // === ФОРМИРУЕМ ДАННЫЕ СООБЩЕНИЯ С ДОБАВЛЕНИЕМ СТИЛЯ НИКА ===
+    // === ФОРМИРУЕМ ДАННЫЕ СООБЩЕНИЯ (БЕЗ sender_data) ===
     const msgData = {
         sender_id: String(UID),
         sender_name: String((G.name || currentUsername || 'Игрок').substring(0, 30)),
         sender_avatar: String(G.avatar || AVATAR_LIST[0]),
-        sender_data: {
-            nicks: G.nicks || { p: [], a: null }
-        },
         receiver_id: null,
         receiver_name: null,
         message: String(safeText.substring(0, 200)),
@@ -3166,8 +3163,6 @@ function getNickStyle(userId, userData) {
         input.focus();
     }
 };
-
-let lastMessageTime = Date.now();
 
         function setupRealtime() {
             if (chatPollInterval) {
