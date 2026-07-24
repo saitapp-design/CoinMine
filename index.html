@@ -4015,7 +4015,7 @@ for (let i = 0; i < 20; i++) {
         rctx.save();
         rctx.translate(CX + Math.cos(tmid) * tr, CY + Math.sin(tmid) * tr);
         rctx.rotate(tmid + Math.PI / 2);
-        rctx.font = `bold ${n <= 20 ? 9 : 7}px sans-serif`;
+        rctx.font = 'bold ' + (n <= 20 ? 9 : 7) + 'px sans-serif';
         rctx.fillStyle = 'rgba(255,255,255,.85)';
         rctx.textAlign = 'center';
         rctx.textBaseline = 'middle';
@@ -4058,12 +4058,9 @@ for (let i = 0; i < 20; i++) {
     rctx.lineTo(CX, CY + IR - 4);
     rctx.stroke();
 
-    // === СТРЕЛКА (исправленная) ===
-    // Тень стрелки
+    // === СТРЕЛКА ===
     rctx.shadowColor = 'rgba(255, 215, 0, 0.5)';
     rctx.shadowBlur = 15;
-    
-    // Основная стрелка
     rctx.beginPath();
     rctx.moveTo(CX - 12, 6);
     rctx.lineTo(CX + 12, 6);
@@ -4075,7 +4072,6 @@ for (let i = 0; i < 20; i++) {
     rctx.lineWidth = 2;
     rctx.stroke();
     
-    // Блики на стрелке
     rctx.shadowBlur = 0;
     rctx.beginPath();
     rctx.moveTo(CX - 6, 8);
@@ -4085,7 +4081,6 @@ for (let i = 0; i < 20; i++) {
     rctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
     rctx.fill();
     
-    // Светящаяся точка на конце стрелки
     rctx.shadowColor = '#ffd700';
     rctx.shadowBlur = 25;
     rctx.beginPath();
@@ -4094,7 +4089,6 @@ for (let i = 0; i < 20; i++) {
     rctx.fill();
     rctx.shadowBlur = 0;
 
-    // Рисуем шарик (если нужно)
     if (spinning || !resultDisplayed) {
         const bx = CX + Math.cos(bAngle) * bR;
         const by = CY + Math.sin(bAngle) * bR;
@@ -4166,33 +4160,65 @@ for (let i = 0; i < 20; i++) {
 
     const resultEl = document.getElementById('rlResult');
     const colorEmoji = seg.c === 'red' ? '🔴' : seg.c === 'black' ? '⚫' : '🟢';
-
-    // === ПОКАЗЫВАЕМ ТОЧНОЕ ЧИСЛО, КОТОРОЕ ВЫПАЛО ===
-    const numberText = seg.label; // "0", "1", "2", ... "18", "00"
+    const numberText = seg.label;
 
     if (win) {
         const mult = seg.c === 'green' ? 5 : 1.75;
         const gain = Math.floor(spinBet * mult);
         G.coins += gain;
 
-        resultEl.textContent = `✅ Выпало: ${numberText} (${colorEmoji} ${seg.c}) +${gain} монет!`;
+        resultEl.textContent = '✅ Выпало: ' + numberText + ' (' + colorEmoji + ' ' + seg.c + ') +' + gain + ' монет!';
         resultEl.className = 'rl-result win';
-        window.toast(`🎉 Выпало ${numberText}! +${gain} монет!`, 'gld');
+        window.toast('🎉 Выпало ' + numberText + '! +' + gain + ' монет!', 'gld');
     } else {
-        resultEl.textContent = `❌ Выпало: ${numberText} (${colorEmoji} ${seg.c}) -${spinBet} монет`;
+        resultEl.textContent = '❌ Выпало: ' + numberText + ' (' + colorEmoji + ' ' + seg.c + ') -' + spinBet + ' монет';
         resultEl.className = 'rl-result lose';
-        window.toast(`😞 Выпало ${numberText}! -${spinBet} монет`, 'err');
+        window.toast('😞 Выпало ' + numberText + '! -' + spinBet + ' монет', 'err');
     }
 
     _pendingWinColor = null;
     _targetIndex = null;
-    window._landedSeg = null;
 
     scheduleSave();
     renderUI();
-}
+};
+        window.spinTo = function(col) {
+    if (spinning) return;
 
-        window.spinTo = function(col)
+    const betInput = document.getElementById('rlBetInput');
+    spinBet = parseInt(betInput.value) || 25;
+
+    if (spinBet < 1) { window.toast('Минимальная ставка 1 монета', 'err'); return; }
+    if (spinBet > G.coins) { window.toast('Недостаточно монет!', 'err'); return; }
+
+    G.coins -= spinBet;
+    spinning = true;
+    resultDisplayed = false;
+
+    _pendingWinColor = col;
+
+    const resultEl = document.getElementById('rlResult');
+    resultEl.textContent = 'Крутим...';
+    resultEl.className = 'rl-result';
+
+    document.querySelectorAll('.rl-btns button').forEach(b => b.disabled = true);
+    betInput.disabled = true;
+
+    const n = SEGS.length;
+    const segAngle = (Math.PI * 2) / n;
+
+    const validIndices = SEGS.map((s, i) => s.c === col ? i : -1).filter(i => i !== -1);
+    _targetIndex = validIndices[Math.floor(Math.random() * validIndices.length)];
+    
+    const extraSpins = 6 + Math.floor(Math.random() * 3);
+    _finalWAngle = -Math.PI / 2 - (_targetIndex + 0.5) * segAngle + extraSpins * Math.PI * 2;
+
+    _spinStartW = wheelAngle;
+    _spinT0 = performance.now();
+
+    cancelAnimationFrame(raf);
+    animSpin();
+};
 
         function idleSpin() {
             if (!spinning && !resultDisplayed) {
