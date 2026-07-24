@@ -3889,7 +3889,7 @@
         };
 
   // ============================================================
-// 17. РУЛЕТКА (ТОЧНОЕ СООТВЕТСТВИЕ ЧИСЛА И СЕКТОРА)
+// 17. РУЛЕТКА (ПРОСТАЯ И ТОЧНАЯ)
 // ============================================================
 const RC = document.getElementById('rouletteCanvas');
 const rctx = RC.getContext('2d');
@@ -3898,30 +3898,31 @@ const CX = 160,
     OR = 148,
     IR = 28;
 
-// === 20 СЕКТОРОВ С ПРАВИЛЬНЫМ СООТВЕТСТВИЕМ ===
-// Индекс 0 → 0, индекс 1 → 1, индекс 2 → 2, ... индекс 9 → 9
-// Индекс 10 → 00, индекс 11 → 10, индекс 12 → 11, ... индекс 19 → 18
+// === ПРОСТОЙ МАССИВ: ИНДЕКС = ЧИСЛО НА РУЛЕТКЕ ===
+// В массиве 20 элементов, каждый элемент - это число на рулетке
+// Индекс 0 → '0', индекс 1 → '1', ... индекс 9 → '9'
+// Индекс 10 → '00', индекс 11 → '10', ... индекс 19 → '18'
 const SEGS = [
-    { c: 'green', label: '0', num: 0 },      // индекс 0
-    { c: 'red', label: '1', num: 1 },        // индекс 1
-    { c: 'black', label: '2', num: 2 },      // индекс 2
-    { c: 'red', label: '3', num: 3 },        // индекс 3
-    { c: 'black', label: '4', num: 4 },      // индекс 4
-    { c: 'red', label: '5', num: 5 },        // индекс 5
-    { c: 'black', label: '6', num: 6 },      // индекс 6
-    { c: 'red', label: '7', num: 7 },        // индекс 7
-    { c: 'black', label: '8', num: 8 },      // индекс 8
-    { c: 'red', label: '9', num: 9 },        // индекс 9
-    { c: 'green', label: '00', num: 0 },     // индекс 10
-    { c: 'black', label: '10', num: 10 },    // индекс 11
-    { c: 'red', label: '11', num: 11 },      // индекс 12
-    { c: 'black', label: '12', num: 12 },    // индекс 13
-    { c: 'red', label: '13', num: 13 },      // индекс 14
-    { c: 'black', label: '14', num: 14 },    // индекс 15
-    { c: 'red', label: '15', num: 15 },      // индекс 16
-    { c: 'black', label: '16', num: 16 },    // индекс 17
-    { c: 'red', label: '17', num: 17 },      // индекс 18
-    { c: 'black', label: '18', num: 18 }     // индекс 19
+    { c: 'green', label: '0', num: 0 },   // индекс 0
+    { c: 'red', label: '1', num: 1 },     // индекс 1
+    { c: 'black', label: '2', num: 2 },   // индекс 2
+    { c: 'red', label: '3', num: 3 },     // индекс 3
+    { c: 'black', label: '4', num: 4 },   // индекс 4
+    { c: 'red', label: '5', num: 5 },     // индекс 5
+    { c: 'black', label: '6', num: 6 },   // индекс 6
+    { c: 'red', label: '7', num: 7 },     // индекс 7
+    { c: 'black', label: '8', num: 8 },   // индекс 8
+    { c: 'red', label: '9', num: 9 },     // индекс 9
+    { c: 'green', label: '00', num: 0 },  // индекс 10
+    { c: 'black', label: '10', num: 10 }, // индекс 11
+    { c: 'red', label: '11', num: 11 },   // индекс 12
+    { c: 'black', label: '12', num: 12 }, // индекс 13
+    { c: 'red', label: '13', num: 13 },   // индекс 14
+    { c: 'black', label: '14', num: 14 }, // индекс 15
+    { c: 'red', label: '15', num: 15 },   // индекс 16
+    { c: 'black', label: '16', num: 16 }, // индекс 17
+    { c: 'red', label: '17', num: 17 },   // индекс 18
+    { c: 'black', label: '18', num: 18 }  // индекс 19
 ];
 
 const SEG_FILL = {
@@ -3930,7 +3931,6 @@ const SEG_FILL = {
     green: ['#14532d', '#15803d', '#16a34a']
 };
 
-// Состояние
 let wheelAngle = 0;
 let spinning = false;
 let spinBet = 25;
@@ -4083,7 +4083,7 @@ window.drawRoulette = function(angle) {
     rctx.shadowBlur = 0;
 };
 
-// === ПОЛУЧИТЬ ИНДЕКС СЕКТОРА ПОД СТРЕЛКОЙ ===
+// === ПОЛУЧИТЬ ИНДЕКС ПОД СТРЕЛКОЙ ===
 function getSectorAtPointer(angle) {
     const n = SEGS.length;
     const sa = (Math.PI * 2) / n;
@@ -4092,23 +4092,18 @@ function getSectorAtPointer(angle) {
     return Math.floor(rawAngle / sa) % n;
 }
 
-// === ПОЛУЧИТЬ ЧИСЛО ПО ИНДЕКСУ ===
-function getNumberByIndex(index) {
-    return SEGS[index].label;
-}
-
 // === ОПРЕДЕЛЕНИЕ РЕЗУЛЬТАТА ===
 function determineResult(selectedColor, bet) {
     const n = SEGS.length;
-    // Выбираем случайный индекс
+    // Выбираем случайный индекс от 0 до 19
     const targetIndex = Math.floor(Math.random() * n);
     const seg = SEGS[targetIndex];
     
     // Сохраняем результат
+    _targetIndex = targetIndex;
     _resultNumber = seg.label;  // ТОЧНОЕ ЧИСЛО ИЗ СЕКТОРА
     _resultColor = seg.c;
     _isWin = seg.c === selectedColor;
-    _targetIndex = targetIndex;
     
     if (_isWin) {
         const mult = seg.c === 'green' ? 5 : 1.75;
@@ -4144,7 +4139,6 @@ function animateToSector(targetIndex, callback) {
         if (progress < 1) {
             requestAnimationFrame(animate);
         } else {
-            // Проверяем, что остановились на правильном секторе
             const landedIdx = getSectorAtPointer(wheelAngle);
             if (landedIdx !== targetIndex) {
                 const correction = (targetIndex - landedIdx) * segAngle;
@@ -4184,7 +4178,7 @@ function showResult() {
     renderUI();
 }
 
-// === ЗАПУСК ВРАЩЕНИЯ ===
+// === ЗАПУСК ===
 window.spinTo = function(color) {
     if (spinning) return;
     
@@ -4213,10 +4207,10 @@ window.spinTo = function(color) {
     document.querySelectorAll('.rl-btns button').forEach(b => b.disabled = true);
     betInput.disabled = true;
     
-    // === ОПРЕДЕЛЯЕМ РЕЗУЛЬТАТ ===
+    // Определяем результат
     const targetIndex = determineResult(color, bet);
     
-    // === ЗАПУСКАЕМ АНИМАЦИЮ ===
+    // Запускаем анимацию
     animateToSector(targetIndex, function() {
         setTimeout(showResult, 300);
     });
