@@ -2208,7 +2208,27 @@
             MAX_RETRIES: 3,
             BATCH_SIZE: 10
         };
-
+// ============================================================
+// ПОЛУЧЕНИЕ СТИЛЯ НИКА
+// ============================================================
+function getNickStyle(userId, userData) {
+    // Если это текущий пользователь - берём из G
+    if (userId === UID) {
+        if (G.nicks && G.nicks.a) {
+            const style = NICK_S[G.nicks.a];
+            return style ? style.e : '';
+        }
+        return '';
+    }
+    
+    // Если есть данные пользователя
+    if (userData && userData.nicks && userData.nicks.a) {
+        const style = NICK_S[userData.nicks.a];
+        return style ? style.e : '';
+    }
+    
+    return '';
+}
         // ============================================================
         // 2. ВСПОМОГАТЕЛЬНЫЕ
         // ============================================================
@@ -2758,39 +2778,44 @@
         }
 
         function appendMessageToChat(msg) {
-            const container = document.getElementById('chatMessages');
-            if (!container) return;
+    const container = document.getElementById('chatMessages');
+    if (!container) return;
 
-            const isOwn = msg?.sender_id === UID;
-            const isPrivate = msg?.is_private === true;
-            const senderName = isOwn ? 'Я' : (msg?.sender_name || 'Игрок');
-            const senderId = msg?.sender_id || '';
-            const avatar = msg?.sender_avatar || AVATAR_LIST[0];
-            const text = escapeHtml(msg?.message || '');
-
-            const el = document.createElement('div');
-            el.className = `msg ${isOwn ? 'own' : 'other'}`;
-
-            const nameClick = (!isOwn && !isPrivate && senderId !== UID) ?
-                ` onclick="startPrivateFromPublic('${senderId}','${escapeHtml(senderName)}','${avatar}')" style="cursor:pointer;text-decoration:underline;text-underline-offset:2px;"` :
-                '';
-
-            el.innerHTML = `
-                <div class="sender">
-                    ${!isOwn ? `<div class="top-avatar" style="width:22px;height:22px;"><img src="${avatar}" alt="${escapeHtml(senderName)}" loading="lazy"></div>` : ''}
-                    <span class="name"${nameClick}>${escapeHtml(senderName)}</span>
-                    ${isPrivate ? '<span class="private-tag">🔒</span>' : ''}
-                </div>
-                <div class="text">${text}</div>
-            `;
-
-            container.appendChild(el);
-
-            const isAtBottom = container.scrollTop + container.clientHeight >= container.scrollHeight - 120;
-            if (isAtBottom) {
-                container.scrollTop = container.scrollHeight;
-            }
+    const isOwn = msg?.sender_id === UID;
+    const senderName = isOwn ? 'Я' : (msg?.sender_name || 'Игрок');
+    const avatar = msg?.sender_avatar || AVATAR_LIST[0];
+    const text = escapeHtml(msg?.message || '');
+    
+    // === ПОЛУЧАЕМ СТИЛЬ НИКА ===
+    let nickStyle = '';
+    if (isOwn) {
+        // Свой стиль
+        if (G.nicks && G.nicks.a) {
+            const style = NICK_S[G.nicks.a];
+            if (style) nickStyle = style.e;
         }
+    } else {
+        // Стиль из данных сообщения
+        if (msg?.sender_data && msg.sender_data.nicks && msg.sender_data.nicks.a) {
+            const style = NICK_S[msg.sender_data.nicks.a];
+            if (style) nickStyle = style.e;
+        }
+    }
+
+    const el = document.createElement('div');
+    el.className = `msg ${isOwn ? 'own' : 'other'}`;
+
+    el.innerHTML = `
+        <div class="sender">
+            ${!isOwn ? `<div class="top-avatar" style="width:22px;height:22px;"><img src="${avatar}" alt="${escapeHtml(senderName)}" loading="lazy"></div>` : ''}
+            <span class="name">${nickStyle} ${escapeHtml(senderName)}</span>
+        </div>
+        <div class="text">${text}</div>
+    `;
+
+    container.appendChild(el);
+    container.scrollTop = container.scrollHeight;
+}
 
         async function loadMessages() {
             if (!UID) return;
@@ -2847,52 +2872,52 @@
         }
 
         function renderChatMessages() {
-            const container = document.getElementById('chatMessages');
-            if (!container) return;
+    const container = document.getElementById('chatMessages');
+    if (!container) return;
 
-            if (!chatMessagesCache || chatMessagesCache.length === 0) {
-                if (currentChat !== 'global') {
-                    container.innerHTML = '<div class="system-msg">Нет сообщений в ЛС</div>';
-                } else {
-                    container.innerHTML = '<div class="system-msg">Нет сообщений в общем чате</div>';
-                }
-                return;
+    if (!chatMessagesCache || chatMessagesCache.length === 0) {
+        container.innerHTML = '<div class="system-msg">Нет сообщений в общем чате</div>';
+        return;
+    }
+
+    const scrollPos = container.scrollTop;
+    const isAtBottom = container.scrollTop + container.clientHeight >= container.scrollHeight - 120;
+
+    container.innerHTML = chatMessagesCache.map(msg => {
+        const isOwn = msg?.sender_id === UID;
+        const senderName = isOwn ? 'Я' : (msg?.sender_name || 'Игрок');
+        const avatar = msg?.sender_avatar || AVATAR_LIST[0];
+        const text = escapeHtml(msg?.message || '');
+        
+        // === ПОЛУЧАЕМ СТИЛЬ НИКА ===
+        let nickStyle = '';
+        if (isOwn) {
+            if (G.nicks && G.nicks.a) {
+                const style = NICK_S[G.nicks.a];
+                if (style) nickStyle = style.e;
             }
-
-            const scrollPos = container.scrollTop;
-            const isAtBottom = container.scrollTop + container.clientHeight >= container.scrollHeight - 120;
-
-            container.innerHTML = chatMessagesCache.map(msg => {
-                const isOwn = msg?.sender_id === UID;
-                const isPrivate = msg?.is_private === true;
-                const senderName = isOwn ? 'Я' : (msg?.sender_name || 'Игрок');
-                const senderId = msg?.sender_id || '';
-                const avatar = msg?.sender_avatar || AVATAR_LIST[0];
-                const text = escapeHtml(msg?.message || '');
-
-                const nameClick = (!isOwn && !isPrivate && senderId !== UID) ?
-                    ` onclick="startPrivateFromPublic('${senderId}','${escapeHtml(senderName)}','${avatar}')" style="cursor:pointer;text-decoration:underline;text-underline-offset:2px;"` :
-                    '';
-
-                return `<div class="msg ${isOwn ? 'own' : 'other'}">
-                    <div class="sender">
-                        ${!isOwn ? `<div class="top-avatar" style="width:22px;height:22px;"><img src="${avatar}" alt="${escapeHtml(senderName)}" loading="lazy"></div>` : ''}
-                        <span class="name"${nameClick}>${escapeHtml(senderName)}</span>
-                        ${isPrivate ? '<span class="private-tag">🔒</span>' : ''}
-                    </div>
-                    <div class="text">${text}</div>
-                </div>`;
-            }).join('');
-
-            if (!isAtBottom) {
-                container.scrollTop = scrollPos;
-            } else {
-                container.scrollTop = container.scrollHeight;
+        } else {
+            if (msg?.sender_data && msg.sender_data.nicks && msg.sender_data.nicks.a) {
+                const style = NICK_S[msg.sender_data.nicks.a];
+                if (style) nickStyle = style.e;
             }
         }
 
-        let searchTimeout = null;
+        return `<div class="msg ${isOwn ? 'own' : 'other'}">
+            <div class="sender">
+                ${!isOwn ? `<div class="top-avatar" style="width:22px;height:22px;"><img src="${avatar}" alt="${escapeHtml(senderName)}" loading="lazy"></div>` : ''}
+                <span class="name">${nickStyle} ${escapeHtml(senderName)}</span>
+            </div>
+            <div class="text">${text}</div>
+        </div>`;
+    }).join('');
 
+    if (!isAtBottom) {
+        container.scrollTop = scrollPos;
+    } else {
+        container.scrollTop = container.scrollHeight;
+    }
+}
         window.searchUsers = function(query) {
             clearTimeout(searchTimeout);
             const results = document.getElementById('chatSearchResults');
@@ -3042,143 +3067,107 @@
         };
 
         window.sendMessage = async function() {
-            const input = document.getElementById('chatInput');
-            const text = input.value.trim();
+    const input = document.getElementById('chatInput');
+    const text = input.value.trim();
 
-            if (!text) {
-                input.style.borderColor = 'var(--red)';
-                setTimeout(() => {
-                    input.style.borderColor = '';
-                }, 1000);
-                window.toast('Введите сообщение', 'err');
-                return;
-            }
-
-            if (text.length > 200) {
-                window.toast('Слишком длинное сообщение (макс. 200 символов)', 'err');
-                return;
-            }
-
-            if (isSearchMode && !currentChatTarget) {
-                window.toast('Сначала выберите собеседника в ЛС', 'err');
-                return;
-            }
-
-            const isPrivate = currentChat !== 'global' && currentChatTarget;
-
-            if (isPrivate) {
-                const now = Date.now();
-                if (now - G.lastPrivateReset > 86400000) {
-                    G.privateMessages = {};
-                    G.lastPrivateReset = now;
-                    scheduleSave();
-                }
-
-                const count = G.privateMessages[currentChatTarget.id] || 0;
-                if (count >= 10) {
-                    window.toast('❌ Лимит ЛС: 10 сообщений в день', 'err');
-                    return;
-                }
-
-                G.privateMessages[currentChatTarget.id] = count + 1;
-                scheduleSave();
-            }
-
-            const receiverId = isPrivate ? currentChatTarget.id : null;
-            const receiverName = isPrivate ? currentChatTarget.name : null;
-
-            const safeText = text.replace(/[<>]/g, '').trim();
-            if (!safeText) {
-                window.toast('Недопустимые символы', 'err');
-                return;
-            }
-
-            const msgData = {
-                sender_id: String(UID),
-                sender_name: String((G.name || currentUsername || 'Игрок').substring(0, 30)),
-                sender_avatar: String(G.avatar || AVATAR_LIST[0]),
-                receiver_id: receiverId ? String(receiverId) : null,
-                receiver_name: receiverName ? String(receiverName.substring(0, 30)) : null,
-                message: String(safeText.substring(0, 200)),
-                is_private: Boolean(isPrivate),
-                created_at: new Date().toISOString()
-            };
-
-            const sentText = text;
-            input.value = '';
+    // Проверка на пустое сообщение
+    if (!text) {
+        input.style.borderColor = 'var(--red)';
+        setTimeout(() => {
             input.style.borderColor = '';
+            input.focus();
+        }, 1000);
+        window.toast('Введите сообщение', 'err');
+        return;
+    }
 
-            const tempMsg = { ...msgData };
-            const targetKey = isPrivate ? currentChatTarget.id : 'global';
+    // Проверка длины
+    if (text.length > 200) {
+        window.toast('Слишком длинное сообщение (макс. 200 символов)', 'err');
+        input.focus();
+        return;
+    }
 
-            if (targetKey === 'global') {
-                chats.global.push(tempMsg);
-                chatMessagesCache = chats.global;
-            } else {
-                if (!chats.dm[targetKey]) chats.dm[targetKey] = [];
-                chats.dm[targetKey].push(tempMsg);
-                chatMessagesCache = chats.dm[targetKey];
-            }
+    // Экранирование опасных символов
+    const safeText = text.replace(/[<>]/g, '').trim();
+    if (!safeText) {
+        window.toast('Недопустимые символы', 'err');
+        input.focus();
+        return;
+    }
 
-            appendMessageToChat(tempMsg);
+    // Сохраняем текст и очищаем поле
+    const sentText = text;
+    input.value = '';
+    input.style.borderColor = '';
 
+    // === ФОРМИРУЕМ ДАННЫЕ СООБЩЕНИЯ С ДОБАВЛЕНИЕМ СТИЛЯ НИКА ===
+    const msgData = {
+        sender_id: String(UID),
+        sender_name: String((G.name || currentUsername || 'Игрок').substring(0, 30)),
+        sender_avatar: String(G.avatar || AVATAR_LIST[0]),
+        sender_data: {
+            nicks: G.nicks || { p: [], a: null }
+        },
+        receiver_id: null,
+        receiver_name: null,
+        message: String(safeText.substring(0, 200)),
+        is_private: false,
+        created_at: new Date().toISOString()
+    };
+
+    // Оптимистичное добавление сообщения
+    const tempMsg = { ...msgData };
+    chats.global.push(tempMsg);
+    chatMessagesCache = chats.global;
+    appendMessageToChat(tempMsg);
+
+    // Фокусируемся на поле ввода
+    setTimeout(() => {
+        input.focus();
+    }, 100);
+
+    try {
+        // Отправка сообщения на сервер
+        const { ok, status, data } = await sbFetch('/rest/v1/messages', {
+            method: 'POST',
+            body: msgData
+        });
+
+        if (!ok) {
+            console.error('❌ Ошибка отправки:', status, data);
+            window.toast('❌ Ошибка отправки', 'err');
+            // Удаляем оптимистичное сообщение
+            chats.global = chats.global.filter(m => m !== tempMsg);
+            chatMessagesCache = chats.global;
+            renderChatMessages();
+            input.value = sentText;
+            input.focus();
+        } else {
+            // Обновляем сообщения с сервера
             setTimeout(() => {
-                input.focus();
-                if ('ontouchstart' in window) {
-                    input.click();
-                }
-            }, 100);
-
-            try {
-                const { ok, status, data } = await sbFetch('/rest/v1/messages', {
-                    method: 'POST',
-                    body: msgData
-                });
-
-                if (!ok) {
-                    console.error('❌ Ошибка отправки:', status, data);
-                    window.toast('❌ Ошибка отправки', 'err');
-                    if (targetKey === 'global') {
-                        chats.global = chats.global.filter(m => m !== tempMsg);
-                        chatMessagesCache = chats.global;
-                    } else {
-                        chats.dm[targetKey] = chats.dm[targetKey].filter(m => m !== tempMsg);
-                        chatMessagesCache = chats.dm[targetKey];
-                    }
-                    renderChatMessages();
-                    input.value = sentText;
-                } else {
-                    setTimeout(() => {
-                        loadMessages();
-                        cleanupOldMessages();
-                    }, 300);
-
-                    if (isPrivate) {
-                        const remaining = getPrivateRemaining(currentChatTarget.id);
-                        document.getElementById('chatInfo').innerHTML =
-                            `💬 ЛС с <span class="highlight">${currentChatTarget.name}</span> — осталось <span class="highlight">${remaining}</span> сообщений сегодня`;
-                    }
-
-                    if (navigator.vibrate) {
-                        navigator.vibrate(10);
-                    }
-                }
-            } catch (e) {
-                console.error('❌ Ошибка соединения:', e);
-                window.toast('❌ Ошибка соединения', 'err');
-                if (targetKey === 'global') {
-                    chats.global = chats.global.filter(m => m !== tempMsg);
-                    chatMessagesCache = chats.global;
-                } else {
-                    chats.dm[targetKey] = chats.dm[targetKey].filter(m => m !== tempMsg);
-                    chatMessagesCache = chats.dm[targetKey];
-                }
-                renderChatMessages();
-                input.value = sentText;
+                loadMessages();
+                cleanupOldMessages();
+            }, 300);
+            
+            // Вибрация на телефоне
+            if (navigator.vibrate) {
+                navigator.vibrate(10);
             }
-        };
+        }
+    } catch (e) {
+        console.error('❌ Ошибка соединения:', e);
+        window.toast('❌ Ошибка соединения', 'err');
+        // Удаляем оптимистичное сообщение
+        chats.global = chats.global.filter(m => m !== tempMsg);
+        chatMessagesCache = chats.global;
+        renderChatMessages();
+        input.value = sentText;
+        input.focus();
+    }
+};
 
-        let lastMessageTime = Date.now();
+let lastMessageTime = Date.now();
 
         function setupRealtime() {
             if (chatPollInterval) {
@@ -4337,115 +4326,143 @@
         // 19. ТОП-10
         // ============================================================
         async function loadTopPlayers(tp = 'b') {
-            const now = Date.now();
-            if (topCache.data && topCache.type === tp && now - topCache.timestamp < CONFIG.TOP_CACHE_TIME) {
-                return topCache.data;
-            }
+    const now = Date.now();
+    if (topCache.data && topCache.type === tp && now - topCache.timestamp < CONFIG.TOP_CACHE_TIME) {
+        return topCache.data;
+    }
 
-            try {
-                const { data, ok } = await sbFetch(
-                    `/rest/v1/users?select=id,username,data&limit=${CONFIG.TOP_LIMIT + 5}`
-                );
+    try {
+        const { data, ok } = await sbFetch(
+            `/rest/v1/users?select=id,username,data&limit=${CONFIG.TOP_LIMIT + 5}`
+        );
 
-                if (ok && data) {
-                    let players = data
-                        .filter(u => u.username && u.data)
-                        .map(u => {
-                            const shardCount = u.data.shards ?
-                                Object.keys(u.data.shards).filter(k => u.data.shards[k] > 0).length : 0;
-                            return {
-                                id: u.id,
-                                n: u.data.name || u.username,
-                                username: u.username,
-                                c: u.data.coins || 0,
-                                f: u.data.farms || 0,
-                                r: u.data.refs || 0,
-                                s: shardCount,
-                                a: u.data.avatar || AVATAR_LIST[0]
-                            };
-                        });
+        if (ok && data) {
+            let players = data
+                .filter(u => u.username && u.data)
+                .map(u => {
+                    const shardCount = u.data.shards ?
+                        Object.keys(u.data.shards).filter(k => u.data.shards[k] > 0).length : 0;
+                    
+                    // === ПОЛУЧАЕМ СТИЛЬ НИКА ===
+                    let nickStyle = '';
+                    if (u.data.nicks && u.data.nicks.a) {
+                        const style = NICK_S[u.data.nicks.a];
+                        if (style) nickStyle = style.e;
+                    }
+                    
+                    return {
+                        id: u.id,
+                        n: u.data.name || u.username,
+                        username: u.username,
+                        c: u.data.coins || 0,
+                        f: u.data.farms || 0,
+                        r: u.data.refs || 0,
+                        s: shardCount,
+                        a: u.data.avatar || AVATAR_LIST[0],
+                        data: u.data,
+                        nickStyle: nickStyle
+                    };
+                });
 
-                    const sortKey = tp === 'b' ? 'c' : tp === 'f' ? 'f' : tp === 'r' ? 'r' : 's';
-                    players.sort((a, b) => (b[sortKey] || 0) - (a[sortKey] || 0));
-                    players = players.slice(0, CONFIG.TOP_LIMIT);
+            const sortKey = tp === 'b' ? 'c' : tp === 'f' ? 'f' : tp === 'r' ? 'r' : 's';
+            players.sort((a, b) => (b[sortKey] || 0) - (a[sortKey] || 0));
+            players = players.slice(0, CONFIG.TOP_LIMIT);
 
-                    topCache.data = players;
-                    topCache.timestamp = now;
-                    topCache.type = tp;
+            topCache.data = players;
+            topCache.timestamp = now;
+            topCache.type = tp;
 
-                    return players;
-                }
-                return topCache.data || [];
-            } catch (e) {
-                console.error('❌ Ошибка загрузки топа:', e);
-                return topCache.data || [];
-            }
+            return players;
         }
+        return topCache.data || [];
+    } catch (e) {
+        console.error('❌ Ошибка загрузки топа:', e);
+        return topCache.data || [];
+    }
+}
 
         async function renderTop(tp) {
-            topLastType = tp;
+    topLastType = tp;
 
-            const now = Date.now();
-            const isCacheValid = topCache.data && topCache.type === tp && now - topCache.timestamp < CONFIG.TOP_CACHE_TIME;
+    const now = Date.now();
+    const isCacheValid = topCache.data && topCache.type === tp && now - topCache.timestamp < CONFIG.TOP_CACHE_TIME;
 
-            if (!isCacheValid) {
-                document.getElementById('TOP_u').textContent = '⏳ загрузка...';
-                await loadTopPlayers(tp);
-            }
+    if (!isCacheValid) {
+        document.getElementById('TOP_u').textContent = '⏳ загрузка...';
+        await loadTopPlayers(tp);
+    }
 
-            const rem = Math.max(0, Math.ceil((topCache.timestamp + CONFIG.TOP_CACHE_TIME - now) / 1000));
-            document.getElementById('TOP_u').textContent = rem > 30 ? `обновление через ${Math.round(rem/60)}м` : 'только что';
+    const rem = Math.max(0, Math.ceil((topCache.timestamp + CONFIG.TOP_CACHE_TIME - now) / 1000));
+    document.getElementById('TOP_u').textContent = rem > 30 ? `обновление через ${Math.round(rem/60)}м` : 'только что';
 
-            const shardCount = getShardCount();
-            const topPlayers = topCache.data || [];
+    const shardCount = getShardCount();
+    const topPlayers = topCache.data || [];
 
-            const all = [...topPlayers];
-            const exists = all.some(p => p.id === UID);
-            if (!exists && G.name) {
-                all.push({
-                    id: UID,
-                    n: G.name,
-                    username: currentUsername,
-                    c: G.coins,
-                    f: G.farms,
-                    r: G.refs,
-                    s: shardCount,
-                    a: G.avatar || AVATAR_LIST[0]
-                });
-            }
-
-            if (all.length === 0) {
-                document.getElementById('TOP_l').innerHTML =
-                    `<div class="tm tc" style="padding:16px;">Нет игроков для отображения</div>`;
-                return;
-            }
-
-            const key = tp === 'b' ? 'c' : tp === 'f' ? 'f' : tp === 'r' ? 'r' : 's';
-            const titles = { b: 'Топ по балансу', f: 'Топ по фармам', r: 'Топ по рефералам', s: 'Топ по осколкам' };
-            const symbols = { b: '💰', f: '⛏', r: '👥', s: '💎' };
-
-            document.getElementById('TOP_t').textContent = titles[tp];
-
-            all.sort((a, b) => (b[key] || 0) - (a[key] || 0));
-            const top10 = all.slice(0, CONFIG.TOP_LIMIT);
-            const clrs = ['var(--gld)', '#c0c0d0', '#cd7f32'];
-
-            document.getElementById('TOP_l').innerHTML = top10.map((p, i) => {
-                const val = tp === 's' ? `${p.s} осколков` : fmt(p[key] || 0) + ' ' + symbols[tp];
-                const isPlayer = p.id === UID;
-                const avatarUrl = p.a || AVATAR_LIST[0];
-
-                return `<div class="top-row" style="${isPlayer ? 'background:var(--bg4);border-radius:6px;' : ''}">
-                    <div style="font-size:15px;font-weight:700;min-width:22px;color:${clrs[i]||'var(--tx2)'}">${i+1}</div>
-                    <div class="top-avatar">
-                        <img src="${avatarUrl}" alt="${p.n}" loading="lazy" onerror="this.style.display='none';this.parentElement.innerHTML='<span class=\\'placeholder\\'>👤</span>'">
-                    </div>
-                    <div style="flex:1;font-size:13px">${p.n} ${isPlayer ? '👈' : ''}</div>
-                    <div style="color:var(--tx2);font-size:10px;margin-right:6px;">#${p.id.slice(0, 4)}</div>
-                    <div style="color:var(--gld);font-weight:700;font-size:13px">${val}</div>
-                </div>`;
-            }).join('');
+    const all = [...topPlayers];
+    const exists = all.some(p => p.id === UID);
+    if (!exists && G.name) {
+        // === ДОБАВЛЯЕМ СТИЛЬ ДЛЯ ТЕКУЩЕГО ПОЛЬЗОВАТЕЛЯ ===
+        let nickStyle = '';
+        if (G.nicks && G.nicks.a) {
+            const style = NICK_S[G.nicks.a];
+            if (style) nickStyle = style.e;
         }
+        all.push({
+            id: UID,
+            n: G.name,
+            username: currentUsername,
+            c: G.coins,
+            f: G.farms,
+            r: G.refs,
+            s: shardCount,
+            a: G.avatar || AVATAR_LIST[0],
+            nickStyle: nickStyle
+        });
+    }
+
+    if (all.length === 0) {
+        document.getElementById('TOP_l').innerHTML =
+            `<div class="tm tc" style="padding:16px;">Нет игроков для отображения</div>`;
+        return;
+    }
+
+    const key = tp === 'b' ? 'c' : tp === 'f' ? 'f' : tp === 'r' ? 'r' : 's';
+    const titles = { b: 'Топ по балансу', f: 'Топ по фармам', r: 'Топ по рефералам', s: 'Топ по осколкам' };
+    const symbols = { b: '💰', f: '⛏', r: '👥', s: '💎' };
+
+    document.getElementById('TOP_t').textContent = titles[tp];
+
+    all.sort((a, b) => (b[key] || 0) - (a[key] || 0));
+    const top10 = all.slice(0, CONFIG.TOP_LIMIT);
+    const clrs = ['var(--gld)', '#c0c0d0', '#cd7f32'];
+
+    document.getElementById('TOP_l').innerHTML = top10.map((p, i) => {
+        const val = tp === 's' ? `${p.s} осколков` : fmt(p[key] || 0) + ' ' + symbols[tp];
+        const isPlayer = p.id === UID;
+        const avatarUrl = p.a || AVATAR_LIST[0];
+        
+        // === ПОЛУЧАЕМ СТИЛЬ ДЛЯ КАЖДОГО ИГРОКА ===
+        let nickStyle = p.nickStyle || '';
+        if (!nickStyle && p.data && p.data.nicks && p.data.nicks.a) {
+            const style = NICK_S[p.data.nicks.a];
+            if (style) nickStyle = style.e;
+        }
+        if (!nickStyle && isPlayer && G.nicks && G.nicks.a) {
+            const style = NICK_S[G.nicks.a];
+            if (style) nickStyle = style.e;
+        }
+
+        return `<div class="top-row" style="${isPlayer ? 'background:var(--bg4);border-radius:6px;' : ''}">
+            <div style="font-size:15px;font-weight:700;min-width:22px;color:${clrs[i]||'var(--tx2)'}">${i+1}</div>
+            <div class="top-avatar">
+                <img src="${avatarUrl}" alt="${p.n}" loading="lazy" onerror="this.style.display='none';this.parentElement.innerHTML='<span class=\\'placeholder\\'>👤</span>'">
+            </div>
+            <div style="flex:1;font-size:13px">${nickStyle} ${p.n} ${isPlayer ? '👈' : ''}</div>
+            <div style="color:var(--tx2);font-size:10px;margin-right:6px;">#${p.id.slice(0, 4)}</div>
+            <div style="color:var(--gld);font-weight:700;font-size:13px">${val}</div>
+        </div>`;
+    }).join('');
+}
 
         // ============================================================
         // 20. ПОКАЗ ПРИЛОЖЕНИЯ
