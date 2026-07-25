@@ -3888,8 +3888,8 @@
             window.toast(`+${PROMOS[c]} монет!`, 'gld');
         };
 
-   // ============================================================
-// 17. РУЛЕТКА (ТОЛЬКО ЦВЕТА + ДОЛГАЯ ПОДСВЕТКА)
+  // ============================================================
+// 17. РУЛЕТКА (ПОДСВЕТКА ОСТАЁТСЯ ДО НОВОЙ СТАВКИ)
 // ============================================================
 
 const WHEEL_DATA = [
@@ -3923,7 +3923,7 @@ const COLOR_MAP = {
 
 var spinning = false;
 var spinBet = 25;
-var highlightTimeout = null;
+var lastResultIndex = -1;
 
 function drawWheel(highlightIndex) {
     var canvas = document.getElementById('rouletteCanvas');
@@ -3951,7 +3951,7 @@ function drawWheel(highlightIndex) {
         ctx.lineWidth = 1;
         ctx.stroke();
         
-        // ЯРКАЯ ПОДСВЕТКА ВЫИГРЫШНОГО СЕКТОРА
+        // === ПОДСВЕТКА ВЫИГРЫШНОГО СЕКТОРА (ОСТАЁТСЯ) ===
         if (highlightIndex === i) {
             // Внешнее свечение
             ctx.shadowColor = '#ffd700';
@@ -4025,12 +4025,6 @@ function drawWheel(highlightIndex) {
 window.spinTo = function(selectedColor) {
     if (spinning) return;
     
-    // Очищаем предыдущую подсветку
-    if (highlightTimeout) {
-        clearTimeout(highlightTimeout);
-        highlightTimeout = null;
-    }
-    
     var input = document.getElementById('rlBetInput');
     var bet = parseInt(input.value) || 25;
     
@@ -4071,6 +4065,9 @@ window.spinTo = function(selectedColor) {
         if (count >= maxCount) {
             clearInterval(timer);
             
+            // === СОХРАНЯЕМ ИНДЕКС ПОСЛЕДНЕГО РЕЗУЛЬТАТА ===
+            lastResultIndex = resultIndex;
+            
             // === ПОКАЗЫВАЕМ РЕЗУЛЬТАТ С ПОДСВЕТКОЙ ===
             drawWheel(resultIndex);
             
@@ -4091,16 +4088,6 @@ window.spinTo = function(selectedColor) {
                 window.toast('😞 ' + colorName + '! -' + bet + ' монет', 'err');
             }
             
-            // === ПОДСВЕТКА ОСТАЁТСЯ НА 5 СЕКУНД ===
-            highlightTimeout = setTimeout(function() {
-                drawWheel();
-                // Возвращаем обычный текст
-                if (!spinning) {
-                    resultEl.innerHTML = '🎰 Выберите цвет для <b>ставки</b>';
-                    resultEl.className = 'rl-result';
-                }
-            }, 5000);
-            
             spinning = false;
             var buttons2 = document.querySelectorAll('.rl-btns button');
             for (var b2 = 0; b2 < buttons2.length; b2++) {
@@ -4114,12 +4101,18 @@ window.spinTo = function(selectedColor) {
     }, 80);
 };
 
+// === ФОНОВОЕ ВРАЩЕНИЕ ===
 var idleIdx = 0;
 
 function idleSpin() {
     if (!spinning) {
         idleIdx = (idleIdx + 1) % WHEEL_DATA.length;
-        drawWheel();
+        // Если есть последний результат - показываем его с подсветкой
+        if (lastResultIndex >= 0) {
+            drawWheel(lastResultIndex);
+        } else {
+            drawWheel();
+        }
     }
     requestAnimationFrame(idleSpin);
 }
