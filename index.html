@@ -4360,7 +4360,11 @@ window.playDiceWithBet = function(col) {
         const win = (col === resultCol);
         
         if (win) {
-            resultEl.textContent = '✅ Выпало ' + val + ' (' + colorName + ')! +' + profit + ' монет';
+            if (profit >= 0) {
+                resultEl.textContent = '✅ Выпало ' + val + ' (' + colorName + ')! +' + profit + ' монет';
+            } else {
+                resultEl.textContent = '✅ Выпало ' + val + ' (' + colorName + ')! +' + profit + ' монет';
+            }
             resultEl.className = 'dice-result win';
             window.toast('+' + profit + ' монет!', 'gld');
         } else {
