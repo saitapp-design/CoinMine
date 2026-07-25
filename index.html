@@ -3889,7 +3889,7 @@
         };
 
      // ============================================================
-// 17. РУЛЕТКА (НОВАЯ - ГАРАНТИРОВАННО РАБОТАЕТ)
+// 17. РУЛЕТКА (ТОЛЬКО ЦВЕТА + ПОДСВЕТКА)
 // ============================================================
 
 // === ДАННЫЕ ===
@@ -3953,17 +3953,28 @@ function drawWheel(highlightIndex) {
         ctx.lineWidth = 1;
         ctx.stroke();
         
-        // Подсветка
+        // Подсветка выигрышного сектора
         if (highlightIndex === i) {
             ctx.beginPath();
             ctx.moveTo(cx, cy);
             ctx.arc(cx, cy, r + 5, start, end);
             ctx.closePath();
-            ctx.fillStyle = 'rgba(255, 215, 0, 0.3)';
+            ctx.fillStyle = 'rgba(255, 215, 0, 0.35)';
             ctx.fill();
             ctx.strokeStyle = '#ffd700';
-            ctx.lineWidth = 3;
+            ctx.lineWidth = 4;
             ctx.stroke();
+            
+            // Дополнительное свечение
+            ctx.shadowColor = '#ffd700';
+            ctx.shadowBlur = 30;
+            ctx.beginPath();
+            ctx.moveTo(cx, cy);
+            ctx.arc(cx, cy, r - 10, start, end);
+            ctx.closePath();
+            ctx.fillStyle = 'rgba(255, 215, 0, 0.1)';
+            ctx.fill();
+            ctx.shadowBlur = 0;
         }
         
         // Число
@@ -4055,26 +4066,32 @@ window.spinTo = function(selectedColor) {
         if (count >= maxCount) {
             clearInterval(timer);
             
-            // Финальная остановка
+            // === ФИНАЛЬНАЯ ОСТАНОВКА С ПОДСВЕТКОЙ ===
             drawWheel(resultIndex);
             
-            // === РЕЗУЛЬТАТ ===
+            // === ПОКАЗЫВАЕМ РЕЗУЛЬТАТ ===
             const win = result.color === selectedColor;
             const emoji = result.color === 'red' ? '🔴' : result.color === 'black' ? '⚫' : '🟢';
+            const colorName = result.color.toUpperCase();
             
             if (win) {
                 const mult = result.color === 'green' ? 5 : 1.75;
                 const winAmount = Math.floor(bet * mult);
                 G.coins += winAmount;
                 
-                resultEl.innerHTML = '✅ ' + emoji + ' <b>' + result.color.toUpperCase() + '</b>! Число ' + result.number + ' (+' + winAmount + ' <b>монет</b>)';
+                resultEl.innerHTML = '✅ ' + emoji + ' <b>' + colorName + '</b>! (+' + winAmount + ' <b>монет</b>)';
                 resultEl.className = 'rl-result win';
-                window.toast('🎉 Выпал ' + result.color + '! +' + winAmount + ' монет!', 'gld');
+                window.toast('🎉 ' + colorName + '! +' + winAmount + ' монет!', 'gld');
             } else {
-                resultEl.innerHTML = '❌ ' + emoji + ' <b>' + result.color.toUpperCase() + '</b>! Число ' + result.number + ' (-' + bet + ' <b>монет</b>)';
+                resultEl.innerHTML = '❌ ' + emoji + ' <b>' + colorName + '</b>! (-' + bet + ' <b>монет</b>)';
                 resultEl.className = 'rl-result lose';
-                window.toast('😞 Выпал ' + result.color + '! -' + bet + ' монет', 'err');
+                window.toast('😞 ' + colorName + '! -' + bet + ' монет', 'err');
             }
+            
+            // Подсветка остаётся на 3 секунды
+            setTimeout(() => {
+                drawWheel();
+            }, 3000);
             
             spinning = false;
             document.querySelectorAll('.rl-btns button').forEach(b => b.disabled = false);
@@ -4107,6 +4124,7 @@ document.getElementById('rlResult').className = 'rl-result';
 const coeffEl = document.querySelector('.rl-coeff');
 if (coeffEl) {
     coeffEl.innerHTML = '🔴 Красный ×1.75 (45%) | ⚫ Чёрный ×1.75 (45%) | 🟢 Зелёный ×5 (10%)';
+}
 }
 
         // ============================================================
