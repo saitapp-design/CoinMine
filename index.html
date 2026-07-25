@@ -3888,8 +3888,8 @@
             window.toast(`+${PROMOS[c]} монет!`, 'gld');
         };
 
-  // ============================================================
-// 17. РУЛЕТКА (ПОДСВЕТКА ОСТАЁТСЯ ДО НОВОЙ СТАВКИ)
+ // ============================================================
+// 17. РУЛЕТКА (ПОДСВЕТКА НА БАРАБАНЕ ОСТАЁТСЯ НАВСЕГДА)
 // ============================================================
 
 const WHEEL_DATA = [
@@ -3923,7 +3923,7 @@ const COLOR_MAP = {
 
 var spinning = false;
 var spinBet = 25;
-var lastResultIndex = -1;
+var lastResultIndex = -1; // Хранит последний выигрышный сектор
 
 function drawWheel(highlightIndex) {
     var canvas = document.getElementById('rouletteCanvas');
@@ -3951,7 +3951,7 @@ function drawWheel(highlightIndex) {
         ctx.lineWidth = 1;
         ctx.stroke();
         
-        // === ПОДСВЕТКА ВЫИГРЫШНОГО СЕКТОРА (ОСТАЁТСЯ) ===
+        // === ПОДСВЕТКА ВЫИГРЫШНОГО СЕКТОРА (ОСТАЁТСЯ НАВСЕГДА) ===
         if (highlightIndex === i) {
             // Внешнее свечение
             ctx.shadowColor = '#ffd700';
@@ -4065,10 +4065,10 @@ window.spinTo = function(selectedColor) {
         if (count >= maxCount) {
             clearInterval(timer);
             
-            // === СОХРАНЯЕМ ИНДЕКС ПОСЛЕДНЕГО РЕЗУЛЬТАТА ===
+            // === СОХРАНЯЕМ ПОСЛЕДНИЙ РЕЗУЛЬТАТ ===
             lastResultIndex = resultIndex;
             
-            // === ПОКАЗЫВАЕМ РЕЗУЛЬТАТ С ПОДСВЕТКОЙ ===
+            // === ОТОБРАЖАЕМ РЕЗУЛЬТАТ С ПОДСВЕТКОЙ ===
             drawWheel(resultIndex);
             
             var win = result.color === selectedColor;
@@ -4101,13 +4101,13 @@ window.spinTo = function(selectedColor) {
     }, 80);
 };
 
-// === ФОНОВОЕ ВРАЩЕНИЕ ===
+// === ФОНОВОЕ ВРАЩЕНИЕ (ВСЕГДА ПОКАЗЫВАЕТ ПОСЛЕДНИЙ РЕЗУЛЬТАТ) ===
 var idleIdx = 0;
 
 function idleSpin() {
     if (!spinning) {
         idleIdx = (idleIdx + 1) % WHEEL_DATA.length;
-        // Если есть последний результат - показываем его с подсветкой
+        // Если есть результат - показываем его с подсветкой
         if (lastResultIndex >= 0) {
             drawWheel(lastResultIndex);
         } else {
