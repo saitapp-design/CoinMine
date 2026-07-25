@@ -3888,91 +3888,76 @@
             window.toast(`+${PROMOS[c]} монет!`, 'gld');
         };
 
-      // ============================================================
-// 17. РУЛЕТКА (ТЕКСТОВАЯ - ГАРАНТИРОВАННО РАБОТАЕТ)
+     // ============================================================
+// 17. РУЛЕТКА (НОВАЯ - ГАРАНТИРОВАННО РАБОТАЕТ)
 // ============================================================
 
-// === ДАННЫЕ РУЛЕТКИ ===
-const ROULETTE_DATA = [
-    { color: 'green', label: '0' },
-    { color: 'red', label: '1' },
-    { color: 'black', label: '2' },
-    { color: 'red', label: '3' },
-    { color: 'black', label: '4' },
-    { color: 'red', label: '5' },
-    { color: 'black', label: '6' },
-    { color: 'red', label: '7' },
-    { color: 'black', label: '8' },
-    { color: 'red', label: '9' },
-    { color: 'green', label: '00' },
-    { color: 'black', label: '10' },
-    { color: 'red', label: '11' },
-    { color: 'black', label: '12' },
-    { color: 'red', label: '13' },
-    { color: 'black', label: '14' },
-    { color: 'red', label: '15' },
-    { color: 'black', label: '16' },
-    { color: 'red', label: '17' },
-    { color: 'black', label: '18' }
+// === ДАННЫЕ ===
+const WHEEL_DATA = [
+    { color: 'green', number: '0' },
+    { color: 'red', number: '1' },
+    { color: 'black', number: '2' },
+    { color: 'red', number: '3' },
+    { color: 'black', number: '4' },
+    { color: 'red', number: '5' },
+    { color: 'black', number: '6' },
+    { color: 'red', number: '7' },
+    { color: 'black', number: '8' },
+    { color: 'red', number: '9' },
+    { color: 'green', number: '00' },
+    { color: 'black', number: '10' },
+    { color: 'red', number: '11' },
+    { color: 'black', number: '12' },
+    { color: 'red', number: '13' },
+    { color: 'black', number: '14' },
+    { color: 'red', number: '15' },
+    { color: 'black', number: '16' },
+    { color: 'red', number: '17' },
+    { color: 'black', number: '18' }
 ];
 
-// Статистика по цветам
-const COLOR_STATS = {
-    red: ROULETTE_DATA.filter(d => d.color === 'red').length,
-    black: ROULETTE_DATA.filter(d => d.color === 'black').length,
-    green: ROULETTE_DATA.filter(d => d.color === 'green').length
+const COLOR_MAP = {
+    red: '#ef4444',
+    black: '#1a1a1a',
+    green: '#10b981'
 };
 
-// Состояние
-let isSpinning = false;
+let spinning = false;
 let spinBet = 25;
-let currentResult = null;
 
-// === ПОЛУЧИТЬ СЛУЧАЙНЫЙ РЕЗУЛЬТАТ ===
-function getRandomResult() {
-    const index = Math.floor(Math.random() * ROULETTE_DATA.length);
-    return {
-        ...ROULETTE_DATA[index],
-        index: index
-    };
-}
-
-// === ОТРИСОВКА РУЛЕТКИ (CANVAS) ===
-function drawRouletteWheel(highlightIndex) {
+// === ОТРИСОВКА ===
+function drawWheel(highlightIndex) {
     const canvas = document.getElementById('rouletteCanvas');
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
-    const cx = 160, cy = 160, radius = 140;
+    const cx = 160, cy = 160, r = 140;
     
     ctx.clearRect(0, 0, 320, 320);
     
-    const n = ROULETTE_DATA.length;
-    const angleStep = (Math.PI * 2) / n;
+    const n = WHEEL_DATA.length;
+    const step = (Math.PI * 2) / n;
     
     for (let i = 0; i < n; i++) {
-        const startAngle = i * angleStep - Math.PI / 2;
-        const endAngle = (i + 1) * angleStep - Math.PI / 2;
-        const data = ROULETTE_DATA[i];
+        const start = i * step - Math.PI / 2;
+        const end = (i + 1) * step - Math.PI / 2;
+        const data = WHEEL_DATA[i];
         
-        let color;
-        if (data.color === 'red') color = '#b91c1c';
-        else if (data.color === 'black') color = '#1a1a1a';
-        else color = '#15803d';
-        
+        // Сектор
         ctx.beginPath();
         ctx.moveTo(cx, cy);
-        ctx.arc(cx, cy, radius, startAngle, endAngle);
+        ctx.arc(cx, cy, r, start, end);
         ctx.closePath();
-        ctx.fillStyle = color;
+        ctx.fillStyle = COLOR_MAP[data.color];
         ctx.fill();
-        ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+        ctx.strokeStyle = 'rgba(255,255,255,0.2)';
         ctx.lineWidth = 1;
         ctx.stroke();
         
+        // Подсветка
         if (highlightIndex === i) {
             ctx.beginPath();
             ctx.moveTo(cx, cy);
-            ctx.arc(cx, cy, radius + 5, startAngle, endAngle);
+            ctx.arc(cx, cy, r + 5, start, end);
             ctx.closePath();
             ctx.fillStyle = 'rgba(255, 215, 0, 0.3)';
             ctx.fill();
@@ -3981,19 +3966,20 @@ function drawRouletteWheel(highlightIndex) {
             ctx.stroke();
         }
         
-        const midAngle = startAngle + angleStep / 2;
-        const textRadius = radius - 20;
-        const x = cx + Math.cos(midAngle) * textRadius;
-        const y = cy + Math.sin(midAngle) * textRadius;
+        // Число
+        const mid = start + step / 2;
+        const tr = r - 20;
+        const x = cx + Math.cos(mid) * tr;
+        const y = cy + Math.sin(mid) * tr;
         
         ctx.save();
         ctx.translate(x, y);
-        ctx.rotate(midAngle + Math.PI / 2);
+        ctx.rotate(mid + Math.PI / 2);
         ctx.fillStyle = '#fff';
         ctx.font = 'bold 10px Arial';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        ctx.fillText(data.label, 0, 0);
+        ctx.fillText(data.number, 0, 0);
         ctx.restore();
     }
     
@@ -4026,12 +4012,12 @@ function drawRouletteWheel(highlightIndex) {
     ctx.shadowBlur = 0;
 }
 
-// === ГЛАВНАЯ ФУНКЦИЯ ВРАЩЕНИЯ ===
+// === ИГРА ===
 window.spinTo = function(selectedColor) {
-    if (isSpinning) return;
+    if (spinning) return;
     
-    const betInput = document.getElementById('rlBetInput');
-    const bet = parseInt(betInput.value) || 25;
+    const input = document.getElementById('rlBetInput');
+    const bet = parseInt(input.value) || 25;
     
     if (bet < 1) {
         window.toast('Минимальная ставка 1 монета', 'err');
@@ -4042,9 +4028,8 @@ window.spinTo = function(selectedColor) {
         return;
     }
     
-    // Списываем ставку
     G.coins -= bet;
-    isSpinning = true;
+    spinning = true;
     spinBet = bet;
     
     const resultEl = document.getElementById('rlResult');
@@ -4052,49 +4037,48 @@ window.spinTo = function(selectedColor) {
     resultEl.className = 'rl-result';
     
     document.querySelectorAll('.rl-btns button').forEach(b => b.disabled = true);
-    betInput.disabled = true;
+    input.disabled = true;
     
-    // === ВЫБИРАЕМ РЕЗУЛЬТАТ ===
-    const result = getRandomResult();
-    currentResult = result;
+    // === ВЫБОР РЕЗУЛЬТАТА ===
+    const resultIndex = Math.floor(Math.random() * WHEEL_DATA.length);
+    const result = WHEEL_DATA[resultIndex];
     
-    // === АНИМАЦИЯ ПРОКРУТКИ ===
+    // === АНИМАЦИЯ ===
     let count = 0;
     const maxCount = 15 + Math.floor(Math.random() * 10);
     
-    const interval = setInterval(() => {
-        const randomIdx = Math.floor(Math.random() * ROULETTE_DATA.length);
-        drawRouletteWheel(randomIdx);
+    const timer = setInterval(() => {
+        const randIdx = Math.floor(Math.random() * WHEEL_DATA.length);
+        drawWheel(randIdx);
         count++;
         
         if (count >= maxCount) {
-            clearInterval(interval);
+            clearInterval(timer);
             
-            // === ФИНАЛЬНАЯ ОСТАНОВКА ===
-            drawRouletteWheel(result.index);
+            // Финальная остановка
+            drawWheel(resultIndex);
             
-            // === ПРОВЕРКА ===
-            const isWin = (result.color === selectedColor);
-            const colorEmoji = result.color === 'red' ? '🔴' : result.color === 'black' ? '⚫' : '🟢';
+            // === РЕЗУЛЬТАТ ===
+            const win = result.color === selectedColor;
+            const emoji = result.color === 'red' ? '🔴' : result.color === 'black' ? '⚫' : '🟢';
             
-            // === ПОКАЗЫВАЕМ РЕЗУЛЬТАТ ===
-            if (isWin) {
-                const multiplier = result.color === 'green' ? 5 : 1.75;
-                const winAmount = Math.floor(bet * multiplier);
+            if (win) {
+                const mult = result.color === 'green' ? 5 : 1.75;
+                const winAmount = Math.floor(bet * mult);
                 G.coins += winAmount;
                 
-                resultEl.textContent = '✅ ' + colorEmoji + ' ' + result.color.toUpperCase() + '! Выпало: ' + result.label + ' (+' + winAmount + ' монет)!';
+                resultEl.innerHTML = '✅ ' + emoji + ' <b>' + result.color.toUpperCase() + '</b>! Число ' + result.number + ' (+' + winAmount + ' <b>монет</b>)';
                 resultEl.className = 'rl-result win';
-                window.toast('🎉 ' + result.color.toUpperCase() + '! +' + winAmount + ' монет!', 'gld');
+                window.toast('🎉 Выпал ' + result.color + '! +' + winAmount + ' монет!', 'gld');
             } else {
-                resultEl.textContent = '❌ ' + colorEmoji + ' ' + result.color.toUpperCase() + '! Выпало: ' + result.label + ' (-' + bet + ' монет)';
+                resultEl.innerHTML = '❌ ' + emoji + ' <b>' + result.color.toUpperCase() + '</b>! Число ' + result.number + ' (-' + bet + ' <b>монет</b>)';
                 resultEl.className = 'rl-result lose';
-                window.toast('😞 ' + result.color.toUpperCase() + '! -' + bet + ' монет', 'err');
+                window.toast('😞 Выпал ' + result.color + '! -' + bet + ' монет', 'err');
             }
             
-            isSpinning = false;
+            spinning = false;
             document.querySelectorAll('.rl-btns button').forEach(b => b.disabled = false);
-            betInput.disabled = false;
+            input.disabled = false;
             
             scheduleSave();
             renderUI();
@@ -4102,29 +4086,27 @@ window.spinTo = function(selectedColor) {
     }, 80);
 };
 
-// === ФОНОВОЕ ВРАЩЕНИЕ ===
-let idleIndex = 0;
+// === ФОН ===
+let idleIdx = 0;
 
 function idleSpin() {
-    if (!isSpinning) {
-        idleIndex = (idleIndex + 1) % ROULETTE_DATA.length;
-        drawRouletteWheel();
+    if (!spinning) {
+        idleIdx = (idleIdx + 1) % WHEEL_DATA.length;
+        drawWheel();
     }
     requestAnimationFrame(idleSpin);
 }
 
 // === ЗАПУСК ===
-drawRouletteWheel();
+drawWheel();
 idleSpin();
-
-// === ОБНОВЛЯЕМ ИНФОРМАЦИЮ О ШАНСАХ ===
-document.getElementById('rlResult').textContent = '🎰 Выберите цвет для ставки';
+document.getElementById('rlResult').innerHTML = '🎰 Выберите цвет для <b>ставки</b>';
 document.getElementById('rlResult').className = 'rl-result';
 
-// Добавляем информацию о шансах под кнопками
+// === ОБНОВЛЯЕМ КОЭФФИЦИЕНТЫ ===
 const coeffEl = document.querySelector('.rl-coeff');
 if (coeffEl) {
-    coeffEl.innerHTML = '🔴 Красный ×1.75 (9/20) | ⚫ Чёрный ×1.75 (9/20) | 🟢 Зелёный ×5 (2/20)';
+    coeffEl.innerHTML = '🔴 Красный ×1.75 (45%) | ⚫ Чёрный ×1.75 (45%) | 🟢 Зелёный ×5 (10%)';
 }
 
         // ============================================================
