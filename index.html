@@ -4130,8 +4130,8 @@ var coeffEl = document.querySelector('.rl-coeff');
 if (coeffEl) {
     coeffEl.innerHTML = '🔴 Красный ×1.75 (45%) | ⚫ Чёрный ×1.75 (45%) | 🟢 Зелёный ×5 (10%)';
 }
-      // ============================================================
-// 18. КУБИК (ПРОСТАЯ ВЕРСИЯ)
+     // ============================================================
+// 18. КУБИК (ИСПРАВЛЕННЫЙ)
 // ============================================================
 
 const PIP_LAYOUTS = {
@@ -4165,7 +4165,6 @@ let diceRy = 30;
 let lastDiceValue = null;
 let lastDiceColor = null;
 
-// === ПРАВИЛА ===
 function showDiceRules() {
     const rules = `
 🎲 ПРАВИЛА ИГРЫ В КУБИК
@@ -4188,10 +4187,6 @@ function showDiceRules() {
 • Выпало 6, НЕ угадали → 60 + 0 - 50 = +10 монет
 • Выпало 1, угадали цвет → 10 + 10 - 50 = -30 монет
 • Выпало 1, НЕ угадали → 10 + 0 - 50 = -40 монет
-
-🎯 ШАНСЫ:
-• Угадать цвет: 50%
-• Чем больше число, тем выше выигрыш!
 
 ⚡ УДАЧИ! 🍀
 `;
@@ -4359,10 +4354,17 @@ window.playDiceWithBet = function(col) {
         const resultEl = document.getElementById('diceResult');
         const win = (col === resultCol);
         
+        // === ПРАВИЛЬНОЕ ОТОБРАЖЕНИЕ ===
         if (win) {
-            resultEl.textContent = '✅ Выпало ' + val + ' (' + colorName + ')! +' + profit + ' монет';
+            // profit может быть отрицательным (например при числе 1: 10+10-50 = -30)
+            // Нужно показать -30, а не +-30
+            if (profit >= 0) {
+                resultEl.textContent = '✅ Выпало ' + val + ' (' + colorName + ')! +' + profit + ' монет';
+            } else {
+                resultEl.textContent = '✅ Выпало ' + val + ' (' + colorName + ')! ' + profit + ' монет';
+            }
             resultEl.className = 'dice-result win';
-            window.toast('+' + profit + ' монет!', 'gld');
+            window.toast((profit >= 0 ? '+' : '') + profit + ' монет!', 'gld');
         } else {
             const loss = Math.abs(profit);
             resultEl.textContent = '❌ Выпало ' + val + ' (' + colorName + ')! -' + loss + ' монет';
@@ -4380,7 +4382,6 @@ window.playDiceWithBet = function(col) {
     });
 };
 
-// === КНОПКА ПРАВИЛ ===
 document.addEventListener('DOMContentLoaded', function() {
     const diceSection = document.querySelector('.dice-section');
     if (diceSection) {
