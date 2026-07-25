@@ -3889,38 +3889,24 @@
         };
 
        // ============================================================
-// 17. РУЛЕТКА (ИСПРАВЛЕННАЯ СИНХРОНИЗАЦИЯ)
+// 17. РУЛЕТКА (ТОЛЬКО ЦВЕТА - ГАРАНТИРОВАННО РАБОТАЕТ)
 // ============================================================
 
 const RC = document.getElementById('rouletteCanvas');
 const rctx = RC.getContext('2d');
 const CX = 160, CY = 160, OR = 148, IR = 28;
 
-// === ПРАВИЛЬНЫЕ СЕКТОРА (ИНДЕКС = ЧИСЛО) ===
-const SEGS = [
-    { c: 'green', label: '0' },   // индекс 0
-    { c: 'red', label: '1' },     // индекс 1
-    { c: 'black', label: '2' },   // индекс 2
-    { c: 'red', label: '3' },     // индекс 3
-    { c: 'black', label: '4' },   // индекс 4
-    { c: 'red', label: '5' },     // индекс 5
-    { c: 'black', label: '6' },   // индекс 6
-    { c: 'red', label: '7' },     // индекс 7
-    { c: 'black', label: '8' },   // индекс 8
-    { c: 'red', label: '9' },     // индекс 9
-    { c: 'green', label: '00' },  // индекс 10
-    { c: 'black', label: '10' },  // индекс 11
-    { c: 'red', label: '11' },    // индекс 12
-    { c: 'black', label: '12' },  // индекс 13
-    { c: 'red', label: '13' },    // индекс 14
-    { c: 'black', label: '14' },  // индекс 15
-    { c: 'red', label: '15' },    // индекс 16
-    { c: 'black', label: '16' },  // индекс 17
-    { c: 'red', label: '17' },    // индекс 18
-    { c: 'black', label: '18' }   // индекс 19
+// === ПРОСТОЙ МАССИВ ЦВЕТОВ (20 СЕКТОРОВ) ===
+// 9 КРАСНЫХ, 9 ЧЁРНЫХ, 2 ЗЕЛЁНЫХ
+const COLORS = [
+    'green', 'red', 'black', 'red', 'black', 'red', 'black', 'red', 'black', 'red',  // 0-9
+    'green', 'black', 'red', 'black', 'red', 'black', 'red', 'black', 'red', 'black' // 10-19
 ];
 
-// ЦВЕТА СЕКТОРОВ ДЛЯ ОТРИСОВКИ
+// ЧИСЛА ДЛЯ ОТОБРАЖЕНИЯ (НЕ ВЛИЯЮТ НА РЕЗУЛЬТАТ)
+const LABELS = ['0','1','2','3','4','5','6','7','8','9','00','10','11','12','13','14','15','16','17','18'];
+
+// ЦВЕТА ДЛЯ ОТРИСОВКИ
 const SEG_FILL = {
     red: ['#7f1d1d', '#b91c1c', '#dc2626'],
     black: ['#18181b', '#27272a', '#3f3f46'],
@@ -3933,7 +3919,7 @@ let spinning = false;
 let spinBet = 25;
 let resultDisplayed = true;
 
-// === ОТРИСОВКА РУЛЕТКИ ===
+// === ОТРИСОВКА ===
 window.drawRoulette = function(angle, highlightIndex) {
     rctx.clearRect(0, 0, 320, 320);
 
@@ -3974,12 +3960,12 @@ window.drawRoulette = function(angle, highlightIndex) {
     rctx.lineWidth = 8;
     rctx.stroke();
 
-    const n = SEGS.length;
+    const n = COLORS.length;
     const sa = Math.PI * 2 / n;
     for (let i = 0; i < n; i++) {
         const a1 = angle + i * sa - Math.PI / 2;
         const a2 = angle + (i + 1) * sa - Math.PI / 2;
-        const col = SEGS[i].c;
+        const col = COLORS[i];
         const fills = SEG_FILL[col];
 
         rctx.beginPath();
@@ -3989,7 +3975,6 @@ window.drawRoulette = function(angle, highlightIndex) {
         rctx.fillStyle = fills[1];
         rctx.fill();
 
-        // Подсветка выигрышного сектора
         if (highlightIndex === i) {
             rctx.beginPath();
             rctx.moveTo(CX, CY);
@@ -4032,7 +4017,7 @@ window.drawRoulette = function(angle, highlightIndex) {
         rctx.fillStyle = 'rgba(255,255,255,.85)';
         rctx.textAlign = 'center';
         rctx.textBaseline = 'middle';
-        rctx.fillText(SEGS[i].label, 0, 0);
+        rctx.fillText(LABELS[i], 0, 0);
         rctx.restore();
     }
 
@@ -4089,7 +4074,7 @@ window.drawRoulette = function(angle, highlightIndex) {
 
 // === ПОЛУЧИТЬ ИНДЕКС ПО УГЛУ ===
 function getIndexFromAngle(angle) {
-    const n = SEGS.length;
+    const n = COLORS.length;
     const sa = (Math.PI * 2) / n;
     let raw = (-Math.PI / 2 - angle) % (Math.PI * 2);
     if (raw < 0) raw += Math.PI * 2;
@@ -4123,22 +4108,23 @@ window.spinTo = function(selectedColor) {
     document.querySelectorAll('.rl-btns button').forEach(b => b.disabled = true);
     betInput.disabled = true;
     
-    // === ВЫБИРАЕМ СЛУЧАЙНЫЙ СЕКТОР ===
-    const n = SEGS.length;
+    // === ВЫБИРАЕМ СЛУЧАЙНЫЙ ИНДЕКС ===
+    const n = COLORS.length;
     const targetIndex = Math.floor(Math.random() * n);
-    const seg = SEGS[targetIndex];
+    const resultColor = COLORS[targetIndex];
+    const resultLabel = LABELS[targetIndex];
     
-    // === ПРОВЕРЯЕМ СОВПАДЕНИЕ ===
-    const isWin = (seg.c === selectedColor);
+    // === ПРОВЕРКА ===
+    const isWin = (resultColor === selectedColor);
     let winAmount = 0;
     
     if (isWin) {
-        const multiplier = (seg.c === 'green') ? 5 : 1.75;
+        const multiplier = (resultColor === 'green') ? 5 : 1.75;
         winAmount = Math.floor(bet * multiplier);
         G.coins += winAmount;
     }
     
-    // === УГОЛ ОСТАНОВКИ ===
+    // === УГОЛ ===
     const segAngle = (Math.PI * 2) / n;
     const extraSpins = 5 + Math.floor(Math.random() * 3);
     const targetAngle = -Math.PI / 2 - (targetIndex + 0.5) * segAngle + extraSpins * Math.PI * 2;
@@ -4174,16 +4160,16 @@ window.spinTo = function(selectedColor) {
             spinning = false;
             resultDisplayed = true;
             
-            const colorEmoji = seg.c === 'red' ? '🔴' : seg.c === 'black' ? '⚫' : '🟢';
+            const colorEmoji = resultColor === 'red' ? '🔴' : resultColor === 'black' ? '⚫' : '🟢';
             
             if (isWin) {
-                resultEl.textContent = '✅ Выпало: ' + seg.label + ' (' + colorEmoji + ' ' + seg.c + ') +' + winAmount + ' монет!';
+                resultEl.textContent = '✅ Выпал: ' + colorEmoji + ' ' + resultColor + ' (+' + winAmount + ' монет)!';
                 resultEl.className = 'rl-result win';
-                window.toast('🎉 Выпало ' + seg.label + '! +' + winAmount + ' монет!', 'gld');
+                window.toast('🎉 Выпал ' + resultColor + '! +' + winAmount + ' монет!', 'gld');
             } else {
-                resultEl.textContent = '❌ Выпало: ' + seg.label + ' (' + colorEmoji + ' ' + seg.c + ') -' + bet + ' монет';
+                resultEl.textContent = '❌ Выпал: ' + colorEmoji + ' ' + resultColor + ' (-' + bet + ' монет)';
                 resultEl.className = 'rl-result lose';
-                window.toast('😞 Выпало ' + seg.label + '! -' + bet + ' монет', 'err');
+                window.toast('😞 Выпал ' + resultColor + '! -' + bet + ' монет', 'err');
             }
             
             document.querySelectorAll('.rl-btns button').forEach(b => b.disabled = false);
