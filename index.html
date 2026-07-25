@@ -3889,49 +3889,51 @@
         };
 
        // ============================================================
-// 17. РУЛЕТКА (КЛАССИЧЕСКАЯ - ВЫБОР ЦВЕТА + РАНДОМ)
+// 17. РУЛЕТКА (ИСПРАВЛЕННАЯ СИНХРОНИЗАЦИЯ)
 // ============================================================
 
 const RC = document.getElementById('rouletteCanvas');
 const rctx = RC.getContext('2d');
 const CX = 160, CY = 160, OR = 148, IR = 28;
 
-// === 20 СЕКТОРОВ ===
+// === ПРАВИЛЬНЫЕ СЕКТОРА (ИНДЕКС = ЧИСЛО) ===
 const SEGS = [
-    { c: 'green', label: '0' },
-    { c: 'red', label: '1' },
-    { c: 'black', label: '2' },
-    { c: 'red', label: '3' },
-    { c: 'black', label: '4' },
-    { c: 'red', label: '5' },
-    { c: 'black', label: '6' },
-    { c: 'red', label: '7' },
-    { c: 'black', label: '8' },
-    { c: 'red', label: '9' },
-    { c: 'green', label: '00' },
-    { c: 'black', label: '10' },
-    { c: 'red', label: '11' },
-    { c: 'black', label: '12' },
-    { c: 'red', label: '13' },
-    { c: 'black', label: '14' },
-    { c: 'red', label: '15' },
-    { c: 'black', label: '16' },
-    { c: 'red', label: '17' },
-    { c: 'black', label: '18' }
+    { c: 'green', label: '0' },   // индекс 0
+    { c: 'red', label: '1' },     // индекс 1
+    { c: 'black', label: '2' },   // индекс 2
+    { c: 'red', label: '3' },     // индекс 3
+    { c: 'black', label: '4' },   // индекс 4
+    { c: 'red', label: '5' },     // индекс 5
+    { c: 'black', label: '6' },   // индекс 6
+    { c: 'red', label: '7' },     // индекс 7
+    { c: 'black', label: '8' },   // индекс 8
+    { c: 'red', label: '9' },     // индекс 9
+    { c: 'green', label: '00' },  // индекс 10
+    { c: 'black', label: '10' },  // индекс 11
+    { c: 'red', label: '11' },    // индекс 12
+    { c: 'black', label: '12' },  // индекс 13
+    { c: 'red', label: '13' },    // индекс 14
+    { c: 'black', label: '14' },  // индекс 15
+    { c: 'red', label: '15' },    // индекс 16
+    { c: 'black', label: '16' },  // индекс 17
+    { c: 'red', label: '17' },    // индекс 18
+    { c: 'black', label: '18' }   // индекс 19
 ];
 
+// ЦВЕТА СЕКТОРОВ ДЛЯ ОТРИСОВКИ
 const SEG_FILL = {
     red: ['#7f1d1d', '#b91c1c', '#dc2626'],
     black: ['#18181b', '#27272a', '#3f3f46'],
     green: ['#14532d', '#15803d', '#16a34a']
 };
 
+// Состояние
 let wheelAngle = 0;
 let spinning = false;
 let spinBet = 25;
 let resultDisplayed = true;
 
-// === ОТРИСОВКА ===
+// === ОТРИСОВКА РУЛЕТКИ ===
 window.drawRoulette = function(angle, highlightIndex) {
     rctx.clearRect(0, 0, 320, 320);
 
@@ -3987,6 +3989,7 @@ window.drawRoulette = function(angle, highlightIndex) {
         rctx.fillStyle = fills[1];
         rctx.fill();
 
+        // Подсветка выигрышного сектора
         if (highlightIndex === i) {
             rctx.beginPath();
             rctx.moveTo(CX, CY);
@@ -4093,7 +4096,7 @@ function getIndexFromAngle(angle) {
     return Math.floor(raw / sa) % n;
 }
 
-// === ГЛАВНАЯ ФУНКЦИЯ ===
+// === ВРАЩЕНИЕ ===
 window.spinTo = function(selectedColor) {
     if (spinning) return;
     
@@ -4120,12 +4123,12 @@ window.spinTo = function(selectedColor) {
     document.querySelectorAll('.rl-btns button').forEach(b => b.disabled = true);
     betInput.disabled = true;
     
-    // === РЕАЛЬНЫЙ РАНДОМ ===
+    // === ВЫБИРАЕМ СЛУЧАЙНЫЙ СЕКТОР ===
     const n = SEGS.length;
     const targetIndex = Math.floor(Math.random() * n);
     const seg = SEGS[targetIndex];
     
-    // === ПРОВЕРКА ===
+    // === ПРОВЕРЯЕМ СОВПАДЕНИЕ ===
     const isWin = (seg.c === selectedColor);
     let winAmount = 0;
     
@@ -4135,7 +4138,7 @@ window.spinTo = function(selectedColor) {
         G.coins += winAmount;
     }
     
-    // === РАССЧИТЫВАЕМ УГОЛ ===
+    // === УГОЛ ОСТАНОВКИ ===
     const segAngle = (Math.PI * 2) / n;
     const extraSpins = 5 + Math.floor(Math.random() * 3);
     const targetAngle = -Math.PI / 2 - (targetIndex + 0.5) * segAngle + extraSpins * Math.PI * 2;
@@ -4156,6 +4159,7 @@ window.spinTo = function(selectedColor) {
         if (progress < 1) {
             requestAnimationFrame(animate);
         } else {
+            // Проверка
             const landedIdx = getIndexFromAngle(wheelAngle);
             if (landedIdx !== targetIndex) {
                 const correction = (targetIndex - landedIdx) * segAngle;
@@ -4163,8 +4167,10 @@ window.spinTo = function(selectedColor) {
                 window.drawRoulette(wheelAngle);
             }
             
+            // Подсветка
             window.drawRoulette(wheelAngle, targetIndex);
             
+            // === РЕЗУЛЬТАТ ===
             spinning = false;
             resultDisplayed = true;
             
