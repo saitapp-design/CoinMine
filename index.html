@@ -33,16 +33,6 @@
             --r: 12px;
             --r2: 6px;
             --r3: 4px;
-            --gold: #ffd700;
-            --silver: #c0c0c0;
-            --bronze: #cd7f32;
-            --color-text-primary: #f0f0ff;
-            --color-text-secondary: #9090b8;
-            --color-border-secondary: #ffffff22;
-            --border-radius-md: 8px;
-            --color-background-primary: #131328;
-            --color-background-secondary: #1a1a35;
-            --color-border-tertiary: #ffffff14;
         }
         html,
         body {
@@ -246,17 +236,6 @@
             height: 200px;
             background: radial-gradient(circle, #7c3aed22, transparent 70%);
             pointer-events: none;
-        }
-        .auth-banner {
-            width: 100%;
-            border-radius: var(--r);
-            margin-bottom: 12px;
-            overflow: hidden;
-        }
-        .auth-banner img {
-            width: 100%;
-            height: auto;
-            display: block;
         }
         .auth-title {
             text-align: center;
@@ -1063,23 +1042,6 @@
             background: var(--color-border-tertiary);
         }
 
-        .clan-icon {
-            font-size: 60px;
-            text-align: center;
-            margin-bottom: 4px;
-            filter: drop-shadow(0 0 20px #7c3aed66);
-            animation: float 3s ease-in-out infinite;
-        }
-        .clan-name {
-            font-size: 20px;
-            font-weight: 700;
-            color: var(--acc3);
-        }
-        .clan-diamonds {
-            font-size: 28px;
-            font-weight: 800;
-            color: var(--gld);
-        }
         .pkg-g {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -1777,49 +1739,6 @@
                 font-size: 13px !important;
             }
         }
-        /* ===== ИСПРАВЛЕНИЕ ДЛЯ ВЫБОРА АВАТАРКИ ===== */
-        .avatar-selector {
-            position: fixed !important;
-            top: 50% !important;
-            left: 50% !important;
-            transform: translate(-50%, -50%) !important;
-            width: 90vw !important;
-            max-width: 320px !important;
-            max-height: 70vh !important;
-            overflow-y: auto !important;
-            z-index: 999 !important;
-            padding: 16px !important;
-            border-radius: 16px !important;
-        }
-
-        .avatar-selector.show::before {
-            content: '' !important;
-            position: fixed !important;
-            top: 0 !important;
-            left: 0 !important;
-            right: 0 !important;
-            bottom: 0 !important;
-            background: rgba(0, 0, 0, 0.7) !important;
-            z-index: -1 !important;
-        }
-
-        @media (max-width: 700px) {
-            .avatar-selector {
-                top: 50% !important;
-                left: 50% !important;
-                transform: translate(-50%, -50%) !important;
-                width: 85vw !important;
-                max-width: 300px !important;
-                padding: 12px !important;
-            }
-            .avatar-grid {
-                grid-template-columns: repeat(3, 1fr) !important;
-                gap: 6px !important;
-            }
-            .avatar-option {
-                padding: 3px !important;
-            }
-        }
 
         /* ===== АУКЦИОН ===== */
         .auction-status {
@@ -1873,6 +1792,42 @@
         }
 
         /* ===== МАГАЗИН ===== */
+        .admin-panel {
+            margin-top: 12px;
+            padding: 12px;
+            background: var(--bg4);
+            border-radius: var(--r);
+            border: 1px solid var(--bd2);
+        }
+        .admin-panel .ct {
+            color: var(--gld);
+            font-size: 11px;
+        }
+        .admin-panel .inp {
+            margin-bottom: 6px;
+        }
+        .admin-panel .irow {
+            gap: 6px;
+        }
+        .admin-panel .btn {
+            padding: 8px 14px;
+            font-size: 12px;
+        }
+        .exchange-btn {
+            background: var(--bg4);
+            border: 1px solid var(--bd2);
+            color: var(--tx);
+            padding: 10px;
+            border-radius: var(--r2);
+            cursor: pointer;
+            transition: .3s;
+            text-align: center;
+            font-size: 13px;
+        }
+        .exchange-btn:hover {
+            border-color: var(--gld);
+            background: var(--bg5);
+        }
         .contact-links {
             display: flex;
             gap: 10px;
@@ -1899,76 +1854,46 @@
             transform: translateY(-2px);
         }
 
-        /* === ОБМЕН КЛЮЧЕЙ === */
-        .exchange-btn {
-            background: var(--bg4);
-            border: 1px solid var(--bd2);
-            color: var(--tx);
-            padding: 12px;
-            border-radius: var(--r2);
-            cursor: pointer;
-            transition: .3s;
-            text-align: center;
-            font-size: 14px;
-            font-weight: 600;
+        /* ===== ИСПРАВЛЕНИЕ ДЛЯ ВЫБОРА АВАТАРКИ ===== */
+        .avatar-selector {
+            position: fixed !important;
+            top: 50% !important;
+            left: 50% !important;
+            transform: translate(-50%, -50%) !important;
+            width: 90vw !important;
+            max-width: 320px !important;
+            max-height: 70vh !important;
+            overflow-y: auto !important;
+            z-index: 999 !important;
+            padding: 16px !important;
+            border-radius: 16px !important;
         }
-        .exchange-btn:hover {
-            border-color: var(--gld);
-            background: var(--bg5);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 20px rgba(240, 180, 41, 0.1);
+        .avatar-selector.show::before {
+            content: '' !important;
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            bottom: 0 !important;
+            background: rgba(0, 0, 0, 0.7) !important;
+            z-index: -1 !important;
         }
-
-        /* ===== МОНЕТЫ В МАГАЗИНЕ ===== */
-        .pkg {
-            background: var(--bg4);
-            border: 1.5px solid var(--bd2);
-            border-radius: var(--r);
-            padding: 13px;
-            text-align: center;
-            cursor: pointer;
-            transition: .3s;
-            position: relative;
-            overflow: hidden;
-        }
-        .pkg:hover {
-            transform: translateY(-4px);
-            border-color: var(--acc2);
-            box-shadow: 0 8px 30px #7c3aed22;
-        }
-        .pkg.hot {
-            border-color: var(--gld);
-        }
-        .pkg.hot::before {
-            content: '🔥 ХИТ';
-            position: absolute;
-            top: -8px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: var(--gld);
-            color: #1a0800;
-            font-size: 9px;
-            font-weight: 800;
-            padding: 2px 8px;
-            border-radius: 8px;
-        }
-        .pkg-icon {
-            font-size: 36px;
-            margin-bottom: 3px;
-            display: inline-block;
-            animation: float 3s ease-in-out infinite;
-        }
-        .pkg .coin-sparkle {
-            position: absolute;
-            width: 4px;
-            height: 4px;
-            background: var(--gld);
-            border-radius: 50%;
-            animation: sparkle 1.5s ease-in-out infinite;
-        }
-        @keyframes sparkle {
-            0%, 100% { opacity: 0; transform: scale(0); }
-            50% { opacity: 1; transform: scale(1); }
+        @media (max-width: 700px) {
+            .avatar-selector {
+                top: 50% !important;
+                left: 50% !important;
+                transform: translate(-50%, -50%) !important;
+                width: 85vw !important;
+                max-width: 300px !important;
+                padding: 12px !important;
+            }
+            .avatar-grid {
+                grid-template-columns: repeat(3, 1fr) !important;
+                gap: 6px !important;
+            }
+            .avatar-option {
+                padding: 3px !important;
+            }
         }
     </style>
 </head>
@@ -2218,21 +2143,20 @@
                             </div>
                         </div>
                         <div class="tm tc mt8" style="color:var(--tx2);font-size:12px;">
-                            💬 Для покупки монет напишите администратору:
+                            💬 Для покупки монет напишите администратору в Telegram:
                         </div>
                         <div class="contact-links">
                             <a href="https://t.me/minercoinsf" target="_blank">
                                 <span style="font-size:20px;">📱</span> Telegram
                             </a>
-                            <a href="https://vk.com/coinmine" target="_blank">
-                                <span style="font-size:20px;">📘</span> VK
-                            </a>
                         </div>
                     </div>
+
                     <div class="card">
                         <div class="ct">🎨 стили ника (250 монет)</div>
                         <div class="nick-g" id="NK_g"></div>
                     </div>
+
                     <div class="card">
                         <div class="ct">🎁 промокоды</div>
                         <div class="irow mb8">
@@ -2244,11 +2168,29 @@
                             <button class="btn bs" style="font-size:12px;padding:10px" onclick="window.activatePromo('denchak')">🎁 DENCHAK — +15</button>
                         </div>
                     </div>
+
                     <div class="card">
                         <div class="ct">🔄 обмен</div>
                         <div class="exchange-btn" onclick="window.exchangeKey()">
                             🔑 1 ключ → 100 монет
                         </div>
+                    </div>
+
+                    <!-- === АДМИН-ПАНЕЛЬ ДЛЯ ВЫДАЧИ МОНЕТ === -->
+                    <div class="card admin-panel">
+                        <div class="ct">👑 АДМИН-ПАНЕЛЬ</div>
+                        <div class="tm mb8">Выдача монет по нику и паролю</div>
+                        <div class="irow mb8">
+                            <input class="inp" id="adminUserInput" placeholder="Ник игрока..." style="margin:0;flex:1;">
+                        </div>
+                        <div class="irow mb8">
+                            <input class="inp" id="adminAmountInput" type="number" placeholder="Количество монет..." style="margin:0;flex:1;" value="100">
+                        </div>
+                        <div class="irow">
+                            <input class="inp" id="adminCodeInput" placeholder="Пароль администратора..." type="password" style="margin:0;flex:1;">
+                            <button class="btn bp" style="width:auto;padding:0 16px;" onclick="window.adminGiveCoins()">✅ Выдать</button>
+                        </div>
+                        <div class="tm tc mt8" style="font-size:10px;color:var(--tx2)">Пароль: <b style="color:var(--gld)">denchik9995066943</b></div>
                     </div>
                 </div>
 
@@ -2911,8 +2853,6 @@
         // ============================================================
         // 12. ФУНКЦИИ ЧАТА
         // ============================================================
-        // (Функции чата такие же как в вашем коде - оставлены без изменений)
-
         function escapeHtml(text) {
             const div = document.createElement('div');
             div.textContent = text;
@@ -3047,9 +2987,9 @@
         function renderPodium() {
             const podiumEl = document.getElementById('podiumList');
             if (!podiumEl) return;
-            
+
             updateAuctionStatus();
-            
+
             const bidders = G.auctionBidders || [];
             if (bidders.length === 0) { podiumEl.innerHTML =
                     `<div class="tm tc" style="padding:12px;">Пока нет ставок</div>`; return; }
@@ -3100,7 +3040,7 @@
             });
             document.querySelectorAll('.tab-r .tab').forEach(tab => tab.classList.remove('on'));
             if (el) el.classList.add('on');
-            
+
             if (t === 'rl') setTimeout(() => window.drawRoulette(0, null), 40);
             if (t === 'dc') window.renderDiceIdle();
             if (t === 'au') renderPodium();
@@ -3191,7 +3131,7 @@
             renderBoss();
             renderTop(topLastType || 'b');
             renderPodium();
-            
+
             document.getElementById('AU_a').textContent = G.auctionBid || 0;
             document.getElementById('MY_b').textContent = G.auctionBid || 0;
             if (G.auctionBid > 0) {
@@ -3285,7 +3225,7 @@
             window.toast(`+${m.rw} ключ!`, 'gld');
         };
 
-        // === АУКЦИОН ===
+        // === АУКЦИОН (ГЛОБАЛЬНЫЙ) ===
         async function loadAuctionState() {
             try {
                 const { data, ok } = await sbFetch('/rest/v1/auction_state?limit=1');
@@ -3293,7 +3233,7 @@
                     const state = data[0];
                     auctionActive = state.active;
                     auctionStartTime = state.start_time ? new Date(state.start_time).getTime() : null;
-                    
+
                     if (auctionActive && auctionStartTime) {
                         const elapsed = Date.now() - auctionStartTime;
                         const hours24 = 24 * 60 * 60 * 1000;
@@ -3317,7 +3257,7 @@
                     start_time: startTime ? new Date(startTime).toISOString() : null,
                     updated_at: new Date().toISOString()
                 };
-                
+
                 const { data, ok } = await sbFetch('/rest/v1/auction_state?limit=1');
                 if (ok && data && data.length > 0) {
                     await sbFetch(`/rest/v1/auction_state?id=eq.${data[0].id}`, {
@@ -3338,24 +3278,24 @@
         window.startAuction = async function() {
             const input = document.getElementById('auctionCodeInput');
             if (!input) return;
-            
+
             const code = input.value.trim();
-            
+
             if (code === ADMIN_CODE) {
                 auctionActive = true;
                 auctionStartTime = Date.now();
                 input.value = '';
-                
+
                 await saveAuctionState(true, auctionStartTime);
-                
+
                 G.auctionBid = 0;
                 G.auctionBidders = [];
-                
+
                 renderPodium();
                 renderUI();
                 updateAuctionStatus();
                 startAuctionTimer();
-                
+
                 window.toast('🚀 Аукцион запущен! Длится 24 часа!', 'ok');
             } else {
                 window.toast('❌ Неверный код!', 'err');
@@ -3368,19 +3308,19 @@
                 clearInterval(auctionTimerInterval);
                 auctionTimerInterval = null;
             }
-            
+
             auctionTimerInterval = setInterval(async () => {
                 if (!auctionActive) {
                     clearInterval(auctionTimerInterval);
                     auctionTimerInterval = null;
                     return;
                 }
-                
+
                 updateAuctionStatus();
-                
+
                 const elapsed = Date.now() - auctionStartTime;
                 const hours24 = 24 * 60 * 60 * 1000;
-                
+
                 if (elapsed >= hours24) {
                     await endAuctionGlobal();
                 }
@@ -3390,54 +3330,54 @@
         function updateAuctionStatus() {
             const statusEl = document.getElementById('auctionStatus');
             if (!statusEl) return;
-            
+
             if (!auctionActive) {
                 statusEl.className = 'auction-status inactive';
                 statusEl.textContent = '⛔ Аукцион не активен';
                 return;
             }
-            
+
             const elapsed = Date.now() - auctionStartTime;
             const hours24 = 24 * 60 * 60 * 1000;
             const remaining = hours24 - elapsed;
-            
+
             if (remaining <= 0) {
                 endAuctionGlobal();
                 return;
             }
-            
+
             const hours = Math.floor(remaining / (60 * 60 * 1000));
             const minutes = Math.floor((remaining % (60 * 60 * 1000)) / (60 * 1000));
             const seconds = Math.floor((remaining % (60 * 1000)) / 1000);
-            
+
             statusEl.className = 'auction-status active';
             statusEl.textContent = `✅ Аукцион активен! Осталось: ${hours}ч ${minutes}м ${seconds}с`;
         }
 
         async function endAuctionGlobal() {
             if (!auctionActive) return;
-            
+
             auctionActive = false;
-            
+
             if (auctionTimerInterval) {
                 clearInterval(auctionTimerInterval);
                 auctionTimerInterval = null;
             }
-            
+
             await saveAuctionState(false, null);
-            
+
             const statusEl = document.getElementById('auctionStatus');
             if (statusEl) {
                 statusEl.className = 'auction-status inactive';
                 statusEl.textContent = '⏰ Аукцион завершён!';
             }
-            
+
             const bidders = G.auctionBidders || [];
             if (bidders.length > 0) {
                 const sorted = [...bidders].sort((a, b) => b.bid - a.bid);
                 const winner = sorted[0];
                 window.toast(`🏆 Победитель аукциона: ${winner.name} со ставкой ${winner.bid} монет!`, 'gld');
-                
+
                 if (statusEl) {
                     statusEl.className = 'auction-status active';
                     statusEl.textContent = `🏆 Победитель: ${winner.name} (${winner.bid} монет)`;
@@ -3445,7 +3385,7 @@
             } else {
                 window.toast('😞 Аукцион завершён без победителя', 'info');
             }
-            
+
             renderPodium();
             renderUI();
             scheduleSave();
@@ -3456,7 +3396,7 @@
                 window.toast('⛔ Аукцион не активен!', 'err');
                 return;
             }
-            
+
             const elapsed = Date.now() - auctionStartTime;
             const hours24 = 24 * 60 * 60 * 1000;
             if (elapsed >= hours24) {
@@ -3464,15 +3404,15 @@
                 window.toast('⛔ Аукцион завершён!', 'err');
                 return;
             }
-            
+
             if (G.coins < a) {
                 window.toast('Мало монет', 'err');
                 return;
             }
-            
+
             G.coins -= a;
             G.auctionBid = (G.auctionBid || 0) + a;
-            
+
             const existing = G.auctionBidders.find(b => b.name === G.name);
             if (existing) {
                 existing.bid += a;
@@ -3483,25 +3423,25 @@
                     bid: G.auctionBid
                 });
             }
-            
+
             G.auctionBidders.sort((a, b) => b.bid - a.bid);
             if (G.auctionBidders.length > 10) {
                 G.auctionBidders = G.auctionBidders.slice(0, 10);
             }
-            
+
             document.getElementById('AU_a').textContent = G.auctionBid;
             document.getElementById('MY_b').textContent = G.auctionBid;
             document.getElementById('AU_l').textContent = 'Вы лидируете!';
-            
+
             renderPodium();
             renderUI();
             scheduleSave();
             window.toast(`Ставка: ${G.auctionBid} монет`, 'gld');
         };
 
-        // === КОНТАКТЫ ДЛЯ ПОКУПКИ МОНЕТ ===
+        // === КОНТАКТЫ ===
         window.showContact = function() {
-            window.toast('💬 Для покупки монет напишите администратору в Telegram или VK!', 'info');
+            window.toast('💬 Для покупки монет напишите администратору в Telegram!', 'info');
         };
 
         // === ОБМЕН КЛЮЧЕЙ ===
@@ -3517,6 +3457,76 @@
                 renderUI();
                 window.toast('✅ Обмен успешен! +100 монет', 'ok');
             });
+        };
+
+        // === АДМИН-ПАНЕЛЬ ===
+        window.adminGiveCoins = async function() {
+            const userInput = document.getElementById('adminUserInput');
+            const amountInput = document.getElementById('adminAmountInput');
+            const codeInput = document.getElementById('adminCodeInput');
+
+            const username = userInput.value.trim();
+            const amount = parseInt(amountInput.value) || 0;
+            const code = codeInput.value.trim();
+
+            if (!username) {
+                window.toast('❌ Введите ник игрока', 'err');
+                return;
+            }
+            if (amount <= 0) {
+                window.toast('❌ Введите корректное количество монет', 'err');
+                return;
+            }
+            if (code !== ADMIN_CODE) {
+                window.toast('❌ Неверный пароль администратора!', 'err');
+                codeInput.value = '';
+                return;
+            }
+
+            try {
+                const { data, ok } = await sbFetch(
+                    `/rest/v1/users?data->>name=eq.${encodeURIComponent(username)}&select=id,data`
+                );
+
+                if (!ok || !data || data.length === 0) {
+                    window.toast('❌ Игрок с таким ником не найден', 'err');
+                    return;
+                }
+
+                const user = data[0];
+                const currentCoins = user.data?.coins || 0;
+                const newCoins = currentCoins + amount;
+
+                const updateData = {
+                    data: {
+                        ...user.data,
+                        coins: newCoins
+                    },
+                    updated_at: new Date().toISOString()
+                };
+
+                const { ok: updateOk } = await sbFetch(`/rest/v1/users?id=eq.${user.id}`, {
+                    method: 'PATCH',
+                    body: updateData
+                });
+
+                if (updateOk) {
+                    window.toast(`✅ Игроку ${username} выдано ${amount} монет!`, 'ok');
+                    userInput.value = '';
+                    amountInput.value = '100';
+                    codeInput.value = '';
+
+                    if (user.id === UID) {
+                        G.coins = newCoins;
+                        renderUI();
+                    }
+                } else {
+                    window.toast('❌ Ошибка выдачи монет', 'err');
+                }
+            } catch (e) {
+                window.toast('❌ Ошибка: ' + e.message, 'err');
+                console.error(e);
+            }
         };
 
         window.useRefCode = async function() {
@@ -3574,11 +3584,11 @@
             }
         };
 
-        window.buyCoins = function(amt) { 
+        window.buyCoins = function(amt) {
             G.coins += amt;
             scheduleSave();
             renderUI();
-            window.toast(`+${fmt(amt)} монет!`, 'gld'); 
+            window.toast(`+${fmt(amt)} монет!`, 'gld');
         };
 
         window.usePromo = function() {
@@ -3600,7 +3610,6 @@
         // ============================================================
         // 17. РУЛЕТКА
         // ============================================================
-        // (Код рулетки такой же как в вашем проекте)
         const WHEEL_DATA = [
             { color: 'green', number: '0' },
             { color: 'red', number: '1' },
@@ -3638,18 +3647,20 @@
             var canvas = document.getElementById('rouletteCanvas');
             if (!canvas) return;
             var ctx = canvas.getContext('2d');
-            var cx = 160, cy = 160, r = 140;
-            
+            var cx = 160,
+                cy = 160,
+                r = 140;
+
             ctx.clearRect(0, 0, 320, 320);
-            
+
             var n = WHEEL_DATA.length;
             var step = (Math.PI * 2) / n;
-            
+
             for (var i = 0; i < n; i++) {
                 var start = i * step - Math.PI / 2;
                 var end = (i + 1) * step - Math.PI / 2;
                 var data = WHEEL_DATA[i];
-                
+
                 ctx.beginPath();
                 ctx.moveTo(cx, cy);
                 ctx.arc(cx, cy, r, start, end);
@@ -3659,7 +3670,7 @@
                 ctx.strokeStyle = 'rgba(255,255,255,0.2)';
                 ctx.lineWidth = 1;
                 ctx.stroke();
-                
+
                 if (highlightIndex === i) {
                     ctx.shadowColor = '#ffd700';
                     ctx.shadowBlur = 40;
@@ -3672,7 +3683,7 @@
                     ctx.strokeStyle = '#ffd700';
                     ctx.lineWidth = 5;
                     ctx.stroke();
-                    
+
                     ctx.shadowBlur = 20;
                     ctx.beginPath();
                     ctx.moveTo(cx, cy);
@@ -3682,12 +3693,12 @@
                     ctx.fill();
                     ctx.shadowBlur = 0;
                 }
-                
+
                 var mid = start + step / 2;
                 var tr = r - 20;
                 var x = cx + Math.cos(mid) * tr;
                 var y = cy + Math.sin(mid) * tr;
-                
+
                 ctx.save();
                 ctx.translate(x, y);
                 ctx.rotate(mid + Math.PI / 2);
@@ -3698,7 +3709,7 @@
                 ctx.fillText(data.number, 0, 0);
                 ctx.restore();
             }
-            
+
             var grad = ctx.createRadialGradient(cx - 5, cy - 5, 0, cx, cy, 25);
             grad.addColorStop(0, '#f0e6d0');
             grad.addColorStop(0.7, '#c4a87a');
@@ -3710,7 +3721,7 @@
             ctx.strokeStyle = '#6b4b2e';
             ctx.lineWidth = 2;
             ctx.stroke();
-            
+
             ctx.shadowColor = 'rgba(255, 215, 0, 0.5)';
             ctx.shadowBlur = 15;
             ctx.beginPath();
@@ -3728,10 +3739,10 @@
 
         window.spinTo = function(selectedColor) {
             if (spinning) return;
-            
+
             var input = document.getElementById('rlBetInput');
             var bet = parseInt(input.value) || 25;
-            
+
             if (bet < 1) {
                 window.toast('Минимальная ставка 1 монета', 'err');
                 return;
@@ -3740,62 +3751,64 @@
                 window.toast('Недостаточно монет!', 'err');
                 return;
             }
-            
+
             G.coins -= bet;
             spinning = true;
             spinBet = bet;
-            
+
             var resultEl = document.getElementById('rlResult');
             resultEl.textContent = '🎰 Крутим...';
             resultEl.className = 'rl-result';
-            
+
             var buttons = document.querySelectorAll('.rl-btns button');
             for (var b = 0; b < buttons.length; b++) {
                 buttons[b].disabled = true;
             }
             input.disabled = true;
-            
+
             var resultIndex = Math.floor(Math.random() * WHEEL_DATA.length);
             var result = WHEEL_DATA[resultIndex];
-            
+
             var count = 0;
             var maxCount = 15 + Math.floor(Math.random() * 10);
-            
+
             var timer = setInterval(function() {
                 var randIdx = Math.floor(Math.random() * WHEEL_DATA.length);
                 drawWheel(randIdx);
                 count++;
-                
+
                 if (count >= maxCount) {
                     clearInterval(timer);
-                    
+
                     lastResultIndex = resultIndex;
                     drawWheel(resultIndex);
-                    
+
                     var win = result.color === selectedColor;
                     var emoji = result.color === 'red' ? '🔴' : result.color === 'black' ? '⚫' : '🟢';
                     var colorName = result.color.toUpperCase();
-                    
+
                     if (win) {
                         var mult = result.color === 'green' ? 5 : 1.75;
                         var winAmount = Math.floor(bet * mult);
                         G.coins += winAmount;
-                        resultEl.innerHTML = '✅ ' + emoji + ' <b style="font-size:20px;">' + colorName + '</b>! (+' + winAmount + ' <b>монет</b>)';
+                        resultEl.innerHTML = '✅ ' + emoji + ' <b style="font-size:20px;">' + colorName + '</b>! (+' +
+                            winAmount + ' <b>монет</b>)';
                         resultEl.className = 'rl-result win';
                         window.toast('🎉 ' + colorName + '! +' + winAmount + ' монет!', 'gld');
                     } else {
-                        resultEl.innerHTML = '❌ ' + emoji + ' <b style="font-size:20px;">' + colorName + '</b>! (-' + bet + ' <b>монет</b>)';
+                        resultEl.innerHTML = '❌ ' + emoji + ' <b style="font-size:20px;">' + colorName + '</b>! (-' + bet +
+                            ' <b>монет</b>)';
                         resultEl.className = 'rl-result lose';
                         window.toast('😞 ' + colorName + '! -' + bet + ' монет', 'err');
                     }
-                    
+
                     spinning = false;
                     var buttons2 = document.querySelectorAll('.rl-btns button');
                     for (var b2 = 0; b2 < buttons2.length; b2++) {
                         buttons2[b2].disabled = false;
                     }
                     input.disabled = false;
-                    
+
                     scheduleSave();
                     renderUI();
                 }
@@ -3834,12 +3847,39 @@
         // 18. КУБИК
         // ============================================================
         const PIP_LAYOUTS = {
-            1: [[1, 1]],
-            2: [[0, 0], [2, 2]],
-            3: [[0, 0], [1, 1], [2, 2]],
-            4: [[0, 0], [0, 2], [2, 0], [2, 2]],
-            5: [[0, 0], [0, 2], [1, 1], [2, 0], [2, 2]],
-            6: [[0, 0], [0, 2], [1, 0], [1, 2], [2, 0], [2, 2]]
+            1: [
+                [1, 1]
+            ],
+            2: [
+                [0, 0],
+                [2, 2]
+            ],
+            3: [
+                [0, 0],
+                [1, 1],
+                [2, 2]
+            ],
+            4: [
+                [0, 0],
+                [0, 2],
+                [2, 0],
+                [2, 2]
+            ],
+            5: [
+                [0, 0],
+                [0, 2],
+                [1, 1],
+                [2, 0],
+                [2, 2]
+            ],
+            6: [
+                [0, 0],
+                [0, 2],
+                [1, 0],
+                [1, 2],
+                [2, 0],
+                [2, 2]
+            ]
         };
 
         const CUBE_PALETTES = [
@@ -3865,7 +3905,8 @@
         let lastDiceColor = null;
 
         function showDiceRules() {
-            const rules = `
+            const rules =
+                `
 🎲 ПРАВИЛА ИГРЫ В КУБИК
 
 💰 СТАВКА: 50 монет
@@ -3889,7 +3930,8 @@
         function buildPips(el, n, pipColor) {
             const g = document.createElement('div');
             g.className = 'pips';
-            g.style.cssText = 'display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);width:100px;height:100px;gap:0;padding:8px';
+            g.style.cssText =
+                'display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);width:100px;height:100px;gap:0;padding:8px';
             for (let r = 0; r < 3; r++) {
                 for (let c = 0; c < 3; c++) {
                     const cell = document.createElement('div');
@@ -3904,7 +3946,9 @@
                     }
                     if (hasPip) {
                         const pip = document.createElement('div');
-                        pip.style.cssText = 'width:16px;height:16px;border-radius:50%;background:' + pipColor + ';box-shadow:0 1px 3px rgba(0,0,0,.4)';
+                        pip.style.cssText =
+                            'width:16px;height:16px;border-radius:50%;background:' + pipColor +
+                            ';box-shadow:0 1px 3px rgba(0,0,0,.4)';
                         cell.appendChild(pip);
                     }
                     g.appendChild(cell);
@@ -3939,7 +3983,8 @@
                 if (!f) continue;
                 const wrap = document.createElement('div');
                 wrap.className = 'pips';
-                wrap.style.cssText = 'display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);width:100px;height:100px;gap:0;padding:8px';
+                wrap.style.cssText =
+                    'display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);width:100px;height:100px;gap:0;padding:8px';
                 f.innerHTML = '';
                 f.appendChild(wrap);
                 buildPips(wrap, vals[i], '#ffffff');
@@ -3994,7 +4039,7 @@
                     const val = Math.floor(Math.random() * 6) + 1;
                     const colors = ['red', 'black'];
                     const randomColor = colors[Math.floor(Math.random() * colors.length)];
-                    
+
                     lastDiceValue = val;
                     lastDiceColor = randomColor;
 
@@ -4042,11 +4087,11 @@
                 const total = base + bonus;
                 G.coins += total;
                 const profit = total - 50;
-                
+
                 const colorName = resultCol === 'red' ? '🔴 красный' : '⚫ чёрный';
                 const resultEl = document.getElementById('diceResult');
                 const win = (col === resultCol);
-                
+
                 if (win) {
                     if (profit >= 0) {
                         resultEl.textContent = '✅ Выпало ' + val + ' (' + colorName + ')! +' + profit + ' монет';
@@ -4066,7 +4111,7 @@
                 for (let b2 = 0; b2 < buttons2.length; b2++) {
                     buttons2[b2].disabled = false;
                 }
-                
+
                 scheduleSave();
                 renderUI();
             });
@@ -4077,9 +4122,10 @@
             if (diceSection) {
                 const rulesBtn = document.createElement('button');
                 rulesBtn.textContent = '📖 Правила';
-                rulesBtn.style.cssText = 'padding:6px 14px;border-radius:8px;border:0.5px solid var(--color-border-secondary);background:var(--color-background-primary);color:var(--color-text-primary);font-size:12px;cursor:pointer;margin-top:4px;';
+                rulesBtn.style.cssText =
+                    'padding:6px 14px;border-radius:8px;border:0.5px solid var(--color-border-secondary);background:var(--color-background-primary);color:var(--color-text-primary);font-size:12px;cursor:pointer;margin-top:4px;';
                 rulesBtn.onclick = showDiceRules;
-                
+
                 const btns = diceSection.querySelector('.dice-btns');
                 if (btns) {
                     btns.parentNode.insertBefore(rulesBtn, btns.nextSibling);
@@ -4109,13 +4155,13 @@
                         .map(u => {
                             const shardCount = u.data.shards ?
                                 Object.keys(u.data.shards).filter(k => u.data.shards[k] > 0).length : 0;
-                            
+
                             let nickStyle = '';
                             if (u.data.nicks && u.data.nicks.a) {
                                 const style = NICK_S[u.data.nicks.a];
                                 if (style) nickStyle = style.e;
                             }
-                            
+
                             return {
                                 id: u.id,
                                 n: u.data.name || u.username,
@@ -4158,7 +4204,8 @@
             }
 
             const rem = Math.max(0, Math.ceil((topCache.timestamp + CONFIG.TOP_CACHE_TIME - now) / 1000));
-            document.getElementById('TOP_u').textContent = rem > 30 ? `обновление через ${Math.round(rem/60)}м` : 'только что';
+            document.getElementById('TOP_u').textContent = rem > 30 ? `обновление через ${Math.round(rem/60)}м` :
+            'только что';
 
             const shardCount = getShardCount();
             const topPlayers = topCache.data || [];
@@ -4204,7 +4251,7 @@
                 const val = tp === 's' ? `${p.s} осколков` : fmt(p[key] || 0) + ' ' + symbols[tp];
                 const isPlayer = p.id === UID;
                 const avatarUrl = p.a || AVATAR_LIST[0];
-                
+
                 let nickStyle = p.nickStyle || '';
                 if (!nickStyle && isPlayer && G.nicks && G.nicks.a) {
                     const style = NICK_S[G.nicks.a];
@@ -4361,8 +4408,9 @@
         console.log('  📛 Никнеймы уникальны');
         console.log('  🏆 Топ отображается корректно');
         console.log('  🏛 Аукцион глобальный (все устройства)');
-        console.log('  💰 Монеты покупаются через админа');
+        console.log('  💰 Монеты покупаются через админа (только Telegram)');
         console.log('  🔑 Обмен 1 ключа на 100 монет');
+        console.log('  👑 Админ-панель для выдачи монет');
     </script>
 </body>
 </html>
