@@ -3888,7 +3888,7 @@
             window.toast(`+${PROMOS[c]} монет!`, 'gld');
         };
 
-        // ============================================================
+       // ============================================================
 // 17. РУЛЕТКА (КЛАССИЧЕСКАЯ - ВЫБОР ЦВЕТА + РАНДОМ)
 // ============================================================
 
@@ -3896,7 +3896,7 @@ const RC = document.getElementById('rouletteCanvas');
 const rctx = RC.getContext('2d');
 const CX = 160, CY = 160, OR = 148, IR = 28;
 
-// === 20 СЕКТОРОВ (9 КРАСНЫХ, 9 ЧЁРНЫХ, 2 ЗЕЛЁНЫХ) ===
+// === 20 СЕКТОРОВ ===
 const SEGS = [
     { c: 'green', label: '0' },
     { c: 'red', label: '1' },
@@ -3926,7 +3926,6 @@ const SEG_FILL = {
     green: ['#14532d', '#15803d', '#16a34a']
 };
 
-// Состояние
 let wheelAngle = 0;
 let spinning = false;
 let spinBet = 25;
@@ -3988,7 +3987,6 @@ window.drawRoulette = function(angle, highlightIndex) {
         rctx.fillStyle = fills[1];
         rctx.fill();
 
-        // Подсветка выигрышного сектора
         if (highlightIndex === i) {
             rctx.beginPath();
             rctx.moveTo(CX, CY);
@@ -4111,7 +4109,6 @@ window.spinTo = function(selectedColor) {
         return;
     }
     
-    // Списываем ставку
     G.coins -= bet;
     spinning = true;
     spinBet = bet;
@@ -4123,12 +4120,12 @@ window.spinTo = function(selectedColor) {
     document.querySelectorAll('.rl-btns button').forEach(b => b.disabled = true);
     betInput.disabled = true;
     
-    // === РЕАЛЬНЫЙ РАНДОМ - ВЫБИРАЕМ ЛЮБОЙ СЕКТОР ===
+    // === РЕАЛЬНЫЙ РАНДОМ ===
     const n = SEGS.length;
-    const targetIndex = Math.floor(Math.random() * n); // 0-19
+    const targetIndex = Math.floor(Math.random() * n);
     const seg = SEGS[targetIndex];
     
-    // === ПРОВЕРЯЕМ СОВПАДЕНИЕ ЦВЕТОВ ===
+    // === ПРОВЕРКА ===
     const isWin = (seg.c === selectedColor);
     let winAmount = 0;
     
@@ -4159,7 +4156,6 @@ window.spinTo = function(selectedColor) {
         if (progress < 1) {
             requestAnimationFrame(animate);
         } else {
-            // Проверка и корректировка
             const landedIdx = getIndexFromAngle(wheelAngle);
             if (landedIdx !== targetIndex) {
                 const correction = (targetIndex - landedIdx) * segAngle;
@@ -4167,23 +4163,21 @@ window.spinTo = function(selectedColor) {
                 window.drawRoulette(wheelAngle);
             }
             
-            // Подсветка выигрышного сектора
             window.drawRoulette(wheelAngle, targetIndex);
             
-            // === ПОКАЗЫВАЕМ РЕЗУЛЬТАТ ===
             spinning = false;
             resultDisplayed = true;
             
             const colorEmoji = seg.c === 'red' ? '🔴' : seg.c === 'black' ? '⚫' : '🟢';
             
             if (isWin) {
-                resultEl.textContent = `✅ Выпало: ${seg.label} (${colorEmoji} ${seg.c}) +${winAmount} монет!`;
+                resultEl.textContent = '✅ Выпало: ' + seg.label + ' (' + colorEmoji + ' ' + seg.c + ') +' + winAmount + ' монет!';
                 resultEl.className = 'rl-result win';
-                window.toast(`🎉 Выпало ${seg.label}! +${winAmount} монет!`, 'gld');
+                window.toast('🎉 Выпало ' + seg.label + '! +' + winAmount + ' монет!', 'gld');
             } else {
-                resultEl.textContent = `❌ Выпало: ${seg.label} (${colorEmoji} ${seg.c}) -${bet} монет`;
+                resultEl.textContent = '❌ Выпало: ' + seg.label + ' (' + colorEmoji + ' ' + seg.c + ') -' + bet + ' монет';
                 resultEl.className = 'rl-result lose';
-                window.toast(`😞 Выпало ${seg.label}! -${bet} монет`, 'err');
+                window.toast('😞 Выпало ' + seg.label + '! -' + bet + ' монет', 'err');
             }
             
             document.querySelectorAll('.rl-btns button').forEach(b => b.disabled = false);
@@ -4192,8 +4186,7 @@ window.spinTo = function(selectedColor) {
             scheduleSave();
             renderUI();
             
-            // Через 2 секунды убираем подсветку
-            setTimeout(() => {
+            setTimeout(function() {
                 window.drawRoulette(wheelAngle);
             }, 2000);
         }
@@ -4203,7 +4196,7 @@ window.spinTo = function(selectedColor) {
 };
 
 // === ФОНОВОЕ ВРАЩЕНИЕ ===
-let idleAngle = 0;
+var idleAngle = 0;
 
 function idleSpin() {
     if (!spinning && resultDisplayed) {
@@ -4219,7 +4212,6 @@ window.drawRoulette(0);
 idleSpin();
 document.getElementById('rlResult').textContent = '🎰 Выберите цвет для ставки';
 document.getElementById('rlResult').className = 'rl-result';
-};
 
         // ============================================================
         // 18. КУБИК
