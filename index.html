@@ -3921,24 +3921,24 @@ const COLOR_MAP = {
     green: '#10b981'
 };
 
-let spinning = false;
-let spinBet = 25;
+var spinning = false;
+var spinBet = 25;
 
 function drawWheel(highlightIndex) {
-    const canvas = document.getElementById('rouletteCanvas');
+    var canvas = document.getElementById('rouletteCanvas');
     if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    const cx = 160, cy = 160, r = 140;
+    var ctx = canvas.getContext('2d');
+    var cx = 160, cy = 160, r = 140;
     
     ctx.clearRect(0, 0, 320, 320);
     
-    const n = WHEEL_DATA.length;
-    const step = (Math.PI * 2) / n;
+    var n = WHEEL_DATA.length;
+    var step = (Math.PI * 2) / n;
     
-    for (let i = 0; i < n; i++) {
-        const start = i * step - Math.PI / 2;
-        const end = (i + 1) * step - Math.PI / 2;
-        const data = WHEEL_DATA[i];
+    for (var i = 0; i < n; i++) {
+        var start = i * step - Math.PI / 2;
+        var end = (i + 1) * step - Math.PI / 2;
+        var data = WHEEL_DATA[i];
         
         ctx.beginPath();
         ctx.moveTo(cx, cy);
@@ -3972,10 +3972,10 @@ function drawWheel(highlightIndex) {
             ctx.shadowBlur = 0;
         }
         
-        const mid = start + step / 2;
-        const tr = r - 20;
-        const x = cx + Math.cos(mid) * tr;
-        const y = cy + Math.sin(mid) * tr;
+        var mid = start + step / 2;
+        var tr = r - 20;
+        var x = cx + Math.cos(mid) * tr;
+        var y = cy + Math.sin(mid) * tr;
         
         ctx.save();
         ctx.translate(x, y);
@@ -3988,7 +3988,7 @@ function drawWheel(highlightIndex) {
         ctx.restore();
     }
     
-    const grad = ctx.createRadialGradient(cx - 5, cy - 5, 0, cx, cy, 25);
+    var grad = ctx.createRadialGradient(cx - 5, cy - 5, 0, cx, cy, 25);
     grad.addColorStop(0, '#f0e6d0');
     grad.addColorStop(0.7, '#c4a87a');
     grad.addColorStop(1, '#8b6b3e');
@@ -4018,8 +4018,8 @@ function drawWheel(highlightIndex) {
 window.spinTo = function(selectedColor) {
     if (spinning) return;
     
-    const input = document.getElementById('rlBetInput');
-    const bet = parseInt(input.value) || 25;
+    var input = document.getElementById('rlBetInput');
+    var bet = parseInt(input.value) || 25;
     
     if (bet < 1) {
         window.toast('Минимальная ставка 1 монета', 'err');
@@ -4034,20 +4034,21 @@ window.spinTo = function(selectedColor) {
     spinning = true;
     spinBet = bet;
     
-    const resultEl = document.getElementById('rlResult');
+    var resultEl = document.getElementById('rlResult');
     resultEl.textContent = '🎰 Крутим...';
     resultEl.className = 'rl-result';
     
-    document.querySelectorAll('.rl-btns button').forEach(function(b) {
-        b.disabled = true;
-    });
+    var buttons = document.querySelectorAll('.rl-btns button');
+    for (var b = 0; b < buttons.length; b++) {
+        buttons[b].disabled = true;
+    }
     input.disabled = true;
     
-    const resultIndex = Math.floor(Math.random() * WHEEL_DATA.length);
-    const result = WHEEL_DATA[resultIndex];
+    var resultIndex = Math.floor(Math.random() * WHEEL_DATA.length);
+    var result = WHEEL_DATA[resultIndex];
     
-    let count = 0;
-    const maxCount = 15 + Math.floor(Math.random() * 10);
+    var count = 0;
+    var maxCount = 15 + Math.floor(Math.random() * 10);
     
     var timer = setInterval(function() {
         var randIdx = Math.floor(Math.random() * WHEEL_DATA.length);
@@ -4080,9 +4081,10 @@ window.spinTo = function(selectedColor) {
             }, 3000);
             
             spinning = false;
-            document.querySelectorAll('.rl-btns button').forEach(function(b) {
-                b.disabled = false;
-            });
+            var buttons2 = document.querySelectorAll('.rl-btns button');
+            for (var b2 = 0; b2 < buttons2.length; b2++) {
+                buttons2[b2].disabled = false;
+            }
             input.disabled = false;
             
             scheduleSave();
@@ -4103,16 +4105,17 @@ function idleSpin() {
 
 drawWheel();
 idleSpin();
-document.getElementById('rlResult').innerHTML = '🎰 Выберите цвет для <b>ставки</b>';
-document.getElementById('rlResult').className = 'rl-result';
+
+var resultEl = document.getElementById('rlResult');
+if (resultEl) {
+    resultEl.innerHTML = '🎰 Выберите цвет для <b>ставки</b>';
+    resultEl.className = 'rl-result';
+}
 
 var coeffEl = document.querySelector('.rl-coeff');
 if (coeffEl) {
     coeffEl.innerHTML = '🔴 Красный ×1.75 (45%) | ⚫ Чёрный ×1.75 (45%) | 🟢 Зелёный ×5 (10%)';
 }
-}
-}
-
         // ============================================================
         // 18. КУБИК
         // ============================================================
