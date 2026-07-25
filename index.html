@@ -4323,25 +4323,18 @@ window.playDiceWithBet = function(col) {
         const colorName = resultCol === 'red' ? '🔴 красный' : '⚫ чёрный';
         const resultEl = document.getElementById('diceResult');
         const win = (col === resultCol);
-        const names = ['', 'Один', 'Два', 'Три', 'Четыре', 'Пять', 'Шесть'];
         
-        // === ПРАВИЛЬНОЕ ОТОБРАЖЕНИЕ ===
+        // === ПРАВИЛЬНОЕ ОТОБРАЖЕНИЕ (ТОЛЬКО + ИЛИ -) ===
         if (win) {
-            if (profit >= 0) {
-                resultEl.textContent = '✅ Выпало ' + val + ' (' + colorName + ')! +' + profit + ' монет';
-            } else {
-                resultEl.textContent = '✅ Выпало ' + val + ' (' + colorName + ')! +' + profit + ' монет';
-            }
+            resultEl.textContent = '✅ Выпало ' + val + ' (' + colorName + ')! +' + profit + ' монет';
             resultEl.className = 'dice-result win';
             window.toast('+' + profit + ' монет!', 'gld');
         } else {
-            if (profit >= 0) {
-                resultEl.textContent = '❌ Выпало ' + val + ' (' + colorName + ')! -' + Math.abs(profit) + ' монет';
-            } else {
-                resultEl.textContent = '❌ Выпало ' + val + ' (' + colorName + ')! -' + Math.abs(profit) + ' монет';
-            }
+            // profit уже отрицательный, делаем его положительным для отображения
+            const loss = Math.abs(profit);
+            resultEl.textContent = '❌ Выпало ' + val + ' (' + colorName + ')! -' + loss + ' монет';
             resultEl.className = 'dice-result lose';
-            window.toast('-' + Math.abs(profit) + ' монет', 'err');
+            window.toast('-' + loss + ' монет', 'err');
         }
 
         const buttons2 = document.querySelectorAll('.dice-btns button');
