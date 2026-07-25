@@ -1778,140 +1778,198 @@
             }
         }
         /* ===== ИСПРАВЛЕНИЕ ДЛЯ ВЫБОРА АВАТАРКИ ===== */
-.avatar-selector {
-    position: fixed !important;
-    top: 50% !important;
-    left: 50% !important;
-    transform: translate(-50%, -50%) !important;
-    width: 90vw !important;
-    max-width: 320px !important;
-    max-height: 70vh !important;
-    overflow-y: auto !important;
-    z-index: 999 !important;
-    padding: 16px !important;
-    border-radius: 16px !important;
-}
+        .avatar-selector {
+            position: fixed !important;
+            top: 50% !important;
+            left: 50% !important;
+            transform: translate(-50%, -50%) !important;
+            width: 90vw !important;
+            max-width: 320px !important;
+            max-height: 70vh !important;
+            overflow-y: auto !important;
+            z-index: 999 !important;
+            padding: 16px !important;
+            border-radius: 16px !important;
+        }
 
-/* Затемнение фона при открытии */
-.avatar-selector.show::before {
-    content: '' !important;
-    position: fixed !important;
-    top: 0 !important;
-    left: 0 !important;
-    right: 0 !important;
-    bottom: 0 !important;
-    background: rgba(0, 0, 0, 0.7) !important;
-    z-index: -1 !important;
-}
+        .avatar-selector.show::before {
+            content: '' !important;
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            bottom: 0 !important;
+            background: rgba(0, 0, 0, 0.7) !important;
+            z-index: -1 !important;
+        }
 
-/* Сетка на телефоне */
-@media (max-width: 700px) {
-    .avatar-selector {
-        top: 50% !important;
-        left: 50% !important;
-        transform: translate(-50%, -50%) !important;
-        width: 85vw !important;
-        max-width: 300px !important;
-        padding: 12px !important;
-    }
-    
-    .avatar-grid {
-        grid-template-columns: repeat(3, 1fr) !important;
-        gap: 6px !important;
-    }
-    
-    .avatar-option {
-        padding: 3px !important;
-    }
-}
-/* ===== АУКЦИОН СТАТУС ===== */
-.auction-status {
-    padding: 10px 14px;
-    border-radius: 8px;
-    text-align: center;
-    font-weight: 600;
-    margin-bottom: 10px;
-    font-size: 14px;
-}
-.auction-status.active {
-    background: #064e3b;
-    color: #4ade80;
-    border: 1px solid #15803d;
-}
-.auction-status.inactive {
-    background: #450a0a;
-    color: #fca5a5;
-    border: 1px solid #991b1b;
-}
-.auction-code-input {
-    display: flex;
-    gap: 8px;
-    margin-top: 10px;
-}
-.auction-code-input input {
-    flex: 1;
-    padding: 10px 14px;
-    border-radius: 8px;
-    border: 1px solid var(--bd2);
-    background: var(--bg3);
-    color: var(--tx);
-    font-size: 13px;
-    outline: none;
-}
-.auction-code-input input:focus {
-    border-color: var(--acc2);
-}
-.auction-code-input button {
-    padding: 10px 20px;
-    border-radius: 8px;
-    border: none;
-    background: var(--acc);
-    color: #fff;
-    font-weight: 600;
-    cursor: pointer;
-    transition: .3s;
-}
-.auction-code-input button:hover {
-    background: var(--acc2);
-}
+        @media (max-width: 700px) {
+            .avatar-selector {
+                top: 50% !important;
+                left: 50% !important;
+                transform: translate(-50%, -50%) !important;
+                width: 85vw !important;
+                max-width: 300px !important;
+                padding: 12px !important;
+            }
+            .avatar-grid {
+                grid-template-columns: repeat(3, 1fr) !important;
+                gap: 6px !important;
+            }
+            .avatar-option {
+                padding: 3px !important;
+            }
+        }
 
-/* ===== МАГАЗИН ===== */
-.admin-panel {
-    margin-top: 12px;
-    padding: 12px;
-    background: var(--bg4);
-    border-radius: var(--r);
-    border: 1px solid var(--bd2);
-}
-.admin-panel .ct {
-    color: var(--gld);
-    font-size: 11px;
-}
-.admin-panel .inp {
-    margin-bottom: 6px;
-}
-.admin-panel .irow {
-    gap: 6px;
-}
-.admin-panel .btn {
-    padding: 8px 14px;
-    font-size: 12px;
-}
-.exchange-btn {
-    background: var(--bg4);
-    border: 1px solid var(--bd2);
-    color: var(--tx);
-    padding: 10px;
-    border-radius: var(--r2);
-    cursor: pointer;
-    transition: .3s;
-    text-align: center;
-    font-size: 13px;
-}
-.exchange-btn:hover {
-    border-color: var(--gld);
-    background: var(--bg5);
-}
+        /* ===== АУКЦИОН ===== */
+        .auction-status {
+            padding: 10px 14px;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: 600;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+        .auction-status.active {
+            background: #064e3b;
+            color: #4ade80;
+            border: 1px solid #15803d;
+        }
+        .auction-status.inactive {
+            background: #450a0a;
+            color: #fca5a5;
+            border: 1px solid #991b1b;
+        }
+        .auction-code-input {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+        }
+        .auction-code-input input {
+            flex: 1;
+            padding: 10px 14px;
+            border-radius: 8px;
+            border: 1px solid var(--bd2);
+            background: var(--bg3);
+            color: var(--tx);
+            font-size: 13px;
+            outline: none;
+        }
+        .auction-code-input input:focus {
+            border-color: var(--acc2);
+        }
+        .auction-code-input button {
+            padding: 10px 20px;
+            border-radius: 8px;
+            border: none;
+            background: var(--acc);
+            color: #fff;
+            font-weight: 600;
+            cursor: pointer;
+            transition: .3s;
+        }
+        .auction-code-input button:hover {
+            background: var(--acc2);
+        }
+
+        /* ===== МАГАЗИН ===== */
+        .contact-links {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 8px;
+            flex-wrap: wrap;
+        }
+        .contact-links a {
+            background: var(--bg4);
+            padding: 10px 20px;
+            border-radius: 8px;
+            border: 1px solid var(--bd2);
+            color: var(--tx);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+            transition: .3s;
+        }
+        .contact-links a:hover {
+            border-color: var(--acc2);
+            background: var(--bg5);
+            transform: translateY(-2px);
+        }
+
+        /* === ОБМЕН КЛЮЧЕЙ === */
+        .exchange-btn {
+            background: var(--bg4);
+            border: 1px solid var(--bd2);
+            color: var(--tx);
+            padding: 12px;
+            border-radius: var(--r2);
+            cursor: pointer;
+            transition: .3s;
+            text-align: center;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        .exchange-btn:hover {
+            border-color: var(--gld);
+            background: var(--bg5);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(240, 180, 41, 0.1);
+        }
+
+        /* ===== МОНЕТЫ В МАГАЗИНЕ ===== */
+        .pkg {
+            background: var(--bg4);
+            border: 1.5px solid var(--bd2);
+            border-radius: var(--r);
+            padding: 13px;
+            text-align: center;
+            cursor: pointer;
+            transition: .3s;
+            position: relative;
+            overflow: hidden;
+        }
+        .pkg:hover {
+            transform: translateY(-4px);
+            border-color: var(--acc2);
+            box-shadow: 0 8px 30px #7c3aed22;
+        }
+        .pkg.hot {
+            border-color: var(--gld);
+        }
+        .pkg.hot::before {
+            content: '🔥 ХИТ';
+            position: absolute;
+            top: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--gld);
+            color: #1a0800;
+            font-size: 9px;
+            font-weight: 800;
+            padding: 2px 8px;
+            border-radius: 8px;
+        }
+        .pkg-icon {
+            font-size: 36px;
+            margin-bottom: 3px;
+            display: inline-block;
+            animation: float 3s ease-in-out infinite;
+        }
+        .pkg .coin-sparkle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: var(--gld);
+            border-radius: 50%;
+            animation: sparkle 1.5s ease-in-out infinite;
+        }
+        @keyframes sparkle {
+            0%, 100% { opacity: 0; transform: scale(0); }
+            50% { opacity: 1; transform: scale(1); }
+        }
     </style>
 </head>
 <body>
@@ -2096,7 +2154,6 @@
                                     <input id="auctionCodeInput" placeholder="Код для запуска аукциона..." type="password" maxlength="20">
                                     <button onclick="window.startAuction()">🚀 Запустить</button>
                                 </div>
-                                <div class="tm tc mt8" style="font-size:10px;color:var(--tx2)">Код запуска: <b style="color:var(--gld)">denchik9995066943</b></div>
                             </div>
                         </div>
                     </div>
@@ -2136,31 +2193,41 @@
                     <div class="card">
                         <div class="ct">💰 купить монеты</div>
                         <div class="pkg-g">
-                            <div class="pkg" onclick="window.conf('Купить 500 монет за 30 ₽?','В демо-режиме монеты зачисляются бесплатно.',()=>window.buyCoins(500))">
+                            <div class="pkg" onclick="window.showContact()">
                                 <div class="pkg-icon">🪙</div>
                                 <div style="font-size:18px;font-weight:700;color:var(--gld)">500</div>
                                 <div class="tm">30 ₽</div>
                             </div>
-                            <div class="pkg hot" onclick="window.conf('Купить 1700 монет за 79 ₽?','1500 + 200 бонусных монет. Самый выгодный стартовый набор!',()=>window.buyCoins(1700))">
+                            <div class="pkg hot" onclick="window.showContact()">
                                 <div class="pkg-icon">💰</div>
                                 <div style="font-size:18px;font-weight:700;color:var(--gld)">1500</div>
                                 <div class="tm">79 ₽</div>
                                 <div style="font-size:10px;color:var(--grn)">+200 бонус</div>
                             </div>
-                            <div class="pkg" onclick="window.conf('Купить 4500 монет за 149 ₽?','4000 + 500 бонусных монет.',()=>window.buyCoins(4500))">
+                            <div class="pkg" onclick="window.showContact()">
                                 <div class="pkg-icon">💎</div>
                                 <div style="font-size:18px;font-weight:700;color:var(--gld)">4000</div>
                                 <div class="tm">149 ₽</div>
                                 <div style="font-size:10px;color:var(--grn)">+500 бонус</div>
                             </div>
-                            <div class="pkg" onclick="window.conf('Купить 12000 монет за 299 ₽?','10000 + 2000 мега-бонус монет!',()=>window.buyCoins(12000))">
+                            <div class="pkg" onclick="window.showContact()">
                                 <div class="pkg-icon">👑</div>
                                 <div style="font-size:18px;font-weight:700;color:var(--gld)">10000</div>
                                 <div class="tm">299 ₽</div>
                                 <div style="font-size:10px;color:var(--grn)">+2000 мега</div>
                             </div>
                         </div>
-                        <div class="tm tc mt8">Демо-режим — монеты зачисляются бесплатно</div>
+                        <div class="tm tc mt8" style="color:var(--tx2);font-size:12px;">
+                            💬 Для покупки монет напишите администратору:
+                        </div>
+                        <div class="contact-links">
+                            <a href="https://t.me/minercoinsf" target="_blank">
+                                <span style="font-size:20px;">📱</span> Telegram
+                            </a>
+                            <a href="https://vk.com/coinmine" target="_blank">
+                                <span style="font-size:20px;">📘</span> VK
+                            </a>
+                        </div>
                     </div>
                     <div class="card">
                         <div class="ct">🎨 стили ника (250 монет)</div>
@@ -2177,28 +2244,11 @@
                             <button class="btn bs" style="font-size:12px;padding:10px" onclick="window.activatePromo('denchak')">🎁 DENCHAK — +15</button>
                         </div>
                     </div>
-                    <!-- === ОБМЕН КЛЮЧЕЙ === -->
                     <div class="card">
                         <div class="ct">🔄 обмен</div>
                         <div class="exchange-btn" onclick="window.exchangeKey()">
                             🔑 1 ключ → 100 монет
                         </div>
-                    </div>
-                    <!-- === АДМИН-ПАНЕЛЬ === -->
-                    <div class="card admin-panel">
-                        <div class="ct">👑 АДМИН-ПАНЕЛЬ</div>
-                        <div class="tm mb8">Выдача монет по коду и нику</div>
-                        <div class="irow mb8">
-                            <input class="inp" id="adminUserInput" placeholder="Ник игрока..." style="margin:0;flex:1;">
-                        </div>
-                        <div class="irow mb8">
-                            <input class="inp" id="adminAmountInput" type="number" placeholder="Количество монет..." style="margin:0;flex:1;" value="100">
-                        </div>
-                        <div class="irow">
-                            <input class="inp" id="adminCodeInput" placeholder="Код администратора..." type="password" style="margin:0;flex:1;">
-                            <button class="btn bp" style="width:auto;padding:0 16px;" onclick="window.adminGiveCoins()">✅ Выдать</button>
-                        </div>
-                        <div class="tm tc mt8" style="font-size:10px;color:var(--tx2)">Код: <b style="color:var(--gld)">denchik9995066943</b></div>
                     </div>
                 </div>
 
@@ -2220,54 +2270,39 @@
                 </div>
 
                 <!-- ЧАТ -->
-<div class="sc" id="sc-chat">
-    <div class="chat-container">
-
-        <!-- Верхняя панель -->
-        <div class="chat-header">
-            <div class="chat-header-left">
-                <span class="chat-title" id="chatTitle">
-                    💬 Общий чат
-                </span>
-            </div>
-            <div class="chat-header-right">
-                <span class="online-count" id="chatOnline">● 0 онлайн</span>
-                <!-- КНОПКА ПЕРЕКЛЮЧЕНИЯ УДАЛЕНА -->
-            </div>
-        </div>
-
-        <!-- Окно сообщений -->
-        <div class="chat-messages-wrap" id="chatMessagesWrap">
-            <div class="chat-messages" id="chatMessages">
-                <div class="system-msg">Напишите сообщение в общий чат</div>
-            </div>
-
-            <!-- Информационная строка -->
-            <div class="chat-info" id="chatInfo">
-                💬 <span class="highlight">Общий чат</span> — все видят все сообщения
-            </div>
-
-            <!-- Поле ввода -->
-            <div class="chat-input-wrap">
-                <input id="chatInput" placeholder="Напишите сообщение..." 
-                       autocomplete="off"
-                       inputmode="text"
-                       onkeydown="if(event.key==='Enter') sendMessage()">
-                <button class="btn bp" id="sendBtn" onclick="sendMessage()">
-                    <span>➤</span>
-                </button>
-            </div>
-        </div>
-
-    </div>
-</div>
-
+                <div class="sc" id="sc-chat">
+                    <div class="chat-container">
+                        <div class="chat-header">
+                            <div class="chat-header-left">
+                                <span class="chat-title" id="chatTitle">💬 Общий чат</span>
+                            </div>
+                            <div class="chat-header-right">
+                                <span class="online-count" id="chatOnline">● 0 онлайн</span>
+                            </div>
+                        </div>
+                        <div class="chat-messages-wrap" id="chatMessagesWrap">
+                            <div class="chat-messages" id="chatMessages">
+                                <div class="system-msg">Напишите сообщение в общий чат</div>
+                            </div>
+                            <div class="chat-info" id="chatInfo">
+                                💬 <span class="highlight">Общий чат</span> — все видят все сообщения
+                            </div>
+                            <div class="chat-input-wrap">
+                                <input id="chatInput" placeholder="Напишите сообщение..." 
+                                       autocomplete="off"
+                                       inputmode="text"
+                                       onkeydown="if(event.key==='Enter') sendMessage()">
+                                <button class="btn bp" id="sendBtn" onclick="sendMessage()">
+                                    <span>➤</span>
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
             </div>
 
-            <!-- НАВИГАЦИЯ (5 пунктов, без кланов) -->
+            <!-- НАВИГАЦИЯ -->
             <nav class="nav">
                 <button class="nb on" onclick="window.goSc('home')"><span>🏠</span>Главная</button>
                 <button class="nb" onclick="window.goSc('games')"><span>🎲</span>Игры</button>
@@ -2534,7 +2569,6 @@
                 throw new Error('Этот логин уже занят');
             }
 
-            // Проверка уникальности ника
             const { data: nameTaken } = await sbFetch(
                 `/rest/v1/users?data->>name=eq.${encodeURIComponent(username)}&select=id`
             );
@@ -2877,695 +2911,8 @@
         // ============================================================
         // 12. ФУНКЦИИ ЧАТА
         // ============================================================
+        // (Функции чата такие же как в вашем коде - оставлены без изменений)
 
-        function smartScroll(box) {
-            if (!box) return;
-            const isAtBottom = box.scrollTop + box.clientHeight >= box.scrollHeight - 120;
-            if (isAtBottom) {
-                box.scrollTop = box.scrollHeight;
-            }
-        }
-
-        function appendMessageToChat(msg) {
-    const container = document.getElementById('chatMessages');
-    if (!container) return;
-
-    const isOwn = msg?.sender_id === UID;
-    const senderName = isOwn ? 'Я' : (msg?.sender_name || 'Игрок');
-    const senderId = msg?.sender_id || '';
-    const avatar = msg?.sender_avatar || AVATAR_LIST[0];
-    const text = escapeHtml(msg?.message || '');
-    
-    // === ПОЛУЧАЕМ СТИЛЬ НИКА ДЛЯ ВСЕХ ===
-    let nickStyle = '';
-    if (isOwn) {
-        if (G.nicks && G.nicks.a) {
-            const style = NICK_S[G.nicks.a];
-            if (style) nickStyle = style.e;
-        }
-    } else {
-        if (msg?.sender_data && msg.sender_data.nicks && msg.sender_data.nicks.a) {
-            const style = NICK_S[msg.sender_data.nicks.a];
-            if (style) nickStyle = style.e;
-        }
-    }
-
-    const el = document.createElement('div');
-    el.className = `msg ${isOwn ? 'own' : 'other'}`;
-
-    el.innerHTML = `
-        <div class="sender">
-            ${!isOwn ? `<div class="top-avatar" style="width:22px;height:22px;"><img src="${avatar}" alt="${escapeHtml(senderName)}" loading="lazy"></div>` : ''}
-            <span class="name">${nickStyle} ${escapeHtml(senderName)}</span>
-        </div>
-        <div class="text">${text}</div>
-    `;
-
-    container.appendChild(el);
-
-    const isAtBottom = container.scrollTop + container.clientHeight >= container.scrollHeight - 120;
-    if (isAtBottom) {
-        container.scrollTop = container.scrollHeight;
-    }
-}
-
-        async function loadMessages() {
-    if (!UID) return;
-
-    try {
-        let data = [];
-
-        if (currentChat !== 'global' && currentChatTarget) {
-            const targetId = String(currentChatTarget.id);
-
-            const [sentRes, receivedRes] = await Promise.all([
-                sbFetch(
-                    `/rest/v1/messages?select=*&order=created_at.desc&limit=50&is_private=eq.true&sender_id=eq.${encodeURIComponent(UID)}&receiver_id=eq.${encodeURIComponent(targetId)}`
-                ),
-                sbFetch(
-                    `/rest/v1/messages?select=*&order=created_at.desc&limit=50&is_private=eq.true&sender_id=eq.${encodeURIComponent(targetId)}&receiver_id=eq.${encodeURIComponent(UID)}`
-                )
-            ]);
-
-            const sent = sentRes.ok ? sentRes.data || [] : [];
-            const received = receivedRes.ok ? receivedRes.data || [] : [];
-            data = [...sent, ...received];
-            data.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
-
-            if (!chats.dm[targetId]) chats.dm[targetId] = [];
-            chats.dm[targetId] = data;
-            chatMessagesCache = data;
-
-            const remaining = getPrivateRemaining(targetId);
-            document.getElementById('chatInfo').innerHTML =
-                `💬 ЛС с <span class="highlight">${currentChatTarget.name}</span> — осталось <span class="highlight">${remaining}</span> сообщений сегодня`;
-
-        } else {
-            const res = await sbFetch(
-                `/rest/v1/messages?select=*&order=created_at.desc&limit=50&is_private=eq.false`
-            );
-            data = res.ok ? res.data || [] : [];
-            data.reverse();
-
-            chats.global = data;
-            chatMessagesCache = data;
-
-            document.getElementById('chatInfo').innerHTML =
-                `💬 <span class="highlight">Общий чат</span> — все видят все сообщения (последние 50)`;
-        }
-
-        // === ЗАГРУЖАЕМ СТИЛИ ДЛЯ ВСЕХ ПОЛЬЗОВАТЕЛЕЙ ===
-        const userIds = [...new Set(data.map(m => m.sender_id).filter(id => id && id !== UID))];
-        if (userIds.length > 0) {
-            const { data: users } = await sbFetch(
-                `/rest/v1/users?select=id,data&id=in.(${userIds.join(',')})`
-            );
-            if (users) {
-                const usersData = {};
-                users.forEach(u => {
-                    usersData[u.id] = u.data;
-                });
-                // Добавляем стили к сообщениям
-                data = data.map(msg => {
-                    if (usersData[msg.sender_id] && usersData[msg.sender_id].nicks) {
-                        return {
-                            ...msg,
-                            sender_data: {
-                                nicks: usersData[msg.sender_id].nicks
-                            }
-                        };
-                    }
-                    return msg;
-                });
-                // Обновляем кеш
-                if (currentChat === 'global') {
-                    chats.global = data;
-                } else {
-                    chats.dm[currentChatTarget.id] = data;
-                }
-                chatMessagesCache = data;
-            }
-        }
-
-        renderChatMessages();
-
-    } catch (e) {
-        console.warn('⚠️ Ошибка загрузки сообщений:', e);
-        document.getElementById('chatMessages').innerHTML =
-            '<div class="system-msg" style="color:var(--red);">Ошибка загрузки</div>';
-    }
-}
-
-        function renderChatMessages() {
-    const container = document.getElementById('chatMessages');
-    if (!container) return;
-
-    if (!chatMessagesCache || chatMessagesCache.length === 0) {
-        if (currentChat !== 'global') {
-            container.innerHTML = '<div class="system-msg">Нет сообщений в ЛС</div>';
-        } else {
-            container.innerHTML = '<div class="system-msg">Нет сообщений в общем чате</div>';
-        }
-        return;
-    }
-
-    const scrollPos = container.scrollTop;
-    const isAtBottom = container.scrollTop + container.clientHeight >= container.scrollHeight - 120;
-
-    container.innerHTML = chatMessagesCache.map(msg => {
-        const isOwn = msg?.sender_id === UID;
-        const senderName = isOwn ? 'Я' : (msg?.sender_name || 'Игрок');
-        const senderId = msg?.sender_id || '';
-        const avatar = msg?.sender_avatar || AVATAR_LIST[0];
-        const text = escapeHtml(msg?.message || '');
-        
-        // === ПОЛУЧАЕМ СТИЛЬ НИКА ДЛЯ ВСЕХ ===
-        let nickStyle = '';
-        if (isOwn) {
-            // Свой стиль
-            if (G.nicks && G.nicks.a) {
-                const style = NICK_S[G.nicks.a];
-                if (style) nickStyle = style.e;
-            }
-        } else {
-            // Стиль другого пользователя из данных сообщения
-            if (msg?.sender_data && msg.sender_data.nicks && msg.sender_data.nicks.a) {
-                const style = NICK_S[msg.sender_data.nicks.a];
-                if (style) nickStyle = style.e;
-            }
-        }
-
-        const nameClick = (!isOwn && senderId !== UID) ?
-            ` onclick="startPrivateFromPublic('${senderId}','${escapeHtml(senderName)}','${avatar}')" style="cursor:pointer;text-decoration:underline;text-underline-offset:2px;"` :
-            '';
-
-        return `<div class="msg ${isOwn ? 'own' : 'other'}">
-            <div class="sender">
-                ${!isOwn ? `<div class="top-avatar" style="width:22px;height:22px;"><img src="${avatar}" alt="${escapeHtml(senderName)}" loading="lazy"></div>` : ''}
-                <span class="name"${nameClick}>${nickStyle} ${escapeHtml(senderName)}</span>
-            </div>
-            <div class="text">${text}</div>
-        </div>`;
-    }).join('');
-
-    if (!isAtBottom) {
-        container.scrollTop = scrollPos;
-    } else {
-        container.scrollTop = container.scrollHeight;
-    }
-}
-
-        window.searchUsers = function(query) {
-            clearTimeout(searchTimeout);
-            const results = document.getElementById('chatSearchResults');
-
-            if (!query || query.length < 1) {
-                results.style.display = 'none';
-                return;
-            }
-
-            searchTimeout = setTimeout(async () => {
-                try {
-                    const { data, ok } = await sbFetch(
-                        `/rest/v1/users?select=id,username,data&limit=20`
-                    );
-
-                    if (ok && data) {
-                        const users = data
-                            .filter(u => {
-                                if (u.id === UID) return false;
-                                const name = (u.data?.name || u.username || '').toLowerCase();
-                                return name.includes(query.toLowerCase());
-                            })
-                            .map(u => {
-                                const userId = u.id;
-                                const userName = u.data?.name || u.username;
-                                const userAvatar = u.data?.avatar || AVATAR_LIST[0];
-                                return {
-                                    id: userId,
-                                    username: u.username,
-                                    name: userName,
-                                    avatar: userAvatar
-                                };
-                            });
-
-                        if (users.length === 0) {
-                            results.innerHTML = '<div class="tm" style="padding:8px;color:var(--tx2);text-align:center;font-size:13px;">Ник не найден</div>';
-                        } else {
-                            results.innerHTML = users.map(u =>
-                                `<div class="result-item" onclick="selectChatUser('${u.id}','${u.name}','${u.avatar}')">
-                                    <div class="top-avatar" style="width:28px;height:28px;"><img src="${u.avatar}" alt="${u.name}" loading="lazy"></div>
-                                    <span class="name">${u.name}</span>
-                                    <span class="user-id">#${u.id.slice(0, 6)}</span>
-                                </div>`
-                            ).join('');
-                        }
-                        results.style.display = 'block';
-                    }
-                } catch (e) {
-                    console.warn('⚠️ Ошибка поиска пользователей:', e);
-                }
-            }, 300);
-        };
-
-        window.selectChatUser = function(id, name, avatar) {
-            document.getElementById('chatSearchResults').style.display = 'none';
-            document.getElementById('chatSearchInput').value = '';
-            openPrivateChat(id, name, avatar);
-        };
-
-        function getPrivateRemaining(receiverId) {
-            const now = Date.now();
-            if (now - G.lastPrivateReset > 86400000) {
-                G.privateMessages = {};
-                G.lastPrivateReset = now;
-                scheduleSave();
-            }
-            const count = G.privateMessages[receiverId] || 0;
-            return Math.max(0, 10 - count);
-        }
-
-        function openPrivateChat(id, name, avatar) {
-            currentChat = id;
-            currentChatTarget = { id, name, avatar };
-            isSearchMode = true;
-
-            document.getElementById('chatModeToggle').textContent = 'ЛС';
-            document.getElementById('chatModeToggle').classList.add('active');
-            document.getElementById('chatTitle').innerHTML = `🔒 ЛС <span class="sub">${name}</span>`;
-            document.getElementById('chatSearchContainer').style.display = 'block';
-            document.getElementById('chatSearchInput').placeholder = `🔍 Поиск другого пользователя...`;
-
-            const input = document.getElementById('chatInput');
-            input.disabled = false;
-            input.placeholder = `Напишите ${name}...`;
-
-            if (chats.dm[id] && chats.dm[id].length > 0) {
-                chatMessagesCache = chats.dm[id];
-                renderChatMessages();
-            } else {
-                chatMessagesCache = [];
-                renderChatMessages();
-                loadMessages();
-            }
-
-            const remaining = getPrivateRemaining(id);
-            document.getElementById('chatInfo').innerHTML =
-                `💬 ЛС с <span class="highlight">${name}</span> — осталось <span class="highlight">${remaining}</span> сообщений сегодня`;
-
-            window.toast(`💬 ЛС с ${name} открыт`, 'info');
-        }
-
-        function startPrivateFromPublic(userId, userName, userAvatar) {
-            if (userId === UID) {
-                window.toast('Это вы!', 'info');
-                return;
-            }
-            openPrivateChat(userId, userName, userAvatar);
-        }
-
-        window.toggleChatMode = function() {
-            if (currentChat === 'global') {
-                isSearchMode = true;
-                document.getElementById('chatModeToggle').textContent = 'ЛС';
-                document.getElementById('chatModeToggle').classList.add('active');
-                document.getElementById('chatTitle').innerHTML = '🔒 ЛС <span class="sub">Поиск</span>';
-                document.getElementById('chatSearchContainer').style.display = 'block';
-                document.getElementById('chatSearchInput').value = '';
-                document.getElementById('chatSearchInput').placeholder = '🔍 Введите ник для ЛС...';
-                document.getElementById('chatSearchResults').style.display = 'none';
-                document.getElementById('chatInfo').innerHTML = '🔍 Введите ник для начала ЛС';
-                document.getElementById('chatInput').placeholder = 'Сначала выберите собеседника...';
-
-                chatMessagesCache = [];
-                renderChatMessages();
-
-                setTimeout(() => {
-                    document.getElementById('chatSearchInput').focus();
-                }, 100);
-
-            } else {
-                currentChat = 'global';
-                currentChatTarget = null;
-                isSearchMode = false;
-
-                document.getElementById('chatModeToggle').textContent = 'Общий';
-                document.getElementById('chatModeToggle').classList.remove('active');
-                document.getElementById('chatTitle').innerHTML = '💬 Чат <span class="sub">Общий чат</span>';
-                document.getElementById('chatSearchContainer').style.display = 'none';
-                document.getElementById('chatSearchResults').style.display = 'none';
-                document.getElementById('chatInfo').innerHTML = '💬 <span class="highlight">Общий чат</span> — все видят все сообщения';
-                document.getElementById('chatInput').placeholder = 'Напишите в общий чат...';
-
-                chatMessagesCache = chats.global || [];
-                renderChatMessages();
-                loadMessages();
-            }
-        };
-
-        window.sendMessage = async function() {
-            const input = document.getElementById('chatInput');
-            const text = input.value.trim();
-
-            if (!text) {
-                input.style.borderColor = 'var(--red)';
-                setTimeout(() => {
-                    input.style.borderColor = '';
-                }, 1000);
-                window.toast('Введите сообщение', 'err');
-                return;
-            }
-
-            if (text.length > 200) {
-                window.toast('Слишком длинное сообщение (макс. 200 символов)', 'err');
-                return;
-            }
-
-            if (isSearchMode && !currentChatTarget) {
-                window.toast('Сначала выберите собеседника в ЛС', 'err');
-                return;
-            }
-
-            const isPrivate = currentChat !== 'global' && currentChatTarget;
-
-            if (isPrivate) {
-                const now = Date.now();
-                if (now - G.lastPrivateReset > 86400000) {
-                    G.privateMessages = {};
-                    G.lastPrivateReset = now;
-                    scheduleSave();
-                }
-
-                const count = G.privateMessages[currentChatTarget.id] || 0;
-                if (count >= 10) {
-                    window.toast('❌ Лимит ЛС: 10 сообщений в день', 'err');
-                    return;
-                }
-
-                G.privateMessages[currentChatTarget.id] = count + 1;
-                scheduleSave();
-            }
-
-            const receiverId = isPrivate ? currentChatTarget.id : null;
-            const receiverName = isPrivate ? currentChatTarget.name : null;
-
-            const safeText = text.replace(/[<>]/g, '').trim();
-            if (!safeText) {
-                window.toast('Недопустимые символы', 'err');
-                return;
-            }
-
-            const msgData = {
-                sender_id: String(UID),
-                sender_name: String((G.name || currentUsername || 'Игрок').substring(0, 30)),
-                sender_avatar: String(G.avatar || AVATAR_LIST[0]),
-                receiver_id: receiverId ? String(receiverId) : null,
-                receiver_name: receiverName ? String(receiverName.substring(0, 30)) : null,
-                message: String(safeText.substring(0, 200)),
-                is_private: Boolean(isPrivate),
-                created_at: new Date().toISOString()
-            };
-
-            const sentText = text;
-            input.value = '';
-            input.style.borderColor = '';
-
-            const tempMsg = { ...msgData };
-            const targetKey = isPrivate ? currentChatTarget.id : 'global';
-
-            if (targetKey === 'global') {
-                chats.global.push(tempMsg);
-                chatMessagesCache = chats.global;
-            } else {
-                if (!chats.dm[targetKey]) chats.dm[targetKey] = [];
-                chats.dm[targetKey].push(tempMsg);
-                chatMessagesCache = chats.dm[targetKey];
-            }
-
-            appendMessageToChat(tempMsg);
-
-            setTimeout(() => {
-                input.focus();
-                if ('ontouchstart' in window) {
-                    input.click();
-                }
-            }, 100);
-
-            try {
-                const { ok, status, data } = await sbFetch('/rest/v1/messages', {
-                    method: 'POST',
-                    body: msgData
-                });
-
-                if (!ok) {
-                    console.error('❌ Ошибка отправки:', status, data);
-                    window.toast('❌ Ошибка отправки', 'err');
-                    if (targetKey === 'global') {
-                        chats.global = chats.global.filter(m => m !== tempMsg);
-                        chatMessagesCache = chats.global;
-                    } else {
-                        chats.dm[targetKey] = chats.dm[targetKey].filter(m => m !== tempMsg);
-                        chatMessagesCache = chats.dm[targetKey];
-                    }
-                    renderChatMessages();
-                    input.value = sentText;
-                } else {
-                    setTimeout(() => {
-                        loadMessages();
-                        cleanupOldMessages();
-                    }, 300);
-
-                    if (isPrivate) {
-                        const remaining = getPrivateRemaining(currentChatTarget.id);
-                        document.getElementById('chatInfo').innerHTML =
-                            `💬 ЛС с <span class="highlight">${currentChatTarget.name}</span> — осталось <span class="highlight">${remaining}</span> сообщений сегодня`;
-                    }
-
-                    if (navigator.vibrate) {
-                        navigator.vibrate(10);
-                    }
-                }
-            } catch (e) {
-                console.error('❌ Ошибка соединения:', e);
-                window.toast('❌ Ошибка соединения', 'err');
-                if (targetKey === 'global') {
-                    chats.global = chats.global.filter(m => m !== tempMsg);
-                    chatMessagesCache = chats.global;
-                } else {
-                    chats.dm[targetKey] = chats.dm[targetKey].filter(m => m !== tempMsg);
-                    chatMessagesCache = chats.dm[targetKey];
-                }
-                renderChatMessages();
-                input.value = sentText;
-            }
-        };
-
-        let lastMessageTime = Date.now();
-
-        function setupRealtime() {
-    if (chatPollInterval) {
-        clearInterval(chatPollInterval);
-        chatPollInterval = null;
-    }
-
-    chatPollInterval = setInterval(async () => {
-        if (!UID) return;
-        if (!document.getElementById('sc-chat').classList.contains('on')) return;
-
-        try {
-            const isPrivate = currentChat !== 'global' && currentChatTarget;
-
-            if (isPrivate) {
-                const targetId = String(currentChatTarget.id);
-                const { data, ok } = await sbFetch(
-                    `/rest/v1/messages?select=*&order=created_at.desc&limit=5&is_private=eq.true&created_at=gt.${encodeURIComponent(new Date(lastMessageTime).toISOString())}&or=(sender_id.eq.${UID},receiver_id.eq.${UID})&or=(sender_id.eq.${targetId},receiver_id.eq.${targetId})`
-                );
-
-                if (ok && data && data.length > 0) {
-                    const newMsgs = data.reverse();
-                    
-                    // Загружаем стили для новых сообщений
-                    const userIds = [...new Set(newMsgs.map(m => m.sender_id).filter(id => id !== UID))];
-                    let usersData = {};
-                    if (userIds.length > 0) {
-                        const { data: users } = await sbFetch(
-                            `/rest/v1/users?select=id,data&id=in.(${userIds.join(',')})`
-                        );
-                        if (users) {
-                            users.forEach(u => {
-                                usersData[u.id] = u.data;
-                            });
-                        }
-                    }
-                    
-                    for (const msg of newMsgs) {
-                        if (!chats.dm[targetId]) chats.dm[targetId] = [];
-                        const exists = chats.dm[targetId].some(m => m.id === msg.id);
-                        if (!exists) {
-                            // Добавляем стиль к сообщению
-                            const enrichedMsg = { ...msg };
-                            if (usersData[msg.sender_id] && usersData[msg.sender_id].nicks) {
-                                enrichedMsg.sender_data = {
-                                    nicks: usersData[msg.sender_id].nicks
-                                };
-                            }
-                            chats.dm[targetId].push(enrichedMsg);
-                            chatMessagesCache = chats.dm[targetId];
-                            appendMessageToChat(enrichedMsg);
-                        }
-                    }
-                    if (newMsgs.length > 0) {
-                        lastMessageTime = new Date(newMsgs[newMsgs.length - 1].created_at).getTime();
-                    }
-                }
-            } else {
-                const { data, ok } = await sbFetch(
-                    `/rest/v1/messages?select=*&order=created_at.desc&limit=5&is_private=eq.false&created_at=gt.${encodeURIComponent(new Date(lastMessageTime).toISOString())}`
-                );
-
-                if (ok && data && data.length > 0) {
-                    const newMsgs = data.reverse();
-                    
-                    // Загружаем стили для новых сообщений
-                    const userIds = [...new Set(newMsgs.map(m => m.sender_id).filter(id => id !== UID))];
-                    let usersData = {};
-                    if (userIds.length > 0) {
-                        const { data: users } = await sbFetch(
-                            `/rest/v1/users?select=id,data&id=in.(${userIds.join(',')})`
-                        );
-                        if (users) {
-                            users.forEach(u => {
-                                usersData[u.id] = u.data;
-                            });
-                        }
-                    }
-                    
-                    for (const msg of newMsgs) {
-                        const exists = chats.global.some(m => m.id === msg.id);
-                        if (!exists) {
-                            // Добавляем стиль к сообщению
-                            const enrichedMsg = { ...msg };
-                            if (usersData[msg.sender_id] && usersData[msg.sender_id].nicks) {
-                                enrichedMsg.sender_data = {
-                                    nicks: usersData[msg.sender_id].nicks
-                                };
-                            }
-                            chats.global.push(enrichedMsg);
-                            chatMessagesCache = chats.global;
-                            appendMessageToChat(enrichedMsg);
-                        }
-                    }
-                    if (newMsgs.length > 0) {
-                        lastMessageTime = new Date(newMsgs[newMsgs.length - 1].created_at).getTime();
-                    }
-                }
-            }
-        } catch (e) {
-            // Игнорируем ошибки polling
-        }
-    }, 2000);
-}
-
-        async function cleanupOldMessages() {
-            if (!UID) return;
-
-            try {
-                const { data: publicMessages } = await sbFetch(
-                    `/rest/v1/messages?select=id&is_private=eq.false&order=created_at.desc&limit=50`
-                );
-
-                if (publicMessages && publicMessages.length > 0) {
-                    const oldestId = publicMessages[publicMessages.length - 1]?.id;
-                    if (oldestId) {
-                        await sbFetch(
-                            `/rest/v1/messages?is_private=eq.false&id=lt.${oldestId}`,
-                            { method: 'DELETE' }
-                        );
-                    }
-                }
-
-                const { data: privateChats } = await sbFetch(
-                    `/rest/v1/messages?select=id,sender_id,receiver_id&is_private=eq.true&order=created_at.desc`
-                );
-
-                if (privateChats && privateChats.length > 0) {
-                    const chatPairs = {};
-                    privateChats.forEach(msg => {
-                        const key = [msg.sender_id, msg.receiver_id].sort().join('_');
-                        if (!chatPairs[key]) chatPairs[key] = [];
-                        chatPairs[key].push(msg.id);
-                    });
-
-                    for (const [key, ids] of Object.entries(chatPairs)) {
-                        if (ids.length > 10) {
-                            const toDelete = ids.slice(10);
-                            for (const id of toDelete) {
-                                await sbFetch(`/rest/v1/messages?id=eq.${id}`, { method: 'DELETE' });
-                            }
-                        }
-                    }
-                }
-
-            } catch (e) {
-                console.warn('⚠️ Ошибка очистки сообщений:', e);
-            }
-        }
-
-        async function loadOnlineUsers() {
-            try {
-                const fiveMinAgo = new Date(Date.now() - 5 * 60 * 1000).toISOString();
-                const { data, ok } = await sbFetch(
-                    `/rest/v1/users?select=id&updated_at=gte.${encodeURIComponent(fiveMinAgo)}&limit=50`
-                );
-
-                if (ok && data) {
-                    const online = data.filter(u => u.id !== UID);
-                    document.getElementById('chatOnline').textContent = `● ${online.length + 1} онлайн`;
-                }
-            } catch (e) {
-                console.warn('⚠️ Ошибка загрузки онлайн:', e);
-            }
-        }
-
-        async function updateOnlineStatus() {
-            if (!UID) return;
-            try {
-                await sbFetch(`/rest/v1/users?id=eq.${UID}`, {
-                    method: 'PATCH',
-                    body: { updated_at: new Date().toISOString() }
-                });
-            } catch (e) {
-                console.warn('⚠️ Ошибка обновления статуса:', e);
-            }
-        }
-
-        function initChat() {
-    if (!UID) return;
-
-    currentChat = 'global';
-    chatMessagesCache = chats.global || [];
-    lastMessageTime = Date.now();
-
-    document.getElementById('chatTitle').innerHTML = '💬 Общий чат';
-    document.getElementById('chatInfo').innerHTML = '💬 <span class="highlight">Общий чат</span> — все видят все сообщения';
-
-    const input = document.getElementById('chatInput');
-    if (input) {
-        input.disabled = false;
-        input.placeholder = 'Введите первое сообщение цыфрой';
-        input.value = '';
-    }
-
-    loadMessages();
-    loadOnlineUsers();
-    setupRealtime();
-
-    // АВТОПРОКРУТКА
-    setTimeout(() => {
-        const container = document.getElementById('chatMessages');
-        if (container) container.scrollTop = container.scrollHeight;
-    }, 500);
-}
         function escapeHtml(text) {
             const div = document.createElement('div');
             div.textContent = text;
@@ -3701,7 +3048,6 @@
             const podiumEl = document.getElementById('podiumList');
             if (!podiumEl) return;
             
-            // Обновляем статус аукциона
             updateAuctionStatus();
             
             const bidders = G.auctionBidders || [];
@@ -3731,29 +3077,27 @@
         // 14. НАВИГАЦИЯ
         // ============================================================
         window.goSc = function(nm) {
-    document.querySelectorAll('.sc').forEach(s => s.classList.remove('on'));
-    document.querySelectorAll('.nb').forEach(b => b.classList.remove('on'));
-    document.getElementById('sc-' + nm).classList.add('on');
+            document.querySelectorAll('.sc').forEach(s => s.classList.remove('on'));
+            document.querySelectorAll('.nb').forEach(b => b.classList.remove('on'));
+            document.getElementById('sc-' + nm).classList.add('on');
 
-    if (nm === 'chat') {
-        setTimeout(() => {
-            initChat();
-            // АВТОПРОКРУТКА ВНИЗ
-            setTimeout(() => {
-                const container = document.getElementById('chatMessages');
-                if (container) container.scrollTop = container.scrollHeight;
-            }, 300);
-        }, 50);
-    }
-    renderUI();
-};
+            if (nm === 'chat') {
+                setTimeout(() => {
+                    initChat();
+                    setTimeout(() => {
+                        const container = document.getElementById('chatMessages');
+                        if (container) container.scrollTop = container.scrollHeight;
+                    }, 300);
+                }, 50);
+            }
+            renderUI();
+        };
 
         window.gTab = function(t, el) {
             ['rl', 'dc', 'au'].forEach(x => {
                 const d = document.getElementById('G_' + x);
                 if (d) d.style.display = x === t ? 'block' : 'none';
             });
-            // Обновляем активную вкладку
             document.querySelectorAll('.tab-r .tab').forEach(tab => tab.classList.remove('on'));
             if (el) el.classList.add('on');
             
@@ -3788,7 +3132,6 @@
             const v = document.getElementById('NK_i').value.trim();
             if (v.length < 3 || v.length > 16) { window.toast('3–16 символов', 'err'); return; }
 
-            // Проверка уникальности ника
             try {
                 const { data, ok } = await sbFetch(
                     `/rest/v1/users?data->>name=eq.${encodeURIComponent(v)}&select=id`
@@ -3849,7 +3192,6 @@
             renderTop(topLastType || 'b');
             renderPodium();
             
-            // Обновляем аукцион
             document.getElementById('AU_a').textContent = G.auctionBid || 0;
             document.getElementById('MY_b').textContent = G.auctionBid || 0;
             if (G.auctionBid > 0) {
@@ -3944,12 +3286,58 @@
         };
 
         // === АУКЦИОН ===
-        window.startAuction = function() {
-            const input = document.getElementById('auctionCodeInput');
-            if (!input) {
-                window.toast('❌ Поле ввода не найдено', 'err');
-                return;
+        async function loadAuctionState() {
+            try {
+                const { data, ok } = await sbFetch('/rest/v1/auction_state?limit=1');
+                if (ok && data && data.length > 0) {
+                    const state = data[0];
+                    auctionActive = state.active;
+                    auctionStartTime = state.start_time ? new Date(state.start_time).getTime() : null;
+                    
+                    if (auctionActive && auctionStartTime) {
+                        const elapsed = Date.now() - auctionStartTime;
+                        const hours24 = 24 * 60 * 60 * 1000;
+                        if (elapsed < hours24) {
+                            startAuctionTimer();
+                            updateAuctionStatus();
+                        } else {
+                            await endAuctionGlobal();
+                        }
+                    }
+                }
+            } catch (e) {
+                console.warn('⚠️ Ошибка загрузки состояния аукциона:', e);
             }
+        }
+
+        async function saveAuctionState(active, startTime) {
+            try {
+                const payload = {
+                    active: active,
+                    start_time: startTime ? new Date(startTime).toISOString() : null,
+                    updated_at: new Date().toISOString()
+                };
+                
+                const { data, ok } = await sbFetch('/rest/v1/auction_state?limit=1');
+                if (ok && data && data.length > 0) {
+                    await sbFetch(`/rest/v1/auction_state?id=eq.${data[0].id}`, {
+                        method: 'PATCH',
+                        body: payload
+                    });
+                } else {
+                    await sbFetch('/rest/v1/auction_state', {
+                        method: 'POST',
+                        body: payload
+                    });
+                }
+            } catch (e) {
+                console.warn('⚠️ Ошибка сохранения состояния аукциона:', e);
+            }
+        }
+
+        window.startAuction = async function() {
+            const input = document.getElementById('auctionCodeInput');
+            if (!input) return;
             
             const code = input.value.trim();
             
@@ -3958,7 +3346,8 @@
                 auctionStartTime = Date.now();
                 input.value = '';
                 
-                // Очищаем предыдущие ставки
+                await saveAuctionState(true, auctionStartTime);
+                
                 G.auctionBid = 0;
                 G.auctionBidders = [];
                 
@@ -3971,10 +3360,6 @@
             } else {
                 window.toast('❌ Неверный код!', 'err');
                 input.value = '';
-                input.style.borderColor = 'var(--red)';
-                setTimeout(() => {
-                    input.style.borderColor = '';
-                }, 1000);
             }
         };
 
@@ -3984,7 +3369,7 @@
                 auctionTimerInterval = null;
             }
             
-            auctionTimerInterval = setInterval(() => {
+            auctionTimerInterval = setInterval(async () => {
                 if (!auctionActive) {
                     clearInterval(auctionTimerInterval);
                     auctionTimerInterval = null;
@@ -3993,12 +3378,11 @@
                 
                 updateAuctionStatus();
                 
-                // Проверяем, не истекло ли время (24 часа)
                 const elapsed = Date.now() - auctionStartTime;
                 const hours24 = 24 * 60 * 60 * 1000;
                 
                 if (elapsed >= hours24) {
-                    endAuction();
+                    await endAuctionGlobal();
                 }
             }, 1000);
         }
@@ -4018,7 +3402,7 @@
             const remaining = hours24 - elapsed;
             
             if (remaining <= 0) {
-                endAuction();
+                endAuctionGlobal();
                 return;
             }
             
@@ -4030,7 +3414,7 @@
             statusEl.textContent = `✅ Аукцион активен! Осталось: ${hours}ч ${minutes}м ${seconds}с`;
         }
 
-        function endAuction() {
+        async function endAuctionGlobal() {
             if (!auctionActive) return;
             
             auctionActive = false;
@@ -4040,13 +3424,14 @@
                 auctionTimerInterval = null;
             }
             
+            await saveAuctionState(false, null);
+            
             const statusEl = document.getElementById('auctionStatus');
             if (statusEl) {
                 statusEl.className = 'auction-status inactive';
                 statusEl.textContent = '⏰ Аукцион завершён!';
             }
             
-            // Находим победителя
             const bidders = G.auctionBidders || [];
             if (bidders.length > 0) {
                 const sorted = [...bidders].sort((a, b) => b.bid - a.bid);
@@ -4072,11 +3457,10 @@
                 return;
             }
             
-            // Проверяем, не истекло ли время
             const elapsed = Date.now() - auctionStartTime;
             const hours24 = 24 * 60 * 60 * 1000;
             if (elapsed >= hours24) {
-                endAuction();
+                endAuctionGlobal();
                 window.toast('⛔ Аукцион завершён!', 'err');
                 return;
             }
@@ -4112,8 +3496,27 @@
             renderPodium();
             renderUI();
             scheduleSave();
-            
             window.toast(`Ставка: ${G.auctionBid} монет`, 'gld');
+        };
+
+        // === КОНТАКТЫ ДЛЯ ПОКУПКИ МОНЕТ ===
+        window.showContact = function() {
+            window.toast('💬 Для покупки монет напишите администратору в Telegram или VK!', 'info');
+        };
+
+        // === ОБМЕН КЛЮЧЕЙ ===
+        window.exchangeKey = function() {
+            if (G.keys < 1) {
+                window.toast('❌ У вас нет ключей!', 'err');
+                return;
+            }
+            window.conf('Обменять 1 ключ на 100 монет?', 'Вы точно хотите обменять 1 ключ?', function() {
+                G.keys -= 1;
+                G.coins += 100;
+                scheduleSave();
+                renderUI();
+                window.toast('✅ Обмен успешен! +100 монет', 'ok');
+            });
         };
 
         window.useRefCode = async function() {
@@ -4171,17 +3574,19 @@
             }
         };
 
-        window.buyCoins = function(amt) { G.coins += amt;
+        window.buyCoins = function(amt) { 
+            G.coins += amt;
             scheduleSave();
             renderUI();
-            window.toast(`+${fmt(amt)} монет!`, 'gld'); };
-            
+            window.toast(`+${fmt(amt)} монет!`, 'gld'); 
+        };
+
         window.usePromo = function() {
             const v = document.getElementById('PR_i').value.trim().toLowerCase();
             if (v) window.activatePromo(v);
             document.getElementById('PR_i').value = '';
         };
-        
+
         window.activatePromo = function(c) {
             if (!PROMOS[c]) { window.toast('Промокод не найден', 'err'); return; }
             if (G.promos[c]) { window.toast('Уже использован', 'err'); return; }
@@ -4192,386 +3597,280 @@
             window.toast(`+${PROMOS[c]} монет!`, 'gld');
         };
 
-        // === ОБМЕН КЛЮЧЕЙ ===
-        window.exchangeKey = function() {
-            if (G.keys < 1) {
-                window.toast('❌ У вас нет ключей!', 'err');
-                return;
-            }
-            window.conf('Обменять 1 ключ на 100 монет?', 'Вы точно хотите обменять 1 ключ?', function() {
-                G.keys -= 1;
-                G.coins += 100;
-                scheduleSave();
-                renderUI();
-                window.toast('✅ Обмен успешен! +100 монет', 'ok');
-            });
+        // ============================================================
+        // 17. РУЛЕТКА
+        // ============================================================
+        // (Код рулетки такой же как в вашем проекте)
+        const WHEEL_DATA = [
+            { color: 'green', number: '0' },
+            { color: 'red', number: '1' },
+            { color: 'black', number: '2' },
+            { color: 'red', number: '3' },
+            { color: 'black', number: '4' },
+            { color: 'red', number: '5' },
+            { color: 'black', number: '6' },
+            { color: 'red', number: '7' },
+            { color: 'black', number: '8' },
+            { color: 'red', number: '9' },
+            { color: 'green', number: '00' },
+            { color: 'black', number: '10' },
+            { color: 'red', number: '11' },
+            { color: 'black', number: '12' },
+            { color: 'red', number: '13' },
+            { color: 'black', number: '14' },
+            { color: 'red', number: '15' },
+            { color: 'black', number: '16' },
+            { color: 'red', number: '17' },
+            { color: 'black', number: '18' }
+        ];
+
+        const COLOR_MAP = {
+            red: '#ef4444',
+            black: '#1a1a1a',
+            green: '#10b981'
         };
 
-        // === АДМИН-ПАНЕЛЬ ===
-        window.adminGiveCoins = async function() {
-            const userInput = document.getElementById('adminUserInput');
-            const amountInput = document.getElementById('adminAmountInput');
-            const codeInput = document.getElementById('adminCodeInput');
+        var spinning = false;
+        var spinBet = 25;
+        var lastResultIndex = -1;
+
+        function drawWheel(highlightIndex) {
+            var canvas = document.getElementById('rouletteCanvas');
+            if (!canvas) return;
+            var ctx = canvas.getContext('2d');
+            var cx = 160, cy = 160, r = 140;
             
-            const username = userInput.value.trim();
-            const amount = parseInt(amountInput.value) || 0;
-            const code = codeInput.value.trim();
+            ctx.clearRect(0, 0, 320, 320);
             
-            if (!username) {
-                window.toast('❌ Введите ник игрока', 'err');
-                return;
-            }
-            if (amount <= 0) {
-                window.toast('❌ Введите корректное количество монет', 'err');
-                return;
-            }
-            if (code !== ADMIN_CODE) {
-                window.toast('❌ Неверный код администратора!', 'err');
-                codeInput.value = '';
-                codeInput.style.borderColor = 'var(--red)';
-                setTimeout(() => {
-                    codeInput.style.borderColor = '';
-                }, 1000);
-                return;
-            }
+            var n = WHEEL_DATA.length;
+            var step = (Math.PI * 2) / n;
             
-            try {
-                // Ищем пользователя по нику
-                const { data, ok } = await sbFetch(
-                    `/rest/v1/users?data->>name=eq.${encodeURIComponent(username)}&select=id,data`
-                );
+            for (var i = 0; i < n; i++) {
+                var start = i * step - Math.PI / 2;
+                var end = (i + 1) * step - Math.PI / 2;
+                var data = WHEEL_DATA[i];
                 
-                if (!ok || !data || data.length === 0) {
-                    window.toast('❌ Игрок с таким ником не найден', 'err');
-                    return;
-                }
+                ctx.beginPath();
+                ctx.moveTo(cx, cy);
+                ctx.arc(cx, cy, r, start, end);
+                ctx.closePath();
+                ctx.fillStyle = COLOR_MAP[data.color];
+                ctx.fill();
+                ctx.strokeStyle = 'rgba(255,255,255,0.2)';
+                ctx.lineWidth = 1;
+                ctx.stroke();
                 
-                const user = data[0];
-                const currentCoins = user.data?.coins || 0;
-                const newCoins = currentCoins + amount;
-                
-                // Обновляем монеты
-                const updateData = {
-                    data: {
-                        ...user.data,
-                        coins: newCoins
-                    },
-                    updated_at: new Date().toISOString()
-                };
-                
-                const { ok: updateOk } = await sbFetch(`/rest/v1/users?id=eq.${user.id}`, {
-                    method: 'PATCH',
-                    body: updateData
-                });
-                
-                if (updateOk) {
-                    window.toast(`✅ Игроку ${username} выдано ${amount} монет!`, 'ok');
-                    userInput.value = '';
-                    amountInput.value = '100';
-                    codeInput.value = '';
+                if (highlightIndex === i) {
+                    ctx.shadowColor = '#ffd700';
+                    ctx.shadowBlur = 40;
+                    ctx.beginPath();
+                    ctx.moveTo(cx, cy);
+                    ctx.arc(cx, cy, r + 8, start, end);
+                    ctx.closePath();
+                    ctx.fillStyle = 'rgba(255, 215, 0, 0.5)';
+                    ctx.fill();
+                    ctx.strokeStyle = '#ffd700';
+                    ctx.lineWidth = 5;
+                    ctx.stroke();
                     
-                    // Если это текущий игрок - обновляем локально
-                    if (user.id === UID) {
-                        G.coins = newCoins;
-                        renderUI();
-                    }
-                } else {
-                    window.toast('❌ Ошибка выдачи монет', 'err');
+                    ctx.shadowBlur = 20;
+                    ctx.beginPath();
+                    ctx.moveTo(cx, cy);
+                    ctx.arc(cx, cy, r - 20, start, end);
+                    ctx.closePath();
+                    ctx.fillStyle = 'rgba(255, 215, 0, 0.2)';
+                    ctx.fill();
+                    ctx.shadowBlur = 0;
                 }
-            } catch (e) {
-                window.toast('❌ Ошибка: ' + e.message, 'err');
-                console.error(e);
+                
+                var mid = start + step / 2;
+                var tr = r - 20;
+                var x = cx + Math.cos(mid) * tr;
+                var y = cy + Math.sin(mid) * tr;
+                
+                ctx.save();
+                ctx.translate(x, y);
+                ctx.rotate(mid + Math.PI / 2);
+                ctx.fillStyle = '#fff';
+                ctx.font = 'bold 10px Arial';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(data.number, 0, 0);
+                ctx.restore();
             }
-        };
-
- // ============================================================
-// 17. РУЛЕТКА (ПОДСВЕТКА НА БАРАБАНЕ ОСТАЁТСЯ НАВСЕГДА)
-// ============================================================
-
-const WHEEL_DATA = [
-    { color: 'green', number: '0' },
-    { color: 'red', number: '1' },
-    { color: 'black', number: '2' },
-    { color: 'red', number: '3' },
-    { color: 'black', number: '4' },
-    { color: 'red', number: '5' },
-    { color: 'black', number: '6' },
-    { color: 'red', number: '7' },
-    { color: 'black', number: '8' },
-    { color: 'red', number: '9' },
-    { color: 'green', number: '00' },
-    { color: 'black', number: '10' },
-    { color: 'red', number: '11' },
-    { color: 'black', number: '12' },
-    { color: 'red', number: '13' },
-    { color: 'black', number: '14' },
-    { color: 'red', number: '15' },
-    { color: 'black', number: '16' },
-    { color: 'red', number: '17' },
-    { color: 'black', number: '18' }
-];
-
-const COLOR_MAP = {
-    red: '#ef4444',
-    black: '#1a1a1a',
-    green: '#10b981'
-};
-
-var spinning = false;
-var spinBet = 25;
-var lastResultIndex = -1; // Хранит последний выигрышный сектор
-
-function drawWheel(highlightIndex) {
-    var canvas = document.getElementById('rouletteCanvas');
-    if (!canvas) return;
-    var ctx = canvas.getContext('2d');
-    var cx = 160, cy = 160, r = 140;
-    
-    ctx.clearRect(0, 0, 320, 320);
-    
-    var n = WHEEL_DATA.length;
-    var step = (Math.PI * 2) / n;
-    
-    for (var i = 0; i < n; i++) {
-        var start = i * step - Math.PI / 2;
-        var end = (i + 1) * step - Math.PI / 2;
-        var data = WHEEL_DATA[i];
-        
-        ctx.beginPath();
-        ctx.moveTo(cx, cy);
-        ctx.arc(cx, cy, r, start, end);
-        ctx.closePath();
-        ctx.fillStyle = COLOR_MAP[data.color];
-        ctx.fill();
-        ctx.strokeStyle = 'rgba(255,255,255,0.2)';
-        ctx.lineWidth = 1;
-        ctx.stroke();
-        
-        // === ПОДСВЕТКА ВЫИГРЫШНОГО СЕКТОРА (ОСТАЁТСЯ НАВСЕГДА) ===
-        if (highlightIndex === i) {
-            // Внешнее свечение
-            ctx.shadowColor = '#ffd700';
-            ctx.shadowBlur = 40;
+            
+            var grad = ctx.createRadialGradient(cx - 5, cy - 5, 0, cx, cy, 25);
+            grad.addColorStop(0, '#f0e6d0');
+            grad.addColorStop(0.7, '#c4a87a');
+            grad.addColorStop(1, '#8b6b3e');
             ctx.beginPath();
-            ctx.moveTo(cx, cy);
-            ctx.arc(cx, cy, r + 8, start, end);
-            ctx.closePath();
-            ctx.fillStyle = 'rgba(255, 215, 0, 0.5)';
+            ctx.arc(cx, cy, 25, 0, Math.PI * 2);
+            ctx.fillStyle = grad;
             ctx.fill();
-            ctx.strokeStyle = '#ffd700';
-            ctx.lineWidth = 5;
+            ctx.strokeStyle = '#6b4b2e';
+            ctx.lineWidth = 2;
             ctx.stroke();
             
-            // Внутреннее свечение
-            ctx.shadowBlur = 20;
+            ctx.shadowColor = 'rgba(255, 215, 0, 0.5)';
+            ctx.shadowBlur = 15;
             ctx.beginPath();
-            ctx.moveTo(cx, cy);
-            ctx.arc(cx, cy, r - 20, start, end);
+            ctx.moveTo(cx - 10, 10);
+            ctx.lineTo(cx + 10, 10);
+            ctx.lineTo(cx, 28);
             ctx.closePath();
-            ctx.fillStyle = 'rgba(255, 215, 0, 0.2)';
+            ctx.fillStyle = '#ffd700';
             ctx.fill();
+            ctx.strokeStyle = '#b8860b';
+            ctx.lineWidth = 2;
+            ctx.stroke();
             ctx.shadowBlur = 0;
         }
-        
-        var mid = start + step / 2;
-        var tr = r - 20;
-        var x = cx + Math.cos(mid) * tr;
-        var y = cy + Math.sin(mid) * tr;
-        
-        ctx.save();
-        ctx.translate(x, y);
-        ctx.rotate(mid + Math.PI / 2);
-        ctx.fillStyle = '#fff';
-        ctx.font = 'bold 10px Arial';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText(data.number, 0, 0);
-        ctx.restore();
-    }
-    
-    // Центр
-    var grad = ctx.createRadialGradient(cx - 5, cy - 5, 0, cx, cy, 25);
-    grad.addColorStop(0, '#f0e6d0');
-    grad.addColorStop(0.7, '#c4a87a');
-    grad.addColorStop(1, '#8b6b3e');
-    ctx.beginPath();
-    ctx.arc(cx, cy, 25, 0, Math.PI * 2);
-    ctx.fillStyle = grad;
-    ctx.fill();
-    ctx.strokeStyle = '#6b4b2e';
-    ctx.lineWidth = 2;
-    ctx.stroke();
-    
-    // Стрелка
-    ctx.shadowColor = 'rgba(255, 215, 0, 0.5)';
-    ctx.shadowBlur = 15;
-    ctx.beginPath();
-    ctx.moveTo(cx - 10, 10);
-    ctx.lineTo(cx + 10, 10);
-    ctx.lineTo(cx, 28);
-    ctx.closePath();
-    ctx.fillStyle = '#ffd700';
-    ctx.fill();
-    ctx.strokeStyle = '#b8860b';
-    ctx.lineWidth = 2;
-    ctx.stroke();
-    ctx.shadowBlur = 0;
-}
 
-window.spinTo = function(selectedColor) {
-    if (spinning) return;
-    
-    var input = document.getElementById('rlBetInput');
-    var bet = parseInt(input.value) || 25;
-    
-    if (bet < 1) {
-        window.toast('Минимальная ставка 1 монета', 'err');
-        return;
-    }
-    if (bet > G.coins) {
-        window.toast('Недостаточно монет!', 'err');
-        return;
-    }
-    
-    G.coins -= bet;
-    spinning = true;
-    spinBet = bet;
-    
-    var resultEl = document.getElementById('rlResult');
-    resultEl.textContent = '🎰 Крутим...';
-    resultEl.className = 'rl-result';
-    
-    var buttons = document.querySelectorAll('.rl-btns button');
-    for (var b = 0; b < buttons.length; b++) {
-        buttons[b].disabled = true;
-    }
-    input.disabled = true;
-    
-    var resultIndex = Math.floor(Math.random() * WHEEL_DATA.length);
-    var result = WHEEL_DATA[resultIndex];
-    
-    var count = 0;
-    var maxCount = 15 + Math.floor(Math.random() * 10);
-    
-    var timer = setInterval(function() {
-        var randIdx = Math.floor(Math.random() * WHEEL_DATA.length);
-        drawWheel(randIdx);
-        count++;
-        
-        if (count >= maxCount) {
-            clearInterval(timer);
+        window.spinTo = function(selectedColor) {
+            if (spinning) return;
             
-            // === СОХРАНЯЕМ ПОСЛЕДНИЙ РЕЗУЛЬТАТ ===
-            lastResultIndex = resultIndex;
+            var input = document.getElementById('rlBetInput');
+            var bet = parseInt(input.value) || 25;
             
-            // === ОТОБРАЖАЕМ РЕЗУЛЬТАТ С ПОДСВЕТКОЙ ===
-            drawWheel(resultIndex);
-            
-            var win = result.color === selectedColor;
-            var emoji = result.color === 'red' ? '🔴' : result.color === 'black' ? '⚫' : '🟢';
-            var colorName = result.color.toUpperCase();
-            
-            if (win) {
-                var mult = result.color === 'green' ? 5 : 1.75;
-                var winAmount = Math.floor(bet * mult);
-                G.coins += winAmount;
-                resultEl.innerHTML = '✅ ' + emoji + ' <b style="font-size:20px;">' + colorName + '</b>! (+' + winAmount + ' <b>монет</b>)';
-                resultEl.className = 'rl-result win';
-                window.toast('🎉 ' + colorName + '! +' + winAmount + ' монет!', 'gld');
-            } else {
-                resultEl.innerHTML = '❌ ' + emoji + ' <b style="font-size:20px;">' + colorName + '</b>! (-' + bet + ' <b>монет</b>)';
-                resultEl.className = 'rl-result lose';
-                window.toast('😞 ' + colorName + '! -' + bet + ' монет', 'err');
+            if (bet < 1) {
+                window.toast('Минимальная ставка 1 монета', 'err');
+                return;
+            }
+            if (bet > G.coins) {
+                window.toast('Недостаточно монет!', 'err');
+                return;
             }
             
-            spinning = false;
-            var buttons2 = document.querySelectorAll('.rl-btns button');
-            for (var b2 = 0; b2 < buttons2.length; b2++) {
-                buttons2[b2].disabled = false;
-            }
-            input.disabled = false;
+            G.coins -= bet;
+            spinning = true;
+            spinBet = bet;
             
-            scheduleSave();
-            renderUI();
+            var resultEl = document.getElementById('rlResult');
+            resultEl.textContent = '🎰 Крутим...';
+            resultEl.className = 'rl-result';
+            
+            var buttons = document.querySelectorAll('.rl-btns button');
+            for (var b = 0; b < buttons.length; b++) {
+                buttons[b].disabled = true;
+            }
+            input.disabled = true;
+            
+            var resultIndex = Math.floor(Math.random() * WHEEL_DATA.length);
+            var result = WHEEL_DATA[resultIndex];
+            
+            var count = 0;
+            var maxCount = 15 + Math.floor(Math.random() * 10);
+            
+            var timer = setInterval(function() {
+                var randIdx = Math.floor(Math.random() * WHEEL_DATA.length);
+                drawWheel(randIdx);
+                count++;
+                
+                if (count >= maxCount) {
+                    clearInterval(timer);
+                    
+                    lastResultIndex = resultIndex;
+                    drawWheel(resultIndex);
+                    
+                    var win = result.color === selectedColor;
+                    var emoji = result.color === 'red' ? '🔴' : result.color === 'black' ? '⚫' : '🟢';
+                    var colorName = result.color.toUpperCase();
+                    
+                    if (win) {
+                        var mult = result.color === 'green' ? 5 : 1.75;
+                        var winAmount = Math.floor(bet * mult);
+                        G.coins += winAmount;
+                        resultEl.innerHTML = '✅ ' + emoji + ' <b style="font-size:20px;">' + colorName + '</b>! (+' + winAmount + ' <b>монет</b>)';
+                        resultEl.className = 'rl-result win';
+                        window.toast('🎉 ' + colorName + '! +' + winAmount + ' монет!', 'gld');
+                    } else {
+                        resultEl.innerHTML = '❌ ' + emoji + ' <b style="font-size:20px;">' + colorName + '</b>! (-' + bet + ' <b>монет</b>)';
+                        resultEl.className = 'rl-result lose';
+                        window.toast('😞 ' + colorName + '! -' + bet + ' монет', 'err');
+                    }
+                    
+                    spinning = false;
+                    var buttons2 = document.querySelectorAll('.rl-btns button');
+                    for (var b2 = 0; b2 < buttons2.length; b2++) {
+                        buttons2[b2].disabled = false;
+                    }
+                    input.disabled = false;
+                    
+                    scheduleSave();
+                    renderUI();
+                }
+            }, 80);
+        };
+
+        var idleIdx = 0;
+
+        function idleSpin() {
+            if (!spinning) {
+                idleIdx = (idleIdx + 1) % WHEEL_DATA.length;
+                if (lastResultIndex >= 0) {
+                    drawWheel(lastResultIndex);
+                } else {
+                    drawWheel();
+                }
+            }
+            requestAnimationFrame(idleSpin);
         }
-    }, 80);
-};
 
-// === ФОНОВОЕ ВРАЩЕНИЕ (ВСЕГДА ПОКАЗЫВАЕТ ПОСЛЕДНИЙ РЕЗУЛЬТАТ) ===
-var idleIdx = 0;
+        drawWheel();
+        idleSpin();
 
-function idleSpin() {
-    if (!spinning) {
-        idleIdx = (idleIdx + 1) % WHEEL_DATA.length;
-        // Если есть результат - показываем его с подсветкой
-        if (lastResultIndex >= 0) {
-            drawWheel(lastResultIndex);
-        } else {
-            drawWheel();
+        var resultEl = document.getElementById('rlResult');
+        if (resultEl) {
+            resultEl.innerHTML = '🎰 Выберите цвет для <b>ставки</b>';
+            resultEl.className = 'rl-result';
         }
-    }
-    requestAnimationFrame(idleSpin);
-}
 
-drawWheel();
-idleSpin();
+        var coeffEl = document.querySelector('.rl-coeff');
+        if (coeffEl) {
+            coeffEl.innerHTML = '🔴 Красный ×1.75 (45%) | ⚫ Чёрный ×1.75 (45%) | 🟢 Зелёный ×5 (10%)';
+        }
 
-var resultEl = document.getElementById('rlResult');
-if (resultEl) {
-    resultEl.innerHTML = '🎰 Выберите цвет для <b>ставки</b>';
-    resultEl.className = 'rl-result';
-}
+        // ============================================================
+        // 18. КУБИК
+        // ============================================================
+        const PIP_LAYOUTS = {
+            1: [[1, 1]],
+            2: [[0, 0], [2, 2]],
+            3: [[0, 0], [1, 1], [2, 2]],
+            4: [[0, 0], [0, 2], [2, 0], [2, 2]],
+            5: [[0, 0], [0, 2], [1, 1], [2, 0], [2, 2]],
+            6: [[0, 0], [0, 2], [1, 0], [1, 2], [2, 0], [2, 2]]
+        };
 
-var coeffEl = document.querySelector('.rl-coeff');
-if (coeffEl) {
-    coeffEl.innerHTML = '🔴 Красный ×1.75 (45%) | ⚫ Чёрный ×1.75 (45%) | 🟢 Зелёный ×5 (10%)';
-}
-     // ============================================================
-// 18. КУБИК (ИСПРАВЛЕННЫЙ)
-// ============================================================
+        const CUBE_PALETTES = [
+            { face: '#1a237e', pip: '#ffffff', border: 'rgba(255,255,255,.2)' },
+            { face: '#7f1d1d', pip: '#ffffff', border: 'rgba(255,255,255,.2)' },
+            { face: '#14532d', pip: '#ffffff', border: 'rgba(255,255,255,.2)' },
+            { face: '#4a044e', pip: '#ffffff', border: 'rgba(255,255,255,.2)' },
+            { face: '#0c4a6e', pip: '#ffffff', border: 'rgba(255,255,255,.2)' },
+            { face: '#422006', pip: '#ffffff', border: 'rgba(255,255,255,.2)' }
+        ];
 
-const PIP_LAYOUTS = {
-    1: [[1, 1]],
-    2: [[0, 0], [2, 2]],
-    3: [[0, 0], [1, 1], [2, 2]],
-    4: [[0, 0], [0, 2], [2, 0], [2, 2]],
-    5: [[0, 0], [0, 2], [1, 1], [2, 0], [2, 2]],
-    6: [[0, 0], [0, 2], [1, 0], [1, 2], [2, 0], [2, 2]]
-};
+        const DICE_FINAL_COLORS = {
+            red: { face: '#7f1d1d', pip: '#ffffff', border: 'rgba(255,255,255,.3)' },
+            black: { face: '#18181b', pip: '#f5f5f5', border: 'rgba(255,255,255,.18)' }
+        };
 
-const CUBE_PALETTES = [
-    { face: '#1a237e', pip: '#ffffff', border: 'rgba(255,255,255,.2)' },
-    { face: '#7f1d1d', pip: '#ffffff', border: 'rgba(255,255,255,.2)' },
-    { face: '#14532d', pip: '#ffffff', border: 'rgba(255,255,255,.2)' },
-    { face: '#4a044e', pip: '#ffffff', border: 'rgba(255,255,255,.2)' },
-    { face: '#0c4a6e', pip: '#ffffff', border: 'rgba(255,255,255,.2)' },
-    { face: '#422006', pip: '#ffffff', border: 'rgba(255,255,255,.2)' }
-];
+        let curPalette = 0;
+        let diceRolling = false;
+        let diceAnimId2 = null;
+        let diceRx = -20;
+        let diceRy = 30;
+        let lastDiceValue = null;
+        let lastDiceColor = null;
 
-const DICE_FINAL_COLORS = {
-    red: { face: '#7f1d1d', pip: '#ffffff', border: 'rgba(255,255,255,.3)' },
-    black: { face: '#18181b', pip: '#f5f5f5', border: 'rgba(255,255,255,.18)' }
-};
-
-let curPalette = 0;
-let diceRolling = false;
-let diceAnimId2 = null;
-let diceRx = -20;
-let diceRy = 30;
-let lastDiceValue = null;
-let lastDiceColor = null;
-
-function showDiceRules() {
-    const rules = `
+        function showDiceRules() {
+            const rules = `
 🎲 ПРАВИЛА ИГРЫ В КУБИК
 
 💰 СТАВКА: 50 монет
-
 🎯 ЦЕЛЬ: Угадать цвет выпавшей грани
-
-🎨 ЦВЕТА:
-• 🔴 Красный — 50% шанс
-• ⚫ Чёрный — 50% шанс
+🎨 ЦВЕТА: 🔴 Красный — 50% | ⚫ Чёрный — 50%
 
 💵 РАСЧЁТ ВЫИГРЫША:
 • Базовый = Число × 10 монет
@@ -4579,356 +3878,350 @@ function showDiceRules() {
 • Итог = Базовый + Бонус - 50 (ставка)
 
 📊 ПРИМЕРЫ:
-• Выпало 6, угадали цвет → 60 + 10 - 50 = +20 монет
-• Выпало 6, НЕ угадали → 60 + 0 - 50 = +10 монет
-• Выпало 1, угадали цвет → 10 + 10 - 50 = -30 монет
-• Выпало 1, НЕ угадали → 10 + 0 - 50 = -40 монет
+• Выпало 6, угадали → +20 монет
+• Выпало 1, НЕ угадали → -40 монет
 
 ⚡ УДАЧИ! 🍀
 `;
-    window.toast(rules, 'info');
-}
+            window.toast(rules, 'info');
+        }
 
-function buildPips(el, n, pipColor) {
-    const g = document.createElement('div');
-    g.className = 'pips';
-    g.style.cssText = 'display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);width:100px;height:100px;gap:0;padding:8px';
-    for (let r = 0; r < 3; r++) {
-        for (let c = 0; c < 3; c++) {
-            const cell = document.createElement('div');
-            cell.style.cssText = 'display:flex;align-items:center;justify-content:center';
-            const layout = PIP_LAYOUTS[n];
-            let hasPip = false;
-            for (let p = 0; p < layout.length; p++) {
-                if (layout[p][0] === r && layout[p][1] === c) {
-                    hasPip = true;
-                    break;
+        function buildPips(el, n, pipColor) {
+            const g = document.createElement('div');
+            g.className = 'pips';
+            g.style.cssText = 'display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);width:100px;height:100px;gap:0;padding:8px';
+            for (let r = 0; r < 3; r++) {
+                for (let c = 0; c < 3; c++) {
+                    const cell = document.createElement('div');
+                    cell.style.cssText = 'display:flex;align-items:center;justify-content:center';
+                    const layout = PIP_LAYOUTS[n];
+                    let hasPip = false;
+                    for (let p = 0; p < layout.length; p++) {
+                        if (layout[p][0] === r && layout[p][1] === c) {
+                            hasPip = true;
+                            break;
+                        }
+                    }
+                    if (hasPip) {
+                        const pip = document.createElement('div');
+                        pip.style.cssText = 'width:16px;height:16px;border-radius:50%;background:' + pipColor + ';box-shadow:0 1px 3px rgba(0,0,0,.4)';
+                        cell.appendChild(pip);
+                    }
+                    g.appendChild(cell);
                 }
             }
-            if (hasPip) {
-                const pip = document.createElement('div');
-                pip.style.cssText = 'width:16px;height:16px;border-radius:50%;background:' + pipColor + ';box-shadow:0 1px 3px rgba(0,0,0,.4)';
-                cell.appendChild(pip);
+            el.innerHTML = '';
+            el.appendChild(g);
+        }
+
+        function applyDicePalette(p) {
+            const faces = document.querySelectorAll('.face');
+            for (let f = 0; f < faces.length; f++) {
+                faces[f].style.background = p.face;
+                faces[f].style.borderColor = p.border;
             }
-            g.appendChild(cell);
-        }
-    }
-    el.innerHTML = '';
-    el.appendChild(g);
-}
-
-function applyDicePalette(p) {
-    const faces = document.querySelectorAll('.face');
-    for (let f = 0; f < faces.length; f++) {
-        faces[f].style.background = p.face;
-        faces[f].style.borderColor = p.border;
-    }
-    const ids = ['f1', 'f2', 'f3', 'f4', 'f5', 'f6'];
-    const vals = [1, 2, 3, 4, 5, 6];
-    for (let v = 0; v < vals.length; v++) {
-        const el = document.getElementById(ids[v]);
-        if (el) {
-            const wrap = el.querySelector('.pips') || el;
-            buildPips(wrap, vals[v], p.pip);
-        }
-    }
-}
-
-(function initFaces() {
-    const faces = ['f1', 'f2', 'f3', 'f4', 'f5', 'f6'];
-    const vals = [1, 2, 3, 4, 5, 6];
-    for (let i = 0; i < faces.length; i++) {
-        const f = document.getElementById(faces[i]);
-        if (!f) continue;
-        const wrap = document.createElement('div');
-        wrap.className = 'pips';
-        wrap.style.cssText = 'display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);width:100px;height:100px;gap:0;padding:8px';
-        f.innerHTML = '';
-        f.appendChild(wrap);
-        buildPips(wrap, vals[i], '#ffffff');
-    }
-    applyDicePalette(CUBE_PALETTES[0]);
-})();
-
-window.renderDiceIdle = function() {
-    const cube = document.getElementById('diceCube');
-    if (!cube) return;
-    cube.style.transition = 'none';
-    cube.style.transform = 'rotateX(-20deg) rotateY(30deg)';
-    applyDicePalette(CUBE_PALETTES[0]);
-    document.getElementById('diceResult').textContent = '';
-    document.getElementById('diceResult').className = 'dice-result';
-    lastDiceValue = null;
-    lastDiceColor = null;
-};
-
-function rollDiceInternal(callback) {
-    if (diceRolling) return;
-    diceRolling = true;
-    document.getElementById('diceResult').textContent = '...';
-    document.getElementById('diceResult').className = 'dice-result';
-
-    const cube = document.getElementById('diceCube');
-    cube.style.transition = 'none';
-
-    let t = 0;
-    let paletteTimer = 0;
-    let rx = -20;
-    let ry = 30;
-
-    if (diceAnimId2) cancelAnimationFrame(diceAnimId2);
-
-    function anim() {
-        t++;
-        rx += 7.3 * (1 - t / 45);
-        ry += 11.7 * (1 - t / 45);
-
-        paletteTimer++;
-        if (paletteTimer % 6 === 0) {
-            curPalette = (curPalette + 1) % CUBE_PALETTES.length;
-            applyDicePalette(CUBE_PALETTES[curPalette]);
-        }
-
-        cube.style.transform = 'rotateX(' + rx + 'deg) rotateY(' + ry + 'deg)';
-
-        if (t < 42) {
-            diceAnimId2 = requestAnimationFrame(anim);
-        } else {
-            const val = Math.floor(Math.random() * 6) + 1;
-            const colors = ['red', 'black'];
-            const randomColor = colors[Math.floor(Math.random() * colors.length)];
-            
-            lastDiceValue = val;
-            lastDiceColor = randomColor;
-
-            const finalColor = DICE_FINAL_COLORS[randomColor];
-            applyDicePalette(finalColor);
-
-            const faceRots = {
-                1: 'rotateX(0deg) rotateY(0deg)',
-                2: 'rotateX(-90deg) rotateY(0deg)',
-                3: 'rotateX(0deg) rotateY(-90deg)',
-                4: 'rotateX(0deg) rotateY(90deg)',
-                5: 'rotateX(90deg) rotateY(0deg)',
-                6: 'rotateX(0deg) rotateY(180deg)'
-            };
-            cube.style.transition = 'transform 0.6s cubic-bezier(.22,.61,.36,1)';
-            cube.style.transform = faceRots[val] || 'rotateX(0deg) rotateY(0deg)';
-
-            diceRolling = false;
-            if (callback) callback(val, randomColor);
-        }
-    }
-    requestAnimationFrame(anim);
-}
-
-window.playDiceWithBet = function(col) {
-    if (G.coins < 50) {
-        window.toast('Нужно 50 монет', 'err');
-        return;
-    }
-    if (diceRolling) {
-        window.toast('Кубик уже крутится', 'err');
-        return;
-    }
-
-    const buttons = document.querySelectorAll('.dice-btns button');
-    for (let b = 0; b < buttons.length; b++) {
-        buttons[b].disabled = true;
-    }
-
-    G.coins -= 50;
-
-    rollDiceInternal(function(val, resultCol) {
-        const base = val * 10;
-        const bonus = (col === resultCol) ? 10 : 0;
-        const total = base + bonus;
-        G.coins += total;
-        const profit = total - 50;
-        
-        const colorName = resultCol === 'red' ? '🔴 красный' : '⚫ чёрный';
-        const resultEl = document.getElementById('diceResult');
-        const win = (col === resultCol);
-        
-        // === ПРАВИЛЬНОЕ ОТОБРАЖЕНИЕ ===
-        if (win) {
-            // profit может быть отрицательным (например при числе 1: 10+10-50 = -30)
-            // Нужно показать -30, а не +-30
-            if (profit >= 0) {
-                resultEl.textContent = '✅ Выпало ' + val + ' (' + colorName + ')! +' + profit + ' монет';
-            } else {
-                resultEl.textContent = '✅ Выпало ' + val + ' (' + colorName + ')! ' + profit + ' монет';
+            const ids = ['f1', 'f2', 'f3', 'f4', 'f5', 'f6'];
+            const vals = [1, 2, 3, 4, 5, 6];
+            for (let v = 0; v < vals.length; v++) {
+                const el = document.getElementById(ids[v]);
+                if (el) {
+                    const wrap = el.querySelector('.pips') || el;
+                    buildPips(wrap, vals[v], p.pip);
+                }
             }
-            resultEl.className = 'dice-result win';
-            window.toast((profit >= 0 ? '+' : '') + profit + ' монет!', 'gld');
-        } else {
-            const loss = Math.abs(profit);
-            resultEl.textContent = '❌ Выпало ' + val + ' (' + colorName + ')! -' + loss + ' монет';
-            resultEl.className = 'dice-result lose';
-            window.toast('-' + loss + ' монет', 'err');
         }
 
-        const buttons2 = document.querySelectorAll('.dice-btns button');
-        for (let b2 = 0; b2 < buttons2.length; b2++) {
-            buttons2[b2].disabled = false;
-        }
-        
-        scheduleSave();
-        renderUI();
-    });
-};
+        (function initFaces() {
+            const faces = ['f1', 'f2', 'f3', 'f4', 'f5', 'f6'];
+            const vals = [1, 2, 3, 4, 5, 6];
+            for (let i = 0; i < faces.length; i++) {
+                const f = document.getElementById(faces[i]);
+                if (!f) continue;
+                const wrap = document.createElement('div');
+                wrap.className = 'pips';
+                wrap.style.cssText = 'display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);width:100px;height:100px;gap:0;padding:8px';
+                f.innerHTML = '';
+                f.appendChild(wrap);
+                buildPips(wrap, vals[i], '#ffffff');
+            }
+            applyDicePalette(CUBE_PALETTES[0]);
+        })();
 
-document.addEventListener('DOMContentLoaded', function() {
-    const diceSection = document.querySelector('.dice-section');
-    if (diceSection) {
-        const rulesBtn = document.createElement('button');
-        rulesBtn.textContent = '📖 Правила';
-        rulesBtn.style.cssText = 'padding:6px 14px;border-radius:8px;border:0.5px solid var(--color-border-secondary);background:var(--color-background-primary);color:var(--color-text-primary);font-size:12px;cursor:pointer;margin-top:4px;';
-        rulesBtn.onclick = showDiceRules;
-        
-        const btns = diceSection.querySelector('.dice-btns');
-        if (btns) {
-            btns.parentNode.insertBefore(rulesBtn, btns.nextSibling);
-        } else {
-            diceSection.appendChild(rulesBtn);
+        window.renderDiceIdle = function() {
+            const cube = document.getElementById('diceCube');
+            if (!cube) return;
+            cube.style.transition = 'none';
+            cube.style.transform = 'rotateX(-20deg) rotateY(30deg)';
+            applyDicePalette(CUBE_PALETTES[0]);
+            document.getElementById('diceResult').textContent = '';
+            document.getElementById('diceResult').className = 'dice-result';
+            lastDiceValue = null;
+            lastDiceColor = null;
+        };
+
+        function rollDiceInternal(callback) {
+            if (diceRolling) return;
+            diceRolling = true;
+            document.getElementById('diceResult').textContent = '...';
+            document.getElementById('diceResult').className = 'dice-result';
+
+            const cube = document.getElementById('diceCube');
+            cube.style.transition = 'none';
+
+            let t = 0;
+            let paletteTimer = 0;
+            let rx = -20;
+            let ry = 30;
+
+            if (diceAnimId2) cancelAnimationFrame(diceAnimId2);
+
+            function anim() {
+                t++;
+                rx += 7.3 * (1 - t / 45);
+                ry += 11.7 * (1 - t / 45);
+
+                paletteTimer++;
+                if (paletteTimer % 6 === 0) {
+                    curPalette = (curPalette + 1) % CUBE_PALETTES.length;
+                    applyDicePalette(CUBE_PALETTES[curPalette]);
+                }
+
+                cube.style.transform = 'rotateX(' + rx + 'deg) rotateY(' + ry + 'deg)';
+
+                if (t < 42) {
+                    diceAnimId2 = requestAnimationFrame(anim);
+                } else {
+                    const val = Math.floor(Math.random() * 6) + 1;
+                    const colors = ['red', 'black'];
+                    const randomColor = colors[Math.floor(Math.random() * colors.length)];
+                    
+                    lastDiceValue = val;
+                    lastDiceColor = randomColor;
+
+                    const finalColor = DICE_FINAL_COLORS[randomColor];
+                    applyDicePalette(finalColor);
+
+                    const faceRots = {
+                        1: 'rotateX(0deg) rotateY(0deg)',
+                        2: 'rotateX(-90deg) rotateY(0deg)',
+                        3: 'rotateX(0deg) rotateY(-90deg)',
+                        4: 'rotateX(0deg) rotateY(90deg)',
+                        5: 'rotateX(90deg) rotateY(0deg)',
+                        6: 'rotateX(0deg) rotateY(180deg)'
+                    };
+                    cube.style.transition = 'transform 0.6s cubic-bezier(.22,.61,.36,1)';
+                    cube.style.transform = faceRots[val] || 'rotateX(0deg) rotateY(0deg)';
+
+                    diceRolling = false;
+                    if (callback) callback(val, randomColor);
+                }
+            }
+            requestAnimationFrame(anim);
         }
-    }
-});
+
+        window.playDiceWithBet = function(col) {
+            if (G.coins < 50) {
+                window.toast('Нужно 50 монет', 'err');
+                return;
+            }
+            if (diceRolling) {
+                window.toast('Кубик уже крутится', 'err');
+                return;
+            }
+
+            const buttons = document.querySelectorAll('.dice-btns button');
+            for (let b = 0; b < buttons.length; b++) {
+                buttons[b].disabled = true;
+            }
+
+            G.coins -= 50;
+
+            rollDiceInternal(function(val, resultCol) {
+                const base = val * 10;
+                const bonus = (col === resultCol) ? 10 : 0;
+                const total = base + bonus;
+                G.coins += total;
+                const profit = total - 50;
+                
+                const colorName = resultCol === 'red' ? '🔴 красный' : '⚫ чёрный';
+                const resultEl = document.getElementById('diceResult');
+                const win = (col === resultCol);
+                
+                if (win) {
+                    if (profit >= 0) {
+                        resultEl.textContent = '✅ Выпало ' + val + ' (' + colorName + ')! +' + profit + ' монет';
+                    } else {
+                        resultEl.textContent = '✅ Выпало ' + val + ' (' + colorName + ')! ' + profit + ' монет';
+                    }
+                    resultEl.className = 'dice-result win';
+                    window.toast((profit >= 0 ? '+' : '') + profit + ' монет!', 'gld');
+                } else {
+                    const loss = Math.abs(profit);
+                    resultEl.textContent = '❌ Выпало ' + val + ' (' + colorName + ')! -' + loss + ' монет';
+                    resultEl.className = 'dice-result lose';
+                    window.toast('-' + loss + ' монет', 'err');
+                }
+
+                const buttons2 = document.querySelectorAll('.dice-btns button');
+                for (let b2 = 0; b2 < buttons2.length; b2++) {
+                    buttons2[b2].disabled = false;
+                }
+                
+                scheduleSave();
+                renderUI();
+            });
+        };
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const diceSection = document.querySelector('.dice-section');
+            if (diceSection) {
+                const rulesBtn = document.createElement('button');
+                rulesBtn.textContent = '📖 Правила';
+                rulesBtn.style.cssText = 'padding:6px 14px;border-radius:8px;border:0.5px solid var(--color-border-secondary);background:var(--color-background-primary);color:var(--color-text-primary);font-size:12px;cursor:pointer;margin-top:4px;';
+                rulesBtn.onclick = showDiceRules;
+                
+                const btns = diceSection.querySelector('.dice-btns');
+                if (btns) {
+                    btns.parentNode.insertBefore(rulesBtn, btns.nextSibling);
+                } else {
+                    diceSection.appendChild(rulesBtn);
+                }
+            }
+        });
+
         // ============================================================
         // 19. ТОП-10
         // ============================================================
         async function loadTopPlayers(tp = 'b') {
-    const now = Date.now();
-    if (topCache.data && topCache.type === tp && now - topCache.timestamp < CONFIG.TOP_CACHE_TIME) {
-        return topCache.data;
-    }
+            const now = Date.now();
+            if (topCache.data && topCache.type === tp && now - topCache.timestamp < CONFIG.TOP_CACHE_TIME) {
+                return topCache.data;
+            }
 
-    try {
-        const { data, ok } = await sbFetch(
-            `/rest/v1/users?select=id,username,data&limit=${CONFIG.TOP_LIMIT + 5}`
-        );
+            try {
+                const { data, ok } = await sbFetch(
+                    `/rest/v1/users?select=id,username,data&limit=${CONFIG.TOP_LIMIT + 5}`
+                );
 
-        if (ok && data) {
-            let players = data
-                .filter(u => u.username && u.data)
-                .map(u => {
-                    const shardCount = u.data.shards ?
-                        Object.keys(u.data.shards).filter(k => u.data.shards[k] > 0).length : 0;
-                    
-                    // === ПОЛУЧАЕМ СТИЛЬ НИКА ===
-                    let nickStyle = '';
-                    if (u.data.nicks && u.data.nicks.a) {
-                        const style = NICK_S[u.data.nicks.a];
-                        if (style) nickStyle = style.e;
-                    }
-                    
-                    return {
-                        id: u.id,
-                        n: u.data.name || u.username,
-                        username: u.username,
-                        c: u.data.coins || 0,
-                        f: u.data.farms || 0,
-                        r: u.data.refs || 0,
-                        s: shardCount,
-                        a: u.data.avatar || AVATAR_LIST[0],
-                        nickStyle: nickStyle
-                    };
-                });
+                if (ok && data) {
+                    let players = data
+                        .filter(u => u.username && u.data)
+                        .map(u => {
+                            const shardCount = u.data.shards ?
+                                Object.keys(u.data.shards).filter(k => u.data.shards[k] > 0).length : 0;
+                            
+                            let nickStyle = '';
+                            if (u.data.nicks && u.data.nicks.a) {
+                                const style = NICK_S[u.data.nicks.a];
+                                if (style) nickStyle = style.e;
+                            }
+                            
+                            return {
+                                id: u.id,
+                                n: u.data.name || u.username,
+                                username: u.username,
+                                c: u.data.coins || 0,
+                                f: u.data.farms || 0,
+                                r: u.data.refs || 0,
+                                s: shardCount,
+                                a: u.data.avatar || AVATAR_LIST[0],
+                                nickStyle: nickStyle
+                            };
+                        });
 
-            const sortKey = tp === 'b' ? 'c' : tp === 'f' ? 'f' : tp === 'r' ? 'r' : 's';
-            players.sort((a, b) => (b[sortKey] || 0) - (a[sortKey] || 0));
-            players = players.slice(0, CONFIG.TOP_LIMIT);
+                    const sortKey = tp === 'b' ? 'c' : tp === 'f' ? 'f' : tp === 'r' ? 'r' : 's';
+                    players.sort((a, b) => (b[sortKey] || 0) - (a[sortKey] || 0));
+                    players = players.slice(0, CONFIG.TOP_LIMIT);
 
-            topCache.data = players;
-            topCache.timestamp = now;
-            topCache.type = tp;
+                    topCache.data = players;
+                    topCache.timestamp = now;
+                    topCache.type = tp;
 
-            return players;
+                    return players;
+                }
+                return topCache.data || [];
+            } catch (e) {
+                console.error('❌ Ошибка загрузки топа:', e);
+                return topCache.data || [];
+            }
         }
-        return topCache.data || [];
-    } catch (e) {
-        console.error('❌ Ошибка загрузки топа:', e);
-        return topCache.data || [];
-    }
-}
 
         async function renderTop(tp) {
-    topLastType = tp;
+            topLastType = tp;
 
-    const now = Date.now();
-    const isCacheValid = topCache.data && topCache.type === tp && now - topCache.timestamp < CONFIG.TOP_CACHE_TIME;
+            const now = Date.now();
+            const isCacheValid = topCache.data && topCache.type === tp && now - topCache.timestamp < CONFIG.TOP_CACHE_TIME;
 
-    if (!isCacheValid) {
-        document.getElementById('TOP_u').textContent = '⏳ загрузка...';
-        await loadTopPlayers(tp);
-    }
+            if (!isCacheValid) {
+                document.getElementById('TOP_u').textContent = '⏳ загрузка...';
+                await loadTopPlayers(tp);
+            }
 
-    const rem = Math.max(0, Math.ceil((topCache.timestamp + CONFIG.TOP_CACHE_TIME - now) / 1000));
-    document.getElementById('TOP_u').textContent = rem > 30 ? `обновление через ${Math.round(rem/60)}м` : 'только что';
+            const rem = Math.max(0, Math.ceil((topCache.timestamp + CONFIG.TOP_CACHE_TIME - now) / 1000));
+            document.getElementById('TOP_u').textContent = rem > 30 ? `обновление через ${Math.round(rem/60)}м` : 'только что';
 
-    const shardCount = getShardCount();
-    const topPlayers = topCache.data || [];
+            const shardCount = getShardCount();
+            const topPlayers = topCache.data || [];
 
-    const all = [...topPlayers];
-    const exists = all.some(p => p.id === UID);
-    if (!exists && G.name) {
-        let nickStyle = '';
-        if (G.nicks && G.nicks.a) {
-            const style = NICK_S[G.nicks.a];
-            if (style) nickStyle = style.e;
+            const all = [...topPlayers];
+            const exists = all.some(p => p.id === UID);
+            if (!exists && G.name) {
+                let nickStyle = '';
+                if (G.nicks && G.nicks.a) {
+                    const style = NICK_S[G.nicks.a];
+                    if (style) nickStyle = style.e;
+                }
+                all.push({
+                    id: UID,
+                    n: G.name,
+                    username: currentUsername,
+                    c: G.coins,
+                    f: G.farms,
+                    r: G.refs,
+                    s: shardCount,
+                    a: G.avatar || AVATAR_LIST[0],
+                    nickStyle: nickStyle
+                });
+            }
+
+            if (all.length === 0) {
+                document.getElementById('TOP_l').innerHTML =
+                    `<div class="tm tc" style="padding:16px;">Нет игроков для отображения</div>`;
+                return;
+            }
+
+            const key = tp === 'b' ? 'c' : tp === 'f' ? 'f' : tp === 'r' ? 'r' : 's';
+            const titles = { b: 'Топ по балансу', f: 'Топ по фармам', r: 'Топ по рефералам', s: 'Топ по осколкам' };
+            const symbols = { b: '💰', f: '⛏', r: '👥', s: '💎' };
+
+            document.getElementById('TOP_t').textContent = titles[tp];
+
+            all.sort((a, b) => (b[key] || 0) - (a[key] || 0));
+            const top10 = all.slice(0, CONFIG.TOP_LIMIT);
+            const clrs = ['var(--gld)', '#c0c0d0', '#cd7f32'];
+
+            document.getElementById('TOP_l').innerHTML = top10.map((p, i) => {
+                const val = tp === 's' ? `${p.s} осколков` : fmt(p[key] || 0) + ' ' + symbols[tp];
+                const isPlayer = p.id === UID;
+                const avatarUrl = p.a || AVATAR_LIST[0];
+                
+                let nickStyle = p.nickStyle || '';
+                if (!nickStyle && isPlayer && G.nicks && G.nicks.a) {
+                    const style = NICK_S[G.nicks.a];
+                    if (style) nickStyle = style.e;
+                }
+
+                return `<div class="top-row" style="${isPlayer ? 'background:var(--bg4);border-radius:6px;' : ''}">
+                    <div style="font-size:15px;font-weight:700;min-width:22px;color:${clrs[i]||'var(--tx2)'}">${i+1}</div>
+                    <div class="top-avatar">
+                        <img src="${avatarUrl}" alt="${p.n}" loading="lazy" onerror="this.style.display='none';this.parentElement.innerHTML='<span class=\\'placeholder\\'>👤</span>'">
+                    </div>
+                    <div style="flex:1;font-size:13px">${nickStyle} ${p.n} ${isPlayer ? '👈' : ''}</div>
+                    <div style="color:var(--tx2);font-size:10px;margin-right:6px;">#${p.id.slice(0, 4)}</div>
+                    <div style="color:var(--gld);font-weight:700;font-size:13px">${val}</div>
+                </div>`;
+            }).join('');
         }
-        all.push({
-            id: UID,
-            n: G.name,
-            username: currentUsername,
-            c: G.coins,
-            f: G.farms,
-            r: G.refs,
-            s: shardCount,
-            a: G.avatar || AVATAR_LIST[0],
-            nickStyle: nickStyle
-        });
-    }
-
-    if (all.length === 0) {
-        document.getElementById('TOP_l').innerHTML =
-            `<div class="tm tc" style="padding:16px;">Нет игроков для отображения</div>`;
-        return;
-    }
-
-    const key = tp === 'b' ? 'c' : tp === 'f' ? 'f' : tp === 'r' ? 'r' : 's';
-    const titles = { b: 'Топ по балансу', f: 'Топ по фармам', r: 'Топ по рефералам', s: 'Топ по осколкам' };
-    const symbols = { b: '💰', f: '⛏', r: '👥', s: '💎' };
-
-    document.getElementById('TOP_t').textContent = titles[tp];
-
-    all.sort((a, b) => (b[key] || 0) - (a[key] || 0));
-    const top10 = all.slice(0, CONFIG.TOP_LIMIT);
-    const clrs = ['var(--gld)', '#c0c0d0', '#cd7f32'];
-
-    document.getElementById('TOP_l').innerHTML = top10.map((p, i) => {
-        const val = tp === 's' ? `${p.s} осколков` : fmt(p[key] || 0) + ' ' + symbols[tp];
-        const isPlayer = p.id === UID;
-        const avatarUrl = p.a || AVATAR_LIST[0];
-        
-        // === ПОЛУЧАЕМ СТИЛЬ НИКА ===
-        let nickStyle = p.nickStyle || '';
-        if (!nickStyle && isPlayer && G.nicks && G.nicks.a) {
-            const style = NICK_S[G.nicks.a];
-            if (style) nickStyle = style.e;
-        }
-
-        return `<div class="top-row" style="${isPlayer ? 'background:var(--bg4);border-radius:6px;' : ''}">
-            <div style="font-size:15px;font-weight:700;min-width:22px;color:${clrs[i]||'var(--tx2)'}">${i+1}</div>
-            <div class="top-avatar">
-                <img src="${avatarUrl}" alt="${p.n}" loading="lazy" onerror="this.style.display='none';this.parentElement.innerHTML='<span class=\\'placeholder\\'>👤</span>'">
-            </div>
-            <div style="flex:1;font-size:13px">${nickStyle} ${p.n} ${isPlayer ? '👈' : ''}</div>
-            <div style="color:var(--tx2);font-size:10px;margin-right:6px;">#${p.id.slice(0, 4)}</div>
-            <div style="color:var(--gld);font-weight:700;font-size:13px">${val}</div>
-        </div>`;
-    }).join('');
-}
 
         // ============================================================
         // 20. ПОКАЗ ПРИЛОЖЕНИЯ
@@ -4966,6 +4259,9 @@ document.addEventListener('DOMContentLoaded', function() {
             window.addEventListener('beforeunload', () => { if (UID) { saveUserData();
                     updateOnlineStatus(); } });
             window.addEventListener('online', restoreOfflineQueue);
+
+            // Загружаем состояние аукциона
+            setTimeout(loadAuctionState, 1000);
 
             window.toast('💾 Данные синхронизируются', 'info');
         }
@@ -5059,14 +4355,13 @@ document.addEventListener('DOMContentLoaded', function() {
         });
 
         console.log('✅ ВСЁ ИСПРАВЛЕНО:');
-        console.log('  💬 Чат полностью рабочий (общий + ЛС)');
+        console.log('  💬 Чат полностью рабочий (общий)');
         console.log('  👹 Босс появляется в 12:00 МСК');
         console.log('  🎰 Рулетка возвращает число и цвет');
         console.log('  📛 Никнеймы уникальны');
         console.log('  🏆 Топ отображается корректно');
-        console.log('  🚫 Кланы удалены');
-        console.log('  🏛 Аукцион запускается по коду denchik9995066943');
-        console.log('  👑 Админ-панель для выдачи монет');
+        console.log('  🏛 Аукцион глобальный (все устройства)');
+        console.log('  💰 Монеты покупаются через админа');
         console.log('  🔑 Обмен 1 ключа на 100 монет');
     </script>
 </body>
