@@ -4130,8 +4130,8 @@ var coeffEl = document.querySelector('.rl-coeff');
 if (coeffEl) {
     coeffEl.innerHTML = '🔴 Красный ×1.75 (45%) | ⚫ Чёрный ×1.75 (45%) | 🟢 Зелёный ×5 (10%)';
 }
-       // ============================================================
-// 18. КУБИК (ИСПРАВЛЕННЫЙ)
+      // ============================================================
+// 18. КУБИК (ПРОСТАЯ ВЕРСИЯ)
 // ============================================================
 
 const PIP_LAYOUTS = {
@@ -4164,6 +4164,39 @@ let diceRx = -20;
 let diceRy = 30;
 let lastDiceValue = null;
 let lastDiceColor = null;
+
+// === ПРАВИЛА ===
+function showDiceRules() {
+    const rules = `
+🎲 ПРАВИЛА ИГРЫ В КУБИК
+
+💰 СТАВКА: 50 монет
+
+🎯 ЦЕЛЬ: Угадать цвет выпавшей грани
+
+🎨 ЦВЕТА:
+• 🔴 Красный — 50% шанс
+• ⚫ Чёрный — 50% шанс
+
+💵 РАСЧЁТ ВЫИГРЫША:
+• Базовый = Число × 10 монет
+• Бонус = +10 монет, если угадали цвет
+• Итог = Базовый + Бонус - 50 (ставка)
+
+📊 ПРИМЕРЫ:
+• Выпало 6, угадали цвет → 60 + 10 - 50 = +20 монет
+• Выпало 6, НЕ угадали → 60 + 0 - 50 = +10 монет
+• Выпало 1, угадали цвет → 10 + 10 - 50 = -30 монет
+• Выпало 1, НЕ угадали → 10 + 0 - 50 = -40 монет
+
+🎯 ШАНСЫ:
+• Угадать цвет: 50%
+• Чем больше число, тем выше выигрыш!
+
+⚡ УДАЧИ! 🍀
+`;
+    window.toast(rules, 'info');
+}
 
 function buildPips(el, n, pipColor) {
     const g = document.createElement('div');
@@ -4271,10 +4304,13 @@ function rollDiceInternal(callback) {
             diceAnimId2 = requestAnimationFrame(anim);
         } else {
             const val = Math.floor(Math.random() * 6) + 1;
+            const colors = ['red', 'black'];
+            const randomColor = colors[Math.floor(Math.random() * colors.length)];
+            
             lastDiceValue = val;
-            lastDiceColor = val % 2 === 1 ? 'red' : 'black';
+            lastDiceColor = randomColor;
 
-            const finalColor = DICE_FINAL_COLORS[lastDiceColor];
+            const finalColor = DICE_FINAL_COLORS[randomColor];
             applyDicePalette(finalColor);
 
             const faceRots = {
@@ -4289,7 +4325,7 @@ function rollDiceInternal(callback) {
             cube.style.transform = faceRots[val] || 'rotateX(0deg) rotateY(0deg)';
 
             diceRolling = false;
-            if (callback) callback(val, lastDiceColor);
+            if (callback) callback(val, randomColor);
         }
     }
     requestAnimationFrame(anim);
@@ -4313,7 +4349,6 @@ window.playDiceWithBet = function(col) {
     G.coins -= 50;
 
     rollDiceInternal(function(val, resultCol) {
-        // === РАСЧЁТ ВЫИГРЫША/ПРОИГРЫША ===
         const base = val * 10;
         const bonus = (col === resultCol) ? 10 : 0;
         const total = base + bonus;
@@ -4324,13 +4359,11 @@ window.playDiceWithBet = function(col) {
         const resultEl = document.getElementById('diceResult');
         const win = (col === resultCol);
         
-        // === ПРАВИЛЬНОЕ ОТОБРАЖЕНИЕ (ТОЛЬКО + ИЛИ -) ===
         if (win) {
             resultEl.textContent = '✅ Выпало ' + val + ' (' + colorName + ')! +' + profit + ' монет';
             resultEl.className = 'dice-result win';
             window.toast('+' + profit + ' монет!', 'gld');
         } else {
-            // profit уже отрицательный, делаем его положительным для отображения
             const loss = Math.abs(profit);
             resultEl.textContent = '❌ Выпало ' + val + ' (' + colorName + ')! -' + loss + ' монет';
             resultEl.className = 'dice-result lose';
@@ -4346,6 +4379,24 @@ window.playDiceWithBet = function(col) {
         renderUI();
     });
 };
+
+// === КНОПКА ПРАВИЛ ===
+document.addEventListener('DOMContentLoaded', function() {
+    const diceSection = document.querySelector('.dice-section');
+    if (diceSection) {
+        const rulesBtn = document.createElement('button');
+        rulesBtn.textContent = '📖 Правила';
+        rulesBtn.style.cssText = 'padding:6px 14px;border-radius:8px;border:0.5px solid var(--color-border-secondary);background:var(--color-background-primary);color:var(--color-text-primary);font-size:12px;cursor:pointer;margin-top:4px;';
+        rulesBtn.onclick = showDiceRules;
+        
+        const btns = diceSection.querySelector('.dice-btns');
+        if (btns) {
+            btns.parentNode.insertBefore(rulesBtn, btns.nextSibling);
+        } else {
+            diceSection.appendChild(rulesBtn);
+        }
+    }
+});
         // ============================================================
         // 19. ТОП-10
         // ============================================================
