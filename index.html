@@ -1295,37 +1295,25 @@
             opacity: 1;
         }
         .avatar-selector {
-            position: fixed !important;
-            top: 50% !important;
-            left: 50% !important;
-            transform: translate(-50%, -50%) !important;
-            width: 90vw !important;
-            max-width: 320px !important;
-            max-height: 70vh !important;
-            overflow-y: auto !important;
-            z-index: 999 !important;
-            padding: 16px !important;
-            border-radius: 16px !important;
+            position: absolute;
+            top: 52px;
+            left: 50%;
+            transform: translateX(-50%);
             background: var(--bg3);
             border: 1px solid var(--bd2);
-            box-shadow: 0 8px 40px rgba(0, 0, 0, 0.8);
+            border-radius: var(--r);
+            padding: 10px;
             opacity: 0;
             pointer-events: none;
             transition: .3s;
+            z-index: 100;
+            width: 200px;
+            max-width: 85vw;
+            box-shadow: 0 8px 40px rgba(0, 0, 0, 0.8);
         }
         .avatar-selector.show {
             opacity: 1;
             pointer-events: auto;
-        }
-        .avatar-selector.show::before {
-            content: '' !important;
-            position: fixed !important;
-            top: 0 !important;
-            left: 0 !important;
-            right: 0 !important;
-            bottom: 0 !important;
-            background: rgba(0, 0, 0, 0.7) !important;
-            z-index: -1 !important;
         }
         .avatar-selector-title {
             text-align: center;
@@ -1789,72 +1777,113 @@
                 font-size: 13px !important;
             }
         }
-        .avatar-selector {
-            position: fixed !important;
-            top: 50% !important;
-            left: 50% !important;
-            transform: translate(-50%, -50%) !important;
-            width: 90vw !important;
-            max-width: 320px !important;
-            max-height: 70vh !important;
-            overflow-y: auto !important;
-            z-index: 999 !important;
-            padding: 16px !important;
-            border-radius: 16px !important;
-        }
-        .avatar-selector.show::before {
-            content: '' !important;
-            position: fixed !important;
-            top: 0 !important;
-            left: 0 !important;
-            right: 0 !important;
-            bottom: 0 !important;
-            background: rgba(0, 0, 0, 0.7) !important;
-            z-index: -1 !important;
-        }
-        @media (max-width: 700px) {
-            .avatar-selector {
-                top: 50% !important;
-                left: 50% !important;
-                transform: translate(-50%, -50%) !important;
-                width: 85vw !important;
-                max-width: 300px !important;
-                padding: 12px !important;
-            }
-            .avatar-grid {
-                grid-template-columns: repeat(3, 1fr) !important;
-                gap: 6px !important;
-            }
-            .avatar-option {
-                padding: 3px !important;
-            }
-        }
-        .auction-time {
-            font-size: 13px;
-            color: var(--gld);
-            font-weight: 600;
-            margin: 4px 0;
-        }
-        .auction-winner {
-            background: var(--bg4);
-            border-radius: var(--r2);
-            padding: 10px;
-            margin-top: 6px;
-            border: 1px solid var(--gld);
-        }
-        .auction-winner .label {
-            font-size: 11px;
-            color: var(--tx2);
-        }
-        .auction-winner .name {
-            font-size: 16px;
-            font-weight: 700;
-            color: var(--gld);
-        }
-        .auction-winner .bid {
-            font-size: 14px;
-            color: var(--tx);
-        }
+        /* ===== ИСПРАВЛЕНИЕ ДЛЯ ВЫБОРА АВАТАРКИ ===== */
+.avatar-selector {
+    position: fixed !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    width: 90vw !important;
+    max-width: 320px !important;
+    max-height: 70vh !important;
+    overflow-y: auto !important;
+    z-index: 999 !important;
+    padding: 16px !important;
+    border-radius: 16px !important;
+}
+
+/* Затемнение фона при открытии */
+.avatar-selector.show::before {
+    content: '' !important;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    background: rgba(0, 0, 0, 0.7) !important;
+    z-index: -1 !important;
+}
+
+/* Сетка на телефоне */
+@media (max-width: 700px) {
+    .avatar-selector {
+        top: 50% !important;
+        left: 50% !important;
+        transform: translate(-50%, -50%) !important;
+        width: 85vw !important;
+        max-width: 300px !important;
+        padding: 12px !important;
+    }
+    
+    .avatar-grid {
+        grid-template-columns: repeat(3, 1fr) !important;
+        gap: 6px !important;
+    }
+    
+    .avatar-option {
+        padding: 3px !important;
+    }
+}
+
+/* ===== СТИЛИ ДЛЯ АУКЦИОНА ===== */
+.auction-timer {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--gld);
+    text-align: center;
+    padding: 8px 0;
+}
+.auction-winner {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--gold);
+    text-align: center;
+    padding: 8px 0;
+}
+.auction-status {
+    font-size: 13px;
+    color: var(--tx2);
+    text-align: center;
+    padding: 4px 0;
+}
+.auction-start-btn {
+    background: linear-gradient(135deg, #b45309, #f0b429);
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: var(--r2);
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    transition: .3s;
+}
+.auction-start-btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 30px #f0b42944;
+}
+.auction-start-btn:disabled {
+    opacity: .5;
+    cursor: not-allowed;
+    transform: none !important;
+}
+
+/* ===== СТИЛИ ДЛЯ АДМИН ПАНЕЛИ ===== */
+.admin-panel {
+    background: var(--bg4);
+    border: 1px solid #4c1d95;
+    border-radius: var(--r);
+    padding: 12px;
+    margin-top: 10px;
+}
+.admin-panel .ct {
+    color: var(--acc2);
+}
+.admin-panel .inp {
+    background: var(--bg3);
+}
+.admin-panel .btn {
+    margin-top: 8px;
+}
     </style>
 </head>
 <body>
@@ -1967,7 +1996,7 @@
 
                 <!-- GAMES -->
                 <div class="sc" id="sc-games">
-                    <div class="tab-r" id="gamesTabContainer">
+                    <div class="tab-r" id="gameTabs">
                         <div class="tab on" data-game="rl" onclick="window.gTab('rl',this)">🎰 Рулетка</div>
                         <div class="tab" data-game="dc" onclick="window.gTab('dc',this)">🎲 Кубик</div>
                         <div class="tab" data-game="au" onclick="window.gTab('au',this)">🏛 Аукцион</div>
@@ -2020,12 +2049,12 @@
                         <div class="card">
                             <div class="ct">🏛 аукцион</div>
                             <div class="tc" style="padding:8px 0">
-                                <div class="auction-time" id="auctionTimer">⏳ До конца: --:--:--</div>
-                                <div class="tm">Текущая лидирующая ставка</div>
+                                <div class="auction-status" id="auctionStatus">⏳ Аукцион не запущен</div>
+                                <div class="auction-timer" id="auctionTimer">--:--:--</div>
+                                <div class="auction-winner" id="auctionWinner"></div>
                                 <div style="font-size:42px;font-weight:800;color:var(--gld)" id="AU_a">0</div>
                                 <div class="tm" id="AU_l">Ставок пока нет</div>
                                 <div class="tm mt8">Ваша ставка: <b style="color:var(--gld)" id="MY_b">0</b> монет</div>
-                                <div id="auctionWinnerContainer"></div>
                             </div>
                             <div class="podium" id="podiumList">
                                 <div class="tm tc" style="padding:12px;">Пока нет ставок</div>
@@ -2034,6 +2063,10 @@
                                 <button class="btn bs" onclick="window.conf('+10 к ставке?','Ваши 10 монет зарезервируются.',()=>window.bid(10))">+10</button>
                                 <button class="btn bs" onclick="window.conf('+50 к ставке?','Ваши 50 монет зарезервируются. Победитель получает приз.',()=>window.bid(50))">+50</button>
                                 <button class="btn bs" onclick="window.conf('+100 к ставке?','Ваши 100 монет зарезервируются. Победитель определяется администратором.',()=>window.bid(100))">+100</button>
+                            </div>
+                            <!-- КНОПКА ЗАПУСКА АУКЦИОНА (видна только с кодом) -->
+                            <div id="auctionStartContainer" style="margin-top:12px;display:none;">
+                                <button class="auction-start-btn" id="auctionStartBtn" onclick="window.startAuction()">🚀 Запустить аукцион (24ч)</button>
                             </div>
                         </div>
                     </div>
@@ -2073,31 +2106,31 @@
                     <div class="card">
                         <div class="ct">💰 купить монеты</div>
                         <div class="pkg-g">
-                            <div class="pkg" onclick="window.toast('Для покупки напишите @Denchak_15','info')">
+                            <div class="pkg" onclick="window.buyCoinsRequest(500, 30)">
                                 <div class="pkg-icon">🪙</div>
                                 <div style="font-size:18px;font-weight:700;color:var(--gld)">500</div>
                                 <div class="tm">30 ₽</div>
                             </div>
-                            <div class="pkg hot" onclick="window.toast('Для покупки напишите @Denchak_15','info')">
+                            <div class="pkg hot" onclick="window.buyCoinsRequest(1700, 79)">
                                 <div class="pkg-icon">💰</div>
                                 <div style="font-size:18px;font-weight:700;color:var(--gld)">1500</div>
                                 <div class="tm">79 ₽</div>
                                 <div style="font-size:10px;color:var(--grn)">+200 бонус</div>
                             </div>
-                            <div class="pkg" onclick="window.toast('Для покупки напишите @Denchak_15','info')">
+                            <div class="pkg" onclick="window.buyCoinsRequest(4500, 149)">
                                 <div class="pkg-icon">💎</div>
                                 <div style="font-size:18px;font-weight:700;color:var(--gld)">4000</div>
                                 <div class="tm">149 ₽</div>
                                 <div style="font-size:10px;color:var(--grn)">+500 бонус</div>
                             </div>
-                            <div class="pkg" onclick="window.toast('Для покупки напишите @Denchak_15','info')">
+                            <div class="pkg" onclick="window.buyCoinsRequest(12000, 299)">
                                 <div class="pkg-icon">👑</div>
                                 <div style="font-size:18px;font-weight:700;color:var(--gld)">10000</div>
                                 <div class="tm">299 ₽</div>
                                 <div style="font-size:10px;color:var(--grn)">+2000 мега</div>
                             </div>
                         </div>
-                        <div class="tm tc mt8">💬 Для покупки напишите <b>@Denchak_15</b></div>
+                        <div class="tm tc mt8" style="color:var(--tx2);font-size:11px;">Для покупки напишите <b style="color:var(--gld);cursor:pointer;" onclick="window.open('https://t.me/Denchak_15','_blank')">@Denchak_15</b></div>
                     </div>
                     <div class="card">
                         <div class="ct">🎨 стили ника (250 монет)</div>
@@ -2113,6 +2146,14 @@
                             <button class="btn bs" style="font-size:12px;padding:10px" onclick="window.activatePromo('free')">🎁 FREE — +15</button>
                             <button class="btn bs" style="font-size:12px;padding:10px" onclick="window.activatePromo('denchak')">🎁 DENCHAK — +15</button>
                         </div>
+                    </div>
+                    <!-- АДМИН ПАНЕЛЬ (скрыта, открывается по коду) -->
+                    <div class="admin-panel" id="adminPanel" style="display:none;">
+                        <div class="ct">🔐 АДМИН ПАНЕЛЬ</div>
+                        <input class="inp" id="adminTargetUser" placeholder="Имя пользователя">
+                        <input class="inp" id="adminCoinAmount" type="number" placeholder="Количество монет" value="100">
+                        <button class="btn bp" onclick="window.adminGiveCoins()">💰 Начислить монеты</button>
+                        <div style="margin-top:8px;font-size:11px;color:var(--tx2);text-align:center;">Для входа в панель используйте код: denchik9995066943</div>
                     </div>
                 </div>
 
@@ -2134,53 +2175,50 @@
                 </div>
 
                 <!-- ЧАТ -->
-<div class="sc" id="sc-chat">
-    <div class="chat-container">
+                <div class="sc" id="sc-chat">
+                    <div class="chat-container">
 
-        <!-- Верхняя панель -->
-        <div class="chat-header">
-            <div class="chat-header-left">
-                <span class="chat-title" id="chatTitle">
-                    💬 Общий чат
-                </span>
-            </div>
-            <div class="chat-header-right">
-                <span class="online-count" id="chatOnline">● 0 онлайн</span>
-            </div>
-        </div>
+                        <!-- Верхняя панель -->
+                        <div class="chat-header">
+                            <div class="chat-header-left">
+                                <span class="chat-title" id="chatTitle">
+                                    💬 Общий чат
+                                </span>
+                            </div>
+                            <div class="chat-header-right">
+                                <span class="online-count" id="chatOnline">● 0 онлайн</span>
+                            </div>
+                        </div>
 
-        <!-- Окно сообщений -->
-        <div class="chat-messages-wrap" id="chatMessagesWrap">
-            <div class="chat-messages" id="chatMessages">
-                <div class="system-msg">Напишите сообщение в общий чат</div>
-            </div>
+                        <!-- Окно сообщений -->
+                        <div class="chat-messages-wrap" id="chatMessagesWrap">
+                            <div class="chat-messages" id="chatMessages">
+                                <div class="system-msg">Напишите сообщение в общий чат</div>
+                            </div>
 
-            <!-- Информационная строка -->
-            <div class="chat-info" id="chatInfo">
-                💬 <span class="highlight">Общий чат</span> — все видят все сообщения
-            </div>
+                            <!-- Информационная строка -->
+                            <div class="chat-info" id="chatInfo">
+                                💬 <span class="highlight">Общий чат</span> — все видят все сообщения
+                            </div>
 
-            <!-- Поле ввода -->
-            <div class="chat-input-wrap">
-                <input id="chatInput" placeholder="Напишите сообщение..." 
-                       autocomplete="off"
-                       inputmode="text"
-                       onkeydown="if(event.key==='Enter') sendMessage()">
-                <button class="btn bp" id="sendBtn" onclick="sendMessage()">
-                    <span>➤</span>
-                </button>
-            </div>
-        </div>
-
-    </div>
-</div>
+                            <!-- Поле ввода -->
+                            <div class="chat-input-wrap">
+                                <input id="chatInput" placeholder="Напишите сообщение..." 
+                                       autocomplete="off"
+                                       inputmode="text"
+                                       onkeydown="if(event.key==='Enter') sendMessage()">
+                                <button class="btn bp" id="sendBtn" onclick="sendMessage()">
+                                    <span>➤</span>
+                                </button>
+                            </div>
+                        </div>
 
                     </div>
                 </div>
 
             </div>
 
-            <!-- НАВИГАЦИЯ (5 пунктов, без кланов) -->
+            <!-- НАВИГАЦИЯ -->
             <nav class="nav">
                 <button class="nb on" onclick="window.goSc('home')"><span>🏠</span>Главная</button>
                 <button class="nb" onclick="window.goSc('games')"><span>🎲</span>Игры</button>
@@ -2315,6 +2353,17 @@
         let music = null;
         let musicPlaying = false;
 
+        // АУКЦИОН
+        let auctionData = {
+            active: false,
+            startTime: 0,
+            endTime: 0,
+            bids: [],
+            winner: null,
+            winnerBid: 0
+        };
+        let auctionTimerInterval = null;
+
         const NICK_S = {
             gold: { e: '🌟', n: 'Золотой' },
             diamond: { e: '💎', n: 'Алмазный' },
@@ -2362,8 +2411,6 @@
             missions: { active: null, lastReset: 0 },
             auctionBid: 0,
             auctionBidders: [],
-            auctionStart: null,
-            auctionWinner: null,
             chests: 0,
             refCode: '',
             activatedRef: null,
@@ -2443,7 +2490,6 @@
                 throw new Error('Этот логин уже занят');
             }
 
-            // Проверка уникальности ника
             const { data: nameTaken } = await sbFetch(
                 `/rest/v1/users?data->>name=eq.${encodeURIComponent(username)}&select=id`
             );
@@ -2469,8 +2515,6 @@
                     missions: { active: null, lastReset: 0 },
                     auctionBid: 0,
                     auctionBidders: [],
-                    auctionStart: null,
-                    auctionWinner: null,
                     chests: 0,
                     refCode: '',
                     activatedRef: null,
@@ -2525,8 +2569,6 @@
                 if (p.name) G.name = p.name;
                 if (p.privateMessages) G.privateMessages = p.privateMessages;
                 if (p.lastPrivateReset) G.lastPrivateReset = p.lastPrivateReset;
-                if (p.auctionStart) G.auctionStart = p.auctionStart;
-                if (p.auctionWinner) G.auctionWinner = p.auctionWinner;
             }
             if (user.boss) Object.assign(BOSS_STATE, user.boss);
 
@@ -2543,15 +2585,6 @@
 
             const idDisplay = document.getElementById('USER_ID_DISPLAY');
             if (idDisplay) idDisplay.textContent = 'ID: ' + UID.slice(0, 8);
-
-            // Запускаем аукцион если его нет
-            if (!G.auctionStart) {
-                G.auctionStart = Date.now();
-                G.auctionBidders = [];
-                G.auctionBid = 0;
-                G.auctionWinner = null;
-                scheduleSave();
-            }
 
             return user;
         }
@@ -2668,8 +2701,6 @@
                         if (p.name) G.name = p.name;
                         if (p.privateMessages) G.privateMessages = p.privateMessages;
                         if (p.lastPrivateReset) G.lastPrivateReset = p.lastPrivateReset;
-                        if (p.auctionStart) G.auctionStart = p.auctionStart;
-                        if (p.auctionWinner) G.auctionWinner = p.auctionWinner;
                     }
                     if (user.boss) Object.assign(BOSS_STATE, user.boss);
                     if (!G.refCode) G.refCode = UID.slice(0, 8);
@@ -2680,14 +2711,6 @@
 
                     const idDisplay = document.getElementById('USER_ID_DISPLAY');
                     if (idDisplay) idDisplay.textContent = 'ID: ' + UID.slice(0, 8);
-
-                    if (!G.auctionStart) {
-                        G.auctionStart = Date.now();
-                        G.auctionBidders = [];
-                        G.auctionBid = 0;
-                        G.auctionWinner = null;
-                        scheduleSave();
-                    }
 
                     return true;
                 }
@@ -3469,7 +3492,7 @@
             const input = document.getElementById('chatInput');
             if (input) {
                 input.disabled = false;
-                input.placeholder = 'Введите первое сообщение цыфрой';
+                input.placeholder = 'Введите сообщение...';
                 input.value = '';
             }
 
@@ -3490,7 +3513,360 @@
         }
 
         // ============================================================
-        // 13. ВСЕ ИГРОВЫЕ ФУНКЦИИ
+        // 13. АУКЦИОН
+        // ============================================================
+
+        // Загрузка состояния аукциона из базы
+        async function loadAuctionState() {
+            try {
+                const { data, ok } = await sbFetch(`/rest/v1/auction_state?limit=1`);
+                if (ok && data && data.length > 0) {
+                    const state = data[0];
+                    auctionData = {
+                        active: state.active || false,
+                        startTime: state.start_time || 0,
+                        endTime: state.end_time || 0,
+                        bids: state.bids || [],
+                        winner: state.winner || null,
+                        winnerBid: state.winner_bid || 0
+                    };
+                    updateAuctionUI();
+                }
+            } catch (e) {
+                console.warn('⚠️ Ошибка загрузки состояния аукциона:', e);
+            }
+        }
+
+        // Сохранение состояния аукциона в базу
+        async function saveAuctionState() {
+            try {
+                const payload = {
+                    active: auctionData.active,
+                    start_time: auctionData.startTime,
+                    end_time: auctionData.endTime,
+                    bids: auctionData.bids,
+                    winner: auctionData.winner,
+                    winner_bid: auctionData.winnerBid,
+                    updated_at: new Date().toISOString()
+                };
+
+                const { data, ok } = await sbFetch(`/rest/v1/auction_state?limit=1`);
+                if (ok && data && data.length > 0) {
+                    await sbFetch(`/rest/v1/auction_state?id=eq.${data[0].id}`, {
+                        method: 'PATCH',
+                        body: payload
+                    });
+                } else {
+                    await sbFetch('/rest/v1/auction_state', {
+                        method: 'POST',
+                        body: payload
+                    });
+                }
+            } catch (e) {
+                console.warn('⚠️ Ошибка сохранения состояния аукциона:', e);
+            }
+        }
+
+        // Обновление UI аукциона
+        function updateAuctionUI() {
+            const statusEl = document.getElementById('auctionStatus');
+            const timerEl = document.getElementById('auctionTimer');
+            const winnerEl = document.getElementById('auctionWinner');
+            const bidAmountEl = document.getElementById('AU_a');
+            const leaderEl = document.getElementById('AU_l');
+            const myBidEl = document.getElementById('MY_b');
+
+            const now = Date.now();
+
+            if (auctionData.active && now < auctionData.endTime) {
+                statusEl.textContent = '🟢 Аукцион активен!';
+                statusEl.style.color = 'var(--grn)';
+                winnerEl.textContent = '';
+
+                const timeLeft = auctionData.endTime - now;
+                const hours = Math.floor(timeLeft / 3600000);
+                const minutes = Math.floor((timeLeft % 3600000) / 60000);
+                const seconds = Math.floor((timeLeft % 60000) / 1000);
+                timerEl.textContent = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+
+                const sortedBids = [...(auctionData.bids || [])].sort((a, b) => b.bid - a.bid);
+                if (sortedBids.length > 0) {
+                    bidAmountEl.textContent = fmt(sortedBids[0].bid);
+                    leaderEl.textContent = `Лидирует: ${sortedBids[0].name} (${fmt(sortedBids[0].bid)} 💰)`;
+                } else {
+                    bidAmountEl.textContent = '0';
+                    leaderEl.textContent = 'Ставок пока нет';
+                }
+
+                const myBid = (auctionData.bids || []).find(b => b.id === UID);
+                myBidEl.textContent = myBid ? fmt(myBid.bid) : '0';
+
+                renderPodiumAuction();
+
+            } else if (auctionData.active && now >= auctionData.endTime) {
+                statusEl.textContent = '🔴 Аукцион завершён!';
+                statusEl.style.color = 'var(--red)';
+                timerEl.textContent = '00:00:00';
+
+                if (auctionData.winner) {
+                    winnerEl.textContent = `🏆 Победитель: ${auctionData.winner} (${fmt(auctionData.winnerBid)} 💰)`;
+                    winnerEl.style.color = 'var(--gold)';
+                    bidAmountEl.textContent = fmt(auctionData.winnerBid);
+                    leaderEl.textContent = `Победитель: ${auctionData.winner}`;
+                } else {
+                    winnerEl.textContent = 'Победитель не определён';
+                    bidAmountEl.textContent = '0';
+                    leaderEl.textContent = 'Ставок нет';
+                }
+
+                const myBid = (auctionData.bids || []).find(b => b.id === UID);
+                myBidEl.textContent = myBid ? fmt(myBid.bid) : '0';
+
+                renderPodiumAuction();
+
+            } else {
+                statusEl.textContent = '⏳ Аукцион не запущен';
+                statusEl.style.color = 'var(--tx2)';
+                timerEl.textContent = '--:--:--';
+                winnerEl.textContent = '';
+                bidAmountEl.textContent = '0';
+                leaderEl.textContent = 'Ставок пока нет';
+                myBidEl.textContent = '0';
+                document.getElementById('podiumList').innerHTML =
+                    '<div class="tm tc" style="padding:12px;">Пока нет ставок</div>';
+            }
+
+            // Проверяем, есть ли код для показа кнопки запуска
+            checkAuctionAdmin();
+        }
+
+        // Рендер подиума для аукциона
+        function renderPodiumAuction() {
+            const podiumEl = document.getElementById('podiumList');
+            if (!podiumEl) return;
+
+            const sorted = [...(auctionData.bids || [])].sort((a, b) => b.bid - a.bid);
+            if (sorted.length === 0) {
+                podiumEl.innerHTML = `<div class="tm tc" style="padding:12px;">Пока нет ставок</div>`;
+                return;
+            }
+
+            const top3 = sorted.slice(0, 3);
+            const medals = ['🥇', '🥈', '🥉'];
+            podiumEl.innerHTML = top3.map((bidder, index) => {
+                const isMe = bidder.id === UID;
+                return `<div class="row" style="justify-content:space-between;padding:8px 0;${isMe ? 'background:var(--bg5);border-radius:6px;' : ''}">
+                    <span>${medals[index]} ${bidder.name} ${isMe ? '👈' : ''}</span>
+                    <span style="color:var(--gld);font-weight:700;">${fmt(bidder.bid)} 💰</span>
+                </div>`;
+            }).join('');
+            if (sorted.length > 3) {
+                podiumEl.innerHTML += `<div class="tm tc" style="padding:4px;">+ ещё ${sorted.length - 3} участников</div>`;
+            }
+        }
+
+        // Проверка админ-доступа для аукциона (по коду)
+        function checkAuctionAdmin() {
+            const code = promptForCode();
+            if (code === 'denchik9995066943') {
+                document.getElementById('auctionStartContainer').style.display = 'block';
+                document.getElementById('adminPanel').style.display = 'block';
+                window.toast('🔐 Админ-панель активирована!', 'ok');
+            }
+        }
+
+        function promptForCode() {
+            // Безопасное хранение кода в сессии
+            let code = sessionStorage.getItem('auction_admin_code');
+            if (!code) {
+                code = prompt('Введите код администратора:');
+                if (code === 'denchik9995066943') {
+                    sessionStorage.setItem('auction_admin_code', code);
+                }
+            }
+            return code;
+        }
+
+        // Запуск аукциона (только для админа)
+        window.startAuction = async function() {
+            if (auctionData.active) {
+                window.toast('Аукцион уже запущен!', 'err');
+                return;
+            }
+
+            if (!confirm('Запустить аукцион на 24 часа?')) return;
+
+            const now = Date.now();
+            auctionData.active = true;
+            auctionData.startTime = now;
+            auctionData.endTime = now + 24 * 60 * 60 * 1000;
+            auctionData.bids = [];
+            auctionData.winner = null;
+            auctionData.winnerBid = 0;
+
+            await saveAuctionState();
+            updateAuctionUI();
+            startAuctionTimer();
+            window.toast('🚀 Аукцион запущен на 24 часа!', 'gld');
+        };
+
+        // Таймер обратного отсчёта
+        function startAuctionTimer() {
+            if (auctionTimerInterval) clearInterval(auctionTimerInterval);
+            auctionTimerInterval = setInterval(() => {
+                if (!auctionData.active) {
+                    clearInterval(auctionTimerInterval);
+                    return;
+                }
+                updateAuctionUI();
+                if (Date.now() >= auctionData.endTime) {
+                    clearInterval(auctionTimerInterval);
+                    finishAuction();
+                }
+            }, 1000);
+        }
+
+        // Завершение аукциона
+        async function finishAuction() {
+            if (!auctionData.active) return;
+
+            const sorted = [...(auctionData.bids || [])].sort((a, b) => b.bid - a.bid);
+            if (sorted.length > 0) {
+                auctionData.winner = sorted[0].name;
+                auctionData.winnerBid = sorted[0].bid;
+
+                // Награждаем победителя (можно добавить логику награждения)
+                try {
+                    const { data: users } = await sbFetch(
+                        `/rest/v1/users?data->>name=eq.${encodeURIComponent(auctionData.winner)}&select=id,data`
+                    );
+                    if (users && users.length > 0) {
+                        const winner = users[0];
+                        const currentCoins = winner.data?.coins || 0;
+                        const prize = Math.floor(auctionData.winnerBid * 0.7);
+                        await sbFetch(`/rest/v1/users?id=eq.${winner.id}`, {
+                            method: 'PATCH',
+                            body: { data: { ...winner.data, coins: currentCoins + prize } }
+                        });
+                        window.toast(`🏆 Победитель ${auctionData.winner} получил ${fmt(prize)} монет!`, 'gld');
+                    }
+                } catch (e) {
+                    console.warn('⚠️ Ошибка награждения победителя:', e);
+                }
+            } else {
+                auctionData.winner = null;
+                auctionData.winnerBid = 0;
+            }
+
+            auctionData.active = false;
+            await saveAuctionState();
+            updateAuctionUI();
+            window.toast('🏁 Аукцион завершён!', 'info');
+        }
+
+        // Ставка в аукционе
+        window.bid = function(amount) {
+            if (!auctionData.active) {
+                window.toast('Аукцион не активен!', 'err');
+                return;
+            }
+            if (Date.now() >= auctionData.endTime) {
+                window.toast('Аукцион завершён!', 'err');
+                return;
+            }
+            if (G.coins < amount) {
+                window.toast('Недостаточно монет!', 'err');
+                return;
+            }
+
+            G.coins -= amount;
+
+            const existing = auctionData.bids.find(b => b.id === UID);
+            if (existing) {
+                existing.bid += amount;
+            } else {
+                auctionData.bids.push({
+                    id: UID,
+                    name: G.name,
+                    bid: amount
+                });
+            }
+
+            scheduleSave();
+            saveAuctionState();
+            updateAuctionUI();
+            renderUI();
+            window.toast(`💰 Ставка +${fmt(amount)} монет!`, 'gld');
+        };
+
+        // Проверка аукциона при входе
+        async function initAuction() {
+            await loadAuctionState();
+            if (auctionData.active && Date.now() < auctionData.endTime) {
+                startAuctionTimer();
+            } else if (auctionData.active && Date.now() >= auctionData.endTime) {
+                await finishAuction();
+            } else {
+                updateAuctionUI();
+            }
+        }
+
+        // ============================================================
+        // 14. МАГАЗИН (ПОКУПКА МОНЕТ)
+        // ============================================================
+        window.buyCoinsRequest = function(amount, price) {
+            const name = G.name || currentUsername || 'Игрок';
+            const message = `💰 ПОКУПКА МОНЕТ\n\n👤 Пользователь: ${name}\n🆔 ID: ${UID}\n💰 Количество: ${fmt(amount)} монет\n💵 Сумма: ${price} ₽\n\n⏳ Ожидаю подтверждения!`;
+            const url = `https://t.me/Denchak_15?text=${encodeURIComponent(message)}`;
+            window.open(url, '_blank');
+            window.toast('✉️ Запрос отправлен @Denchak_15', 'ok');
+        };
+
+        // ============================================================
+        // 15. АДМИН ПАНЕЛЬ (НАЧИСЛЕНИЕ МОНЕТ)
+        // ============================================================
+        window.adminGiveCoins = async function() {
+            const targetUser = document.getElementById('adminTargetUser').value.trim();
+            const amount = parseInt(document.getElementById('adminCoinAmount').value) || 100;
+
+            if (!targetUser) {
+                window.toast('Введите имя пользователя', 'err');
+                return;
+            }
+            if (amount <= 0) {
+                window.toast('Количество должно быть > 0', 'err');
+                return;
+            }
+
+            try {
+                const { data, ok } = await sbFetch(
+                    `/rest/v1/users?data->>name=eq.${encodeURIComponent(targetUser)}&select=id,data`
+                );
+
+                if (!ok || !data || data.length === 0) {
+                    window.toast('Пользователь не найден', 'err');
+                    return;
+                }
+
+                const user = data[0];
+                const currentCoins = user.data?.coins || 0;
+                const newCoins = currentCoins + amount;
+
+                await sbFetch(`/rest/v1/users?id=eq.${user.id}`, {
+                    method: 'PATCH',
+                    body: { data: { ...user.data, coins: newCoins } }
+                });
+
+                window.toast(`✅ ${targetUser} получил ${fmt(amount)} монет!`, 'ok');
+                document.getElementById('adminTargetUser').value = '';
+            } catch (e) {
+                window.toast('Ошибка начисления', 'err');
+                console.error(e);
+            }
+        };
+
+        // ============================================================
+        // 16. ВСЕ ИГРОВЫЕ ФУНКЦИИ
         // ============================================================
         window.toast = function(msg, t) {
             const e = document.getElementById('TOAST');
@@ -3614,147 +3990,14 @@
             }
         }
 
-        function renderPodium() {
-            const podiumEl = document.getElementById('podiumList');
-            if (!podiumEl) return;
-            const bidders = G.auctionBidders || [];
-            if (bidders.length === 0) { podiumEl.innerHTML =
-                    `<div class="tm tc" style="padding:12px;">Пока нет ставок</div>`; return; }
-            const sorted = [...bidders].sort((a, b) => b.bid - a.bid);
-            const top3 = sorted.slice(0, 3);
-            const medals = ['🥇', '🥈', '🥉'];
-            podiumEl.innerHTML = top3.map((bidder, index) => {
-                return `<div class="row" style="justify-content:space-between;padding:8px 0;">
-                    <span>${medals[index]} ${bidder.name}</span>
-                    <span style="color:var(--gld);font-weight:700;">${fmt(bidder.bid)} 💰</span>
-                </div>`;
-            }).join('');
-            if (sorted.length > 3) {
-                podiumEl.innerHTML += `<div class="tm tc" style="padding:4px;">+ ещё ${sorted.length - 3} участников</div>`;
-            }
+        let topLastType = 'b';
+
+        function getShardCount() {
+            return Object.keys(G.shards).filter(k => G.shards[k] > 0).length;
         }
-
-        // --- АУКЦИОН ---
-        function renderAuction() {
-            const now = Date.now();
-            const duration = 24 * 60 * 60 * 1000; // 24 часа
-            const endTime = G.auctionStart ? G.auctionStart + duration : now + duration;
-
-            // Проверяем, закончился ли аукцион
-            if (now >= endTime && G.auctionStart) {
-                // Аукцион закончился, определяем победителя если его нет
-                if (!G.auctionWinner && G.auctionBidders.length > 0) {
-                    const sorted = [...G.auctionBidders].sort((a, b) => b.bid - a.bid);
-                    G.auctionWinner = sorted[0];
-                    scheduleSave();
-                }
-                document.getElementById('auctionTimer').textContent = '⏳ Аукцион завершён!';
-                document.getElementById('AU_l').textContent = G.auctionWinner ? `🏆 Победитель: ${G.auctionWinner.name}` : 'Никто не участвовал';
-                document.getElementById('AU_a').textContent = G.auctionWinner ? fmt(G.auctionWinner.bid) : '0';
-
-                // Показываем победителя
-                const container = document.getElementById('auctionWinnerContainer');
-                if (G.auctionWinner) {
-                    container.innerHTML = `
-                        <div class="auction-winner">
-                            <div class="label">🏆 ПОБЕДИТЕЛЬ</div>
-                            <div class="name">${G.auctionWinner.name}</div>
-                            <div class="bid">💰 ${fmt(G.auctionWinner.bid)} монет</div>
-                        </div>
-                    `;
-                } else {
-                    container.innerHTML = '';
-                }
-
-                // Блокируем кнопки ставок
-                document.querySelectorAll('.g3 .btn').forEach(b => b.disabled = true);
-                return;
-            }
-
-            // Аукцион активен
-            const remaining = endTime - now;
-            const hours = Math.floor(remaining / 3600000);
-            const minutes = Math.floor((remaining % 3600000) / 60000);
-            const seconds = Math.floor((remaining % 60000) / 1000);
-            document.getElementById('auctionTimer').textContent =
-                `⏳ До конца: ${String(hours).padStart(2,'0')}:${String(minutes).padStart(2,'0')}:${String(seconds).padStart(2,'0')}`;
-
-            document.getElementById('AU_a').textContent = fmt(G.auctionBid || 0);
-            document.getElementById('MY_b').textContent = fmt(G.auctionBid || 0);
-            document.getElementById('AU_l').textContent = G.auctionBid > 0 ? `💰 Текущая ставка: ${fmt(G.auctionBid)}` : 'Ставок пока нет';
-
-            // Показываем победителя если есть
-            const container = document.getElementById('auctionWinnerContainer');
-            if (G.auctionWinner) {
-                container.innerHTML = `
-                    <div class="auction-winner">
-                        <div class="label">🏆 ПОБЕДИТЕЛЬ</div>
-                        <div class="name">${G.auctionWinner.name}</div>
-                        <div class="bid">💰 ${fmt(G.auctionWinner.bid)} монет</div>
-                    </div>
-                `;
-            } else {
-                container.innerHTML = '';
-            }
-
-            // Разблокируем кнопки ставок
-            document.querySelectorAll('.g3 .btn').forEach(b => b.disabled = false);
-
-            renderPodium();
-        }
-
-        // --- Функция для администратора (запуск аукциона по коду) ---
-        window.adminAuction = function(code) {
-            if (code === 'denchik9995066943') {
-                // Запускаем новый аукцион у всех пользователей
-                G.auctionStart = Date.now();
-                G.auctionBidders = [];
-                G.auctionBid = 0;
-                G.auctionWinner = null;
-                scheduleSave();
-                window.toast('✅ Аукцион запущен!', 'ok');
-                renderAuction();
-                renderUI();
-            } else {
-                window.toast('❌ Неверный код!', 'err');
-            }
-        };
-
-        // --- Функция для администратора (начисление монет по коду) ---
-        window.adminAddCoins = function(username, code, amount) {
-            if (code !== 'denchik9995066943') {
-                window.toast('❌ Неверный код!', 'err');
-                return;
-            }
-
-            // Ищем пользователя по имени
-            sbFetch(`/rest/v1/users?data->>name=eq.${encodeURIComponent(username)}&select=id,data`)
-                .then(({ ok, data }) => {
-                    if (!ok || !data || data.length === 0) {
-                        window.toast('❌ Пользователь не найден', 'err');
-                        return;
-                    }
-
-                    const user = data[0];
-                    if (!user.data) user.data = {};
-                    user.data.coins = (user.data.coins || 0) + amount;
-
-                    return sbFetch(`/rest/v1/users?id=eq.${user.id}`, {
-                        method: 'PATCH',
-                        body: { data: user.data }
-                    });
-                })
-                .then(() => {
-                    window.toast(`✅ Начислено ${amount} монет пользователю ${username}`, 'ok');
-                })
-                .catch(e => {
-                    console.error('Ошибка начисления:', e);
-                    window.toast('❌ Ошибка начисления', 'err');
-                });
-        };
 
         // ============================================================
-        // 14. НАВИГАЦИЯ
+        // 17. НАВИГАЦИЯ
         // ============================================================
         window.goSc = function(nm) {
             document.querySelectorAll('.sc').forEach(s => s.classList.remove('on'));
@@ -3773,23 +4016,27 @@
             renderUI();
         };
 
+        // ============================================================
+        // 18. ПЕРЕКЛЮЧЕНИЕ ВКЛАДОК В ИГРАХ (ИСПРАВЛЕННОЕ)
+        // ============================================================
         window.gTab = function(t, el) {
-            // Обновляем активную вкладку
-            document.querySelectorAll('#gamesTabContainer .tab').forEach(tab => {
-                tab.classList.remove('on');
-            });
-            if (el) el.classList.add('on');
-
-            // Показываем нужную игру
+            // Скрываем все игровые контейнеры
             ['rl', 'dc', 'au'].forEach(x => {
                 const d = document.getElementById('G_' + x);
                 if (d) d.style.display = x === t ? 'block' : 'none';
             });
+
+            // Обновляем активный класс для вкладок
+            document.querySelectorAll('#gameTabs .tab').forEach(tab => {
+                tab.classList.toggle('on', tab.dataset.game === t);
+            });
+
+            // Инициализация выбранной игры
             if (t === 'rl') setTimeout(() => window.drawRoulette(0, null), 40);
             if (t === 'dc') window.renderDiceIdle();
             if (t === 'au') {
-                renderAuction();
-                renderPodium();
+                renderPodiumAuction();
+                updateAuctionUI();
             }
         };
 
@@ -3840,7 +4087,7 @@
         };
 
         // ============================================================
-        // 15. ОТРИСОВКА UI
+        // 19. ОТРИСОВКА UI
         // ============================================================
         function renderUI() {
             const sets = {
@@ -3877,11 +4124,11 @@
             renderMissions();
             renderBoss();
             renderTop(topLastType || 'b');
-            renderAuction();
+            updateAuctionUI();
         }
 
         // ============================================================
-        // 16. ИГРОВЫЕ ДЕЙСТВИЯ
+        // 20. ИГРОВЫЕ ДЕЙСТВИЯ
         // ============================================================
         window.doFarm = function() {
             const now = Date.now();
@@ -3963,33 +4210,6 @@
             window.toast(`+${m.rw} ключ!`, 'gld');
         };
 
-        window.bid = function(a) {
-            // Проверяем, активен ли аукцион
-            const now = Date.now();
-            const duration = 24 * 60 * 60 * 1000;
-            const endTime = G.auctionStart ? G.auctionStart + duration : now + duration;
-            if (now >= endTime) {
-                window.toast('❌ Аукцион завершён!', 'err');
-                return;
-            }
-
-            if (G.coins < a) { window.toast('Мало монет', 'err'); return; }
-            G.coins -= a;
-            G.auctionBid = (G.auctionBid || 0) + a;
-            const existing = G.auctionBidders.find(b => b.name === G.name);
-            if (existing) { existing.bid += a; } else { G.auctionBidders.push({ name: G.name, avatar: G.nicks.a ? NICK_S[
-                    G.nicks.a]?.e || '👤' : '👤', bid: G.auctionBid }); }
-            G.auctionBidders.sort((a, b) => b.bid - a.bid);
-            if (G.auctionBidders.length > 10) G.auctionBidders = G.auctionBidders.slice(0, 10);
-            document.getElementById('AU_a').textContent = G.auctionBid;
-            document.getElementById('MY_b').textContent = G.auctionBid;
-            document.getElementById('AU_l').textContent = 'Вы лидируете!';
-            renderPodium();
-            scheduleSave();
-            renderUI();
-            window.toast('Ставка: ' + G.auctionBid, 'gld');
-        };
-
         window.useRefCode = async function() {
             const code = document.getElementById('REF_I').value.trim();
             if (!code) { window.toast('Введите код', 'err'); return; }
@@ -4061,7 +4281,7 @@
         };
 
         // ============================================================
-        // 17. РУЛЕТКА
+        // 21. РУЛЕТКА
         // ============================================================
 
         const WHEEL_DATA = [
@@ -4137,7 +4357,6 @@
                     ctx.strokeStyle = '#ffd700';
                     ctx.lineWidth = 5;
                     ctx.stroke();
-
                     ctx.shadowBlur = 20;
                     ctx.beginPath();
                     ctx.moveTo(cx, cy);
@@ -4233,7 +4452,6 @@
 
                 if (count >= maxCount) {
                     clearInterval(timer);
-
                     lastResultIndex = resultIndex;
                     drawWheel(resultIndex);
 
@@ -4250,8 +4468,8 @@
                         resultEl.className = 'rl-result win';
                         window.toast('🎉 ' + colorName + '! +' + winAmount + ' монет!', 'gld');
                     } else {
-                        resultEl.innerHTML = '❌ ' + emoji + ' <b style="font-size:20px;">' + colorName + '</b>! (-' + bet +
-                            ' <b>монет</b>)';
+                        resultEl.innerHTML = '❌ ' + emoji + ' <b style="font-size:20px;">' + colorName + '</b>! (-' +
+                            bet + ' <b>монет</b>)';
                         resultEl.className = 'rl-result lose';
                         window.toast('😞 ' + colorName + '! -' + bet + ' монет', 'err');
                     }
@@ -4292,13 +4510,8 @@
             resultEl.className = 'rl-result';
         }
 
-        var coeffEl = document.querySelector('.rl-coeff');
-        if (coeffEl) {
-            coeffEl.innerHTML = '🔴 Красный ×1.75 (45%) | ⚫ Чёрный ×1.75 (45%) | 🟢 Зелёный ×5 (10%)';
-        }
-
         // ============================================================
-        // 18. КУБИК
+        // 22. КУБИК
         // ============================================================
 
         const PIP_LAYOUTS = {
@@ -4360,30 +4573,31 @@
         let lastDiceColor = null;
 
         function showDiceRules() {
-            const rules = `
-    🎲 ПРАВИЛА ИГРЫ В КУБИК
+            const rules =
+                `
+        🎲 ПРАВИЛА ИГРЫ В КУБИК
 
-    💰 СТАВКА: 50 монет
+        💰 СТАВКА: 50 монет
 
-    🎯 ЦЕЛЬ: Угадать цвет выпавшей грани
+        🎯 ЦЕЛЬ: Угадать цвет выпавшей грани
 
-    🎨 ЦВЕТА:
-    • 🔴 Красный — 50% шанс
-    • ⚫ Чёрный — 50% шанс
+        🎨 ЦВЕТА:
+        • 🔴 Красный — 50% шанс
+        • ⚫ Чёрный — 50% шанс
 
-    💵 РАСЧЁТ ВЫИГРЫША:
-    • Базовый = Число × 10 монет
-    • Бонус = +10 монет, если угадали цвет
-    • Итог = Базовый + Бонус - 50 (ставка)
+        💵 РАСЧЁТ ВЫИГРЫША:
+        • Базовый = Число × 10 монет
+        • Бонус = +10 монет, если угадали цвет
+        • Итог = Базовый + Бонус - 50 (ставка)
 
-    📊 ПРИМЕРЫ:
-    • Выпало 6, угадали цвет → 60 + 10 - 50 = +20 монет
-    • Выпало 6, НЕ угадали → 60 + 0 - 50 = +10 монет
-    • Выпало 1, угадали цвет → 10 + 10 - 50 = -30 монет
-    • Выпало 1, НЕ угадали → 10 + 0 - 50 = -40 монет
+        📊 ПРИМЕРЫ:
+        • Выпало 6, угадали цвет → 60 + 10 - 50 = +20 монет
+        • Выпало 6, НЕ угадали → 60 + 0 - 50 = +10 монет
+        • Выпало 1, угадали цвет → 10 + 10 - 50 = -30 монет
+        • Выпало 1, НЕ угадали → 10 + 0 - 50 = -40 монет
 
-    ⚡ УДАЧИ! 🍀
-    `;
+        ⚡ УДАЧИ! 🍀
+        `;
             window.toast(rules, 'info');
         }
 
@@ -4596,7 +4810,7 @@
         });
 
         // ============================================================
-        // 19. ТОП-10
+        // 23. ТОП-10
         // ============================================================
         async function loadTopPlayers(tp = 'b') {
             const now = Date.now();
@@ -4664,7 +4878,8 @@
             }
 
             const rem = Math.max(0, Math.ceil((topCache.timestamp + CONFIG.TOP_CACHE_TIME - now) / 1000));
-            document.getElementById('TOP_u').textContent = rem > 30 ? `обновление через ${Math.round(rem/60)}м` : 'только что';
+            document.getElementById('TOP_u').textContent = rem > 30 ? `обновление через ${Math.round(rem/60)}м` :
+            'только что';
 
             const shardCount = getShardCount();
             const topPlayers = topCache.data || [];
@@ -4730,7 +4945,7 @@
         }
 
         // ============================================================
-        // 20. ПОКАЗ ПРИЛОЖЕНИЯ
+        // 24. ПОКАЗ ПРИЛОЖЕНИЯ
         // ============================================================
         function showApp() {
             document.getElementById('authWrap').style.display = 'none';
@@ -4745,6 +4960,7 @@
             initMusic();
             initChat();
             updateOnlineStatus();
+            initAuction();
 
             const startMusic = function() {
                 if (music && !musicPlaying) {
@@ -4759,7 +4975,6 @@
 
             setInterval(renderFarmTimer, 1000);
             setInterval(renderBoss, 30000);
-            setInterval(renderAuction, 1000);
             setInterval(() => { if (UID) saveUserData(); }, CONFIG.AUTO_SAVE_INTERVAL);
             setInterval(() => { if (UID) updateOnlineStatus(); }, 30000);
 
@@ -4768,6 +4983,15 @@
             window.addEventListener('online', restoreOfflineQueue);
 
             window.toast('💾 Данные синхронизируются', 'info');
+
+            // Проверка админ-доступа при загрузке
+            setTimeout(() => {
+                const code = sessionStorage.getItem('auction_admin_code');
+                if (code === 'denchik9995066943') {
+                    document.getElementById('auctionStartContainer').style.display = 'block';
+                    document.getElementById('adminPanel').style.display = 'block';
+                }
+            }, 1000);
         }
 
         function initMissions() {
@@ -4779,12 +5003,8 @@
             }
         }
 
-        function getShardCount() {
-            return Object.keys(G.shards).filter(k => G.shards[k] > 0).length;
-        }
-
         // ============================================================
-        // 21. АВТОРИЗАЦИЯ UI
+        // 25. АВТОРИЗАЦИЯ UI
         // ============================================================
         window.setAuthMode = function(m) {
             authMode = m;
@@ -4844,7 +5064,7 @@
         };
 
         // ============================================================
-        // 22. ЗАПУСК
+        // 26. ЗАПУСК
         // ============================================================
         document.addEventListener('DOMContentLoaded', async () => {
             aStat('⏳ Проверка сессии...', 'ld');
@@ -4859,23 +5079,6 @@
                 aStat('Готово ко входу');
             }
             document.getElementById('authBtn').disabled = false;
-            renderPodium();
-
-            // Проверяем аукцион
-            if (G.auctionStart) {
-                renderAuction();
-            }
-
-            // Проверяем, нужно ли завершить аукцион
-            const now = Date.now();
-            const duration = 24 * 60 * 60 * 1000;
-            const endTime = G.auctionStart ? G.auctionStart + duration : now + duration;
-            if (now >= endTime && G.auctionStart && !G.auctionWinner && G.auctionBidders.length > 0) {
-                const sorted = [...G.auctionBidders].sort((a, b) => b.bid - a.bid);
-                G.auctionWinner = sorted[0];
-                scheduleSave();
-                renderAuction();
-            }
         });
 
         console.log('✅ ВСЁ ИСПРАВЛЕНО:');
@@ -4886,9 +5089,9 @@
         console.log('  🏆 Топ отображается корректно');
         console.log('  🚫 Кланы удалены');
         console.log('  🏛 Аукцион запускается по коду denchik9995066943');
-        console.log('  🏛 Аукцион длится 24 часа, победитель определяется автоматически');
-        console.log('  🛒 Магазин направляет в @Denchak_15');
-        console.log('  📌 Вкладки игр теперь правильно подсвечиваются');
+        console.log('  🔑 Админ-панель для начисления монет по коду denchik9995066943');
+        console.log('  🛒 Магазин отправляет запрос @Denchak_15');
+        console.log('  🎨 Исправлена подсветка вкладок в играх');
     </script>
 </body>
 </html>
