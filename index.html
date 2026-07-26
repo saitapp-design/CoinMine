@@ -1063,23 +1063,6 @@
             background: var(--color-border-tertiary);
         }
 
-        .clan-icon {
-            font-size: 60px;
-            text-align: center;
-            margin-bottom: 4px;
-            filter: drop-shadow(0 0 20px #7c3aed66);
-            animation: float 3s ease-in-out infinite;
-        }
-        .clan-name {
-            font-size: 20px;
-            font-weight: 700;
-            color: var(--acc3);
-        }
-        .clan-diamonds {
-            font-size: 28px;
-            font-weight: 800;
-            color: var(--gld);
-        }
         .pkg-g {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -1974,8 +1957,8 @@
                         </div>
                         <div style="font-size:11px;color:var(--tx2);margin-bottom:10px">Уровень: <b id="F_lv" style="color:var(--acc3)">1</b> · Множитель: <b id="F_mx" style="color:var(--gld)">×1.0</b> · Прокачка: <b id="F_uc" style="color:var(--tx)">50 монет</b></div>
                         <div class="g2">
-                            <button class="btn bp" id="F_btn" onclick="window.conf('Добыть монеты?','Кулдаун 1 час. Монеты = (1–5) × уровень-множитель.',window.doFarm)">⛏ Добыть</button>
-                            <button class="btn bs" onclick="window.conf('Улучшить шахту?','Стоимость: ' + window.getFarmCost() + ' монет. +20% к добыче за уровень.',window.upFarm)">⬆ Прокачать</button>
+                            <button class="btn bp" id="F_btn" onclick="window.doFarm()">⛏ Добыть</button>
+                            <button class="btn bs" onclick="window.upFarm()">⬆ Прокачать</button>
                         </div>
                     </div>
                     <div class="card">
@@ -2065,11 +2048,9 @@
                                 <button class="btn bs" onclick="window.bid(50)">+50</button>
                                 <button class="btn bs" onclick="window.bid(100)">+100</button>
                             </div>
-                            <!-- КНОПКА ЗАПУСКА АУКЦИОНА (только для админа) -->
                             <div id="auctionStartContainer" style="margin-top:12px;display:none;">
-                                <button class="auction-start-btn" id="auctionStartBtn" onclick="window.startAuction()">🚀 Запустить аукцион (24ч)</button>
+                                <button class="auction-start-btn" onclick="window.startAuction()">🚀 Запустить аукцион (24ч)</button>
                             </div>
-                            <!-- КНОПКА ДЛЯ ВВОДА КОДА -->
                             <div id="auctionCodeContainer" style="margin-top:12px;display:block;">
                                 <button class="btn bs" onclick="window.checkAuctionCode()">🔑 Ввести код администратора</button>
                             </div>
@@ -2103,6 +2084,7 @@
                             <span class="tm">Всего ключей</span>
                             <span style="font-size:16px;font-weight:700;color:var(--gld)" id="K_b">0 🔑</span>
                         </div>
+                        <button class="btn bp" style="margin-top:10px;" onclick="window.exchangeKey()">🔄 Обменять 1 ключ на 100 монет</button>
                     </div>
                 </div>
 
@@ -2152,7 +2134,6 @@
                             <button class="btn bs" style="font-size:12px;padding:10px" onclick="window.activatePromo('denchak')">🎁 DENCHAK — +15</button>
                         </div>
                     </div>
-                    <!-- АДМИН ПАНЕЛЬ (появляется после ввода кода) -->
                     <div class="admin-panel" id="adminPanel">
                         <div class="ct">🔐 АДМИН ПАНЕЛЬ</div>
                         <input class="inp" id="adminTargetUser" placeholder="Имя пользователя">
@@ -2160,7 +2141,6 @@
                         <button class="btn bp" onclick="window.adminGiveCoins()">💰 Начислить монеты</button>
                         <div style="margin-top:8px;font-size:11px;color:var(--tx2);text-align:center;">Для входа в панель используйте код: denchik9995066943</div>
                     </div>
-                    <!-- КНОПКА ДЛЯ ВВОДА КОДА В МАГАЗИНЕ -->
                     <div id="shopCodeContainer" style="margin-top:10px;">
                         <button class="btn bs" onclick="window.checkAdminCode()">🔑 Ввести код администратора</button>
                     </div>
@@ -2186,31 +2166,21 @@
                 <!-- ЧАТ -->
                 <div class="sc" id="sc-chat">
                     <div class="chat-container">
-
-                        <!-- Верхняя панель -->
                         <div class="chat-header">
                             <div class="chat-header-left">
-                                <span class="chat-title" id="chatTitle">
-                                    💬 Общий чат
-                                </span>
+                                <span class="chat-title" id="chatTitle">💬 Общий чат</span>
                             </div>
                             <div class="chat-header-right">
                                 <span class="online-count" id="chatOnline">● 0 онлайн</span>
                             </div>
                         </div>
-
-                        <!-- Окно сообщений -->
                         <div class="chat-messages-wrap" id="chatMessagesWrap">
                             <div class="chat-messages" id="chatMessages">
                                 <div class="system-msg">Напишите сообщение в общий чат</div>
                             </div>
-
-                            <!-- Информационная строка -->
                             <div class="chat-info" id="chatInfo">
                                 💬 <span class="highlight">Общий чат</span> — все видят все сообщения
                             </div>
-
-                            <!-- Поле ввода -->
                             <div class="chat-input-wrap">
                                 <input id="chatInput" placeholder="Напишите сообщение..." 
                                        autocomplete="off"
@@ -2221,7 +2191,6 @@
                                 </button>
                             </div>
                         </div>
-
                     </div>
                 </div>
 
@@ -2240,7 +2209,7 @@
 
     </div>
 
-    <!-- Баннер CoinMine -->
+    <!-- Баннер -->
     <div class="static-banner show" id="mainBanner" onclick="window.open('https://t.me/minercoinsf', '_blank')">
         <img id="staticBannerImg" src="https://i.ibb.co/hRSsFg5R/Chat-GPT-Image-19-2026-20-55-28.png" alt="CoinMine Баннер" onerror="this.style.display='none';this.parentElement.querySelector('.placeholder').style.display='flex'">
         <div class="placeholder" style="display:none;">⛏ CoinMine</div>
@@ -2362,7 +2331,7 @@
         let music = null;
         let musicPlaying = false;
 
-        // АДМИН-СТАТУС (хранится в сессии)
+        // АДМИН-СТАТУС
         let isAdmin = sessionStorage.getItem('coinmine_admin') === 'true';
 
         // АУКЦИОН (ГЛОБАЛЬНЫЙ)
@@ -3417,7 +3386,7 @@
         }
 
         // ============================================================
-        // 13. БОСС (ОБЩИЙ ДЛЯ ВСЕХ)
+        // 13. БОСС (ОБЩИЙ ДЛЯ ВСЕХ, НЕ БЕССМЕРТНЫЙ)
         // ============================================================
 
         // Загрузка состояния босса
@@ -3432,7 +3401,6 @@
                         currentBoss: state.current_boss || 'Рябчик'
                     };
                 } else {
-                    // Создаем запись, если её нет
                     await sbFetch('/rest/v1/boss_state', {
                         method: 'POST',
                         body: {
@@ -3477,7 +3445,6 @@
                 return;
             }
 
-            // Загружаем актуальное состояние
             await loadBossState();
 
             if (BOSS_STATE.hp <= 0) {
@@ -3500,7 +3467,6 @@
                 G.chests += 3;
                 BOSS_STATE.lastKill = Date.now();
 
-                // Уведомление в чат
                 await sbFetch('/rest/v1/messages', {
                     method: 'POST',
                     body: {
@@ -3517,14 +3483,13 @@
 
             document.getElementById('ATK_l').textContent = msg;
 
-            // Сохраняем изменения
             await saveBossState();
             await saveUserData();
             renderUI();
             window.toast(msg, 'gld');
         };
 
-        // Проверка возрождения босса
+        // Проверка возрождения босса (только на следующий день)
         async function checkBossRespawn() {
             await loadBossState();
 
@@ -3532,19 +3497,16 @@
             const msk = new Date(now + 3 * 3600000);
             const h = msk.getUTCHours();
 
-            // Босс активен с 12:00 до 18:00 МСК
             const active = (h >= 12 && h < 18);
 
             if (active && BOSS_STATE.hp <= 0) {
                 const today = msk.toISOString().slice(0, 10);
                 const killDay = new Date(BOSS_STATE.lastKill + 3 * 3600000).toISOString().slice(0, 10);
                 
-                // Возрождаем только если это другой день
                 if (today !== killDay) {
                     BOSS_STATE.hp = 1000;
                     await saveBossState();
                     
-                    // Уведомление в чат
                     await sbFetch('/rest/v1/messages', {
                         method: 'POST',
                         body: {
@@ -3560,6 +3522,19 @@
                 }
             }
         }
+
+        // Обмен ключа на монеты
+        window.exchangeKey = function() {
+            if (G.keys < 1) {
+                window.toast('❌ У вас нет ключей для обмена!', 'err');
+                return;
+            }
+            G.keys -= 1;
+            G.coins += 100;
+            scheduleSave();
+            renderUI();
+            window.toast('🔄 Обмен: -1 ключ, +100 монет!', 'gld');
+        };
 
         // Открытие сундука
         window.openChest = function() {
@@ -3589,10 +3564,9 @@
         };
 
         // ============================================================
-        // 14. АУКЦИОН (ГЛОБАЛЬНЫЙ)
+        // 14. АУКЦИОН (ГЛОБАЛЬНЫЙ - ВИДЕН ВСЕМ)
         // ============================================================
 
-        // Загрузка состояния аукциона
         async function loadAuctionState() {
             try {
                 const { data, ok } = await sbFetch(`/rest/v1/auction_state?limit=1`);
@@ -3613,7 +3587,6 @@
             }
         }
 
-        // Сохранение состояния аукциона
         async function saveAuctionState() {
             try {
                 const payload = {
@@ -3643,7 +3616,7 @@
             }
         }
 
-        // Периодическая проверка аукциона (для всех игроков)
+        // ПОЛЛИНГ ДЛЯ ВСЕХ ИГРОКОВ
         function startAuctionPolling() {
             if (auctionPollInterval) clearInterval(auctionPollInterval);
             auctionPollInterval = setInterval(async () => {
@@ -3651,7 +3624,6 @@
             }, 3000);
         }
 
-        // Обновление UI аукциона
         function updateAuctionUI() {
             const statusEl = document.getElementById('auctionStatus');
             const timerEl = document.getElementById('auctionTimer');
@@ -3720,7 +3692,6 @@
                     '<div class="tm tc" style="padding:12px;">Пока нет ставок</div>';
             }
 
-            // Показываем кнопки админа если он уже есть
             if (isAdmin) {
                 document.getElementById('auctionStartContainer').style.display = 'block';
                 document.getElementById('auctionCodeContainer').style.display = 'none';
@@ -3734,7 +3705,6 @@
             }
         }
 
-        // Рендер подиума для аукциона
         function renderPodiumAuction() {
             const podiumEl = document.getElementById('podiumList');
             if (!podiumEl) return;
@@ -3759,13 +3729,12 @@
             }
         }
 
-        // Проверка кода администратора для аукциона
         window.checkAuctionCode = function() {
             const code = prompt('Введите код администратора для запуска аукциона:');
             if (code === 'denchik9995066943') {
                 isAdmin = true;
                 sessionStorage.setItem('coinmine_admin', 'true');
-                window.toast('🔐 Админ-доступ активирован! Теперь вы можете запустить аукцион.', 'ok');
+                window.toast('🔐 Админ-доступ активирован!', 'ok');
                 updateAuctionUI();
                 document.getElementById('adminPanel').style.display = 'block';
                 document.getElementById('shopCodeContainer').style.display = 'none';
@@ -3776,7 +3745,6 @@
             }
         };
 
-        // Проверка кода в магазине
         window.checkAdminCode = function() {
             const code = prompt('Введите код администратора:');
             if (code === 'denchik9995066943') {
@@ -3791,11 +3759,9 @@
             }
         };
 
-        // Запуск аукциона (только для админа, глобально для всех)
         window.startAuction = async function() {
             if (!isAdmin) {
                 window.toast('⚠️ Только администратор может запустить аукцион!', 'err');
-                document.getElementById('auctionCodeContainer').style.display = 'block';
                 return;
             }
 
@@ -3818,7 +3784,6 @@
             updateAuctionUI();
             startAuctionTimer();
 
-            // Уведомление в чат для всех игроков
             await sbFetch('/rest/v1/messages', {
                 method: 'POST',
                 body: {
@@ -3834,7 +3799,6 @@
             window.toast('🚀 Аукцион запущен на 24 часа!', 'gld');
         };
 
-        // Таймер обратного отсчёта
         function startAuctionTimer() {
             if (auctionTimerInterval) clearInterval(auctionTimerInterval);
             auctionTimerInterval = setInterval(() => {
@@ -3850,7 +3814,6 @@
             }, 1000);
         }
 
-        // Завершение аукциона
         async function finishAuction() {
             if (!auctionData.active) return;
 
@@ -3859,7 +3822,6 @@
                 auctionData.winner = sorted[0].name;
                 auctionData.winnerBid = sorted[0].bid;
 
-                // Награждаем победителя
                 try {
                     const { data: users } = await sbFetch(
                         `/rest/v1/users?data->>name=eq.${encodeURIComponent(auctionData.winner)}&select=id,data`
@@ -3873,7 +3835,6 @@
                             body: { data: { ...winner.data, coins: currentCoins + prize } }
                         });
 
-                        // Уведомление в чат
                         await sbFetch('/rest/v1/messages', {
                             method: 'POST',
                             body: {
@@ -3902,9 +3863,7 @@
             window.toast('🏁 Аукцион завершён!', 'info');
         }
 
-        // Ставка в аукционе
         window.bid = async function(amount) {
-            // Сначала загружаем актуальное состояние
             await loadAuctionState();
             
             if (!auctionData.active) {
@@ -3941,7 +3900,7 @@
         };
 
         // ============================================================
-        // 15. МАГАЗИН (ПОКУПКА МОНЕТ)
+        // 15. МАГАЗИН
         // ============================================================
         window.buyCoinsRequest = function(amount, price) {
             const name = G.name || currentUsername || 'Игрок';
@@ -3951,9 +3910,6 @@
             window.toast('✉️ Запрос отправлен @Denchak_15', 'ok');
         };
 
-        // ============================================================
-        // 16. АДМИН ПАНЕЛЬ (НАЧИСЛЕНИЕ МОНЕТ)
-        // ============================================================
         window.adminGiveCoins = async function() {
             if (!isAdmin) {
                 window.toast('⚠️ Требуется код администратора!', 'err');
@@ -4001,7 +3957,7 @@
         };
 
         // ============================================================
-        // 17. ВСЕ ИГРОВЫЕ ФУНКЦИИ
+        // 16. ВСЕ ИГРОВЫЕ ФУНКЦИИ
         // ============================================================
         window.toast = function(msg, t) {
             const e = document.getElementById('TOAST');
@@ -4018,7 +3974,7 @@
 
         function fmt(n) { return Math.round(n).toLocaleString('ru'); }
 
-        // --- РЕНДЕР ФУНКЦИИ ---
+        // --- РЕНДЕР ---
         function renderFarmTimer() {
             const now = Date.now(),
                 cd = 3600000,
@@ -4127,7 +4083,7 @@
         }
 
         // ============================================================
-        // 18. НАВИГАЦИЯ
+        // 17. НАВИГАЦИЯ
         // ============================================================
         window.goSc = function(nm) {
             document.querySelectorAll('.sc').forEach(s => s.classList.remove('on'));
@@ -4146,9 +4102,6 @@
             renderUI();
         };
 
-        // ============================================================
-        // 19. ПЕРЕКЛЮЧЕНИЕ ВКЛАДОК В ИГРАХ
-        // ============================================================
         window.gTab = function(t, el) {
             ['rl', 'dc', 'au'].forEach(x => {
                 const d = document.getElementById('G_' + x);
@@ -4214,7 +4167,7 @@
         };
 
         // ============================================================
-        // 20. ОТРИСОВКА UI
+        // 18. ОТРИСОВКА UI
         // ============================================================
         function renderUI() {
             const sets = {
@@ -4255,7 +4208,7 @@
         }
 
         // ============================================================
-        // 21. ИГРОВЫЕ ДЕЙСТВИЯ
+        // 19. ИГРОВЫЕ ДЕЙСТВИЯ
         // ============================================================
         window.doFarm = function() {
             const now = Date.now();
@@ -4373,7 +4326,7 @@
         };
 
         // ============================================================
-        // 22. РУЛЕТКА
+        // 20. РУЛЕТКА
         // ============================================================
 
         const WHEEL_DATA = [
@@ -4603,7 +4556,7 @@
         }
 
         // ============================================================
-        // 23. КУБИК
+        // 21. КУБИК
         // ============================================================
 
         const PIP_LAYOUTS = {
@@ -4883,26 +4836,8 @@
             });
         };
 
-        document.addEventListener('DOMContentLoaded', function() {
-            const diceSection = document.querySelector('.dice-section');
-            if (diceSection) {
-                const rulesBtn = document.createElement('button');
-                rulesBtn.textContent = '📖 Правила';
-                rulesBtn.style.cssText =
-                    'padding:6px 14px;border-radius:8px;border:0.5px solid var(--color-border-secondary);background:var(--color-background-primary);color:var(--color-text-primary);font-size:12px;cursor:pointer;margin-top:4px;';
-                rulesBtn.onclick = showDiceRules;
-
-                const btns = diceSection.querySelector('.dice-btns');
-                if (btns) {
-                    btns.parentNode.insertBefore(rulesBtn, btns.nextSibling);
-                } else {
-                    diceSection.appendChild(rulesBtn);
-                }
-            }
-        });
-
         // ============================================================
-        // 24. ТОП-10
+        // 22. ТОП-10
         // ============================================================
         async function loadTopPlayers(tp = 'b') {
             const now = Date.now();
@@ -5037,7 +4972,7 @@
         }
 
         // ============================================================
-        // 25. ПОКАЗ ПРИЛОЖЕНИЯ
+        // 23. ЗАПУСК
         // ============================================================
         function showApp() {
             document.getElementById('authWrap').style.display = 'none';
@@ -5053,14 +4988,11 @@
             initChat();
             updateOnlineStatus();
 
-            // Загружаем глобальные состояния
             loadBossState();
             loadAuctionState();
 
-            // Запускаем поллинг аукциона (обновление для всех)
             startAuctionPolling();
 
-            // Запускаем проверку босса
             if (bossCheckInterval) clearInterval(bossCheckInterval);
             bossCheckInterval = setInterval(async () => {
                 await checkBossRespawn();
@@ -5089,7 +5021,6 @@
 
             window.toast('💾 Данные синхронизируются', 'info');
 
-            // Проверяем статус админа при загрузке
             if (isAdmin) {
                 document.getElementById('auctionStartContainer').style.display = 'block';
                 document.getElementById('auctionCodeContainer').style.display = 'none';
@@ -5109,7 +5040,7 @@
         }
 
         // ============================================================
-        // 26. АВТОРИЗАЦИЯ UI
+        // 24. АВТОРИЗАЦИЯ UI
         // ============================================================
         window.setAuthMode = function(m) {
             authMode = m;
@@ -5169,7 +5100,7 @@
         };
 
         // ============================================================
-        // 27. ЗАПУСК
+        // 25. ЗАПУСК
         // ============================================================
         document.addEventListener('DOMContentLoaded', async () => {
             aStat('⏳ Проверка сессии...', 'ld');
@@ -5187,14 +5118,11 @@
         });
 
         console.log('✅ ВСЁ ИСПРАВЛЕНО:');
-        console.log('  💬 Чат полностью рабочий (общий + ЛС)');
-        console.log('  👹 БОСС ОБЩИЙ ДЛЯ ВСЕХ (не бессмертный, умирает и возрождается на следующий день)');
-        console.log('  🎰 Рулетка возвращает число и цвет');
-        console.log('  📛 Никнеймы уникальны');
-        console.log('  🏆 Топ отображается корректно');
-        console.log('  🏛 АУКЦИОН ОБЩИЙ ДЛЯ ВСЕХ (синхронизация через поллинг, виден всем игрокам)');
-        console.log('  🔑 Админ-панель для начисления монет по коду denchik9995066943');
-        console.log('  🛒 Магазин отправляет запрос @Denchak_15 (без бесплатных монет)');
+        console.log('  💬 Чат полностью рабочий');
+        console.log('  👹 БОСС ОБЩИЙ ДЛЯ ВСЕХ (НЕ БЕССМЕРТНЫЙ - умирает и возрождается на следующий день)');
+        console.log('  🏛 АУКЦИОН ОБЩИЙ ДЛЯ ВСЕХ (синхронизация через поллинг, виден всем)');
+        console.log('  🔄 ОБМЕН 1 КЛЮЧА НА 100 МОНЕТ (добавлен)');
+        console.log('  🛒 Магазин отправляет запрос @Denchak_15');
         console.log('  🎨 Исправлена подсветка вкладок в играх');
     </script>
 </body>
