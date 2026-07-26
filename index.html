@@ -7,7 +7,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.3/howler.min.js">
     </script>
     <style>
-        /* ===== ВСЕ СТИЛИ (ОСТАВЛЕНЫ БЕЗ ИЗМЕНЕНИЙ) ===== */
+        /* ===== ОСНОВНЫЕ СТИЛИ ===== */
         * {
             box-sizing: border-box;
             margin: 0;
@@ -34,6 +34,9 @@
             --r: 12px;
             --r2: 6px;
             --r3: 4px;
+            --gold: #ffd700;
+            --silver: #c0c0c0;
+            --bronze: #cd7f32;
         }
         html,
         body {
@@ -828,6 +831,7 @@
             border-radius: 10px;
         }
 
+        /* ===== РУЛЕТКА ===== */
         .rl-section {
             display: flex;
             flex-direction: column;
@@ -853,7 +857,6 @@
             font-weight: 600;
             text-align: center;
             min-height: 28px;
-            color: var(--color-text-primary);
             padding: 4px 0;
         }
         .rl-result.win {
@@ -872,15 +875,15 @@
         }
         .rl-bet-row label {
             font-size: 13px;
-            color: var(--color-text-secondary);
+            color: var(--tx2);
         }
         .rl-bet-row input {
             width: 80px;
             padding: 6px 10px;
-            border-radius: var(--border-radius-md);
-            border: 0.5px solid var(--color-border-secondary);
-            background: var(--color-background-primary);
-            color: var(--color-text-primary);
+            border-radius: 8px;
+            border: 0.5px solid var(--bd2);
+            background: var(--bg3);
+            color: var(--tx);
             font-size: 13px;
             text-align: center;
         }
@@ -896,16 +899,16 @@
         }
         .rl-btns button {
             padding: 8px 18px;
-            border-radius: var(--border-radius-md);
-            border: 0.5px solid var(--color-border-secondary);
-            background: var(--color-background-primary);
-            color: var(--color-text-primary);
+            border-radius: 8px;
+            border: 0.5px solid var(--bd2);
+            background: var(--bg3);
+            color: var(--tx);
             font-size: 13px;
             cursor: pointer;
             transition: background .15s;
         }
         .rl-btns button:hover {
-            background: var(--color-background-secondary);
+            background: var(--bg4);
         }
         .rl-btns button:disabled {
             opacity: .5;
@@ -924,11 +927,12 @@
         }
         .rl-coeff {
             font-size: 12px;
-            color: var(--color-text-secondary);
+            color: var(--tx2);
             text-align: center;
             padding: 4px 0;
         }
 
+        /* ===== КУБИК ===== */
         .dice-section {
             display: flex;
             flex-direction: column;
@@ -1000,13 +1004,12 @@
         }
         .dice-info {
             font-size: 13px;
-            color: var(--color-text-secondary);
+            color: var(--tx2);
             text-align: center;
         }
         .dice-result {
             font-size: 16px;
             font-weight: 600;
-            color: var(--color-text-primary);
             min-height: 28px;
             text-align: center;
             padding: 4px 0;
@@ -1023,26 +1026,70 @@
         }
         .dice-btns button {
             padding: 8px 20px;
-            border-radius: var(--border-radius-md);
-            border: 0.5px solid var(--color-border-secondary);
-            background: var(--color-background-primary);
+            border-radius: 8px;
+            border: 0.5px solid var(--bd2);
+            background: var(--bg3);
             font-size: 13px;
             cursor: pointer;
-            color: var(--color-text-primary);
+            color: var(--tx);
         }
         .dice-btns button:hover {
-            background: var(--color-background-secondary);
+            background: var(--bg4);
         }
         .dice-btns button:disabled {
             opacity: .5;
             cursor: not-allowed;
         }
-        .divider {
-            width: 100%;
-            height: 0.5px;
-            background: var(--color-border-tertiary);
+
+        /* ===== АУКЦИОН ===== */
+        .auction-status {
+            padding: 10px 14px;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: 600;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+        .auction-status.active {
+            background: #064e3b;
+            color: #4ade80;
+            border: 1px solid #15803d;
+        }
+        .auction-status.inactive {
+            background: #450a0a;
+            color: #fca5a5;
+            border: 1px solid #991b1b;
+        }
+        .auction-code-input {
+            display: none;
         }
 
+        /* ===== МАГАЗИН ===== */
+        .contact-links {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 8px;
+            flex-wrap: wrap;
+        }
+        .contact-links a {
+            background: var(--bg4);
+            padding: 10px 20px;
+            border-radius: 8px;
+            border: 1px solid var(--bd2);
+            color: var(--tx);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+            transition: .3s;
+        }
+        .contact-links a:hover {
+            border-color: var(--acc2);
+            background: var(--bg5);
+            transform: translateY(-2px);
+        }
         .pkg-g {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -1083,6 +1130,24 @@
             font-size: 36px;
             margin-bottom: 3px;
         }
+        .exchange-btn {
+            background: var(--bg4);
+            border: 1px solid var(--bd2);
+            color: var(--tx);
+            padding: 12px;
+            border-radius: var(--r2);
+            cursor: pointer;
+            transition: .3s;
+            text-align: center;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        .exchange-btn:hover {
+            border-color: var(--gld);
+            background: var(--bg5);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(240, 180, 41, 0.1);
+        }
         .nick-g {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -1110,103 +1175,8 @@
             background: #2a1b00;
             box-shadow: 0 0 0 2px #f0b42930;
         }
-        .mod-bg {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: #000000d0;
-            z-index: 200;
-            align-items: center;
-            justify-content: center;
-            padding: 16px;
-            animation: fadeIn 0.2s ease;
-        }
-        .mod-bg.on {
-            display: flex;
-        }
-        .mod-box {
-            background: var(--bg3);
-            border: 1px solid var(--bd2);
-            border-radius: 16px;
-            padding: 20px;
-            width: 100%;
-            max-width: 320px;
-            animation: fadeIn 0.3s ease;
-        }
-        .mod-title {
-            font-size: 15px;
-            font-weight: 700;
-            color: var(--gld);
-            margin-bottom: 8px;
-        }
-        .mod-body {
-            font-size: 12px;
-            color: var(--tx2);
-            margin-bottom: 16px;
-            line-height: 1.6;
-        }
-        .mod-btns {
-            display: flex;
-            gap: 8px;
-        }
-        .mod-btns .btn {
-            flex: 1;
-        }
-        .bdg {
-            display: inline-flex;
-            align-items: center;
-            gap: 3px;
-            padding: 3px 8px;
-            border-radius: 10px;
-            font-size: 10px;
-            font-weight: 600;
-        }
-        .bdg-pur {
-            background: #2e1065;
-            color: var(--acc3);
-            border: 1px solid #4c1d95;
-        }
-        .bdg-grn {
-            background: #052e16;
-            color: #4ade80;
-            border: 1px solid #14532d;
-        }
-        .bdg-gld {
-            background: #3d2800;
-            color: var(--gld);
-            border: 1px solid #5a3c00;
-        }
-        .bgld {
-            background: linear-gradient(135deg, #92620a, var(--gld));
-            color: #fff;
-        }
-        .bred {
-            background: #7f1d1d;
-            color: #fca5a5;
-            border: 1px solid #991b1b;
-        }
-        #TOAST {
-            position: fixed;
-            top: 60px;
-            left: 50%;
-            transform: translateX(-50%);
-            padding: 9px 18px;
-            border-radius: 20px;
-            font-size: 13px;
-            font-weight: 600;
-            z-index: 999;
-            transition: opacity .3s;
-            opacity: 0;
-            pointer-events: none;
-            max-width: 88%;
-            text-align: center;
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
-        }
-        .hl {
-            color: var(--gld);
-            font-weight: 600;
-        }
 
+        /* ===== АВАТАРКИ ===== */
         .avatar-wrap {
             position: relative;
             cursor: pointer;
@@ -1258,21 +1228,27 @@
             opacity: 1;
         }
         .avatar-selector {
-            position: absolute;
-            top: 52px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: var(--bg3);
-            border: 1px solid var(--bd2);
-            border-radius: var(--r);
-            padding: 10px;
-            opacity: 0;
-            pointer-events: none;
-            transition: .3s;
-            z-index: 100;
-            width: 200px;
-            max-width: 85vw;
-            box-shadow: 0 8px 40px rgba(0, 0, 0, 0.8);
+            position: fixed !important;
+            top: 50% !important;
+            left: 50% !important;
+            transform: translate(-50%, -50%) !important;
+            width: 90vw !important;
+            max-width: 320px !important;
+            max-height: 70vh !important;
+            overflow-y: auto !important;
+            z-index: 999 !important;
+            padding: 16px !important;
+            border-radius: 16px !important;
+        }
+        .avatar-selector.show::before {
+            content: '' !important;
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            bottom: 0 !important;
+            background: rgba(0, 0, 0, 0.7) !important;
+            z-index: -1 !important;
         }
         .avatar-selector.show {
             opacity: 1;
@@ -1335,17 +1311,25 @@
             height: 100%;
             object-fit: cover;
         }
-        .top-avatar .placeholder {
-            font-size: 14px;
-            color: var(--tx2);
-        }
         @media (max-width: 500px) {
             .top-avatar {
                 width: 24px;
                 height: 24px;
             }
-            .top-avatar .placeholder {
-                font-size: 11px;
+            .avatar-selector {
+                top: 50% !important;
+                left: 50% !important;
+                transform: translate(-50%, -50%) !important;
+                width: 85vw !important;
+                max-width: 300px !important;
+                padding: 12px !important;
+            }
+            .avatar-grid {
+                grid-template-columns: repeat(3, 1fr) !important;
+                gap: 6px !important;
+            }
+            .avatar-option {
+                padding: 3px !important;
             }
         }
 
@@ -1384,11 +1368,6 @@
             overflow: hidden;
             text-overflow: ellipsis;
         }
-        .chat-header-left .chat-title .sub {
-            font-size: 11px;
-            font-weight: 400;
-            color: var(--tx2);
-        }
         .chat-header-right {
             display: flex;
             align-items: center;
@@ -1400,89 +1379,6 @@
             color: var(--grn);
             font-weight: 600;
         }
-        .chat-mode-toggle {
-            background: var(--bg4);
-            border: 1px solid var(--bd2);
-            border-radius: 12px;
-            padding: 4px 12px;
-            font-size: 11px;
-            color: var(--tx2);
-            cursor: pointer;
-            transition: .3s;
-            font-weight: 600;
-            min-height: 30px;
-        }
-        .chat-mode-toggle:active {
-            transform: scale(0.95);
-        }
-        .chat-mode-toggle:hover {
-            border-color: var(--acc2);
-            color: var(--tx);
-        }
-        .chat-mode-toggle.active {
-            border-color: var(--gld);
-            color: var(--gld);
-            background: rgba(240, 180, 41, 0.1);
-        }
-
-        .chat-search-container {
-            padding: 6px 10px;
-            background: var(--bg4);
-            border-bottom: 1px solid var(--bd);
-            flex-shrink: 0;
-            display: none;
-        }
-        .chat-search-container input {
-            width: 100%;
-            padding: 8px 12px;
-            border-radius: 20px;
-            border: 1px solid var(--bd2);
-            background: var(--bg3);
-            color: var(--tx);
-            font-size: 13px;
-            outline: none;
-        }
-        .chat-search-container input:focus {
-            border-color: var(--acc2);
-        }
-        .chat-search-container input::placeholder {
-            color: var(--tx2);
-        }
-        .chat-search-results {
-            position: absolute;
-            top: 46px;
-            left: 10px;
-            right: 10px;
-            background: var(--bg3);
-            border: 1px solid var(--bd2);
-            border-radius: var(--r2);
-            max-height: 140px;
-            overflow-y: auto;
-            z-index: 10;
-            display: none;
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6);
-        }
-        .chat-search-results .result-item {
-            padding: 8px 10px;
-            cursor: pointer;
-            border-bottom: 1px solid var(--bd);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            transition: .2s;
-        }
-        .chat-search-results .result-item:hover {
-            background: var(--bg4);
-        }
-        .chat-search-results .result-item .name {
-            font-size: 13px;
-            color: var(--tx);
-        }
-        .chat-search-results .result-item .user-id {
-            font-size: 10px;
-            color: var(--tx2);
-            margin-left: auto;
-        }
 
         .chat-messages-wrap {
             display: flex;
@@ -1490,7 +1386,6 @@
             flex: 1;
             min-height: 0;
         }
-
         .chat-messages {
             flex: 1;
             overflow-y: auto;
@@ -1541,20 +1436,11 @@
         .chat-messages .msg .sender .name {
             color: var(--gld);
             font-weight: 600;
-            cursor: pointer;
-        }
-        .chat-messages .msg .sender .name:hover {
-            text-decoration: underline;
         }
         .chat-messages .msg .text {
             font-size: 14px;
             margin-top: 2px;
             word-wrap: break-word;
-        }
-        .chat-messages .msg .private-tag {
-            font-size: 9px;
-            color: var(--acc2);
-            margin-left: 4px;
         }
         .chat-messages .system-msg {
             text-align: center;
@@ -1595,10 +1481,6 @@
             color: var(--tx2) !important;
             opacity: 0.7 !important;
         }
-        .chat-input-wrap input:disabled {
-            opacity: 0.5 !important;
-            cursor: not-allowed !important;
-        }
         .chat-input-wrap button {
             width: 48px !important;
             height: 48px !important;
@@ -1638,10 +1520,6 @@
             color: var(--gld);
             font-weight: 600;
         }
-        .chat-info .private-info {
-            color: var(--acc2);
-            font-weight: 500;
-        }
 
         @media (max-width: 600px) {
             .chat-container {
@@ -1656,11 +1534,6 @@
             }
             .chat-header-left .chat-title {
                 font-size: 14px !important;
-            }
-            .chat-mode-toggle {
-                padding: 3px 10px !important;
-                font-size: 10px !important;
-                min-height: 28px;
             }
             .chat-header-right .online-count {
                 font-size: 10px !important;
@@ -1706,13 +1579,6 @@
             .chat-input-wrap button span {
                 font-size: 22px !important;
             }
-            .chat-search-container input {
-                font-size: 13px !important;
-                padding: 6px 12px !important;
-            }
-            .chat-search-results .result-item {
-                padding: 6px 8px !important;
-            }
             .chat-info {
                 font-size: 10px !important;
                 padding: 4px 8px !important;
@@ -1720,138 +1586,67 @@
             }
         }
 
-        @media (max-width: 380px) {
-            .chat-input-wrap input {
-                font-size: 14px !important;
-                height: 42px !important;
-                padding: 8px 12px !important;
-            }
-            .chat-input-wrap button {
-                width: 42px !important;
-                height: 42px !important;
-                min-width: 42px !important;
-            }
-            .chat-input-wrap button span {
-                font-size: 18px !important;
-            }
-            .chat-messages .msg {
-                max-width: 94% !important;
-                padding: 6px 10px !important;
-                font-size: 13px !important;
-            }
-        }
-
-        /* ===== АУКЦИОН ===== */
-        .auction-status {
-            padding: 10px 14px;
-            border-radius: 8px;
-            text-align: center;
-            font-weight: 600;
-            margin-bottom: 10px;
-            font-size: 14px;
-        }
-        .auction-status.active {
-            background: #064e3b;
-            color: #4ade80;
-            border: 1px solid #15803d;
-        }
-        .auction-status.inactive {
-            background: #450a0a;
-            color: #fca5a5;
-            border: 1px solid #991b1b;
-        }
-        .auction-code-input {
+        /* ===== МОДАЛКИ ===== */
+        .mod-bg {
             display: none;
-        }
-
-        /* ===== МАГАЗИН ===== */
-        .contact-links {
-            display: flex;
-            gap: 10px;
-            justify-content: center;
-            margin-top: 8px;
-            flex-wrap: wrap;
-        }
-        .contact-links a {
-            background: var(--bg4);
-            padding: 10px 20px;
-            border-radius: 8px;
-            border: 1px solid var(--bd2);
-            color: var(--tx);
-            text-decoration: none;
-            display: flex;
+            position: fixed;
+            inset: 0;
+            background: #000000d0;
+            z-index: 200;
             align-items: center;
-            gap: 8px;
-            font-weight: 600;
-            transition: .3s;
+            justify-content: center;
+            padding: 16px;
+            animation: fadeIn 0.2s ease;
         }
-        .contact-links a:hover {
-            border-color: var(--acc2);
-            background: var(--bg5);
-            transform: translateY(-2px);
+        .mod-bg.on {
+            display: flex;
         }
-        .exchange-btn {
-            background: var(--bg4);
+        .mod-box {
+            background: var(--bg3);
             border: 1px solid var(--bd2);
-            color: var(--tx);
-            padding: 12px;
-            border-radius: var(--r2);
-            cursor: pointer;
-            transition: .3s;
-            text-align: center;
-            font-size: 14px;
-            font-weight: 600;
+            border-radius: 16px;
+            padding: 20px;
+            width: 100%;
+            max-width: 320px;
+            animation: fadeIn 0.3s ease;
         }
-        .exchange-btn:hover {
-            border-color: var(--gld);
-            background: var(--bg5);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 20px rgba(240, 180, 41, 0.1);
+        .mod-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--gld);
+            margin-bottom: 8px;
         }
-        .admin-panel {
-            display: none;
+        .mod-body {
+            font-size: 12px;
+            color: var(--tx2);
+            margin-bottom: 16px;
+            line-height: 1.6;
+        }
+        .mod-btns {
+            display: flex;
+            gap: 8px;
+        }
+        .mod-btns .btn {
+            flex: 1;
         }
 
-        /* ===== ИСПРАВЛЕНИЕ ДЛЯ ВЫБОРА АВАТАРКИ ===== */
-        .avatar-selector {
-            position: fixed !important;
-            top: 50% !important;
-            left: 50% !important;
-            transform: translate(-50%, -50%) !important;
-            width: 90vw !important;
-            max-width: 320px !important;
-            max-height: 70vh !important;
-            overflow-y: auto !important;
-            z-index: 999 !important;
-            padding: 16px !important;
-            border-radius: 16px !important;
-        }
-        .avatar-selector.show::before {
-            content: '' !important;
-            position: fixed !important;
-            top: 0 !important;
-            left: 0 !important;
-            right: 0 !important;
-            bottom: 0 !important;
-            background: rgba(0, 0, 0, 0.7) !important;
-            z-index: -1 !important;
-        }
-        @media (max-width: 700px) {
-            .avatar-selector {
-                top: 50% !important;
-                left: 50% !important;
-                transform: translate(-50%, -50%) !important;
-                width: 85vw !important;
-                max-width: 300px !important;
-                padding: 12px !important;
-            }
-            .avatar-grid {
-                grid-template-columns: repeat(3, 1fr) !important;
-                gap: 6px !important;
-            }
-            .avatar-option {
-                padding: 3px !important;
-            }
+        /* ===== TOAST ===== */
+        #TOAST {
+            position: fixed;
+            top: 60px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 9px 18px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            z-index: 999;
+            transition: opacity .3s;
+            opacity: 0;
+            pointer-events: none;
+            max-width: 88%;
+            text-align: center;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
         }
     </style>
 </head>
@@ -2032,10 +1827,6 @@
                                     <button class="btn bs" onclick="window.conf('+10 к ставке?','Ваши 10 монет зарезервируются.',()=>window.bid(10))">+10</button>
                                     <button class="btn bs" onclick="window.conf('+50 к ставке?','Ваши 50 монет зарезервируются.',()=>window.bid(50))">+50</button>
                                     <button class="btn bs" onclick="window.conf('+100 к ставке?','Ваши 100 монет зарезервируются.',()=>window.bid(100))">+100</button>
-                                </div>
-                                <div class="auction-code-input">
-                                    <input id="auctionCodeInput" placeholder="Код для запуска аукциона..." type="password" maxlength="20" style="display:none;">
-                                    <button onclick="window.startAuction()" style="display:none;">🚀 Запустить</button>
                                 </div>
                             </div>
                         </div>
@@ -2797,6 +2588,292 @@
             return div.innerHTML;
         }
 
+        function appendMessageToChat(msg) {
+            const container = document.getElementById('chatMessages');
+            if (!container) return;
+
+            const isOwn = msg?.sender_id === UID;
+            const senderName = isOwn ? 'Я' : (msg?.sender_name || 'Игрок');
+            const avatar = msg?.sender_avatar || AVATAR_LIST[0];
+            const text = escapeHtml(msg?.message || '');
+
+            const el = document.createElement('div');
+            el.className = `msg ${isOwn ? 'own' : 'other'}`;
+
+            el.innerHTML = `
+                <div class="sender">
+                    ${!isOwn ? `<div class="top-avatar" style="width:22px;height:22px;"><img src="${avatar}" alt="${escapeHtml(senderName)}" loading="lazy"></div>` : ''}
+                    <span class="name">${escapeHtml(senderName)}</span>
+                </div>
+                <div class="text">${text}</div>
+            `;
+
+            container.appendChild(el);
+            const isAtBottom = container.scrollTop + container.clientHeight >= container.scrollHeight - 120;
+            if (isAtBottom) {
+                container.scrollTop = container.scrollHeight;
+            }
+        }
+
+        async function loadMessages() {
+            if (!UID) return;
+
+            try {
+                const res = await sbFetch(
+                    `/rest/v1/messages?select=*&order=created_at.desc&limit=50&is_private=eq.false`
+                );
+                let data = res.ok ? res.data || [] : [];
+                data.reverse();
+
+                chats.global = data;
+                chatMessagesCache = data;
+
+                document.getElementById('chatInfo').innerHTML =
+                    `💬 <span class="highlight">Общий чат</span> — все видят все сообщения (последние 50)`;
+
+                renderChatMessages();
+
+                setTimeout(() => {
+                    const container = document.getElementById('chatMessages');
+                    if (container) container.scrollTop = container.scrollHeight;
+                }, 300);
+
+            } catch (e) {
+                console.warn('⚠️ Ошибка загрузки сообщений:', e);
+                document.getElementById('chatMessages').innerHTML =
+                    '<div class="system-msg" style="color:var(--red);">Ошибка загрузки</div>';
+            }
+        }
+
+        function renderChatMessages() {
+            const container = document.getElementById('chatMessages');
+            if (!container) return;
+
+            if (!chatMessagesCache || chatMessagesCache.length === 0) {
+                container.innerHTML = '<div class="system-msg">Нет сообщений в общем чате</div>';
+                return;
+            }
+
+            const scrollPos = container.scrollTop;
+            const isAtBottom = container.scrollTop + container.clientHeight >= container.scrollHeight - 120;
+
+            container.innerHTML = chatMessagesCache.map(msg => {
+                const isOwn = msg?.sender_id === UID;
+                const senderName = isOwn ? 'Я' : (msg?.sender_name || 'Игрок');
+                const avatar = msg?.sender_avatar || AVATAR_LIST[0];
+                const text = escapeHtml(msg?.message || '');
+
+                return `<div class="msg ${isOwn ? 'own' : 'other'}">
+                    <div class="sender">
+                        ${!isOwn ? `<div class="top-avatar" style="width:22px;height:22px;"><img src="${avatar}" alt="${escapeHtml(senderName)}" loading="lazy"></div>` : ''}
+                        <span class="name">${escapeHtml(senderName)}</span>
+                    </div>
+                    <div class="text">${text}</div>
+                </div>`;
+            }).join('');
+
+            if (!isAtBottom) {
+                container.scrollTop = scrollPos;
+            } else {
+                container.scrollTop = container.scrollHeight;
+            }
+        }
+
+        window.sendMessage = async function() {
+            const input = document.getElementById('chatInput');
+            const text = input.value.trim();
+
+            if (!text) {
+                input.style.borderColor = 'var(--red)';
+                setTimeout(() => {
+                    input.style.borderColor = '';
+                }, 1000);
+                window.toast('Введите сообщение', 'err');
+                return;
+            }
+
+            if (text.length > 200) {
+                window.toast('Слишком длинное сообщение (макс. 200 символов)', 'err');
+                return;
+            }
+
+            const safeText = text.replace(/[<>]/g, '').trim();
+            if (!safeText) {
+                window.toast('Недопустимые символы', 'err');
+                return;
+            }
+
+            const sentText = text;
+            input.value = '';
+            input.style.borderColor = '';
+
+            const msgData = {
+                sender_id: String(UID),
+                sender_name: String((G.name || currentUsername || 'Игрок').substring(0, 30)),
+                sender_avatar: String(G.avatar || AVATAR_LIST[0]),
+                receiver_id: null,
+                receiver_name: null,
+                message: String(safeText.substring(0, 200)),
+                is_private: false,
+                created_at: new Date().toISOString()
+            };
+
+            const tempMsg = { ...msgData };
+            chats.global.push(tempMsg);
+            chatMessagesCache = chats.global;
+            appendMessageToChat(tempMsg);
+
+            setTimeout(() => {
+                input.focus();
+            }, 100);
+
+            try {
+                const { ok, status, data } = await sbFetch('/rest/v1/messages', {
+                    method: 'POST',
+                    body: msgData
+                });
+
+                if (!ok) {
+                    console.error('❌ Ошибка отправки:', status, data);
+                    window.toast('❌ Ошибка отправки', 'err');
+                    chats.global = chats.global.filter(m => m !== tempMsg);
+                    chatMessagesCache = chats.global;
+                    renderChatMessages();
+                    input.value = sentText;
+                    input.focus();
+                } else {
+                    setTimeout(() => {
+                        loadMessages();
+                        cleanupOldMessages();
+                    }, 300);
+
+                    if (navigator.vibrate) {
+                        navigator.vibrate(10);
+                    }
+                }
+            } catch (e) {
+                console.error('❌ Ошибка соединения:', e);
+                window.toast('❌ Ошибка соединения', 'err');
+                chats.global = chats.global.filter(m => m !== tempMsg);
+                chatMessagesCache = chats.global;
+                renderChatMessages();
+                input.value = sentText;
+                input.focus();
+            }
+        };
+
+        let lastMessageTime = Date.now();
+
+        function setupRealtime() {
+            if (chatPollInterval) {
+                clearInterval(chatPollInterval);
+                chatPollInterval = null;
+            }
+
+            chatPollInterval = setInterval(async () => {
+                if (!UID) return;
+                if (!document.getElementById('sc-chat').classList.contains('on')) return;
+
+                try {
+                    const { data, ok } = await sbFetch(
+                        `/rest/v1/messages?select=*&order=created_at.desc&limit=5&is_private=eq.false&created_at=gt.${encodeURIComponent(new Date(lastMessageTime).toISOString())}`
+                    );
+
+                    if (ok && data && data.length > 0) {
+                        const newMsgs = data.reverse();
+                        for (const msg of newMsgs) {
+                            const exists = chats.global.some(m => m.id === msg.id);
+                            if (!exists) {
+                                chats.global.push(msg);
+                                chatMessagesCache = chats.global;
+                                appendMessageToChat(msg);
+                            }
+                        }
+                        if (newMsgs.length > 0) {
+                            lastMessageTime = new Date(newMsgs[newMsgs.length - 1].created_at).getTime();
+                        }
+                    }
+                } catch (e) {}
+            }, 2000);
+        }
+
+        async function cleanupOldMessages() {
+            if (!UID) return;
+
+            try {
+                const { data: publicMessages } = await sbFetch(
+                    `/rest/v1/messages?select=id&is_private=eq.false&order=created_at.desc&limit=50`
+                );
+
+                if (publicMessages && publicMessages.length > 0) {
+                    const oldestId = publicMessages[publicMessages.length - 1]?.id;
+                    if (oldestId) {
+                        await sbFetch(
+                            `/rest/v1/messages?is_private=eq.false&id=lt.${oldestId}`,
+                            { method: 'DELETE' }
+                        );
+                    }
+                }
+            } catch (e) {
+                console.warn('⚠️ Ошибка очистки сообщений:', e);
+            }
+        }
+
+        async function loadOnlineUsers() {
+            try {
+                const fiveMinAgo = new Date(Date.now() - 5 * 60 * 1000).toISOString();
+                const { data, ok } = await sbFetch(
+                    `/rest/v1/users?select=id&updated_at=gte.${encodeURIComponent(fiveMinAgo)}&limit=50`
+                );
+
+                if (ok && data) {
+                    const online = data.filter(u => u.id !== UID);
+                    document.getElementById('chatOnline').textContent = `● ${online.length + 1} онлайн`;
+                }
+            } catch (e) {
+                console.warn('⚠️ Ошибка загрузки онлайн:', e);
+            }
+        }
+
+        async function updateOnlineStatus() {
+            if (!UID) return;
+            try {
+                await sbFetch(`/rest/v1/users?id=eq.${UID}`, {
+                    method: 'PATCH',
+                    body: { updated_at: new Date().toISOString() }
+                });
+            } catch (e) {
+                console.warn('⚠️ Ошибка обновления статуса:', e);
+            }
+        }
+
+        function initChat() {
+            if (!UID) return;
+
+            currentChat = 'global';
+            chatMessagesCache = chats.global || [];
+            lastMessageTime = Date.now();
+
+            document.getElementById('chatTitle').innerHTML = '💬 Общий чат';
+            document.getElementById('chatInfo').innerHTML = '💬 <span class="highlight">Общий чат</span> — все видят все сообщения';
+
+            const input = document.getElementById('chatInput');
+            if (input) {
+                input.disabled = false;
+                input.placeholder = 'Напишите в общий чат...';
+                input.value = '';
+            }
+
+            loadMessages();
+            loadOnlineUsers();
+            setupRealtime();
+
+            setTimeout(() => {
+                const container = document.getElementById('chatMessages');
+                if (container) container.scrollTop = container.scrollHeight;
+            }, 500);
+        }
+
         // ============================================================
         // 13. ВСЕ ИГРОВЫЕ ФУНКЦИИ
         // ============================================================
@@ -3163,7 +3240,7 @@
             window.toast(`+${m.rw} ключ!`, 'gld');
         };
 
-        // === АУКЦИОН (ГЛОБАЛЬНЫЙ - СИНХРОНИЗАЦИЯ ЧЕРЕЗ БД) ===
+        // === АУКЦИОН ===
         async function loadAuctionState() {
             try {
                 const { data, ok } = await sbFetch('/rest/v1/auction_state?limit=1');
@@ -3178,7 +3255,6 @@
                         if (elapsed < hours24) {
                             startAuctionTimer();
                             updateAuctionStatus();
-                            // Загружаем ставки из БД
                             await loadAuctionBids();
                         } else {
                             await endAuctionGlobal();
@@ -3199,7 +3275,6 @@
                         avatar: b.bidder_avatar || '👤',
                         bid: b.bid
                     }));
-                    // Находим ставку текущего игрока
                     const myBid = data.find(b => b.bidder_id === UID);
                     G.auctionBid = myBid ? myBid.bid : 0;
                     renderPodium();
@@ -3245,7 +3320,6 @@
                     updated_at: new Date().toISOString()
                 };
 
-                // Проверяем, есть ли уже ставка от этого пользователя
                 const { data, ok } = await sbFetch(
                     `/rest/v1/auction_bids?bidder_id=eq.${bidderId}&limit=1`
                 );
@@ -3266,7 +3340,6 @@
         }
 
         window.startAuction = async function() {
-            // Запуск через консоль или скрытую кнопку
             if (!auctionActive) {
                 auctionActive = true;
                 auctionStartTime = Date.now();
@@ -3395,10 +3468,8 @@
             G.coins -= a;
             G.auctionBid = (G.auctionBid || 0) + a;
 
-            // Сохраняем ставку в БД
             await saveAuctionBid(UID, G.name, G.nicks.a ? NICK_S[G.nicks.a]?.e || '👤' : '👤', G.auctionBid);
 
-            // Обновляем локальный список
             const existing = G.auctionBidders.find(b => b.name === G.name);
             if (existing) {
                 existing.bid += a;
@@ -3526,14 +3597,603 @@
         // ============================================================
         // 17. РУЛЕТКА
         // ============================================================
-        // (Код рулетки такой же как в вашем проекте - для краткости опущен)
-        // В полной версии здесь должен быть полный код рулетки
+        const RC = document.getElementById('rouletteCanvas');
+        const rctx = RC.getContext('2d');
+        const CX = 160,
+            CY = 160,
+            OR = 148,
+            IR = 28;
+
+        const SEGS = [
+            { c: 'green', label: '0' },
+            { c: 'red', label: '1' },
+            { c: 'black', label: '2' },
+            { c: 'red', label: '3' },
+            { c: 'black', label: '4' },
+            { c: 'red', label: '5' },
+            { c: 'black', label: '6' },
+            { c: 'red', label: '7' },
+            { c: 'black', label: '8' },
+            { c: 'red', label: '9' },
+            { c: 'green', label: '00' },
+            { c: 'black', label: '10' },
+            { c: 'red', label: '11' },
+            { c: 'black', label: '12' },
+            { c: 'red', label: '13' },
+            { c: 'black', label: '14' },
+            { c: 'red', label: '15' },
+            { c: 'black', label: '16' },
+            { c: 'red', label: '17' },
+            { c: 'black', label: '18' }
+        ];
+
+        const SEG_FILL = {
+            red: ['#7f1d1d', '#b91c1c', '#dc2626'],
+            black: ['#18181b', '#27272a', '#3f3f46'],
+            green: ['#14532d', '#15803d', '#16a34a']
+        };
+
+        let wheelAngle = 0;
+        let spinning = false;
+        let spinBet = 25;
+        let resultDisplayed = true;
+        let _pendingWinColor = null;
+        let _targetIndex = null;
+
+        window.drawRoulette = function(angle, highlightIndex) {
+            rctx.clearRect(0, 0, 320, 320);
+
+            const validR = OR + 14;
+            const woodGrad = rctx.createRadialGradient(CX, CY, 0, CX, CY, validR);
+            woodGrad.addColorStop(0, '#5c3a1e');
+            woodGrad.addColorStop(.5, '#8b5e3c');
+            woodGrad.addColorStop(1, '#3d2109');
+            rctx.beginPath();
+            rctx.arc(CX, CY, validR, 0, Math.PI * 2);
+            rctx.fillStyle = woodGrad;
+            rctx.fill();
+
+            rctx.beginPath();
+            rctx.arc(CX, CY, OR + 14, 0, Math.PI * 2);
+            rctx.strokeStyle = '#d4a017';
+            rctx.lineWidth = 2.5;
+            rctx.stroke();
+            rctx.beginPath();
+            rctx.arc(CX, CY, OR + 1, 0, Math.PI * 2);
+            rctx.strokeStyle = '#b8860b';
+            rctx.lineWidth = 1.5;
+            rctx.stroke();
+
+            rctx.beginPath();
+            rctx.arc(CX, CY, OR - 6, 0, Math.PI * 2);
+            rctx.strokeStyle = '#1a0a00';
+            rctx.lineWidth = 12;
+            rctx.stroke();
+            rctx.beginPath();
+            rctx.arc(CX, CY, OR - 6, 0, Math.PI * 2);
+            rctx.strokeStyle = '#4a2c10';
+            rctx.lineWidth = 10;
+            rctx.stroke();
+            rctx.beginPath();
+            rctx.arc(CX, CY, OR - 6, 0, Math.PI * 2);
+            rctx.strokeStyle = '#2a1505';
+            rctx.lineWidth = 8;
+            rctx.stroke();
+
+            const n = SEGS.length;
+            const sa = Math.PI * 2 / n;
+            for (let i = 0; i < n; i++) {
+                const a1 = angle + i * sa - Math.PI / 2;
+                const a2 = angle + (i + 1) * sa - Math.PI / 2;
+                const col = SEGS[i].c;
+                const fills = SEG_FILL[col];
+
+                rctx.beginPath();
+                rctx.moveTo(CX, CY);
+                rctx.arc(CX, CY, OR - 16, a1, a2);
+                rctx.closePath();
+                rctx.fillStyle = fills[1];
+                rctx.fill();
+
+                if (highlightIndex === i) {
+                    rctx.beginPath();
+                    rctx.moveTo(CX, CY);
+                    rctx.arc(CX, CY, OR - 16, a1, a2);
+                    rctx.closePath();
+                    rctx.fillStyle = 'rgba(255, 215, 0, 0.25)';
+                    rctx.fill();
+                    rctx.strokeStyle = '#ffd700';
+                    rctx.lineWidth = 2;
+                    rctx.stroke();
+                }
+
+                const mid = a1 + (a2 - a1) / 2;
+                const sheen = rctx.createLinearGradient(
+                    CX + Math.cos(mid) * (OR - 40), CY + Math.sin(mid) * (OR - 40),
+                    CX + Math.cos(mid) * (OR - 16), CY + Math.sin(mid) * (OR - 16)
+                );
+                sheen.addColorStop(0, 'transparent');
+                sheen.addColorStop(1, 'rgba(255,255,255,.12)');
+                rctx.beginPath();
+                rctx.moveTo(CX, CY);
+                rctx.arc(CX, CY, OR - 16, a1, a2);
+                rctx.closePath();
+                rctx.fillStyle = sheen;
+                rctx.fill();
+
+                rctx.beginPath();
+                rctx.moveTo(CX + Math.cos(a1) * (IR + 4), CY + Math.sin(a1) * (IR + 4));
+                rctx.lineTo(CX + Math.cos(a1) * (OR - 16), CY + Math.sin(a1) * (OR - 16));
+                rctx.strokeStyle = 'rgba(255,255,255,.22)';
+                rctx.lineWidth = 0.8;
+                rctx.stroke();
+
+                const tmid = a1 + (a2 - a1) / 2;
+                const tr = OR - 30;
+                rctx.save();
+                rctx.translate(CX + Math.cos(tmid) * tr, CY + Math.sin(tmid) * tr);
+                rctx.rotate(tmid + Math.PI / 2);
+                rctx.font = 'bold 9px sans-serif';
+                rctx.fillStyle = 'rgba(255,255,255,.85)';
+                rctx.textAlign = 'center';
+                rctx.textBaseline = 'middle';
+                rctx.fillText(SEGS[i].label, 0, 0);
+                rctx.restore();
+            }
+
+            const coneGrad = rctx.createRadialGradient(CX, CY, 0, CX, CY, IR + 14);
+            coneGrad.addColorStop(0, '#5c3a1e');
+            coneGrad.addColorStop(.7, '#3d2109');
+            coneGrad.addColorStop(1, '#1a0a00');
+            rctx.beginPath();
+            rctx.arc(CX, CY, IR + 14, 0, Math.PI * 2);
+            rctx.fillStyle = coneGrad;
+            rctx.fill();
+
+            rctx.beginPath();
+            rctx.arc(CX, CY, IR + 4, 0, Math.PI * 2);
+            rctx.strokeStyle = '#d4a017';
+            rctx.lineWidth = 2;
+            rctx.stroke();
+
+            const hubGrad = rctx.createRadialGradient(CX - 4, CY - 4, 0, CX, CY, IR);
+            hubGrad.addColorStop(0, '#e8d060');
+            hubGrad.addColorStop(.5, '#c8a020');
+            hubGrad.addColorStop(1, '#6b4e0b');
+            rctx.beginPath();
+            rctx.arc(CX, CY, IR, 0, Math.PI * 2);
+            rctx.fillStyle = hubGrad;
+            rctx.fill();
+
+            rctx.strokeStyle = 'rgba(0,0,0,.35)';
+            rctx.lineWidth = 1.5;
+            rctx.beginPath();
+            rctx.moveTo(CX - IR + 4, CY);
+            rctx.lineTo(CX + IR - 4, CY);
+            rctx.stroke();
+            rctx.beginPath();
+            rctx.moveTo(CX, CY - IR + 4);
+            rctx.lineTo(CX, CY + IR - 4);
+            rctx.stroke();
+
+            // Стрелка
+            rctx.shadowColor = 'rgba(255, 215, 0, 0.5)';
+            rctx.shadowBlur = 15;
+            rctx.beginPath();
+            rctx.moveTo(CX - 10, 10);
+            rctx.lineTo(CX + 10, 10);
+            rctx.lineTo(CX, 26);
+            rctx.closePath();
+            rctx.fillStyle = '#ffd700';
+            rctx.fill();
+            rctx.strokeStyle = '#b8860b';
+            rctx.lineWidth = 2;
+            rctx.stroke();
+            rctx.shadowBlur = 0;
+        };
+
+        function getSectorAtPointer(angle) {
+            const n = SEGS.length;
+            const sa = (Math.PI * 2) / n;
+            let rawAngle = (-Math.PI / 2 - angle) % (Math.PI * 2);
+            if (rawAngle < 0) rawAngle += Math.PI * 2;
+            return Math.floor(rawAngle / sa) % n;
+        }
+
+        window.spinTo = function(selectedColor) {
+            if (spinning) return;
+
+            const betInput = document.getElementById('rlBetInput');
+            const bet = parseInt(betInput.value) || 25;
+
+            if (bet < 1) {
+                window.toast('Минимальная ставка 1 монета', 'err');
+                return;
+            }
+            if (bet > G.coins) {
+                window.toast('Недостаточно монет!', 'err');
+                return;
+            }
+
+            G.coins -= bet;
+            spinning = true;
+            resultDisplayed = false;
+            _pendingWinColor = selectedColor;
+            spinBet = bet;
+
+            const resultEl = document.getElementById('rlResult');
+            resultEl.textContent = '🎰 Крутим...';
+            resultEl.className = 'rl-result';
+
+            document.querySelectorAll('.rl-btns button').forEach(b => b.disabled = true);
+            betInput.disabled = true;
+
+            const n = SEGS.length;
+            const segAngle = (Math.PI * 2) / n;
+
+            // ВЫБИРАЕМ СЛУЧАЙНЫЙ СЕКТОР
+            _targetIndex = Math.floor(Math.random() * n);
+            const seg = SEGS[_targetIndex];
+
+            const extraSpins = 6 + Math.floor(Math.random() * 3);
+            const targetAngle = -Math.PI / 2 - (_targetIndex + 0.5) * segAngle + extraSpins * Math.PI * 2;
+
+            const startAngle = wheelAngle;
+            const duration = 4000 + Math.random() * 500;
+            const startTime = performance.now();
+
+            // === АНИМАЦИЯ ===
+            function animate(time) {
+                const elapsed = time - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                const eased = 1 - Math.pow(1 - progress, 3);
+
+                wheelAngle = startAngle + (targetAngle - startAngle) * eased;
+                window.drawRoulette(wheelAngle);
+
+                if (progress < 1) {
+                    requestAnimationFrame(animate);
+                } else {
+                    // Проверка и корректировка
+                    const landedIdx = getSectorAtPointer(wheelAngle);
+                    if (landedIdx !== _targetIndex) {
+                        const correction = (_targetIndex - landedIdx) * segAngle;
+                        wheelAngle += correction;
+                        window.drawRoulette(wheelAngle);
+                    }
+
+                    // Подсветка выигрышного сектора
+                    window.drawRoulette(wheelAngle, _targetIndex);
+
+                    // === РЕЗУЛЬТАТ ===
+                    spinning = false;
+                    resultDisplayed = true;
+
+                    const win = seg.c === selectedColor;
+                    const colorEmoji = seg.c === 'red' ? '🔴' : seg.c === 'black' ? '⚫' : '🟢';
+
+                    if (win) {
+                        const mult = seg.c === 'green' ? 5 : 1.75;
+                        const winAmount = Math.floor(bet * mult);
+                        G.coins += winAmount;
+                        resultEl.textContent = '✅ Выпало: ' + seg.label + ' (' + colorEmoji + ' ' + seg.c + ') +' +
+                            winAmount + ' монет!';
+                        resultEl.className = 'rl-result win';
+                        window.toast('🎉 Выпало ' + seg.label + '! +' + winAmount + ' монет!', 'gld');
+                    } else {
+                        resultEl.textContent = '❌ Выпало: ' + seg.label + ' (' + colorEmoji + ' ' + seg.c + ') -' + bet +
+                            ' монет';
+                        resultEl.className = 'rl-result lose';
+                        window.toast('😞 Выпало ' + seg.label + '! -' + bet + ' монет', 'err');
+                    }
+
+                    _pendingWinColor = null;
+                    _targetIndex = null;
+
+                    document.querySelectorAll('.rl-btns button').forEach(b => b.disabled = false);
+                    betInput.disabled = false;
+
+                    scheduleSave();
+                    renderUI();
+
+                    setTimeout(function() {
+                        window.drawRoulette(wheelAngle);
+                    }, 3000);
+                }
+            }
+
+            requestAnimationFrame(animate);
+        };
+
+        // === ФОНОВОЕ ВРАЩЕНИЕ ===
+        var idleAngle = 0;
+
+        function idleSpin() {
+            if (!spinning && resultDisplayed) {
+                idleAngle += 0.003;
+                wheelAngle = idleAngle;
+                window.drawRoulette(wheelAngle);
+            }
+            requestAnimationFrame(idleSpin);
+        }
+
+        window.drawRoulette(0);
+        idleSpin();
+        document.getElementById('rlResult').textContent = '🎰 Выберите цвет для ставки';
+        document.getElementById('rlResult').className = 'rl-result';
 
         // ============================================================
         // 18. КУБИК
         // ============================================================
-        // (Код кубика такой же как в вашем проекте - для краткости опущен)
-        // В полной версии здесь должен быть полный код кубика
+        const PIP_LAYOUTS = {
+            1: [
+                [1, 1]
+            ],
+            2: [
+                [0, 0],
+                [2, 2]
+            ],
+            3: [
+                [0, 0],
+                [1, 1],
+                [2, 2]
+            ],
+            4: [
+                [0, 0],
+                [0, 2],
+                [2, 0],
+                [2, 2]
+            ],
+            5: [
+                [0, 0],
+                [0, 2],
+                [1, 1],
+                [2, 0],
+                [2, 2]
+            ],
+            6: [
+                [0, 0],
+                [0, 2],
+                [1, 0],
+                [1, 2],
+                [2, 0],
+                [2, 2]
+            ]
+        };
+
+        const CUBE_PALETTES = [
+            { face: '#1a237e', pip: '#ffffff', border: 'rgba(255,255,255,.2)' },
+            { face: '#7f1d1d', pip: '#ffffff', border: 'rgba(255,255,255,.2)' },
+            { face: '#14532d', pip: '#ffffff', border: 'rgba(255,255,255,.2)' },
+            { face: '#4a044e', pip: '#ffffff', border: 'rgba(255,255,255,.2)' },
+            { face: '#0c4a6e', pip: '#ffffff', border: 'rgba(255,255,255,.2)' },
+            { face: '#422006', pip: '#ffffff', border: 'rgba(255,255,255,.2)' }
+        ];
+
+        const DICE_FINAL_COLORS = {
+            red: { face: '#7f1d1d', pip: '#ffffff', border: 'rgba(255,255,255,.3)' },
+            black: { face: '#18181b', pip: '#f5f5f5', border: 'rgba(255,255,255,.18)' }
+        };
+
+        let curPalette = 0;
+        let diceRolling = false;
+        let diceAnimId2 = null;
+        let diceRx = -20;
+        let diceRy = 30;
+        let lastDiceValue = null;
+        let lastDiceColor = null;
+
+        function buildPips(el, n, pipColor) {
+            const g = document.createElement('div');
+            g.className = 'pips';
+            g.style.cssText =
+                'display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);width:100px;height:100px;gap:0;padding:8px';
+            for (let r = 0; r < 3; r++) {
+                for (let c = 0; c < 3; c++) {
+                    const cell = document.createElement('div');
+                    cell.style.cssText = 'display:flex;align-items:center;justify-content:center';
+                    const layout = PIP_LAYOUTS[n];
+                    let hasPip = false;
+                    for (let p = 0; p < layout.length; p++) {
+                        if (layout[p][0] === r && layout[p][1] === c) {
+                            hasPip = true;
+                            break;
+                        }
+                    }
+                    if (hasPip) {
+                        const pip = document.createElement('div');
+                        pip.style.cssText =
+                            'width:16px;height:16px;border-radius:50%;background:' + pipColor +
+                            ';box-shadow:0 1px 3px rgba(0,0,0,.4)';
+                        cell.appendChild(pip);
+                    }
+                    g.appendChild(cell);
+                }
+            }
+            el.innerHTML = '';
+            el.appendChild(g);
+        }
+
+        function applyDicePalette(p) {
+            const faces = document.querySelectorAll('.face');
+            for (let f = 0; f < faces.length; f++) {
+                faces[f].style.background = p.face;
+                faces[f].style.borderColor = p.border;
+            }
+            const ids = ['f1', 'f2', 'f3', 'f4', 'f5', 'f6'];
+            const vals = [1, 2, 3, 4, 5, 6];
+            for (let v = 0; v < vals.length; v++) {
+                const el = document.getElementById(ids[v]);
+                if (el) {
+                    const wrap = el.querySelector('.pips') || el;
+                    buildPips(wrap, vals[v], p.pip);
+                }
+            }
+        }
+
+        (function initFaces() {
+            const faces = ['f1', 'f2', 'f3', 'f4', 'f5', 'f6'];
+            const vals = [1, 2, 3, 4, 5, 6];
+            for (let i = 0; i < faces.length; i++) {
+                const f = document.getElementById(faces[i]);
+                if (!f) continue;
+                const wrap = document.createElement('div');
+                wrap.className = 'pips';
+                wrap.style.cssText =
+                    'display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);width:100px;height:100px;gap:0;padding:8px';
+                f.innerHTML = '';
+                f.appendChild(wrap);
+                buildPips(wrap, vals[i], '#ffffff');
+            }
+            applyDicePalette(CUBE_PALETTES[0]);
+        })();
+
+        window.renderDiceIdle = function() {
+            const cube = document.getElementById('diceCube');
+            if (!cube) return;
+            cube.style.transition = 'none';
+            cube.style.transform = 'rotateX(-20deg) rotateY(30deg)';
+            applyDicePalette(CUBE_PALETTES[0]);
+            document.getElementById('diceResult').textContent = '';
+            document.getElementById('diceResult').className = 'dice-result';
+            lastDiceValue = null;
+            lastDiceColor = null;
+        };
+
+        function rollDiceInternal(callback) {
+            if (diceRolling) return;
+            diceRolling = true;
+            document.getElementById('diceResult').textContent = '...';
+            document.getElementById('diceResult').className = 'dice-result';
+
+            const cube = document.getElementById('diceCube');
+            cube.style.transition = 'none';
+
+            let t = 0;
+            let paletteTimer = 0;
+            let rx = -20;
+            let ry = 30;
+
+            if (diceAnimId2) cancelAnimationFrame(diceAnimId2);
+
+            function anim() {
+                t++;
+                rx += 7.3 * (1 - t / 45);
+                ry += 11.7 * (1 - t / 45);
+
+                paletteTimer++;
+                if (paletteTimer % 6 === 0) {
+                    curPalette = (curPalette + 1) % CUBE_PALETTES.length;
+                    applyDicePalette(CUBE_PALETTES[curPalette]);
+                }
+
+                cube.style.transform = 'rotateX(' + rx + 'deg) rotateY(' + ry + 'deg)';
+
+                if (t < 42) {
+                    diceAnimId2 = requestAnimationFrame(anim);
+                } else {
+                    const val = Math.floor(Math.random() * 6) + 1;
+                    const colors = ['red', 'black'];
+                    const randomColor = colors[Math.floor(Math.random() * colors.length)];
+
+                    lastDiceValue = val;
+                    lastDiceColor = randomColor;
+
+                    const finalColor = DICE_FINAL_COLORS[randomColor];
+                    applyDicePalette(finalColor);
+
+                    const faceRots = {
+                        1: 'rotateX(0deg) rotateY(0deg)',
+                        2: 'rotateX(-90deg) rotateY(0deg)',
+                        3: 'rotateX(0deg) rotateY(-90deg)',
+                        4: 'rotateX(0deg) rotateY(90deg)',
+                        5: 'rotateX(90deg) rotateY(0deg)',
+                        6: 'rotateX(0deg) rotateY(180deg)'
+                    };
+                    cube.style.transition = 'transform 0.6s cubic-bezier(.22,.61,.36,1)';
+                    cube.style.transform = faceRots[val] || 'rotateX(0deg) rotateY(0deg)';
+
+                    diceRolling = false;
+                    if (callback) callback(val, randomColor);
+                }
+            }
+            requestAnimationFrame(anim);
+        }
+
+        window.playDiceWithBet = function(col) {
+            if (G.coins < 50) {
+                window.toast('Нужно 50 монет', 'err');
+                return;
+            }
+            if (diceRolling) {
+                window.toast('Кубик уже крутится', 'err');
+                return;
+            }
+
+            const buttons = document.querySelectorAll('.dice-btns button');
+            for (let b = 0; b < buttons.length; b++) {
+                buttons[b].disabled = true;
+            }
+
+            G.coins -= 50;
+
+            rollDiceInternal(function(val, resultCol) {
+                const base = val * 10;
+                const bonus = (col === resultCol) ? 10 : 0;
+                const total = base + bonus;
+                G.coins += total;
+                const profit = total - 50;
+
+                const colorName = resultCol === 'red' ? '🔴 красный' : '⚫ чёрный';
+                const resultEl = document.getElementById('diceResult');
+                const win = (col === resultCol);
+
+                if (win) {
+                    if (profit >= 0) {
+                        resultEl.textContent = '✅ Выпало ' + val + ' (' + colorName + ')! +' + profit + ' монет';
+                    } else {
+                        resultEl.textContent = '✅ Выпало ' + val + ' (' + colorName + ')! ' + profit + ' монет';
+                    }
+                    resultEl.className = 'dice-result win';
+                    window.toast((profit >= 0 ? '+' : '') + profit + ' монет!', 'gld');
+                } else {
+                    const loss = Math.abs(profit);
+                    resultEl.textContent = '❌ Выпало ' + val + ' (' + colorName + ')! -' + loss + ' монет';
+                    resultEl.className = 'dice-result lose';
+                    window.toast('-' + loss + ' монет', 'err');
+                }
+
+                const buttons2 = document.querySelectorAll('.dice-btns button');
+                for (let b2 = 0; b2 < buttons2.length; b2++) {
+                    buttons2[b2].disabled = false;
+                }
+
+                scheduleSave();
+                renderUI();
+            });
+        };
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const diceSection = document.querySelector('.dice-section');
+            if (diceSection) {
+                const rulesBtn = document.createElement('button');
+                rulesBtn.textContent = '📖 Правила';
+                rulesBtn.style.cssText =
+                    'padding:6px 14px;border-radius:8px;border:0.5px solid var(--color-border-secondary);background:var(--color-background-primary);color:var(--color-text-primary);font-size:12px;cursor:pointer;margin-top:4px;';
+                rulesBtn.onclick = function() {
+                    window.toast(
+                        '🎲 ПРАВИЛА:\n💰 Ставка: 50 монет\n🎯 Угадай цвет кубика\n🔴 Красный 50%\n⚫ Чёрный 50%\n💵 Выигрыш = число × 10 + бонус 10 за угаданный цвет - 50',
+                        'info');
+                };
+
+                const btns = diceSection.querySelector('.dice-btns');
+                if (btns) {
+                    btns.parentNode.insertBefore(rulesBtn, btns.nextSibling);
+                } else {
+                    diceSection.appendChild(rulesBtn);
+                }
+            }
+        });
 
         // ============================================================
         // 19. ТОП-10
@@ -3801,12 +4461,15 @@
             renderPodium();
         });
 
-        console.log('✅ АУКЦИОН СИНХРОНИЗИРОВАН ЧЕРЕЗ БД:');
-        console.log('  🏛 Состояние аукциона сохраняется в БД');
-        console.log('  💰 Ставки сохраняются в БД');
-        console.log('  🔄 Все устройства синхронизированы');
-        console.log('  🔑 Коды скрыты от пользователей');
-        console.log('  📱 Только Telegram для связи');
+        console.log('✅ ВСЁ РАБОТАЕТ:');
+        console.log('  💬 Чат полностью рабочий');
+        console.log('  🎰 Рулетка работает');
+        console.log('  🎲 Кубик работает');
+        console.log('  🏛 Аукцион синхронизирован через БД');
+        console.log('  👹 Босс появляется в 12:00 МСК');
+        console.log('  📛 Никнеймы уникальны');
+        console.log('  🏆 Топ отображается корректно');
     </script>
+
 </body>
 </html>
