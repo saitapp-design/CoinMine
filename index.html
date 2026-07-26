@@ -1880,8 +1880,9 @@
             return div.innerHTML;
         }
 
-       // ============================================================
-// БОСС - ПОЛНОСТЬЮ ИСПРАВЛЕННАЯ ВЕРСИЯ С ПРИНУДИТЕЛЬНЫМ СОХРАНЕНИЕМ
+      
+// ============================================================
+// БОСС - ИСПРАВЛЕННАЯ ВЕРСИЯ (НЕ ОЖИВАЕТ ПРИ ПЕРЕЗАГРУЗКЕ)
 // ============================================================
 
 // Загрузка состояния босса
@@ -1911,7 +1912,6 @@ async function loadBossState() {
                     updated_at: new Date().toISOString()
                 }
             });
-            console.log('📊 Создание босса:', newData);
             BOSS_STATE = { 
                 id: newData?.[0]?.id || 1,
                 hp: 1000, 
@@ -1923,26 +1923,18 @@ async function loadBossState() {
         return BOSS_STATE;
     } catch (e) {
         console.error('❌ Ошибка загрузки босса:', e);
-        // Используем локальные данные
-        if (!BOSS_STATE.hp) {
-            BOSS_STATE = { hp: 1000, lastKill: 0, currentBoss: 'Рябчик' };
-        }
-        renderBoss();
         return BOSS_STATE;
     }
 }
 
-// Сохранение состояния босса (С ПРИНУДИТЕЛЬНЫМ ОЖИДАНИЕМ)
+// Сохранение состояния босса
 async function saveBossState() {
     try {
-        console.log('💾 Сохранение босса, текущее состояние:', BOSS_STATE);
+        console.log('💾 Сохранение босса:', BOSS_STATE);
         
-        // Сначала получаем ID записи
         const { data, ok } = await sbFetch(`/rest/v1/boss_state?select=*&limit=1`);
-        console.log('📊 Поиск записи для обновления:', data);
         
         if (ok && data && data.length > 0) {
-            // Обновляем
             const result = await sbFetch(`/rest/v1/boss_state?id=eq.${data[0].id}`, {
                 method: 'PATCH',
                 body: {
@@ -1952,10 +1944,9 @@ async function saveBossState() {
                     updated_at: new Date().toISOString()
                 }
             });
-            console.log('💾 Результат ОБНОВЛЕНИЯ босса:', result);
+            console.log('💾 Результат обновления:', result);
             return result.ok;
         } else {
-            // Создаем новую
             const result = await sbFetch('/rest/v1/boss_state', {
                 method: 'POST',
                 body: {
@@ -1965,124 +1956,97 @@ async function saveBossState() {
                     updated_at: new Date().toISOString()
                 }
             });
-            console.log('💾 Результат СОЗДАНИЯ босса:', result);
+            console.log('💾 Результат создания:', result);
             return result.ok;
         }
     } catch (e) {
-        console.error('❌ Ошибка сохранения босса:', e);
+        console.error('❌ Ошибка сохранения:', e);
         return false;
     }
 }
 
 // ============================================================
-// АТАКА БОССА - С ПРИНУДИТЕЛЬНЫМ СОХРАНЕНИЕМ
+// АТАКА БОССА
 // ============================================================
 
 window.atkBoss = async function() {
     console.log('⚔️ АТАКА БОССА!');
     
-    // Проверяем монеты
     if (G.coins < 20) {
         window.toast('❌ Нужно 20 монет', 'err');
         return;
     }
 
-    // ЗАГРУЖАЕМ актуальное состояние из БД
     await loadBossState();
-    console.log('📊 Текущее HP босса (из БД):', BOSS_STATE.hp);
+    console.log('📊 Текущее HP:', BOSS_STATE.hp);
 
-    // Проверяем жив ли босс
     if (BOSS_STATE.hp <= 0) {
         window.toast('❌ Босс мёртв, ждите завтра 12:00', 'err');
         return;
     }
 
-    // Снимаем монеты
     G.coins -= 20;
     
-    // РАССЧИТЫВАЕМ УРОН (1-5)
     // Урон от 5 до 10
     const dmg = Math.floor(Math.random() * 6) + 5;
     BOSS_STATE.hp = Math.max(0, BOSS_STATE.hp - dmg);
-    console.log('💥 Нанесен урон:', dmg, 'Осталось HP:', BOSS_STATE.hp);
+    console.log('💥 Урон:', dmg, 'Осталось HP:', BOSS_STATE.hp);
 
     let msg = '⚔️ Урон: ' + dmg;
-    
-    // Шанс на сундук при атаке
     if (Math.random() < 0.2) {
         G.chests = (G.chests || 0) + 1;
         msg += ' 🎁 Сундук!';
     }
 
     // ============================================================
-    // ПРОВЕРКА: БОСС ПОВЕРЖЕН
+    // БОСС ПОВЕРЖЕН
     // ============================================================
     
     if (BOSS_STATE.hp <= 0) {
         msg += ' 🎉 Рябчик повержён!';
         
-        // НАГРАДА: 5 СУНДУКОВ
         G.chests = (G.chests || 0) + 5;
         BOSS_STATE.lastKill = Date.now();
-        console.log('💀 БОСС ПОВЕРЖЁН! lastKill:', BOSS_STATE.lastKill);
+        console.log('💀 Босс повержён! lastKill:', BOSS_STATE.lastKill);
 
-        // ============================================================
-        // СОХРАНЯЕМ СОСТОЯНИЕ БОССА В БД (ВАЖНО!)
-        // ============================================================
-        
-        console.log('💾 ПРИНУДИТЕЛЬНОЕ СОХРАНЕНИЕ БОССА...');
-        const saved = await saveBossState();
-        console.log('💾 Результат сохранения босса:', saved);
-        
-        // ДОПОЛНИТЕЛЬНОЕ СОХРАНЕНИЕ (на всякий случай)
+        // СОХРАНЯЕМ В БД
+        await saveBossState();
         await saveUserData();
         
-        // ============================================================
         // ОТПРАВЛЯЕМ СООБЩЕНИЕ В ЧАТ
-        // ============================================================
-        
         try {
-            const chatMessage = `⚔️ Босс Рябчик повержён игроком ${G.name}! 🎉`;
-            const result = await sbFetch('/rest/v1/messages', {
+            await sbFetch('/rest/v1/messages', {
                 method: 'POST',
                 body: {
                     sender_id: 'system',
                     sender_name: 'Система',
                     sender_avatar: AVATAR_LIST[0],
-                    message: chatMessage,
+                    message: `⚔️ Босс Рябчик повержён игроком ${G.name}! 🎉`,
                     is_private: false,
                     created_at: new Date().toISOString()
                 }
             });
-            console.log('📨 Сообщение в чат отправлено:', result);
         } catch (e) {
-            console.error('❌ Ошибка отправки сообщения в чат:', e);
+            console.error('❌ Ошибка отправки сообщения:', e);
         }
         
         window.toast('🎉 Босс повержён! +5 сундуков!', 'gld');
     }
 
-    // Обновляем UI
-    const atkEl = document.getElementById('ATK_l');
-    if (atkEl) atkEl.textContent = msg;
-
-    // ЕЩЕ РАЗ СОХРАНЯЕМ (для надежности)
-    await saveBossState();
-    await saveUserData();
-    
+    document.getElementById('ATK_l').textContent = msg;
     renderUI();
     window.toast(msg, 'gld');
 };
 
 // ============================================================
-// ПРОВЕРКА ВОЗРОЖДЕНИЯ - С ЛОГИРОВАНИЕМ
+// ПРОВЕРКА ВОЗРОЖДЕНИЯ - ИСПРАВЛЕННАЯ
 // ============================================================
 
 async function checkBossRespawn() {
     try {
-        console.log('🔄 ПРОВЕРКА ВОЗРОЖДЕНИЯ БОССА...');
+        console.log('🔄 ПРОВЕРКА ВОЗРОЖДЕНИЯ...');
         
-        // Загружаем состояние из БД
+        // Загружаем состояние
         await loadBossState();
 
         const now = Date.now();
@@ -2092,37 +2056,28 @@ async function checkBossRespawn() {
         // Босс активен с 12:00 до 18:00 МСК
         const active = (h >= 12 && h < 18);
         
-        console.log('📊 Текущее состояние:', {
+        console.log('📊 Состояние:', {
             active,
             hp: BOSS_STATE.hp,
             lastKill: BOSS_STATE.lastKill,
-            lastKillDate: new Date(BOSS_STATE.lastKill).toISOString(),
-            currentTime: new Date(now).toISOString(),
-            mskTime: msk.toISOString()
+            lastKillDate: new Date(BOSS_STATE.lastKill).toISOString()
         });
 
-        // ЕСЛИ БОСС ДОЛЖЕН БЫТЬ АКТИВЕН, НО МЁРТВ
-        if (active && BOSS_STATE.hp <= 0) {
+        // ВАЖНО: Если босс мёртв И активен И убит НЕ сегодня
+        if (active && BOSS_STATE.hp <= 0 && BOSS_STATE.lastKill > 0) {
             const today = msk.toISOString().slice(0, 10);
             const killDate = new Date(BOSS_STATE.lastKill + 3 * 3600000);
             const killDay = killDate.toISOString().slice(0, 10);
             
-            console.log('📅 Сравнение дат:', {
-                today: today,
-                killDay: killDay,
-                killDate: killDate.toISOString()
-            });
+            console.log('📅 Сравнение:', { today, killDay });
             
-            // Возрождаем ТОЛЬКО если убит в другой день
+            // ВОЗРОЖДАЕМ ТОЛЬКО ЕСЛИ УБИТ В ДРУГОЙ ДЕНЬ
             if (today !== killDay) {
                 console.log('👹 ВОЗРОЖДАЕМ БОССА!');
                 BOSS_STATE.hp = 1000;
+                await saveBossState();
                 
-                // СОХРАНЯЕМ
-                const saved = await saveBossState();
-                console.log('💾 Результат сохранения при возрождении:', saved);
-                
-                // СООБЩЕНИЕ В ЧАТ
+                // Отправляем сообщение
                 try {
                     await sbFetch('/rest/v1/messages', {
                         method: 'POST',
@@ -2135,35 +2090,32 @@ async function checkBossRespawn() {
                             created_at: new Date().toISOString()
                         }
                     });
-                } catch (e) {
-                    console.error('❌ Ошибка отправки сообщения:', e);
-                }
+                } catch (e) {}
                 
                 window.toast('👹 Босс Рябчик возродился!', 'gld');
                 renderBoss();
             } else {
-                console.log('⏳ Босс убит сегодня, ждём завтра');
+                console.log('⏳ Босс убит сегодня, НЕ возрождаем');
             }
         } else {
-            console.log('✅ Босс в норме, возрождение не требуется');
+            console.log('✅ Возрождение не требуется');
         }
     } catch (e) {
-        console.error('❌ Ошибка проверки возрождения:', e);
+        console.error('❌ Ошибка проверки:', e);
     }
 }
 
 // ============================================================
-// ЗАПУСК ПОЛЛИНГА
+// ЗАПУСК ПРОВЕРКИ
 // ============================================================
 
 function startBossPolling() {
     if (bossCheckInterval) clearInterval(bossCheckInterval);
     bossCheckInterval = setInterval(async () => {
-        console.log('🔄 Периодическая проверка босса...');
         await checkBossRespawn();
         await loadBossState();
         renderBoss();
-    }, 30000); // Каждые 30 секунд
+    }, 30000);
 }
 
 // ============================================================
@@ -2192,8 +2144,6 @@ function renderBoss() {
         const statusEl = document.getElementById('BS_s');
         const rsEl = document.getElementById('BS_rs');
 
-        console.log('🎯 Рендер босса:', { active, hp, pct });
-
         if (active && hp > 0) {
             if (statusEl) statusEl.textContent = '⚔️ Активен! Атакуйте!';
             if (rsEl) rsEl.textContent = 'Исчезнет в 18:00 МСК';
@@ -2212,7 +2162,7 @@ function renderBoss() {
             if (atkBtn) atkBtn.disabled = true;
         }
     } catch (e) {
-        console.error('❌ Ошибка рендера босса:', e);
+        console.error('❌ Ошибка рендера:', e);
     }
 }
 // ============================================================
