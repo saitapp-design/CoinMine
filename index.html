@@ -2091,7 +2091,7 @@
                             <span id="BS_rs"></span>
                         </div>
                         <div class="g2 mt8">
-                            <button class="btn bp" id="ATK_btn" onclick="window.conf('Атаковать Рябчика?','Стоимость: 20 монет. Урон 10–50. Шанс 20% получить сундук.',window.atkBoss)">⚔ Атаковать (20)</button>
+                            <button class="btn bp" id="ATK_btn" onclick="window.atkBoss()">⚔ Атаковать (20)</button>
                             <button class="btn bs" id="CH_btn" onclick="window.conf('Открыть сундук?','Случайная награда: монеты, ключи или редкий осколок.',window.openChest)">📦 Сундук (<span id="CH_c">0</span>)</button>
                         </div>
                         <div style="font-size:13px;color:var(--grn);margin-top:8px;min-height:20px;font-weight:600" id="ATK_l"></div>
@@ -2365,7 +2365,7 @@
         // АДМИН-СТАТУС (хранится в сессии)
         let isAdmin = sessionStorage.getItem('coinmine_admin') === 'true';
 
-        // АУКЦИОН
+        // АУКЦИОН (ГЛОБАЛЬНЫЙ)
         let auctionData = {
             active: false,
             startTime: 0,
@@ -2375,6 +2375,14 @@
             winnerBid: 0
         };
         let auctionTimerInterval = null;
+
+        // БОСС (ГЛОБАЛЬНЫЙ)
+        let BOSS_STATE = {
+            hp: 1000,
+            lastKill: 0,
+            currentBoss: 'Рябчик'
+        };
+        let bossCheckInterval = null;
 
         const NICK_S = {
             gold: { e: '🌟', n: 'Золотой' },
@@ -2430,8 +2438,6 @@
             privateMessages: {},
             lastPrivateReset: Date.now()
         };
-
-        let BOSS_STATE = { hp: 0, lastKill: 0 };
 
         // ============================================================
         // 6. API
@@ -2534,7 +2540,6 @@
                     privateMessages: {},
                     lastPrivateReset: Date.now()
                 },
-                boss: { hp: 0, lastKill: 0 },
                 created_at: new Date().toISOString(),
                 updated_at: new Date().toISOString()
             };
@@ -2554,7 +2559,7 @@
 
         async function authLogin(username, password) {
             const { data, ok } = await sbFetch(
-                `/rest/v1/users?username=eq.${encodeURIComponent(username)}&password=eq.${encodeURIComponent(password)}&select=id,username,data,boss,fingerprint`
+                `/rest/v1/users?username=eq.${encodeURIComponent(username)}&password=eq.${encodeURIComponent(password)}&select=id,username,data,fingerprint`
             );
 
             if (!ok || !data || data.length === 0) {
@@ -2582,7 +2587,6 @@
                 if (p.privateMessages) G.privateMessages = p.privateMessages;
                 if (p.lastPrivateReset) G.lastPrivateReset = p.lastPrivateReset;
             }
-            if (user.boss) Object.assign(BOSS_STATE, user.boss);
 
             if (!G.refCode) G.refCode = user.id.slice(0, 8);
 
@@ -2622,11 +2626,9 @@
 
             try {
                 const dataToSave = JSON.parse(JSON.stringify(G));
-                const bossToSave = JSON.parse(JSON.stringify(BOSS_STATE));
 
                 const payload = {
                     data: dataToSave,
-                    boss: bossToSave,
                     updated_at: new Date().toISOString()
                 };
 
@@ -2701,7 +2703,7 @@
 
             try {
                 const { data, ok } = await sbFetch(
-                    `/rest/v1/users?id=eq.${UID}&select=id,username,data,boss,fingerprint`
+                    `/rest/v1/users?id=eq.${UID}&select=id,username,data,fingerprint`
                 );
 
                 if (ok && data && data.length > 0) {
@@ -2714,7 +2716,6 @@
                         if (p.privateMessages) G.privateMessages = p.privateMessages;
                         if (p.lastPrivateReset) G.lastPrivateReset = p.lastPrivateReset;
                     }
-                    if (user.boss) Object.assign(BOSS_STATE, user.boss);
                     if (!G.refCode) G.refCode = UID.slice(0, 8);
 
                     await restoreOfflineQueue();
@@ -2840,14 +2841,6 @@
         // ============================================================
         // 12. ФУНКЦИИ ЧАТА
         // ============================================================
-
-        function smartScroll(box) {
-            if (!box) return;
-            const isAtBottom = box.scrollTop + box.clientHeight >= box.scrollHeight - 120;
-            if (isAtBottom) {
-                box.scrollTop = box.scrollHeight;
-            }
-        }
 
         function appendMessageToChat(msg) {
             const container = document.getElementById('chatMessages');
@@ -3031,65 +3024,6 @@
             }
         }
 
-        window.searchUsers = function(query) {
-            clearTimeout(searchTimeout);
-            const results = document.getElementById('chatSearchResults');
-
-            if (!query || query.length < 1) {
-                results.style.display = 'none';
-                return;
-            }
-
-            searchTimeout = setTimeout(async () => {
-                try {
-                    const { data, ok } = await sbFetch(
-                        `/rest/v1/users?select=id,username,data&limit=20`
-                    );
-
-                    if (ok && data) {
-                        const users = data
-                            .filter(u => {
-                                if (u.id === UID) return false;
-                                const name = (u.data?.name || u.username || '').toLowerCase();
-                                return name.includes(query.toLowerCase());
-                            })
-                            .map(u => {
-                                const userId = u.id;
-                                const userName = u.data?.name || u.username;
-                                const userAvatar = u.data?.avatar || AVATAR_LIST[0];
-                                return {
-                                    id: userId,
-                                    username: u.username,
-                                    name: userName,
-                                    avatar: userAvatar
-                                };
-                            });
-
-                        if (users.length === 0) {
-                            results.innerHTML = '<div class="tm" style="padding:8px;color:var(--tx2);text-align:center;font-size:13px;">Ник не найден</div>';
-                        } else {
-                            results.innerHTML = users.map(u =>
-                                `<div class="result-item" onclick="selectChatUser('${u.id}','${u.name}','${u.avatar}')">
-                                    <div class="top-avatar" style="width:28px;height:28px;"><img src="${u.avatar}" alt="${u.name}" loading="lazy"></div>
-                                    <span class="name">${u.name}</span>
-                                    <span class="user-id">#${u.id.slice(0, 6)}</span>
-                                </div>`
-                            ).join('');
-                        }
-                        results.style.display = 'block';
-                    }
-                } catch (e) {
-                    console.warn('⚠️ Ошибка поиска пользователей:', e);
-                }
-            }, 300);
-        };
-
-        window.selectChatUser = function(id, name, avatar) {
-            document.getElementById('chatSearchResults').style.display = 'none';
-            document.getElementById('chatSearchInput').value = '';
-            openPrivateChat(id, name, avatar);
-        };
-
         function getPrivateRemaining(receiverId) {
             const now = Date.now();
             if (now - G.lastPrivateReset > 86400000) {
@@ -3139,45 +3073,6 @@
             }
             openPrivateChat(userId, userName, userAvatar);
         }
-
-        window.toggleChatMode = function() {
-            if (currentChat === 'global') {
-                isSearchMode = true;
-                document.getElementById('chatModeToggle').textContent = 'ЛС';
-                document.getElementById('chatModeToggle').classList.add('active');
-                document.getElementById('chatTitle').innerHTML = '🔒 ЛС <span class="sub">Поиск</span>';
-                document.getElementById('chatSearchContainer').style.display = 'block';
-                document.getElementById('chatSearchInput').value = '';
-                document.getElementById('chatSearchInput').placeholder = '🔍 Введите ник для ЛС...';
-                document.getElementById('chatSearchResults').style.display = 'none';
-                document.getElementById('chatInfo').innerHTML = '🔍 Введите ник для начала ЛС';
-                document.getElementById('chatInput').placeholder = 'Сначала выберите собеседника...';
-
-                chatMessagesCache = [];
-                renderChatMessages();
-
-                setTimeout(() => {
-                    document.getElementById('chatSearchInput').focus();
-                }, 100);
-
-            } else {
-                currentChat = 'global';
-                currentChatTarget = null;
-                isSearchMode = false;
-
-                document.getElementById('chatModeToggle').textContent = 'Общий';
-                document.getElementById('chatModeToggle').classList.remove('active');
-                document.getElementById('chatTitle').innerHTML = '💬 Чат <span class="sub">Общий чат</span>';
-                document.getElementById('chatSearchContainer').style.display = 'none';
-                document.getElementById('chatSearchResults').style.display = 'none';
-                document.getElementById('chatInfo').innerHTML = '💬 <span class="highlight">Общий чат</span> — все видят все сообщения';
-                document.getElementById('chatInput').placeholder = 'Напишите в общий чат...';
-
-                chatMessagesCache = chats.global || [];
-                renderChatMessages();
-                loadMessages();
-            }
-        };
 
         window.sendMessage = async function() {
             const input = document.getElementById('chatInput');
@@ -3525,10 +3420,152 @@
         }
 
         // ============================================================
-        // 13. АУКЦИОН
+        // 13. БОСС (ОБЩИЙ ДЛЯ ВСЕХ)
         // ============================================================
 
-        // Загрузка состояния аукциона из базы
+        // Загрузка состояния босса
+        async function loadBossState() {
+            try {
+                const { data, ok } = await sbFetch(`/rest/v1/boss_state?limit=1`);
+                if (ok && data && data.length > 0) {
+                    const state = data[0];
+                    BOSS_STATE = {
+                        hp: state.hp || 1000,
+                        lastKill: state.last_kill || 0,
+                        currentBoss: state.current_boss || 'Рябчик'
+                    };
+                } else {
+                    // Создаем запись, если её нет
+                    await sbFetch('/rest/v1/boss_state', {
+                        method: 'POST',
+                        body: {
+                            hp: 1000,
+                            last_kill: 0,
+                            current_boss: 'Рябчик',
+                            updated_at: new Date().toISOString()
+                        }
+                    });
+                    BOSS_STATE = { hp: 1000, lastKill: 0, currentBoss: 'Рябчик' };
+                }
+                renderBoss();
+            } catch (e) {
+                console.warn('⚠️ Ошибка загрузки босса:', e);
+            }
+        }
+
+        // Сохранение состояния босса
+        async function saveBossState() {
+            try {
+                const { data, ok } = await sbFetch(`/rest/v1/boss_state?limit=1`);
+                if (ok && data && data.length > 0) {
+                    await sbFetch(`/rest/v1/boss_state?id=eq.${data[0].id}`, {
+                        method: 'PATCH',
+                        body: {
+                            hp: BOSS_STATE.hp,
+                            last_kill: BOSS_STATE.lastKill,
+                            current_boss: BOSS_STATE.currentBoss,
+                            updated_at: new Date().toISOString()
+                        }
+                    });
+                }
+            } catch (e) {
+                console.warn('⚠️ Ошибка сохранения босса:', e);
+            }
+        }
+
+        // Атака босса (общая)
+        window.atkBoss = async function() {
+            if (G.coins < 20) {
+                window.toast('Нужно 20 монет', 'err');
+                return;
+            }
+
+            // Загружаем актуальное состояние
+            await loadBossState();
+
+            if (BOSS_STATE.hp <= 0) {
+                window.toast('Босс мёртв, ждите 12:00', 'err');
+                return;
+            }
+
+            G.coins -= 20;
+            const dmg = Math.floor(Math.random() * 41) + 10;
+            BOSS_STATE.hp = Math.max(0, BOSS_STATE.hp - dmg);
+
+            let msg = '⚔️ Урон: ' + dmg;
+            if (Math.random() < .2) {
+                G.chests++;
+                msg += ' 🎁 Сундук!';
+            }
+
+            if (BOSS_STATE.hp <= 0) {
+                msg += ' 🎉 Рябчик повержён!';
+                G.chests += 3;
+                BOSS_STATE.lastKill = Date.now();
+
+                // Уведомление в чат
+                await sbFetch('/rest/v1/messages', {
+                    method: 'POST',
+                    body: {
+                        sender_id: 'system',
+                        sender_name: 'Система',
+                        sender_avatar: AVATAR_LIST[0],
+                        message: `⚔️ Босс Рябчик повержён игроком ${G.name}! 🎉`,
+                        is_private: false,
+                        created_at: new Date().toISOString()
+                    }
+                });
+                window.toast('🎉 Босс повержён! +3 сундука!', 'gld');
+            }
+
+            document.getElementById('ATK_l').textContent = msg;
+
+            // Сохраняем изменения
+            await saveBossState();
+            await saveUserData();
+            renderUI();
+            window.toast(msg, 'gld');
+        };
+
+        // Проверка возрождения босса
+        async function checkBossRespawn() {
+            await loadBossState();
+
+            const now = Date.now();
+            const msk = new Date(now + 3 * 3600000);
+            const h = msk.getUTCHours();
+
+            // Босс активен с 12:00 до 18:00 МСК
+            const active = (h >= 12 && h < 18);
+
+            if (active && BOSS_STATE.hp <= 0) {
+                const today = msk.toISOString().slice(0, 10);
+                const killDay = new Date(BOSS_STATE.lastKill + 3 * 3600000).toISOString().slice(0, 10);
+                if (today !== killDay) {
+                    BOSS_STATE.hp = 1000;
+                    await saveBossState();
+                    // Уведомление в чат
+                    await sbFetch('/rest/v1/messages', {
+                        method: 'POST',
+                        body: {
+                            sender_id: 'system',
+                            sender_name: 'Система',
+                            sender_avatar: AVATAR_LIST[0],
+                            message: `👹 Босс Рябчик возродился! Атакуйте!`,
+                            is_private: false,
+                            created_at: new Date().toISOString()
+                        }
+                    });
+                    window.toast('👹 Босс Рябчик возродился!', 'gld');
+                }
+            }
+        }
+
+        // ============================================================
+        // 14. АУКЦИОН (ГЛОБАЛЬНЫЙ)
+        // ============================================================
+
+        // Загрузка состояния аукциона
         async function loadAuctionState() {
             try {
                 const { data, ok } = await sbFetch(`/rest/v1/auction_state?limit=1`);
@@ -3549,7 +3586,7 @@
             }
         }
 
-        // Сохранение состояния аукциона в базу
+        // Сохранение состояния аукциона
         async function saveAuctionState() {
             try {
                 const payload = {
@@ -3687,7 +3724,7 @@
             }
         }
 
-        // Проверка кода администратора
+        // Проверка кода администратора для аукциона
         window.checkAuctionCode = function() {
             const code = prompt('Введите код администратора:');
             if (code === 'denchik9995066943') {
@@ -3717,7 +3754,7 @@
             }
         };
 
-        // Запуск аукциона (только для админа)
+        // Запуск аукциона (только для админа, глобально для всех)
         window.startAuction = async function() {
             if (!isAdmin) {
                 window.toast('⚠️ Требуется код администратора!', 'err');
@@ -3743,6 +3780,20 @@
             await saveAuctionState();
             updateAuctionUI();
             startAuctionTimer();
+
+            // Уведомление в чат
+            await sbFetch('/rest/v1/messages', {
+                method: 'POST',
+                body: {
+                    sender_id: 'system',
+                    sender_name: 'Система',
+                    sender_avatar: AVATAR_LIST[0],
+                    message: `🏛 АУКЦИОН ЗАПУЩЕН! Делайте ставки в разделе "Игры"!`,
+                    is_private: false,
+                    created_at: new Date().toISOString()
+                }
+            });
+
             window.toast('🚀 Аукцион запущен на 24 часа!', 'gld');
         };
 
@@ -3771,6 +3822,7 @@
                 auctionData.winner = sorted[0].name;
                 auctionData.winnerBid = sorted[0].bid;
 
+                // Награждаем победителя
                 try {
                     const { data: users } = await sbFetch(
                         `/rest/v1/users?data->>name=eq.${encodeURIComponent(auctionData.winner)}&select=id,data`
@@ -3783,6 +3835,20 @@
                             method: 'PATCH',
                             body: { data: { ...winner.data, coins: currentCoins + prize } }
                         });
+
+                        // Уведомление в чат
+                        await sbFetch('/rest/v1/messages', {
+                            method: 'POST',
+                            body: {
+                                sender_id: 'system',
+                                sender_name: 'Система',
+                                sender_avatar: AVATAR_LIST[0],
+                                message: `🏆 Победитель аукциона: ${auctionData.winner} с суммой ${fmt(auctionData.winnerBid)}💰! Награда ${fmt(prize)} монет!`,
+                                is_private: false,
+                                created_at: new Date().toISOString()
+                            }
+                        });
+
                         window.toast(`🏆 Победитель ${auctionData.winner} получил ${fmt(prize)} монет!`, 'gld');
                     }
                 } catch (e) {
@@ -3834,20 +3900,8 @@
             window.toast(`💰 Ставка +${fmt(amount)} монет!`, 'gld');
         };
 
-        // Проверка аукциона при входе
-        async function initAuction() {
-            await loadAuctionState();
-            if (auctionData.active && Date.now() < auctionData.endTime) {
-                startAuctionTimer();
-            } else if (auctionData.active && Date.now() >= auctionData.endTime) {
-                await finishAuction();
-            } else {
-                updateAuctionUI();
-            }
-        }
-
         // ============================================================
-        // 14. МАГАЗИН (ПОКУПКА МОНЕТ)
+        // 15. МАГАЗИН (ПОКУПКА МОНЕТ)
         // ============================================================
         window.buyCoinsRequest = function(amount, price) {
             const name = G.name || currentUsername || 'Игрок';
@@ -3858,7 +3912,7 @@
         };
 
         // ============================================================
-        // 15. АДМИН ПАНЕЛЬ (НАЧИСЛЕНИЕ МОНЕТ)
+        // 16. АДМИН ПАНЕЛЬ (НАЧИСЛЕНИЕ МОНЕТ)
         // ============================================================
         window.adminGiveCoins = async function() {
             if (!isAdmin) {
@@ -3907,7 +3961,7 @@
         };
 
         // ============================================================
-        // 16. ВСЕ ИГРОВЫЕ ФУНКЦИИ
+        // 17. ВСЕ ИГРОВЫЕ ФУНКЦИИ
         // ============================================================
         window.toast = function(msg, t) {
             const e = document.getElementById('TOAST');
@@ -3999,16 +4053,11 @@
 
             const active = (h >= 12 && h < 18);
 
-            if (active && BOSS_STATE.hp <= 0) {
-                const today = msk.toISOString().slice(0, 10);
-                const killDay = new Date(BOSS_STATE.lastKill + 3 * 3600000).toISOString().slice(0, 10);
-                if (today !== killDay) BOSS_STATE.hp = 1000;
-            }
-            if (!active && h >= 18) BOSS_STATE.hp = 0;
-
             const pct = Math.max(0, Math.round(BOSS_STATE.hp / 1000 * 100));
-            document.getElementById('BS_h').style.width = pct + '%';
-            document.getElementById('BS_ht').textContent = fmt(BOSS_STATE.hp) + ' / 1000 ХП';
+            const hpEl = document.getElementById('BS_h');
+            if (hpEl) hpEl.style.width = pct + '%';
+            const htEl = document.getElementById('BS_ht');
+            if (htEl) htEl.textContent = fmt(BOSS_STATE.hp) + ' / 1000 ХП';
 
             const atkBtn = document.getElementById('ATK_btn');
             if (active && BOSS_STATE.hp > 0) {
@@ -4038,7 +4087,7 @@
         }
 
         // ============================================================
-        // 17. НАВИГАЦИЯ
+        // 18. НАВИГАЦИЯ
         // ============================================================
         window.goSc = function(nm) {
             document.querySelectorAll('.sc').forEach(s => s.classList.remove('on'));
@@ -4058,7 +4107,7 @@
         };
 
         // ============================================================
-        // 18. ПЕРЕКЛЮЧЕНИЕ ВКЛАДОК В ИГРАХ
+        // 19. ПЕРЕКЛЮЧЕНИЕ ВКЛАДОК В ИГРАХ
         // ============================================================
         window.gTab = function(t, el) {
             ['rl', 'dc', 'au'].forEach(x => {
@@ -4125,7 +4174,7 @@
         };
 
         // ============================================================
-        // 19. ОТРИСОВКА UI
+        // 20. ОТРИСОВКА UI
         // ============================================================
         function renderUI() {
             const sets = {
@@ -4166,7 +4215,7 @@
         }
 
         // ============================================================
-        // 20. ИГРОВЫЕ ДЕЙСТВИЯ
+        // 21. ИГРОВЫЕ ДЕЙСТВИЯ
         // ============================================================
         window.doFarm = function() {
             const now = Date.now();
@@ -4201,24 +4250,6 @@
             scheduleSave();
             renderUI();
             window.toast('Шахта ур. ' + G.farmLv + '!', 'ok');
-        };
-
-        window.atkBoss = function() {
-            if (G.coins < 20) { window.toast('Нужно 20 монет', 'err'); return; }
-            if (BOSS_STATE.hp <= 0) { window.toast('Босс мёртв, ждите 12:00', 'err'); return; }
-            G.coins -= 20;
-            const dmg = Math.floor(Math.random() * 41) + 10;
-            BOSS_STATE.hp = Math.max(0, BOSS_STATE.hp - dmg);
-            let msg = '⚔️ Урон: ' + dmg;
-            if (Math.random() < .2) { G.chests++;
-                msg += ' 🎁 Сундук!'; }
-            if (BOSS_STATE.hp <= 0) { msg += ' 🎉 Рябчик повержён!';
-                G.chests += 3;
-                BOSS_STATE.lastKill = Date.now(); }
-            document.getElementById('ATK_l').textContent = msg;
-            scheduleSave();
-            renderUI();
-            window.toast(msg, 'gld');
         };
 
         window.openChest = function() {
@@ -4319,7 +4350,7 @@
         };
 
         // ============================================================
-        // 21. РУЛЕТКА
+        // 22. РУЛЕТКА
         // ============================================================
 
         const WHEEL_DATA = [
@@ -4549,7 +4580,7 @@
         }
 
         // ============================================================
-        // 22. КУБИК
+        // 23. КУБИК
         // ============================================================
 
         const PIP_LAYOUTS = {
@@ -4848,7 +4879,7 @@
         });
 
         // ============================================================
-        // 23. ТОП-10
+        // 24. ТОП-10
         // ============================================================
         async function loadTopPlayers(tp = 'b') {
             const now = Date.now();
@@ -4983,7 +5014,7 @@
         }
 
         // ============================================================
-        // 24. ПОКАЗ ПРИЛОЖЕНИЯ
+        // 25. ПОКАЗ ПРИЛОЖЕНИЯ
         // ============================================================
         function showApp() {
             document.getElementById('authWrap').style.display = 'none';
@@ -4998,7 +5029,18 @@
             initMusic();
             initChat();
             updateOnlineStatus();
-            initAuction();
+
+            // Загружаем глобальные состояния
+            loadBossState();
+            loadAuctionState();
+
+            // Запускаем проверку босса
+            if (bossCheckInterval) clearInterval(bossCheckInterval);
+            bossCheckInterval = setInterval(async () => {
+                await checkBossRespawn();
+                await loadBossState();
+                renderBoss();
+            }, 30000);
 
             const startMusic = function() {
                 if (music && !musicPlaying) {
@@ -5012,7 +5054,6 @@
             document.addEventListener('touchstart', startMusic, { once: true });
 
             setInterval(renderFarmTimer, 1000);
-            setInterval(renderBoss, 30000);
             setInterval(() => { if (UID) saveUserData(); }, CONFIG.AUTO_SAVE_INTERVAL);
             setInterval(() => { if (UID) updateOnlineStatus(); }, 30000);
 
@@ -5042,7 +5083,7 @@
         }
 
         // ============================================================
-        // 25. АВТОРИЗАЦИЯ UI
+        // 26. АВТОРИЗАЦИЯ UI
         // ============================================================
         window.setAuthMode = function(m) {
             authMode = m;
@@ -5102,7 +5143,7 @@
         };
 
         // ============================================================
-        // 26. ЗАПУСК
+        // 27. ЗАПУСК
         // ============================================================
         document.addEventListener('DOMContentLoaded', async () => {
             aStat('⏳ Проверка сессии...', 'ld');
@@ -5121,13 +5162,12 @@
 
         console.log('✅ ВСЁ ИСПРАВЛЕНО:');
         console.log('  💬 Чат полностью рабочий (общий + ЛС)');
-        console.log('  👹 Босс появляется в 12:00 МСК');
+        console.log('  👹 БОСС ОБЩИЙ ДЛЯ ВСЕХ (синхронизация через базу)');
         console.log('  🎰 Рулетка возвращает число и цвет');
         console.log('  📛 Никнеймы уникальны');
         console.log('  🏆 Топ отображается корректно');
-        console.log('  🚫 Кланы удалены');
-        console.log('  🏛 Аукцион запускается по коду denchik9995066943 (запрос только при попытке запуска)');
-        console.log('  🔑 Админ-панель для начисления монет по коду denchik9995066943 (запрос только при попытке выдачи)');
+        console.log('  🏛 АУКЦИОН ОБЩИЙ ДЛЯ ВСЕХ (запускается по коду denchik9995066943)');
+        console.log('  🔑 Админ-панель для начисления монет по коду denchik9995066943');
         console.log('  🛒 Магазин отправляет запрос @Denchak_15 (без бесплатных монет)');
         console.log('  🎨 Исправлена подсветка вкладок в играх');
     </script>
