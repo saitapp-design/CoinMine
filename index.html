@@ -848,7 +848,7 @@
             currentBoss: 'Рябчик'
         };
         let bossCheckInterval = null;
-
+        let bossInitialized = false;
         const NICK_S = {
             gold: { e: '🌟', n: 'Золотой' },
             diamond: { e: '💎', n: 'Алмазный' },
@@ -1885,9 +1885,7 @@
 // БОСС - ПОЛНОСТЬЮ ИСПРАВЛЕННАЯ ВЕРСИЯ
 // ============================================================
 
-let BOSS_STATE = { hp: 1000, lastKill: 0, currentBoss: 'Рябчик' };
-let bossCheckInterval = null;
-let bossInitialized = false; // Флаг для предотвращения авто-возрождения при загрузке
+
 
 // Загрузка состояния босса
 async function loadBossState() {
