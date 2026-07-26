@@ -2061,11 +2061,11 @@
                                 <div class="tm tc" style="padding:12px;">Пока нет ставок</div>
                             </div>
                             <div class="g3 mt8">
-                                <button class="btn bs" onclick="window.conf('+10 к ставке?','Ваши 10 монет зарезервируются.',()=>window.bid(10))">+10</button>
-                                <button class="btn bs" onclick="window.conf('+50 к ставке?','Ваши 50 монет зарезервируются. Победитель получает приз.',()=>window.bid(50))">+50</button>
-                                <button class="btn bs" onclick="window.conf('+100 к ставке?','Ваши 100 монет зарезервируются. Победитель определяется администратором.',()=>window.bid(100))">+100</button>
+                                <button class="btn bs" onclick="window.bid(10)">+10</button>
+                                <button class="btn bs" onclick="window.bid(50)">+50</button>
+                                <button class="btn bs" onclick="window.bid(100)">+100</button>
                             </div>
-                            <!-- КНОПКА ЗАПУСКА АУКЦИОНА (появляется после ввода кода) -->
+                            <!-- КНОПКА ЗАПУСКА АУКЦИОНА (только для админа) -->
                             <div id="auctionStartContainer" style="margin-top:12px;display:none;">
                                 <button class="auction-start-btn" id="auctionStartBtn" onclick="window.startAuction()">🚀 Запустить аукцион (24ч)</button>
                             </div>
@@ -2092,7 +2092,7 @@
                         </div>
                         <div class="g2 mt8">
                             <button class="btn bp" id="ATK_btn" onclick="window.atkBoss()">⚔ Атаковать (20)</button>
-                            <button class="btn bs" id="CH_btn" onclick="window.conf('Открыть сундук?','Случайная награда: монеты, ключи или редкий осколок.',window.openChest)">📦 Сундук (<span id="CH_c">0</span>)</button>
+                            <button class="btn bs" id="CH_btn" onclick="window.openChest()">📦 Сундук (<span id="CH_c">0</span>)</button>
                         </div>
                         <div style="font-size:13px;color:var(--grn);margin-top:8px;min-height:20px;font-weight:600" id="ATK_l"></div>
                     </div>
@@ -2375,6 +2375,7 @@
             winnerBid: 0
         };
         let auctionTimerInterval = null;
+        let auctionPollInterval = null;
 
         // БОСС (ГЛОБАЛЬНЫЙ)
         let BOSS_STATE = {
@@ -2429,8 +2430,6 @@
             shards: {},
             promos: {},
             missions: { active: null, lastReset: 0 },
-            auctionBid: 0,
-            auctionBidders: [],
             chests: 0,
             refCode: '',
             activatedRef: null,
@@ -2531,8 +2530,6 @@
                     shards: {},
                     promos: {},
                     missions: { active: null, lastReset: 0 },
-                    auctionBid: 0,
-                    auctionBidders: [],
                     chests: 0,
                     refCode: '',
                     activatedRef: null,
@@ -3484,7 +3481,7 @@
             await loadBossState();
 
             if (BOSS_STATE.hp <= 0) {
-                window.toast('Босс мёртв, ждите 12:00', 'err');
+                window.toast('Босс мёртв, ждите завтра 12:00', 'err');
                 return;
             }
 
@@ -3541,9 +3538,12 @@
             if (active && BOSS_STATE.hp <= 0) {
                 const today = msk.toISOString().slice(0, 10);
                 const killDay = new Date(BOSS_STATE.lastKill + 3 * 3600000).toISOString().slice(0, 10);
+                
+                // Возрождаем только если это другой день
                 if (today !== killDay) {
                     BOSS_STATE.hp = 1000;
                     await saveBossState();
+                    
                     // Уведомление в чат
                     await sbFetch('/rest/v1/messages', {
                         method: 'POST',
@@ -3560,6 +3560,33 @@
                 }
             }
         }
+
+        // Открытие сундука
+        window.openChest = function() {
+            if (G.chests <= 0) {
+                window.toast('Нет сундуков!', 'err');
+                return;
+            }
+            G.chests--;
+            const r = Math.random();
+            let rw;
+            if (r < .5) {
+                const a = Math.floor(Math.random() * 40) + 10;
+                G.coins += a;
+                rw = `+${a} монет`;
+            } else if (r < .8) {
+                const k = Math.floor(Math.random() * 3) + 1;
+                G.keys += k;
+                rw = `+${k} ключей`;
+            } else {
+                const sn = SHARDS_LIST[Math.floor(Math.random() * SHARDS_LIST.length)];
+                G.shards[sn] = (G.shards[sn] || 0) + 1;
+                rw = '✨ ' + sn;
+            }
+            scheduleSave();
+            renderUI();
+            window.toast('🎁 Сундук: ' + rw, 'gld');
+        };
 
         // ============================================================
         // 14. АУКЦИОН (ГЛОБАЛЬНЫЙ)
@@ -3614,6 +3641,14 @@
             } catch (e) {
                 console.warn('⚠️ Ошибка сохранения состояния аукциона:', e);
             }
+        }
+
+        // Периодическая проверка аукциона (для всех игроков)
+        function startAuctionPolling() {
+            if (auctionPollInterval) clearInterval(auctionPollInterval);
+            auctionPollInterval = setInterval(async () => {
+                await loadAuctionState();
+            }, 3000);
         }
 
         // Обновление UI аукциона
@@ -3726,14 +3761,16 @@
 
         // Проверка кода администратора для аукциона
         window.checkAuctionCode = function() {
-            const code = prompt('Введите код администратора:');
+            const code = prompt('Введите код администратора для запуска аукциона:');
             if (code === 'denchik9995066943') {
                 isAdmin = true;
                 sessionStorage.setItem('coinmine_admin', 'true');
-                window.toast('🔐 Админ-доступ активирован!', 'ok');
+                window.toast('🔐 Админ-доступ активирован! Теперь вы можете запустить аукцион.', 'ok');
                 updateAuctionUI();
                 document.getElementById('adminPanel').style.display = 'block';
                 document.getElementById('shopCodeContainer').style.display = 'none';
+                document.getElementById('auctionStartContainer').style.display = 'block';
+                document.getElementById('auctionCodeContainer').style.display = 'none';
             } else if (code !== null) {
                 window.toast('❌ Неверный код!', 'err');
             }
@@ -3757,8 +3794,8 @@
         // Запуск аукциона (только для админа, глобально для всех)
         window.startAuction = async function() {
             if (!isAdmin) {
-                window.toast('⚠️ Требуется код администратора!', 'err');
-                window.checkAuctionCode();
+                window.toast('⚠️ Только администратор может запустить аукцион!', 'err');
+                document.getElementById('auctionCodeContainer').style.display = 'block';
                 return;
             }
 
@@ -3781,14 +3818,14 @@
             updateAuctionUI();
             startAuctionTimer();
 
-            // Уведомление в чат
+            // Уведомление в чат для всех игроков
             await sbFetch('/rest/v1/messages', {
                 method: 'POST',
                 body: {
                     sender_id: 'system',
                     sender_name: 'Система',
                     sender_avatar: AVATAR_LIST[0],
-                    message: `🏛 АУКЦИОН ЗАПУЩЕН! Делайте ставки в разделе "Игры"!`,
+                    message: `🏛 АУКЦИОН ЗАПУЩЕН! Делайте ставки в разделе "Игры"! (24 часа)`,
                     is_private: false,
                     created_at: new Date().toISOString()
                 }
@@ -3866,7 +3903,10 @@
         }
 
         // Ставка в аукционе
-        window.bid = function(amount) {
+        window.bid = async function(amount) {
+            // Сначала загружаем актуальное состояние
+            await loadAuctionState();
+            
             if (!auctionData.active) {
                 window.toast('Аукцион не активен!', 'err');
                 return;
@@ -3893,9 +3933,9 @@
                 });
             }
 
-            scheduleSave();
-            saveAuctionState();
-            updateAuctionUI();
+            await saveAuctionState();
+            await loadAuctionState();
+            await saveUserData();
             renderUI();
             window.toast(`💰 Ставка +${fmt(amount)} монет!`, 'gld');
         };
@@ -4065,7 +4105,7 @@
                 document.getElementById('BS_rs').textContent = 'Исчезнет в 18:00 МСК';
                 if (atkBtn) atkBtn.disabled = false;
             } else if (active && BOSS_STATE.hp <= 0) {
-                document.getElementById('BS_s').textContent = '💀 Повержён! Ждите завтра.';
+                document.getElementById('BS_s').textContent = '💀 Повержён! Ждите завтра 12:00.';
                 document.getElementById('BS_rs').textContent = 'Следующий в 12:00 МСК';
                 if (atkBtn) atkBtn.disabled = true;
             } else {
@@ -4250,23 +4290,6 @@
             scheduleSave();
             renderUI();
             window.toast('Шахта ур. ' + G.farmLv + '!', 'ok');
-        };
-
-        window.openChest = function() {
-            if (G.chests <= 0) return;
-            G.chests--;
-            const r = Math.random();
-            let rw;
-            if (r < .5) { const a = Math.floor(Math.random() * 40) + 10;
-                G.coins += a;
-                rw = `+${a} монет`; } else if (r < .8) { const k = Math.floor(Math.random() * 3) + 1;
-                G.keys += k;
-                rw = `+${k} ключей`; } else { const sn = SHARDS_LIST[Math.floor(Math.random() * SHARDS_LIST.length)];
-                G.shards[sn] = (G.shards[sn] || 0) + 1;
-                rw = '✨ ' + sn; }
-            scheduleSave();
-            renderUI();
-            window.toast('🎁 Сундук: ' + rw, 'gld');
         };
 
         window.claimM = function(id) {
@@ -5034,6 +5057,9 @@
             loadBossState();
             loadAuctionState();
 
+            // Запускаем поллинг аукциона (обновление для всех)
+            startAuctionPolling();
+
             // Запускаем проверку босса
             if (bossCheckInterval) clearInterval(bossCheckInterval);
             bossCheckInterval = setInterval(async () => {
@@ -5162,11 +5188,11 @@
 
         console.log('✅ ВСЁ ИСПРАВЛЕНО:');
         console.log('  💬 Чат полностью рабочий (общий + ЛС)');
-        console.log('  👹 БОСС ОБЩИЙ ДЛЯ ВСЕХ (синхронизация через базу)');
+        console.log('  👹 БОСС ОБЩИЙ ДЛЯ ВСЕХ (не бессмертный, умирает и возрождается на следующий день)');
         console.log('  🎰 Рулетка возвращает число и цвет');
         console.log('  📛 Никнеймы уникальны');
         console.log('  🏆 Топ отображается корректно');
-        console.log('  🏛 АУКЦИОН ОБЩИЙ ДЛЯ ВСЕХ (запускается по коду denchik9995066943)');
+        console.log('  🏛 АУКЦИОН ОБЩИЙ ДЛЯ ВСЕХ (синхронизация через поллинг, виден всем игрокам)');
         console.log('  🔑 Админ-панель для начисления монет по коду denchik9995066943');
         console.log('  🛒 Магазин отправляет запрос @Denchak_15 (без бесплатных монет)');
         console.log('  🎨 Исправлена подсветка вкладок в играх');
