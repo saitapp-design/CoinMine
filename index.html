@@ -1990,7 +1990,8 @@ window.atkBoss = async function() {
     G.coins -= 20;
     
     // Урон от 5 до 10
-    const dmg = Math.floor(Math.random() * 6) + 5;
+    // Урон от 10 до 25
+    const dmg = Math.floor(Math.random() * 16) + 10;
     BOSS_STATE.hp = Math.max(0, BOSS_STATE.hp - dmg);
     console.log('💥 Урон:', dmg, 'Осталось HP:', BOSS_STATE.hp);
 
@@ -2007,7 +2008,7 @@ window.atkBoss = async function() {
     if (BOSS_STATE.hp <= 0) {
         msg += ' 🎉 Рябчик повержён!';
         
-        G.chests = (G.chests || 0) + 5;
+        G.chests = (G.chests || 0) + 3;
         BOSS_STATE.lastKill = Date.now();
         console.log('💀 Босс повержён! lastKill:', BOSS_STATE.lastKill);
 
