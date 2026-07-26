@@ -1874,6 +1874,7 @@
     border-radius: var(--r);
     padding: 12px;
     margin-top: 10px;
+    display: none;
 }
 .admin-panel .ct {
     color: var(--acc2);
@@ -2064,9 +2065,13 @@
                                 <button class="btn bs" onclick="window.conf('+50 к ставке?','Ваши 50 монет зарезервируются. Победитель получает приз.',()=>window.bid(50))">+50</button>
                                 <button class="btn bs" onclick="window.conf('+100 к ставке?','Ваши 100 монет зарезервируются. Победитель определяется администратором.',()=>window.bid(100))">+100</button>
                             </div>
-                            <!-- КНОПКА ЗАПУСКА АУКЦИОНА (видна только с кодом) -->
+                            <!-- КНОПКА ЗАПУСКА АУКЦИОНА (появляется после ввода кода) -->
                             <div id="auctionStartContainer" style="margin-top:12px;display:none;">
                                 <button class="auction-start-btn" id="auctionStartBtn" onclick="window.startAuction()">🚀 Запустить аукцион (24ч)</button>
+                            </div>
+                            <!-- КНОПКА ДЛЯ ВВОДА КОДА -->
+                            <div id="auctionCodeContainer" style="margin-top:12px;display:block;">
+                                <button class="btn bs" onclick="window.checkAuctionCode()">🔑 Ввести код администратора</button>
                             </div>
                         </div>
                     </div>
@@ -2147,13 +2152,17 @@
                             <button class="btn bs" style="font-size:12px;padding:10px" onclick="window.activatePromo('denchak')">🎁 DENCHAK — +15</button>
                         </div>
                     </div>
-                    <!-- АДМИН ПАНЕЛЬ (скрыта, открывается по коду) -->
-                    <div class="admin-panel" id="adminPanel" style="display:none;">
+                    <!-- АДМИН ПАНЕЛЬ (появляется после ввода кода) -->
+                    <div class="admin-panel" id="adminPanel">
                         <div class="ct">🔐 АДМИН ПАНЕЛЬ</div>
                         <input class="inp" id="adminTargetUser" placeholder="Имя пользователя">
                         <input class="inp" id="adminCoinAmount" type="number" placeholder="Количество монет" value="100">
                         <button class="btn bp" onclick="window.adminGiveCoins()">💰 Начислить монеты</button>
                         <div style="margin-top:8px;font-size:11px;color:var(--tx2);text-align:center;">Для входа в панель используйте код: denchik9995066943</div>
+                    </div>
+                    <!-- КНОПКА ДЛЯ ВВОДА КОДА В МАГАЗИНЕ -->
+                    <div id="shopCodeContainer" style="margin-top:10px;">
+                        <button class="btn bs" onclick="window.checkAdminCode()">🔑 Ввести код администратора</button>
                     </div>
                 </div>
 
@@ -2352,6 +2361,9 @@
         let saveTimer = null;
         let music = null;
         let musicPlaying = false;
+
+        // АДМИН-СТАТУС (хранится в сессии)
+        let isAdmin = sessionStorage.getItem('coinmine_admin') === 'true';
 
         // АУКЦИОН
         let auctionData = {
@@ -3636,8 +3648,18 @@
                     '<div class="tm tc" style="padding:12px;">Пока нет ставок</div>';
             }
 
-            // Проверяем, есть ли код для показа кнопки запуска
-            checkAuctionAdmin();
+            // Показываем кнопки админа если он уже есть
+            if (isAdmin) {
+                document.getElementById('auctionStartContainer').style.display = 'block';
+                document.getElementById('auctionCodeContainer').style.display = 'none';
+                document.getElementById('adminPanel').style.display = 'block';
+                document.getElementById('shopCodeContainer').style.display = 'none';
+            } else {
+                document.getElementById('auctionStartContainer').style.display = 'none';
+                document.getElementById('auctionCodeContainer').style.display = 'block';
+                document.getElementById('adminPanel').style.display = 'none';
+                document.getElementById('shopCodeContainer').style.display = 'block';
+            }
         }
 
         // Рендер подиума для аукциона
@@ -3665,30 +3687,44 @@
             }
         }
 
-        // Проверка админ-доступа для аукциона (по коду)
-        function checkAuctionAdmin() {
-            const code = promptForCode();
+        // Проверка кода администратора
+        window.checkAuctionCode = function() {
+            const code = prompt('Введите код администратора:');
             if (code === 'denchik9995066943') {
-                document.getElementById('auctionStartContainer').style.display = 'block';
+                isAdmin = true;
+                sessionStorage.setItem('coinmine_admin', 'true');
+                window.toast('🔐 Админ-доступ активирован!', 'ok');
+                updateAuctionUI();
                 document.getElementById('adminPanel').style.display = 'block';
-                window.toast('🔐 Админ-панель активирована!', 'ok');
+                document.getElementById('shopCodeContainer').style.display = 'none';
+            } else if (code !== null) {
+                window.toast('❌ Неверный код!', 'err');
             }
-        }
+        };
 
-        function promptForCode() {
-            // Безопасное хранение кода в сессии
-            let code = sessionStorage.getItem('auction_admin_code');
-            if (!code) {
-                code = prompt('Введите код администратора:');
-                if (code === 'denchik9995066943') {
-                    sessionStorage.setItem('auction_admin_code', code);
-                }
+        // Проверка кода в магазине
+        window.checkAdminCode = function() {
+            const code = prompt('Введите код администратора:');
+            if (code === 'denchik9995066943') {
+                isAdmin = true;
+                sessionStorage.setItem('coinmine_admin', 'true');
+                window.toast('🔐 Админ-доступ активирован!', 'ok');
+                document.getElementById('adminPanel').style.display = 'block';
+                document.getElementById('shopCodeContainer').style.display = 'none';
+                updateAuctionUI();
+            } else if (code !== null) {
+                window.toast('❌ Неверный код!', 'err');
             }
-            return code;
-        }
+        };
 
         // Запуск аукциона (только для админа)
         window.startAuction = async function() {
+            if (!isAdmin) {
+                window.toast('⚠️ Требуется код администратора!', 'err');
+                window.checkAuctionCode();
+                return;
+            }
+
             if (auctionData.active) {
                 window.toast('Аукцион уже запущен!', 'err');
                 return;
@@ -3735,7 +3771,6 @@
                 auctionData.winner = sorted[0].name;
                 auctionData.winnerBid = sorted[0].bid;
 
-                // Награждаем победителя (можно добавить логику награждения)
                 try {
                     const { data: users } = await sbFetch(
                         `/rest/v1/users?data->>name=eq.${encodeURIComponent(auctionData.winner)}&select=id,data`
@@ -3826,6 +3861,12 @@
         // 15. АДМИН ПАНЕЛЬ (НАЧИСЛЕНИЕ МОНЕТ)
         // ============================================================
         window.adminGiveCoins = async function() {
+            if (!isAdmin) {
+                window.toast('⚠️ Требуется код администратора!', 'err');
+                window.checkAdminCode();
+                return;
+            }
+
             const targetUser = document.getElementById('adminTargetUser').value.trim();
             const amount = parseInt(document.getElementById('adminCoinAmount').value) || 100;
 
@@ -4017,21 +4058,18 @@
         };
 
         // ============================================================
-        // 18. ПЕРЕКЛЮЧЕНИЕ ВКЛАДОК В ИГРАХ (ИСПРАВЛЕННОЕ)
+        // 18. ПЕРЕКЛЮЧЕНИЕ ВКЛАДОК В ИГРАХ
         // ============================================================
         window.gTab = function(t, el) {
-            // Скрываем все игровые контейнеры
             ['rl', 'dc', 'au'].forEach(x => {
                 const d = document.getElementById('G_' + x);
                 if (d) d.style.display = x === t ? 'block' : 'none';
             });
 
-            // Обновляем активный класс для вкладок
             document.querySelectorAll('#gameTabs .tab').forEach(tab => {
                 tab.classList.toggle('on', tab.dataset.game === t);
             });
 
-            // Инициализация выбранной игры
             if (t === 'rl') setTimeout(() => window.drawRoulette(0, null), 40);
             if (t === 'dc') window.renderDiceIdle();
             if (t === 'au') {
@@ -4984,14 +5022,14 @@
 
             window.toast('💾 Данные синхронизируются', 'info');
 
-            // Проверка админ-доступа при загрузке
-            setTimeout(() => {
-                const code = sessionStorage.getItem('auction_admin_code');
-                if (code === 'denchik9995066943') {
-                    document.getElementById('auctionStartContainer').style.display = 'block';
-                    document.getElementById('adminPanel').style.display = 'block';
-                }
-            }, 1000);
+            // Проверяем статус админа при загрузке
+            if (isAdmin) {
+                document.getElementById('auctionStartContainer').style.display = 'block';
+                document.getElementById('auctionCodeContainer').style.display = 'none';
+                document.getElementById('adminPanel').style.display = 'block';
+                document.getElementById('shopCodeContainer').style.display = 'none';
+                updateAuctionUI();
+            }
         }
 
         function initMissions() {
@@ -5088,9 +5126,9 @@
         console.log('  📛 Никнеймы уникальны');
         console.log('  🏆 Топ отображается корректно');
         console.log('  🚫 Кланы удалены');
-        console.log('  🏛 Аукцион запускается по коду denchik9995066943');
-        console.log('  🔑 Админ-панель для начисления монет по коду denchik9995066943');
-        console.log('  🛒 Магазин отправляет запрос @Denchak_15');
+        console.log('  🏛 Аукцион запускается по коду denchik9995066943 (запрос только при попытке запуска)');
+        console.log('  🔑 Админ-панель для начисления монет по коду denchik9995066943 (запрос только при попытке выдачи)');
+        console.log('  🛒 Магазин отправляет запрос @Denchak_15 (без бесплатных монет)');
         console.log('  🎨 Исправлена подсветка вкладок в играх');
     </script>
 </body>
