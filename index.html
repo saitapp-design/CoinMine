@@ -1899,7 +1899,7 @@ async function loadBossState() {
                 currentBoss: state.current_boss || 'Рябчик'
             };
         } else {
-            // Создаем запись без указания id (автоинкремент)
+            // Создаем запись
             const { data: newData, ok: newOk } = await sbFetch('/rest/v1/boss_state', {
                 method: 'POST',
                 body: {
@@ -1921,7 +1921,6 @@ async function loadBossState() {
         return BOSS_STATE;
     } catch (e) {
         console.error('❌ Ошибка загрузки босса:', e);
-        // Используем локальные данные при ошибке
         if (!BOSS_STATE.hp) {
             BOSS_STATE = { hp: 1000, lastKill: 0, currentBoss: 'Рябчик' };
         }
@@ -1937,7 +1936,6 @@ async function saveBossState() {
         console.log('💾 Сохранение босса, текущее состояние:', BOSS_STATE);
         
         if (ok && data && data.length > 0) {
-            // Обновляем существующую запись
             const result = await sbFetch(`/rest/v1/boss_state?id=eq.${data[0].id}`, {
                 method: 'PATCH',
                 body: {
@@ -1950,7 +1948,6 @@ async function saveBossState() {
             console.log('💾 Результат обновления босса:', result);
             return result.ok;
         } else {
-            // Создаем новую запись
             const result = await sbFetch('/rest/v1/boss_state', {
                 method: 'POST',
                 body: {
@@ -1988,6 +1985,7 @@ window.atkBoss = async function() {
     }
 
     G.coins -= 20;
+    
     // Урон от 1 до 5
     const dmg = Math.floor(Math.random() * 5) + 1;
     BOSS_STATE.hp = Math.max(0, BOSS_STATE.hp - dmg);
@@ -1999,35 +1997,41 @@ window.atkBoss = async function() {
         msg += ' 🎁 Сундук!';
     }
 
+    // ПРОВЕРКА: Босс повержен
     if (BOSS_STATE.hp <= 0) {
         msg += ' 🎉 Рябчик повержён!';
+        
+        // НАГРАДА: 5 сундуков
         G.chests = (G.chests || 0) + 5;
         BOSS_STATE.lastKill = Date.now();
         console.log('💀 Босс повержён! lastKill:', BOSS_STATE.lastKill);
 
-        // Уведомление в чат
+        // СООБЩЕНИЕ В ЧАТ о победе
         try {
-            await sbFetch('/rest/v1/messages', {
+            const chatMessage = `⚔️ Босс Рябчик повержён игроком ${G.name}! 🎉`;
+            const result = await sbFetch('/rest/v1/messages', {
                 method: 'POST',
                 body: {
                     sender_id: 'system',
                     sender_name: 'Система',
                     sender_avatar: AVATAR_LIST[0],
-                    message: `⚔️ Босс Рябчик повержён игроком ${G.name}! 🎉`,
+                    message: chatMessage,
                     is_private: false,
                     created_at: new Date().toISOString()
                 }
             });
+            console.log('📨 Сообщение в чат отправлено:', result);
         } catch (e) {
-            console.warn('⚠️ Не удалось отправить уведомление в чат');
+            console.error('❌ Ошибка отправки сообщения в чат:', e);
         }
-        window.toast('🎉 Босс повержён! +3 сундука!', 'gld');
+        
+        window.toast('🎉 Босс повержён! +5 сундуков!', 'gld');
     }
 
     const atkEl = document.getElementById('ATK_l');
     if (atkEl) atkEl.textContent = msg;
 
-    // Сохраняем изменения
+    // СОХРАНЯЕМ изменения
     await saveBossState();
     await saveUserData();
     renderUI();
@@ -2045,18 +2049,28 @@ async function checkBossRespawn() {
 
         // Босс активен с 12:00 до 18:00 МСК
         const active = (h >= 12 && h < 18);
-        console.log('🔄 Проверка возрождения:', { active, hp: BOSS_STATE.hp, lastKill: BOSS_STATE.lastKill });
+        console.log('🔄 Проверка возрождения:', { 
+            active, 
+            hp: BOSS_STATE.hp, 
+            lastKill: BOSS_STATE.lastKill,
+            now: new Date(now).toISOString(),
+            msk: msk.toISOString()
+        });
 
+        // ВАЖНО: Проверяем, что босс должен быть активен, но HP = 0 (мёртв)
         if (active && BOSS_STATE.hp <= 0) {
             const today = msk.toISOString().slice(0, 10);
-            const killDay = new Date(BOSS_STATE.lastKill + 3 * 3600000).toISOString().slice(0, 10);
+            const killDate = new Date(BOSS_STATE.lastKill + 3 * 3600000);
+            const killDay = killDate.toISOString().slice(0, 10);
             console.log('📅 Сегодня:', today, 'День убийства:', killDay);
             
+            // Возрождаем только если убит в другой день
             if (today !== killDay) {
                 BOSS_STATE.hp = 1000;
-                await saveBossState();
-                console.log('👹 Босс возродился!');
+                const saved = await saveBossState();
+                console.log('👹 Босс возродился!', saved);
                 
+                // СООБЩЕНИЕ В ЧАТ о возрождении
                 try {
                     await sbFetch('/rest/v1/messages', {
                         method: 'POST',
@@ -2070,9 +2084,12 @@ async function checkBossRespawn() {
                         }
                     });
                 } catch (e) {
-                    console.warn('⚠️ Не удалось отправить уведомление');
+                    console.error('❌ Ошибка отправки сообщения о возрождении:', e);
                 }
                 window.toast('👹 Босс Рябчик возродился!', 'gld');
+                renderBoss();
+            } else {
+                console.log('⏳ Босс убит сегодня, ждём завтра');
             }
         }
     } catch (e) {
@@ -2134,6 +2151,44 @@ function renderBoss() {
         console.error('❌ Ошибка рендера босса:', e);
     }
 }
+        window.openChest = function() {
+    console.log('📦 Открытие сундука');
+    
+    if (G.chests <= 0) {
+        window.toast('❌ Нет сундуков!', 'err');
+        return;
+    }
+
+    // Уменьшаем количество сундуков
+    G.chests--;
+    
+    // Случайная награда
+    const rewards = [
+        { coins: 10, label: '10 монет' },
+        { coins: 20, label: '20 монет' },
+        { coins: 30, label: '30 монет' },
+        { coins: 50, label: '50 монет' },
+        { coins: 100, label: '100 монет' },
+        { keys: 1, label: '1 ключ' },
+        { keys: 2, label: '2 ключа' },
+        { coins: 25, keys: 1, label: '25 монет + 1 ключ' }
+    ];
+    
+    const reward = rewards[Math.floor(Math.random() * rewards.length)];
+    
+    if (reward.coins) G.coins += reward.coins;
+    if (reward.keys) G.keys = (G.keys || 0) + reward.keys;
+    
+    scheduleSave();
+    renderUI();
+    window.toast(`🎁 Сундук открыт! Награда: ${reward.label}`, 'gld');
+    
+    // Обновляем кнопку
+    const chestBtn = document.getElementById('CH_btn');
+    if (chestBtn) {
+        chestBtn.innerHTML = `📦 Сундук (<span id="CH_c">${G.chests}</span>)`;
+    }
+};
 // ============================================================
 // АУКЦИОН (ГЛОБАЛЬНЫЙ) - ИСПРАВЛЕННАЯ ВЕРСИЯ
 // ============================================================
