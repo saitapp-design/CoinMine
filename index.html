@@ -1882,8 +1882,12 @@
 
       
 // ============================================================
-// БОСС - ИСПРАВЛЕННАЯ ВЕРСИЯ (НЕ ОЖИВАЕТ ПРИ ПЕРЕЗАГРУЗКЕ)
+// БОСС - ПОЛНОСТЬЮ ИСПРАВЛЕННАЯ ВЕРСИЯ
 // ============================================================
+
+let BOSS_STATE = { hp: 1000, lastKill: 0, currentBoss: 'Рябчик' };
+let bossCheckInterval = null;
+let bossInitialized = false; // Флаг для предотвращения авто-возрождения при загрузке
 
 // Загрузка состояния босса
 async function loadBossState() {
@@ -2026,6 +2030,7 @@ window.atkBoss = async function() {
                     created_at: new Date().toISOString()
                 }
             });
+            console.log('✅ Сообщение в чат отправлено');
         } catch (e) {
             console.error('❌ Ошибка отправки сообщения:', e);
         }
@@ -2034,17 +2039,19 @@ window.atkBoss = async function() {
     }
 
     document.getElementById('ATK_l').textContent = msg;
+    await saveBossState();
+    await saveUserData();
     renderUI();
     window.toast(msg, 'gld');
 };
 
 // ============================================================
-// ПРОВЕРКА ВОЗРОЖДЕНИЯ - ИСПРАВЛЕННАЯ
+// ПРОВЕРКА ВОЗРОЖДЕНИЯ - С ФЛАГОМ ИНИЦИАЛИЗАЦИИ
 // ============================================================
 
-async function checkBossRespawn() {
+async function checkBossRespawn(forceRespawn = false) {
     try {
-        console.log('🔄 ПРОВЕРКА ВОЗРОЖДЕНИЯ...');
+        console.log('🔄 ПРОВЕРКА ВОЗРОЖДЕНИЯ...', { forceRespawn, bossInitialized });
         
         // Загружаем состояние
         await loadBossState();
@@ -2063,7 +2070,7 @@ async function checkBossRespawn() {
             lastKillDate: new Date(BOSS_STATE.lastKill).toISOString()
         });
 
-        // ВАЖНО: Если босс мёртв И активен И убит НЕ сегодня
+        // ВАЖНО: Если босс мёртв И активен И убит НЕ сегодня ИЛИ forceRespawn
         if (active && BOSS_STATE.hp <= 0 && BOSS_STATE.lastKill > 0) {
             const today = msk.toISOString().slice(0, 10);
             const killDate = new Date(BOSS_STATE.lastKill + 3 * 3600000);
@@ -2071,28 +2078,36 @@ async function checkBossRespawn() {
             
             console.log('📅 Сравнение:', { today, killDay });
             
-            // ВОЗРОЖДАЕМ ТОЛЬКО ЕСЛИ УБИТ В ДРУГОЙ ДЕНЬ
-            if (today !== killDay) {
+            // ВОЗРОЖДАЕМ ТОЛЬКО ЕСЛИ УБИТ В ДРУГОЙ ДЕНЬ ИЛИ ПРИНУДИТЕЛЬНО
+            if (today !== killDay || forceRespawn) {
                 console.log('👹 ВОЗРОЖДАЕМ БОССА!');
                 BOSS_STATE.hp = 1000;
                 await saveBossState();
                 
-                // Отправляем сообщение
-                try {
-                    await sbFetch('/rest/v1/messages', {
-                        method: 'POST',
-                        body: {
-                            sender_id: 'system',
-                            sender_name: 'Система',
-                            sender_avatar: AVATAR_LIST[0],
-                            message: `👹 Босс Рябчик возродился! Атакуйте!`,
-                            is_private: false,
-                            created_at: new Date().toISOString()
-                        }
-                    });
-                } catch (e) {}
-                
-                window.toast('👹 Босс Рябчик возродился!', 'gld');
+                // Отправляем сообщение ТОЛЬКО если босс уже инициализирован
+                // (пропускаем при первой загрузке страницы)
+                if (bossInitialized) {
+                    try {
+                        await sbFetch('/rest/v1/messages', {
+                            method: 'POST',
+                            body: {
+                                sender_id: 'system',
+                                sender_name: 'Система',
+                                sender_avatar: AVATAR_LIST[0],
+                                message: `👹 Босс Рябчик возродился! Атакуйте!`,
+                                is_private: false,
+                                created_at: new Date().toISOString()
+                            }
+                        });
+                        console.log('✅ Сообщение о возрождении отправлено');
+                    } catch (e) {
+                        console.error('❌ Ошибка отправки сообщения:', e);
+                    }
+                    
+                    window.toast('👹 Босс Рябчик возродился!', 'gld');
+                } else {
+                    console.log('ℹ️ Пропускаем уведомление при первой загрузке');
+                }
                 renderBoss();
             } else {
                 console.log('⏳ Босс убит сегодня, НЕ возрождаем');
@@ -2106,16 +2121,21 @@ async function checkBossRespawn() {
 }
 
 // ============================================================
-// ЗАПУСК ПРОВЕРКИ
+// ЗАПУСК ПРОВЕРКИ (ПЕРИОДИЧЕСКАЯ)
 // ============================================================
 
 function startBossPolling() {
     if (bossCheckInterval) clearInterval(bossCheckInterval);
     bossCheckInterval = setInterval(async () => {
-        await checkBossRespawn();
-        await loadBossState();
-        renderBoss();
-    }, 30000);
+        // Проверяем возрождение только если босс уже инициализирован
+        if (bossInitialized) {
+            await checkBossRespawn(false);
+            await loadBossState();
+            renderBoss();
+        } else {
+            console.log('⏳ Босс ещё не инициализирован, пропускаем проверку');
+        }
+    }, 30000); // Каждые 30 секунд
 }
 
 // ============================================================
@@ -2164,6 +2184,45 @@ function renderBoss() {
     } catch (e) {
         console.error('❌ Ошибка рендера:', e);
     }
+}
+
+// ============================================================
+// ИНИЦИАЛИЗАЦИЯ БОССА (вызывается при загрузке страницы)
+// ============================================================
+
+async function initBoss() {
+    console.log('🚀 ИНИЦИАЛИЗАЦИЯ БОССА...');
+    
+    // Загружаем состояние из БД
+    await loadBossState();
+    console.log('✅ Босс загружен:', BOSS_STATE);
+    
+    // Проверяем возрождение (НО НЕ ВОЗРОЖДАЕМ АВТОМАТИЧЕСКИ!)
+    // forceRespawn = false - не возрождаем принудительно
+    await checkBossRespawn(false);
+    
+    // Устанавливаем флаг, что босс инициализирован
+    bossInitialized = true;
+    console.log('✅ Босс инициализирован, флаг установлен');
+    
+    // Обновляем UI
+    renderBoss();
+    
+    // Запускаем периодическую проверку
+    startBossPolling();
+    console.log('✅ Периодическая проверка запущена');
+}
+
+// ============================================================
+// ЗАПУСК ПРИ ЗАГРУЗКЕ СТРАНИЦЫ
+// ============================================================
+
+// Запускаем инициализацию после загрузки страницы
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initBoss);
+} else {
+    // Если страница уже загружена
+    initBoss();
 }
 // ============================================================
 // АУКЦИОН (ГЛОБАЛЬНЫЙ) - ИСПРАВЛЕННАЯ ВЕРСИЯ
