@@ -44,8 +44,7 @@
             --color-background-secondary: #1a1a35;
             --color-border-tertiary: #ffffff14;
         }
-        html,
-        body {
+        html, body {
             height: 100%;
             background: #07070f;
             color: var(--tx);
@@ -54,8 +53,7 @@
             line-height: 1.4;
             overflow-x: hidden;
         }
-        body::before,
-        body::after {
+        body::before, body::after {
             content: '';
             position: fixed;
             top: 0;
@@ -70,18 +68,9 @@
             background-repeat: no-repeat;
             opacity: 0.3;
         }
-        body::before {
-            left: 0;
-        }
-        body::after {
-            right: 0;
-        }
-        @media (max-width: 700px) {
-            body::before,
-            body::after {
-                display: none !important;
-            }
-        }
+        body::before { left: 0; }
+        body::after { right: 0; }
+        @media (max-width: 700px) { body::before, body::after { display: none !important; } }
         .app {
             max-width: 700px;
             margin: 0 auto;
@@ -89,15 +78,11 @@
             position: relative;
             z-index: 1;
             min-height: 100vh;
-            box-shadow: 0 0 60px rgba(0, 0, 0, 0.8);
+            box-shadow: 0 0 60px rgba(0,0,0,0.8);
             padding-bottom: 180px;
             padding-top: 10px;
         }
-        @media (max-width: 700px) {
-            .app {
-                max-width: 100%;
-            }
-        }
+        @media (max-width: 700px) { .app { max-width: 100%; } }
 
         .static-banner {
             display: none;
@@ -113,1761 +98,280 @@
             overflow: hidden;
             cursor: pointer;
             border: 2px solid var(--bd2);
-            box-shadow: 0 8px 40px rgba(0, 0, 0, 0.6);
+            box-shadow: 0 8px 40px rgba(0,0,0,0.6);
             transition: .3s;
             background: var(--bg2);
         }
-        .static-banner.show {
-            display: block;
-        }
-        .static-banner:hover {
-            border-color: var(--acc2);
-            transform: translateX(-50%) scale(1.03);
-        }
-        .static-banner img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            display: block;
-        }
-        .static-banner .placeholder {
-            width: 100%;
-            height: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 18px;
-            font-weight: 700;
-            color: var(--gld);
-            background: var(--bg3);
-        }
-        @media (max-width: 700px) {
-            .static-banner {
-                max-width: 95%;
-                height: 75px;
-                bottom: 95px;
-            }
-        }
+        .static-banner.show { display: block; }
+        .static-banner:hover { border-color: var(--acc2); transform: translateX(-50%) scale(1.03); }
+        .static-banner img { width: 100%; height: 100%; object-fit: cover; display: block; }
+        .static-banner .placeholder { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 700; color: var(--gld); background: var(--bg3); }
+        @media (max-width: 700px) { .static-banner { max-width: 95%; height: 75px; bottom: 95px; } }
 
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        @keyframes pulse {
-            0%,
-            100% {
-                transform: scale(1);
-            }
-            50% {
-                transform: scale(1.05);
-            }
-        }
-        @keyframes glow {
-            0%,
-            100% {
-                box-shadow: 0 0 20px rgba(124, 58, 237, 0.2);
-            }
-            50% {
-                box-shadow: 0 0 40px rgba(124, 58, 237, 0.6);
-            }
-        }
-        @keyframes float {
-            0%,
-            100% {
-                transform: translateY(0px);
-            }
-            50% {
-                transform: translateY(-8px);
-            }
-        }
-        @keyframes musicPulse {
-            0%,
-            100% {
-                transform: scale(1);
-            }
-            50% {
-                transform: scale(1.1);
-            }
-        }
-        @keyframes msgAppear {
-            from {
-                opacity: 0;
-                transform: translateY(8px) scale(0.97);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0) scale(1);
-            }
-        }
-        .animated {
-            animation: fadeIn 0.4s ease forwards;
-        }
-        .pulse {
-            animation: pulse 2s ease-in-out infinite;
-        }
-        .glow {
-            animation: glow 2s ease-in-out infinite;
-        }
-        .float {
-            animation: float 3s ease-in-out infinite;
-        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+        @keyframes glow { 0%,100% { box-shadow: 0 0 20px rgba(124,58,237,0.2); } 50% { box-shadow: 0 0 40px rgba(124,58,237,0.6); } }
+        @keyframes float { 0%,100% { transform: translateY(0px); } 50% { transform: translateY(-8px); } }
+        @keyframes musicPulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.1); } }
+        @keyframes msgAppear { from { opacity: 0; transform: translateY(8px) scale(0.97); } to { opacity: 1; transform: translateY(0) scale(1); } }
+        .animated { animation: fadeIn 0.4s ease forwards; }
+        .pulse { animation: pulse 2s ease-in-out infinite; }
+        .glow { animation: glow 2s ease-in-out infinite; }
+        .float { animation: float 3s ease-in-out infinite; }
 
-        #authWrap {
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-            background: var(--bg);
-        }
-        .auth-box {
-            width: 100%;
-            max-width: 400px;
-            background: var(--bg2);
-            border: 1px solid var(--bd2);
-            border-radius: 20px;
-            padding: 28px 24px;
-            position: relative;
-            overflow: hidden;
-            animation: fadeIn 0.5s ease;
-        }
-        .auth-box::before {
-            content: '';
-            position: absolute;
-            top: -60px;
-            right: -60px;
-            width: 200px;
-            height: 200px;
-            background: radial-gradient(circle, #7c3aed22, transparent 70%);
-            pointer-events: none;
-        }
-        .auth-banner {
-            width: 100%;
-            border-radius: var(--r);
-            margin-bottom: 12px;
-            overflow: hidden;
-        }
-        .auth-banner img {
-            width: 100%;
-            height: auto;
-            display: block;
-        }
-        .auth-title {
-            text-align: center;
-            font-size: 22px;
-            font-weight: 800;
-            background: linear-gradient(135deg, var(--gld), var(--gld2));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin-bottom: 4px;
-        }
-        .auth-sub {
-            text-align: center;
-            font-size: 12px;
-            color: var(--tx2);
-            margin-bottom: 20px;
-        }
-        .auth-tabs {
-            display: flex;
-            gap: 6px;
-            margin-bottom: 16px;
-            background: var(--bg3);
-            border-radius: var(--r2);
-            padding: 3px;
-        }
-        .auth-tab {
-            flex: 1;
-            padding: 10px 8px;
-            text-align: center;
-            border: none;
-            background: none;
-            color: var(--tx2);
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            border-radius: 6px;
-            transition: .3s;
-        }
-        .auth-tab.on {
-            background: var(--acc);
-            color: #fff;
-        }
-        .inp {
-            width: 100%;
-            background: var(--bg3);
-            border: 1.5px solid var(--bd2);
-            border-radius: var(--r2);
-            padding: 12px 14px;
-            color: var(--tx);
-            font-size: 13px;
-            outline: none;
-            transition: .3s;
-            margin-bottom: 10px;
-        }
-        .inp:focus {
-            border-color: var(--acc2);
-            box-shadow: 0 0 20px #7c3aed33;
-        }
-        .inp::placeholder {
-            color: var(--tx2);
-        }
-        .btn {
-            width: 100%;
-            padding: 13px;
-            border: none;
-            border-radius: var(--r2);
-            font-size: 14px;
-            font-weight: 700;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
-            transition: .3s;
-            letter-spacing: .3px;
-            position: relative;
-            overflow: hidden;
-        }
-        .btn:active {
-            transform: scale(.97);
-        }
-        .bp {
-            background: linear-gradient(135deg, var(--acc), var(--acc2));
-            color: #fff;
-            box-shadow: 0 4px 16px #7c3aed44;
-        }
-        .bp:hover {
-            box-shadow: 0 4px 30px #7c3aed88;
-            transform: translateY(-2px);
-        }
-        .bs {
-            background: var(--bg4);
-            color: var(--tx);
-            border: 1.5px solid var(--bd2);
-        }
-        .bs:hover {
-            border-color: var(--acc2);
-        }
-        .btn:disabled {
-            opacity: .5;
-            cursor: not-allowed;
-            transform: none !important;
-        }
-        .astat {
-            text-align: center;
-            font-size: 12px;
-            margin-top: 12px;
-            min-height: 20px;
-            font-weight: 500;
-        }
-        .astat.ok {
-            color: var(--grn);
-        }
-        .astat.err {
-            color: var(--red);
-        }
-        .astat.ld {
-            color: var(--gld);
-        }
-        .astat.warn {
-            color: var(--gld2);
-        }
+        #authWrap { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; background: var(--bg); }
+        .auth-box { width: 100%; max-width: 400px; background: var(--bg2); border: 1px solid var(--bd2); border-radius: 20px; padding: 28px 24px; position: relative; overflow: hidden; animation: fadeIn 0.5s ease; }
+        .auth-box::before { content: ''; position: absolute; top: -60px; right: -60px; width: 200px; height: 200px; background: radial-gradient(circle, #7c3aed22, transparent 70%); pointer-events: none; }
+        .auth-banner { width: 100%; border-radius: var(--r); margin-bottom: 12px; overflow: hidden; }
+        .auth-banner img { width: 100%; height: auto; display: block; }
+        .auth-title { text-align: center; font-size: 22px; font-weight: 800; background: linear-gradient(135deg, var(--gld), var(--gld2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 4px; }
+        .auth-sub { text-align: center; font-size: 12px; color: var(--tx2); margin-bottom: 20px; }
+        .auth-tabs { display: flex; gap: 6px; margin-bottom: 16px; background: var(--bg3); border-radius: var(--r2); padding: 3px; }
+        .auth-tab { flex: 1; padding: 10px 8px; text-align: center; border: none; background: none; color: var(--tx2); font-size: 14px; font-weight: 600; cursor: pointer; border-radius: 6px; transition: .3s; }
+        .auth-tab.on { background: var(--acc); color: #fff; }
+        .inp { width: 100%; background: var(--bg3); border: 1.5px solid var(--bd2); border-radius: var(--r2); padding: 12px 14px; color: var(--tx); font-size: 13px; outline: none; transition: .3s; margin-bottom: 10px; }
+        .inp:focus { border-color: var(--acc2); box-shadow: 0 0 20px #7c3aed33; }
+        .inp::placeholder { color: var(--tx2); }
+        .btn { width: 100%; padding: 13px; border: none; border-radius: var(--r2); font-size: 14px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; transition: .3s; letter-spacing: .3px; position: relative; overflow: hidden; }
+        .btn:active { transform: scale(.97); }
+        .bp { background: linear-gradient(135deg, var(--acc), var(--acc2)); color: #fff; box-shadow: 0 4px 16px #7c3aed44; }
+        .bp:hover { box-shadow: 0 4px 30px #7c3aed88; transform: translateY(-2px); }
+        .bs { background: var(--bg4); color: var(--tx); border: 1.5px solid var(--bd2); }
+        .bs:hover { border-color: var(--acc2); }
+        .btn:disabled { opacity: .5; cursor: not-allowed; transform: none !important; }
+        .astat { text-align: center; font-size: 12px; margin-top: 12px; min-height: 20px; font-weight: 500; }
+        .astat.ok { color: var(--grn); }
+        .astat.err { color: var(--red); }
+        .astat.ld { color: var(--gld); }
+        .astat.warn { color: var(--gld2); }
 
-        #appWrap {
-            display: none;
-            flex-direction: column;
-            min-height: 100vh;
-            padding-bottom: 120px;
-        }
-        #appWrap.on {
-            display: flex;
-        }
+        #appWrap { display: none; flex-direction: column; min-height: 100vh; padding-bottom: 120px; }
+        #appWrap.on { display: flex; }
 
-        .hdr {
-            background: var(--bg2);
-            border-bottom: 1px solid var(--bd);
-            padding: 6px 10px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            position: sticky;
-            top: 0;
-            z-index: 60;
-            backdrop-filter: blur(10px);
-            background: rgba(13, 13, 28, 0.9);
-            gap: 6px;
-            flex-wrap: wrap;
-        }
-        .hdr-logo {
-            font-size: 16px;
-            font-weight: 800;
-            background: linear-gradient(135deg, var(--gld), var(--gld2));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            flex-shrink: 0;
-        }
-        .hdr-right {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            flex-shrink: 0;
-            flex-wrap: wrap;
-        }
-        .hdr-bal {
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            background: var(--bg3);
-            border: 1px solid #f0b42930;
-            border-radius: 20px;
-            padding: 4px 10px;
-            font-size: 13px;
-            font-weight: 700;
-            color: var(--gld);
-            transition: .3s;
-        }
-        .hdr-bal:hover {
-            border-color: var(--gld);
-            box-shadow: 0 0 20px #f0b42922;
-        }
-        .hdr-btn {
-            background: var(--bg4);
-            border: 1.5px solid var(--bd2);
-            border-radius: 50%;
-            width: 34px;
-            height: 34px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: .3s;
-            font-size: 16px;
-            color: var(--tx2);
-            flex-shrink: 0;
-            position: relative;
-        }
-        .hdr-btn:hover {
-            border-color: var(--acc2);
-            background: var(--bg3);
-            transform: scale(1.05);
-        }
-        .hdr-btn:active {
-            transform: scale(.9);
-        }
-        .hdr-btn.on {
-            border-color: var(--gld);
-            color: var(--gld);
-        }
-        .hdr-btn .badge {
-            position: absolute;
-            top: -4px;
-            right: -4px;
-            background: var(--red);
-            color: #fff;
-            font-size: 8px;
-            font-weight: 700;
-            padding: 1px 5px;
-            border-radius: 10px;
-            min-width: 16px;
-            text-align: center;
-        }
-        .hdr-btn .hint {
-            position: absolute;
-            bottom: -20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(0, 0, 0, 0.85);
-            color: var(--tx2);
-            font-size: 7px;
-            padding: 1px 6px;
-            border-radius: 8px;
-            white-space: nowrap;
-            opacity: 0;
-            transition: .3s;
-            pointer-events: none;
-            border: 1px solid var(--bd2);
-        }
-        .hdr-btn:hover .hint {
-            opacity: 1;
-        }
-        .music-btn .icon {
-            transition: .3s;
-        }
-        .music-btn.on .icon {
-            animation: musicPulse 1.5s ease-in-out infinite;
-        }
-        .music-btn .status-dot {
-            position: absolute;
-            bottom: 2px;
-            right: 2px;
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: var(--red);
-            transition: .3s;
-            border: 1px solid var(--bg2);
-        }
-        .music-btn.on .status-dot {
-            background: var(--grn);
-            box-shadow: 0 0 12px #10b98166;
-            animation: pulse 1.5s ease-in-out infinite;
-        }
+        .hdr { background: var(--bg2); border-bottom: 1px solid var(--bd); padding: 6px 10px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 60; backdrop-filter: blur(10px); background: rgba(13,13,28,0.9); gap: 6px; flex-wrap: wrap; }
+        .hdr-logo { font-size: 16px; font-weight: 800; background: linear-gradient(135deg, var(--gld), var(--gld2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; flex-shrink: 0; }
+        .hdr-right { display: flex; align-items: center; gap: 6px; flex-shrink: 0; flex-wrap: wrap; }
+        .hdr-bal { display: flex; align-items: center; gap: 4px; background: var(--bg3); border: 1px solid #f0b42930; border-radius: 20px; padding: 4px 10px; font-size: 13px; font-weight: 700; color: var(--gld); transition: .3s; }
+        .hdr-bal:hover { border-color: var(--gld); box-shadow: 0 0 20px #f0b42922; }
+        .hdr-btn { background: var(--bg4); border: 1.5px solid var(--bd2); border-radius: 50%; width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: .3s; font-size: 16px; color: var(--tx2); flex-shrink: 0; position: relative; }
+        .hdr-btn:hover { border-color: var(--acc2); background: var(--bg3); transform: scale(1.05); }
+        .hdr-btn:active { transform: scale(.9); }
+        .hdr-btn.on { border-color: var(--gld); color: var(--gld); }
+        .hdr-btn .badge { position: absolute; top: -4px; right: -4px; background: var(--red); color: #fff; font-size: 8px; font-weight: 700; padding: 1px 5px; border-radius: 10px; min-width: 16px; text-align: center; }
+        .hdr-btn .hint { position: absolute; bottom: -20px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.85); color: var(--tx2); font-size: 7px; padding: 1px 6px; border-radius: 8px; white-space: nowrap; opacity: 0; transition: .3s; pointer-events: none; border: 1px solid var(--bd2); }
+        .hdr-btn:hover .hint { opacity: 1; }
+        .music-btn .icon { transition: .3s; }
+        .music-btn.on .icon { animation: musicPulse 1.5s ease-in-out infinite; }
+        .music-btn .status-dot { position: absolute; bottom: 2px; right: 2px; width: 8px; height: 8px; border-radius: 50%; background: var(--red); transition: .3s; border: 1px solid var(--bg2); }
+        .music-btn.on .status-dot { background: var(--grn); box-shadow: 0 0 12px #10b98166; animation: pulse 1.5s ease-in-out infinite; }
 
-        @media (max-width: 500px) {
-            .hdr {
-                padding: 4px 8px;
-                gap: 4px;
-            }
-            .hdr-logo {
-                font-size: 14px;
-            }
-            .hdr-btn {
-                width: 30px;
-                height: 30px;
-                font-size: 14px;
-            }
-            .hdr-bal {
-                font-size: 11px;
-                padding: 3px 8px;
-            }
-            .hdr-btn .hint {
-                display: none;
-            }
-        }
-        @media (max-width: 380px) {
-            .hdr-logo {
-                font-size: 12px;
-            }
-            .hdr-btn {
-                width: 26px;
-                height: 26px;
-                font-size: 12px;
-            }
-            .hdr-bal {
-                font-size: 10px;
-                padding: 2px 6px;
-            }
-        }
+        @media (max-width: 500px) { .hdr { padding: 4px 8px; gap: 4px; } .hdr-logo { font-size: 14px; } .hdr-btn { width: 30px; height: 30px; font-size: 14px; } .hdr-bal { font-size: 11px; padding: 3px 8px; } .hdr-btn .hint { display: none; } }
+        @media (max-width: 380px) { .hdr-logo { font-size: 12px; } .hdr-btn { width: 26px; height: 26px; font-size: 12px; } .hdr-bal { font-size: 10px; padding: 2px 6px; } }
 
-        .screens {
-            flex: 1;
-            padding: 10px 10px 0;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-        .sc {
-            display: none;
-            flex-direction: column;
-            gap: 10px;
-            padding-bottom: 10px;
-        }
-        .sc.on {
-            display: flex;
-            animation: fadeIn 0.3s ease;
-        }
-        .nav {
-            background: var(--bg2);
-            border-top: 1px solid var(--bd);
-            padding: 4px 0 max(4px, env(safe-area-inset-bottom));
-            display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            max-width: 700px;
-            margin: 0 auto;
-            z-index: 50;
-            backdrop-filter: blur(10px);
-            background: rgba(13, 13, 28, 0.95);
-        }
-        @media (max-width: 700px) {
-            .nav {
-                max-width: 100%;
-            }
-        }
-        .nb {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 1px;
-            padding: 4px 2px;
-            background: none;
-            border: none;
-            color: var(--tx2);
-            font-size: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: .3s;
-            border-radius: 6px;
-        }
-        .nb:hover {
-            color: var(--tx);
-            background: var(--bg4);
-        }
-        .nb.on {
-            color: var(--gld);
-            background: rgba(240, 180, 41, 0.1);
-        }
-        .nb span {
-            font-size: 16px;
-        }
-        .logout-btn {
-            background: none;
-            border: 1px solid var(--bd2);
-            color: var(--tx2);
-            padding: 2px 8px;
-            border-radius: 4px;
-            font-size: 10px;
-            cursor: pointer;
-            transition: .3s;
-        }
-        .logout-btn:hover {
-            background: var(--bg4);
-            color: var(--red);
-            border-color: var(--red);
-        }
-        .card {
-            background: var(--bg3);
-            border: 1px solid var(--bd);
-            border-radius: var(--r);
-            padding: 12px;
-            transition: .3s;
-        }
-        .card:hover {
-            border-color: var(--bd2);
-        }
-        .ct {
-            font-size: 10px;
-            color: var(--tx2);
-            text-transform: uppercase;
-            letter-spacing: .7px;
-            margin-bottom: 8px;
-            font-weight: 600;
-        }
-        .g2 {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 8px;
-        }
-        .g3 {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 7px;
-        }
-        .st {
-            background: var(--bg4);
-            border-radius: var(--r2);
-            padding: 8px;
-            text-align: center;
-            transition: .3s;
-        }
-        .st:hover {
-            background: var(--bg5);
-            transform: translateY(-2px);
-        }
-        .sv {
-            font-size: 18px;
-            font-weight: 700;
-            color: var(--gld);
-        }
-        .sl {
-            font-size: 10px;
-            color: var(--tx2);
-            margin-top: 2px;
-        }
-        .row {
-            display: flex;
-            align-items: center;
-            gap: 9px;
-            padding: 6px 0;
-            border-bottom: 1px solid var(--bd);
-            transition: .3s;
-        }
-        .row:last-child {
-            border-bottom: none;
-        }
-        .row:hover {
-            background: var(--bg4);
-            margin: 0 -8px;
-            padding: 6px 8px;
-            border-radius: 6px;
-        }
-        .pb {
-            background: var(--bg4);
-            border-radius: 20px;
-            height: 6px;
-            overflow: hidden;
-            width: 100%;
-            position: relative;
-        }
-        .pf {
-            height: 100%;
-            border-radius: 20px;
-            transition: width .6s ease;
-            width: 100%;
-        }
-        .pf-gld {
-            background: linear-gradient(90deg, #b87800, var(--gld));
-        }
-        .pf-acc {
-            background: linear-gradient(90deg, var(--acc), var(--acc2));
-        }
-        .pf-grn {
-            background: var(--grn);
-        }
-        .fl {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .f1 {
-            flex: 1;
-        }
-        .tm {
-            color: var(--tx2);
-            font-size: 12px;
-        }
-        .mt8 {
-            margin-top: 8px;
-        }
-        .mb8 {
-            margin-bottom: 8px;
-        }
-        .tc {
-            text-align: center;
-        }
-        .irow {
-            display: flex;
-            gap: 7px;
-        }
-        .irow .inp {
-            flex: 1;
-            margin: 0;
-        }
-        .irow .btn {
-            width: auto;
-            padding: 0 14px;
-        }
-        .tab-r {
-            display: flex;
-            gap: 4px;
-            margin-bottom: 10px;
-            flex-wrap: wrap;
-        }
-        .tab {
-            flex: 1;
-            padding: 7px;
-            text-align: center;
-            background: none;
-            border: 1px solid var(--bd2);
-            border-radius: var(--r3);
-            color: var(--tx2);
-            font-size: 10px;
-            cursor: pointer;
-            transition: .3s;
-            min-width: 50px;
-        }
-        .tab:hover {
-            border-color: var(--acc2);
-            color: var(--tx);
-        }
-        .tab.on {
-            background: var(--acc);
-            color: #fff;
-            border-color: var(--acc);
-        }
-        .top-row {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 6px 0;
-            border-bottom: 1px solid var(--bd);
-            transition: .3s;
-        }
-        .top-row:hover {
-            background: var(--bg4);
-            border-radius: 6px;
-            padding: 6px 10px;
-            margin: 0 -6px;
-        }
-        .top-row:last-child {
-            border-bottom: none;
-        }
-        .boss-wrap {
-            text-align: center;
-            padding: 8px 0;
-            position: relative;
-        }
-        .boss-avatar {
-            font-size: 80px;
-            line-height: 1;
-            margin-bottom: 4px;
-            filter: drop-shadow(0 0 30px #ef444466);
-            animation: float 3s ease-in-out infinite;
-            display: inline-block;
-        }
-        .boss-name {
-            font-size: 18px;
-            font-weight: 700;
-        }
-        .boss-status {
-            font-size: 12px;
-            color: var(--tx2);
-        }
-        .hp-bar {
-            height: 16px;
-            background: var(--bg4);
-            border-radius: 10px;
-            overflow: hidden;
-            margin: 8px 0;
-            position: relative;
-        }
-        .hp-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #991b1b, var(--red), #ff6b6b);
-            border-radius: 10px;
-            transition: width .6s ease;
-            position: relative;
-        }
-        .hp-fill::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(180deg, #ffffff25, transparent);
-            border-radius: 10px;
-        }
+        .screens { flex: 1; padding: 10px 10px 0; display: flex; flex-direction: column; gap: 10px; }
+        .sc { display: none; flex-direction: column; gap: 10px; padding-bottom: 10px; }
+        .sc.on { display: flex; animation: fadeIn 0.3s ease; }
+        .nav { background: var(--bg2); border-top: 1px solid var(--bd); padding: 4px 0 max(4px, env(safe-area-inset-bottom)); display: grid; grid-template-columns: repeat(5, 1fr); position: fixed; bottom: 0; left: 0; right: 0; max-width: 700px; margin: 0 auto; z-index: 50; backdrop-filter: blur(10px); background: rgba(13,13,28,0.95); }
+        @media (max-width: 700px) { .nav { max-width: 100%; } }
+        .nb { display: flex; flex-direction: column; align-items: center; gap: 1px; padding: 4px 2px; background: none; border: none; color: var(--tx2); font-size: 8px; font-weight: 600; cursor: pointer; transition: .3s; border-radius: 6px; }
+        .nb:hover { color: var(--tx); background: var(--bg4); }
+        .nb.on { color: var(--gld); background: rgba(240,180,41,0.1); }
+        .nb span { font-size: 16px; }
+        .logout-btn { background: none; border: 1px solid var(--bd2); color: var(--tx2); padding: 2px 8px; border-radius: 4px; font-size: 10px; cursor: pointer; transition: .3s; }
+        .logout-btn:hover { background: var(--bg4); color: var(--red); border-color: var(--red); }
+        .card { background: var(--bg3); border: 1px solid var(--bd); border-radius: var(--r); padding: 12px; transition: .3s; }
+        .card:hover { border-color: var(--bd2); }
+        .ct { font-size: 10px; color: var(--tx2); text-transform: uppercase; letter-spacing: .7px; margin-bottom: 8px; font-weight: 600; }
+        .g2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        .g3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 7px; }
+        .st { background: var(--bg4); border-radius: var(--r2); padding: 8px; text-align: center; transition: .3s; }
+        .st:hover { background: var(--bg5); transform: translateY(-2px); }
+        .sv { font-size: 18px; font-weight: 700; color: var(--gld); }
+        .sl { font-size: 10px; color: var(--tx2); margin-top: 2px; }
+        .row { display: flex; align-items: center; gap: 9px; padding: 6px 0; border-bottom: 1px solid var(--bd); transition: .3s; }
+        .row:last-child { border-bottom: none; }
+        .row:hover { background: var(--bg4); margin: 0 -8px; padding: 6px 8px; border-radius: 6px; }
+        .pb { background: var(--bg4); border-radius: 20px; height: 6px; overflow: hidden; width: 100%; position: relative; }
+        .pf { height: 100%; border-radius: 20px; transition: width .6s ease; width: 100%; }
+        .pf-gld { background: linear-gradient(90deg, #b87800, var(--gld)); }
+        .pf-acc { background: linear-gradient(90deg, var(--acc), var(--acc2)); }
+        .pf-grn { background: var(--grn); }
+        .fl { display: flex; align-items: center; gap: 8px; }
+        .f1 { flex: 1; }
+        .tm { color: var(--tx2); font-size: 12px; }
+        .mt8 { margin-top: 8px; }
+        .mb8 { margin-bottom: 8px; }
+        .tc { text-align: center; }
+        .irow { display: flex; gap: 7px; }
+        .irow .inp { flex: 1; margin: 0; }
+        .irow .btn { width: auto; padding: 0 14px; }
+        .tab-r { display: flex; gap: 4px; margin-bottom: 10px; flex-wrap: wrap; }
+        .tab { flex: 1; padding: 7px; text-align: center; background: none; border: 1px solid var(--bd2); border-radius: var(--r3); color: var(--tx2); font-size: 10px; cursor: pointer; transition: .3s; min-width: 50px; }
+        .tab:hover { border-color: var(--acc2); color: var(--tx); }
+        .tab.on { background: var(--acc); color: #fff; border-color: var(--acc); }
+        .top-row { display: flex; align-items: center; gap: 10px; padding: 6px 0; border-bottom: 1px solid var(--bd); transition: .3s; }
+        .top-row:hover { background: var(--bg4); border-radius: 6px; padding: 6px 10px; margin: 0 -6px; }
+        .top-row:last-child { border-bottom: none; }
+        .boss-wrap { text-align: center; padding: 8px 0; position: relative; }
+        .boss-avatar { font-size: 80px; line-height: 1; margin-bottom: 4px; filter: drop-shadow(0 0 30px #ef444466); animation: float 3s ease-in-out infinite; display: inline-block; }
+        .boss-name { font-size: 18px; font-weight: 700; }
+        .boss-status { font-size: 12px; color: var(--tx2); }
+        .hp-bar { height: 16px; background: var(--bg4); border-radius: 10px; overflow: hidden; margin: 8px 0; position: relative; }
+        .hp-fill { height: 100%; background: linear-gradient(90deg, #991b1b, var(--red), #ff6b6b); border-radius: 10px; transition: width .6s ease; position: relative; }
+        .hp-fill::after { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: linear-gradient(180deg, #ffffff25, transparent); border-radius: 10px; }
 
-        .rl-section {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 12px;
-            padding: 10px 0;
-        }
-        .rl-canvas-wrap {
-            position: relative;
-            width: 320px;
-            height: 320px;
-            max-width: 100%;
-            margin: 0 auto;
-        }
-        #rouletteCanvas {
-            border-radius: 50%;
-            display: block;
-            width: 100%;
-            height: 100%;
-        }
-        .rl-result {
-            font-size: 16px;
-            font-weight: 600;
-            text-align: center;
-            min-height: 28px;
-            color: var(--color-text-primary);
-            padding: 4px 0;
-        }
-        .rl-result.win {
-            color: var(--gld);
-        }
-        .rl-result.lose {
-            color: var(--red);
-        }
-        .rl-bet-row {
-            display: flex;
-            gap: 8px;
-            align-items: center;
-            flex-wrap: wrap;
-            justify-content: center;
-            width: 100%;
-        }
-        .rl-bet-row label {
-            font-size: 13px;
-            color: var(--color-text-secondary);
-        }
-        .rl-bet-row input {
-            width: 80px;
-            padding: 6px 10px;
-            border-radius: var(--border-radius-md);
-            border: 0.5px solid var(--color-border-secondary);
-            background: var(--color-background-primary);
-            color: var(--color-text-primary);
-            font-size: 13px;
-            text-align: center;
-        }
-        .rl-bet-row input:focus {
-            outline: none;
-            border-color: var(--acc2);
-        }
-        .rl-btns {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-            justify-content: center;
-        }
-        .rl-btns button {
-            padding: 8px 18px;
-            border-radius: var(--border-radius-md);
-            border: 0.5px solid var(--color-border-secondary);
-            background: var(--color-background-primary);
-            color: var(--color-text-primary);
-            font-size: 13px;
-            cursor: pointer;
-            transition: background .15s;
-        }
-        .rl-btns button:hover {
-            background: var(--color-background-secondary);
-        }
-        .rl-btns button:disabled {
-            opacity: .5;
-            cursor: not-allowed;
-        }
-        .btn-red {
-            border-color: #b91c1c !important;
-            color: #b91c1c !important;
-        }
-        .btn-blk {
-            border-color: #555 !important;
-        }
-        .btn-grn {
-            border-color: #15803d !important;
-            color: #15803d !important;
-        }
-        .rl-coeff {
-            font-size: 12px;
-            color: var(--color-text-secondary);
-            text-align: center;
-            padding: 4px 0;
-        }
+        .rl-section { display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 10px 0; }
+        .rl-canvas-wrap { position: relative; width: 320px; height: 320px; max-width: 100%; margin: 0 auto; }
+        #rouletteCanvas { border-radius: 50%; display: block; width: 100%; height: 100%; }
+        .rl-result { font-size: 16px; font-weight: 600; text-align: center; min-height: 28px; color: var(--color-text-primary); padding: 4px 0; }
+        .rl-result.win { color: var(--gld); }
+        .rl-result.lose { color: var(--red); }
+        .rl-bet-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; justify-content: center; width: 100%; }
+        .rl-bet-row label { font-size: 13px; color: var(--color-text-secondary); }
+        .rl-bet-row input { width: 80px; padding: 6px 10px; border-radius: var(--border-radius-md); border: 0.5px solid var(--color-border-secondary); background: var(--color-background-primary); color: var(--color-text-primary); font-size: 13px; text-align: center; }
+        .rl-bet-row input:focus { outline: none; border-color: var(--acc2); }
+        .rl-btns { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
+        .rl-btns button { padding: 8px 18px; border-radius: var(--border-radius-md); border: 0.5px solid var(--color-border-secondary); background: var(--color-background-primary); color: var(--color-text-primary); font-size: 13px; cursor: pointer; transition: background .15s; }
+        .rl-btns button:hover { background: var(--color-background-secondary); }
+        .rl-btns button:disabled { opacity: .5; cursor: not-allowed; }
+        .btn-red { border-color: #b91c1c !important; color: #b91c1c !important; }
+        .btn-blk { border-color: #555 !important; }
+        .btn-grn { border-color: #15803d !important; color: #15803d !important; }
+        .rl-coeff { font-size: 12px; color: var(--color-text-secondary); text-align: center; padding: 4px 0; }
 
-        .dice-section {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 14px;
-            padding: 10px 0;
-        }
-        .dice-scene {
-            width: 200px;
-            height: 200px;
-            perspective: 600px;
-            max-width: 100%;
-            cursor: default;
-        }
-        .dice-cube {
-            width: 140px;
-            height: 140px;
-            position: relative;
-            transform-style: preserve-3d;
-            margin: 30px auto;
-            transform: rotateX(-20deg) rotateY(30deg);
-        }
-        .face {
-            position: absolute;
-            width: 140px;
-            height: 140px;
-            border-radius: 18px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border: 2px solid rgba(255, 255, 255, .18);
-            backface-visibility: hidden;
-            transition: background .4s, border-color .4s;
-        }
-        .face.front {
-            transform: translateZ(70px);
-        }
-        .face.back {
-            transform: rotateY(180deg) translateZ(70px);
-        }
-        .face.right {
-            transform: rotateY(90deg) translateZ(70px);
-        }
-        .face.left {
-            transform: rotateY(-90deg) translateZ(70px);
-        }
-        .face.top {
-            transform: rotateX(90deg) translateZ(70px);
-        }
-        .face.bottom {
-            transform: rotateX(-90deg) translateZ(70px);
-        }
-        .pips {
-            display: grid;
-            width: 100px;
-            height: 100px;
-            gap: 6px;
-            padding: 8px;
-            grid-template-columns: repeat(3, 1fr);
-            grid-template-rows: repeat(3, 1fr);
-        }
-        .pip {
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, .88);
-            box-shadow: 0 1px 3px rgba(0, 0, 0, .4);
-            transition: background .4s;
-        }
-        .dice-info {
-            font-size: 13px;
-            color: var(--color-text-secondary);
-            text-align: center;
-        }
-        .dice-result {
-            font-size: 16px;
-            font-weight: 600;
-            color: var(--color-text-primary);
-            min-height: 28px;
-            text-align: center;
-            padding: 4px 0;
-        }
-        .dice-result.win {
-            color: var(--gld);
-        }
-        .dice-result.lose {
-            color: var(--red);
-        }
-        .dice-btns {
-            display: flex;
-            gap: 10px;
-        }
-        .dice-btns button {
-            padding: 8px 20px;
-            border-radius: var(--border-radius-md);
-            border: 0.5px solid var(--color-border-secondary);
-            background: var(--color-background-primary);
-            font-size: 13px;
-            cursor: pointer;
-            color: var(--color-text-primary);
-        }
-        .dice-btns button:hover {
-            background: var(--color-background-secondary);
-        }
-        .dice-btns button:disabled {
-            opacity: .5;
-            cursor: not-allowed;
-        }
-        .divider {
-            width: 100%;
-            height: 0.5px;
-            background: var(--color-border-tertiary);
-        }
+        .dice-section { display: flex; flex-direction: column; align-items: center; gap: 14px; padding: 10px 0; }
+        .dice-scene { width: 200px; height: 200px; perspective: 600px; max-width: 100%; cursor: default; }
+        .dice-cube { width: 140px; height: 140px; position: relative; transform-style: preserve-3d; margin: 30px auto; transform: rotateX(-20deg) rotateY(30deg); }
+        .face { position: absolute; width: 140px; height: 140px; border-radius: 18px; display: flex; align-items: center; justify-content: center; border: 2px solid rgba(255,255,255,.18); backface-visibility: hidden; transition: background .4s, border-color .4s; }
+        .face.front { transform: translateZ(70px); }
+        .face.back { transform: rotateY(180deg) translateZ(70px); }
+        .face.right { transform: rotateY(90deg) translateZ(70px); }
+        .face.left { transform: rotateY(-90deg) translateZ(70px); }
+        .face.top { transform: rotateX(90deg) translateZ(70px); }
+        .face.bottom { transform: rotateX(-90deg) translateZ(70px); }
+        .pips { display: grid; width: 100px; height: 100px; gap: 6px; padding: 8px; grid-template-columns: repeat(3,1fr); grid-template-rows: repeat(3,1fr); }
+        .pip { width: 20px; height: 20px; border-radius: 50%; background: rgba(255,255,255,.88); box-shadow: 0 1px 3px rgba(0,0,0,.4); transition: background .4s; }
+        .dice-info { font-size: 13px; color: var(--color-text-secondary); text-align: center; }
+        .dice-result { font-size: 16px; font-weight: 600; color: var(--color-text-primary); min-height: 28px; text-align: center; padding: 4px 0; }
+        .dice-result.win { color: var(--gld); }
+        .dice-result.lose { color: var(--red); }
+        .dice-btns { display: flex; gap: 10px; }
+        .dice-btns button { padding: 8px 20px; border-radius: var(--border-radius-md); border: 0.5px solid var(--color-border-secondary); background: var(--color-background-primary); font-size: 13px; cursor: pointer; color: var(--color-text-primary); }
+        .dice-btns button:hover { background: var(--color-background-secondary); }
+        .dice-btns button:disabled { opacity: .5; cursor: not-allowed; }
+        .divider { width: 100%; height: 0.5px; background: var(--color-border-tertiary); }
 
-        .pkg-g {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 8px;
-        }
-        .pkg {
-            background: var(--bg4);
-            border: 1.5px solid var(--bd2);
-            border-radius: var(--r);
-            padding: 13px;
-            text-align: center;
-            cursor: pointer;
-            transition: .3s;
-            position: relative;
-        }
-        .pkg:hover {
-            transform: translateY(-4px);
-            border-color: var(--acc2);
-            box-shadow: 0 8px 30px #7c3aed22;
-        }
-        .pkg.hot {
-            border-color: var(--gld);
-        }
-        .pkg.hot::before {
-            content: '🔥 ХИТ';
-            position: absolute;
-            top: -8px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: var(--gld);
-            color: #1a0800;
-            font-size: 9px;
-            font-weight: 800;
-            padding: 2px 8px;
-            border-radius: 8px;
-        }
-        .pkg-icon {
-            font-size: 36px;
-            margin-bottom: 3px;
-        }
-        .nick-g {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 7px;
-        }
-        .nc {
-            background: var(--bg4);
-            border: 1.5px solid var(--bd);
-            border-radius: var(--r2);
-            padding: 9px 6px;
-            text-align: center;
-            cursor: pointer;
-            transition: .3s;
-        }
-        .nc:hover {
-            transform: translateY(-2px);
-            border-color: var(--acc2);
-        }
-        .nc.own {
-            border-color: #4c1d95;
-            background: #190a35;
-        }
-        .nc.act {
-            border-color: var(--gld);
-            background: #2a1b00;
-            box-shadow: 0 0 0 2px #f0b42930;
-        }
-        .mod-bg {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: #000000d0;
-            z-index: 200;
-            align-items: center;
-            justify-content: center;
-            padding: 16px;
-            animation: fadeIn 0.2s ease;
-        }
-        .mod-bg.on {
-            display: flex;
-        }
-        .mod-box {
-            background: var(--bg3);
-            border: 1px solid var(--bd2);
-            border-radius: 16px;
-            padding: 20px;
-            width: 100%;
-            max-width: 320px;
-            animation: fadeIn 0.3s ease;
-        }
-        .mod-title {
-            font-size: 15px;
-            font-weight: 700;
-            color: var(--gld);
-            margin-bottom: 8px;
-        }
-        .mod-body {
-            font-size: 12px;
-            color: var(--tx2);
-            margin-bottom: 16px;
-            line-height: 1.6;
-        }
-        .mod-btns {
-            display: flex;
-            gap: 8px;
-        }
-        .mod-btns .btn {
-            flex: 1;
-        }
-        .bdg {
-            display: inline-flex;
-            align-items: center;
-            gap: 3px;
-            padding: 3px 8px;
-            border-radius: 10px;
-            font-size: 10px;
-            font-weight: 600;
-        }
-        .bdg-pur {
-            background: #2e1065;
-            color: var(--acc3);
-            border: 1px solid #4c1d95;
-        }
-        .bdg-grn {
-            background: #052e16;
-            color: #4ade80;
-            border: 1px solid #14532d;
-        }
-        .bdg-gld {
-            background: #3d2800;
-            color: var(--gld);
-            border: 1px solid #5a3c00;
-        }
-        .bgld {
-            background: linear-gradient(135deg, #92620a, var(--gld));
-            color: #fff;
-        }
-        .bred {
-            background: #7f1d1d;
-            color: #fca5a5;
-            border: 1px solid #991b1b;
-        }
-        #TOAST {
-            position: fixed;
-            top: 60px;
-            left: 50%;
-            transform: translateX(-50%);
-            padding: 9px 18px;
-            border-radius: 20px;
-            font-size: 13px;
-            font-weight: 600;
-            z-index: 999;
-            transition: opacity .3s;
-            opacity: 0;
-            pointer-events: none;
-            max-width: 88%;
-            text-align: center;
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
-        }
-        .hl {
-            color: var(--gld);
-            font-weight: 600;
-        }
+        .pkg-g { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        .pkg { background: var(--bg4); border: 1.5px solid var(--bd2); border-radius: var(--r); padding: 13px; text-align: center; cursor: pointer; transition: .3s; position: relative; }
+        .pkg:hover { transform: translateY(-4px); border-color: var(--acc2); box-shadow: 0 8px 30px #7c3aed22; }
+        .pkg.hot { border-color: var(--gld); }
+        .pkg.hot::before { content: '🔥 ХИТ'; position: absolute; top: -8px; left: 50%; transform: translateX(-50%); background: var(--gld); color: #1a0800; font-size: 9px; font-weight: 800; padding: 2px 8px; border-radius: 8px; }
+        .pkg-icon { font-size: 36px; margin-bottom: 3px; }
+        .nick-g { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; }
+        .nc { background: var(--bg4); border: 1.5px solid var(--bd); border-radius: var(--r2); padding: 9px 6px; text-align: center; cursor: pointer; transition: .3s; }
+        .nc:hover { transform: translateY(-2px); border-color: var(--acc2); }
+        .nc.own { border-color: #4c1d95; background: #190a35; }
+        .nc.act { border-color: var(--gld); background: #2a1b00; box-shadow: 0 0 0 2px #f0b42930; }
+        .mod-bg { display: none; position: fixed; inset: 0; background: #000000d0; z-index: 200; align-items: center; justify-content: center; padding: 16px; animation: fadeIn 0.2s ease; }
+        .mod-bg.on { display: flex; }
+        .mod-box { background: var(--bg3); border: 1px solid var(--bd2); border-radius: 16px; padding: 20px; width: 100%; max-width: 320px; animation: fadeIn 0.3s ease; }
+        .mod-title { font-size: 15px; font-weight: 700; color: var(--gld); margin-bottom: 8px; }
+        .mod-body { font-size: 12px; color: var(--tx2); margin-bottom: 16px; line-height: 1.6; }
+        .mod-btns { display: flex; gap: 8px; }
+        .mod-btns .btn { flex: 1; }
+        .bdg { display: inline-flex; align-items: center; gap: 3px; padding: 3px 8px; border-radius: 10px; font-size: 10px; font-weight: 600; }
+        .bdg-pur { background: #2e1065; color: var(--acc3); border: 1px solid #4c1d95; }
+        .bdg-grn { background: #052e16; color: #4ade80; border: 1px solid #14532d; }
+        .bdg-gld { background: #3d2800; color: var(--gld); border: 1px solid #5a3c00; }
+        .bgld { background: linear-gradient(135deg, #92620a, var(--gld)); color: #fff; }
+        .bred { background: #7f1d1d; color: #fca5a5; border: 1px solid #991b1b; }
+        #TOAST { position: fixed; top: 60px; left: 50%; transform: translateX(-50%); padding: 9px 18px; border-radius: 20px; font-size: 13px; font-weight: 600; z-index: 999; transition: opacity .3s; opacity: 0; pointer-events: none; max-width: 88%; text-align: center; box-shadow: 0 8px 30px rgba(0,0,0,0.5); }
+        .hl { color: var(--gld); font-weight: 600; }
 
-        .avatar-wrap {
-            position: relative;
-            cursor: pointer;
-            flex-shrink: 0;
-            display: inline-block;
-        }
-        .avatar-preview {
-            width: 44px;
-            height: 44px;
-            border-radius: 50%;
-            background: #190a35;
-            border: 2px solid var(--acc);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0;
-            transition: .3s;
-            overflow: hidden;
-            flex-shrink: 0;
-        }
-        .avatar-preview img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-        .avatar-preview:hover {
-            border-color: var(--gld);
-            transform: scale(1.05);
-        }
-        .avatar-hint {
-            position: absolute;
-            bottom: -16px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(0, 0, 0, 0.85);
-            color: var(--tx2);
-            font-size: 7px;
-            padding: 1px 6px;
-            border-radius: 10px;
-            white-space: nowrap;
-            opacity: 0;
-            transition: .3s;
-            pointer-events: none;
-            border: 1px solid var(--bd2);
-            z-index: 5;
-            width: auto;
-        }
-        .avatar-wrap:hover .avatar-hint {
-            opacity: 1;
-        }
-        .avatar-selector {
-            position: absolute;
-            top: 52px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: var(--bg3);
-            border: 1px solid var(--bd2);
-            border-radius: var(--r);
-            padding: 10px;
-            opacity: 0;
-            pointer-events: none;
-            transition: .3s;
-            z-index: 100;
-            width: 200px;
-            max-width: 85vw;
-            box-shadow: 0 8px 40px rgba(0, 0, 0, 0.8);
-        }
-        .avatar-selector.show {
-            opacity: 1;
-            pointer-events: auto;
-        }
-        .avatar-selector-title {
-            text-align: center;
-            color: var(--tx2);
-            font-size: 10px;
-            margin-bottom: 6px;
-        }
-        .avatar-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 6px;
-            margin-bottom: 4px;
-        }
-        .avatar-option {
-            width: 100%;
-            aspect-ratio: 1/1;
-            border-radius: 10px;
-            border: 2px solid transparent;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: .3s;
-            background: var(--bg4);
-            overflow: hidden;
-            padding: 3px;
-        }
-        .avatar-option img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            border-radius: 6px;
-        }
-        .avatar-option:hover {
-            border-color: var(--acc2);
-            transform: scale(1.05);
-        }
-        .avatar-option.active {
-            border-color: var(--gld);
-            box-shadow: 0 0 20px #f0b42944;
-        }
-        .top-avatar {
-            width: 28px;
-            height: 28px;
-            border-radius: 50%;
-            overflow: hidden;
-            flex-shrink: 0;
-            border: 1.5px solid var(--bd2);
-            background: #190a35;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .top-avatar img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-        .top-avatar .placeholder {
-            font-size: 14px;
-            color: var(--tx2);
-        }
-        @media (max-width: 500px) {
-            .top-avatar {
-                width: 24px;
-                height: 24px;
-            }
-            .top-avatar .placeholder {
-                font-size: 11px;
-            }
-        }
+        .avatar-wrap { position: relative; cursor: pointer; flex-shrink: 0; display: inline-block; }
+        .avatar-preview { width: 44px; height: 44px; border-radius: 50%; background: #190a35; border: 2px solid var(--acc); display: flex; align-items: center; justify-content: center; font-size: 0; transition: .3s; overflow: hidden; flex-shrink: 0; }
+        .avatar-preview img { width: 100%; height: 100%; object-fit: cover; }
+        .avatar-preview:hover { border-color: var(--gld); transform: scale(1.05); }
+        .avatar-hint { position: absolute; bottom: -16px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.85); color: var(--tx2); font-size: 7px; padding: 1px 6px; border-radius: 10px; white-space: nowrap; opacity: 0; transition: .3s; pointer-events: none; border: 1px solid var(--bd2); z-index: 5; width: auto; }
+        .avatar-wrap:hover .avatar-hint { opacity: 1; }
+        .avatar-selector { position: absolute; top: 52px; left: 50%; transform: translateX(-50%); background: var(--bg3); border: 1px solid var(--bd2); border-radius: var(--r); padding: 10px; opacity: 0; pointer-events: none; transition: .3s; z-index: 100; width: 200px; max-width: 85vw; box-shadow: 0 8px 40px rgba(0,0,0,0.8); }
+        .avatar-selector.show { opacity: 1; pointer-events: auto; }
+        .avatar-selector-title { text-align: center; color: var(--tx2); font-size: 10px; margin-bottom: 6px; }
+        .avatar-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 6px; margin-bottom: 4px; }
+        .avatar-option { width: 100%; aspect-ratio: 1/1; border-radius: 10px; border: 2px solid transparent; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: .3s; background: var(--bg4); overflow: hidden; padding: 3px; }
+        .avatar-option img { width: 100%; height: 100%; object-fit: cover; border-radius: 6px; }
+        .avatar-option:hover { border-color: var(--acc2); transform: scale(1.05); }
+        .avatar-option.active { border-color: var(--gld); box-shadow: 0 0 20px #f0b42944; }
+        .top-avatar { width: 28px; height: 28px; border-radius: 50%; overflow: hidden; flex-shrink: 0; border: 1.5px solid var(--bd2); background: #190a35; display: flex; align-items: center; justify-content: center; }
+        .top-avatar img { width: 100%; height: 100%; object-fit: cover; }
+        .top-avatar .placeholder { font-size: 14px; color: var(--tx2); }
+        @media (max-width: 500px) { .top-avatar { width: 24px; height: 24px; } .top-avatar .placeholder { font-size: 11px; } }
 
-        /* ===== ЧАТ ===== */
-        .chat-container {
-            display: flex;
-            flex-direction: column;
-            height: 75vh;
-            max-height: 650px;
-            background: var(--bg3);
-            border-radius: var(--r);
-            border: 1px solid var(--bd);
-            overflow: hidden;
-        }
-        .chat-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 10px 14px;
-            background: var(--bg2);
-            border-bottom: 1px solid var(--bd);
-            flex-shrink: 0;
-            min-height: 50px;
-        }
-        .chat-header-left {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            min-width: 0;
-        }
-        .chat-header-left .chat-title {
-            font-size: 15px;
-            font-weight: 700;
-            color: var(--tx);
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        .chat-header-left .chat-title .sub {
-            font-size: 11px;
-            font-weight: 400;
-            color: var(--tx2);
-        }
-        .chat-header-right {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            flex-shrink: 0;
-        }
-        .chat-header-right .online-count {
-            font-size: 11px;
-            color: var(--grn);
-            font-weight: 600;
-        }
-        .chat-mode-toggle {
-            background: var(--bg4);
-            border: 1px solid var(--bd2);
-            border-radius: 12px;
-            padding: 4px 12px;
-            font-size: 11px;
-            color: var(--tx2);
-            cursor: pointer;
-            transition: .3s;
-            font-weight: 600;
-            min-height: 30px;
-        }
-        .chat-mode-toggle:active {
-            transform: scale(0.95);
-        }
-        .chat-mode-toggle:hover {
-            border-color: var(--acc2);
-            color: var(--tx);
-        }
-        .chat-mode-toggle.active {
-            border-color: var(--gld);
-            color: var(--gld);
-            background: rgba(240, 180, 41, 0.1);
-        }
+        .chat-container { display: flex; flex-direction: column; height: 75vh; max-height: 650px; background: var(--bg3); border-radius: var(--r); border: 1px solid var(--bd); overflow: hidden; }
+        .chat-header { display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; background: var(--bg2); border-bottom: 1px solid var(--bd); flex-shrink: 0; min-height: 50px; }
+        .chat-header-left { display: flex; align-items: center; gap: 10px; min-width: 0; }
+        .chat-header-left .chat-title { font-size: 15px; font-weight: 700; color: var(--tx); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .chat-header-left .chat-title .sub { font-size: 11px; font-weight: 400; color: var(--tx2); }
+        .chat-header-right { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+        .chat-header-right .online-count { font-size: 11px; color: var(--grn); font-weight: 600; }
+        .chat-mode-toggle { background: var(--bg4); border: 1px solid var(--bd2); border-radius: 12px; padding: 4px 12px; font-size: 11px; color: var(--tx2); cursor: pointer; transition: .3s; font-weight: 600; min-height: 30px; }
+        .chat-mode-toggle:active { transform: scale(0.95); }
+        .chat-mode-toggle:hover { border-color: var(--acc2); color: var(--tx); }
+        .chat-mode-toggle.active { border-color: var(--gld); color: var(--gld); background: rgba(240,180,41,0.1); }
 
-        .chat-search-container {
-            padding: 6px 10px;
-            background: var(--bg4);
-            border-bottom: 1px solid var(--bd);
-            flex-shrink: 0;
-            display: none;
-        }
-        .chat-search-container input {
-            width: 100%;
-            padding: 8px 12px;
-            border-radius: 20px;
-            border: 1px solid var(--bd2);
-            background: var(--bg3);
-            color: var(--tx);
-            font-size: 13px;
-            outline: none;
-        }
-        .chat-search-container input:focus {
-            border-color: var(--acc2);
-        }
-        .chat-search-container input::placeholder {
-            color: var(--tx2);
-        }
-        .chat-search-results {
-            position: absolute;
-            top: 46px;
-            left: 10px;
-            right: 10px;
-            background: var(--bg3);
-            border: 1px solid var(--bd2);
-            border-radius: var(--r2);
-            max-height: 140px;
-            overflow-y: auto;
-            z-index: 10;
-            display: none;
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6);
-        }
-        .chat-search-results .result-item {
-            padding: 8px 10px;
-            cursor: pointer;
-            border-bottom: 1px solid var(--bd);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            transition: .2s;
-        }
-        .chat-search-results .result-item:hover {
-            background: var(--bg4);
-        }
-        .chat-search-results .result-item .name {
-            font-size: 13px;
-            color: var(--tx);
-        }
-        .chat-search-results .result-item .user-id {
-            font-size: 10px;
-            color: var(--tx2);
-            margin-left: auto;
-        }
+        .chat-search-container { padding: 6px 10px; background: var(--bg4); border-bottom: 1px solid var(--bd); flex-shrink: 0; display: none; }
+        .chat-search-container input { width: 100%; padding: 8px 12px; border-radius: 20px; border: 1px solid var(--bd2); background: var(--bg3); color: var(--tx); font-size: 13px; outline: none; }
+        .chat-search-container input:focus { border-color: var(--acc2); }
+        .chat-search-container input::placeholder { color: var(--tx2); }
+        .chat-search-results { position: absolute; top: 46px; left: 10px; right: 10px; background: var(--bg3); border: 1px solid var(--bd2); border-radius: var(--r2); max-height: 140px; overflow-y: auto; z-index: 10; display: none; box-shadow: 0 8px 30px rgba(0,0,0,0.6); }
+        .chat-search-results .result-item { padding: 8px 10px; cursor: pointer; border-bottom: 1px solid var(--bd); display: flex; align-items: center; gap: 10px; transition: .2s; }
+        .chat-search-results .result-item:hover { background: var(--bg4); }
+        .chat-search-results .result-item .name { font-size: 13px; color: var(--tx); }
+        .chat-search-results .result-item .user-id { font-size: 10px; color: var(--tx2); margin-left: auto; }
 
-        .chat-messages-wrap {
-            display: flex;
-            flex-direction: column;
-            flex: 1;
-            min-height: 0;
-        }
+        .chat-messages-wrap { display: flex; flex-direction: column; flex: 1; min-height: 0; }
+        .chat-messages { flex: 1; overflow-y: auto; padding: 10px 8px; background: var(--bg4); display: flex; flex-direction: column; gap: 4px; scroll-behavior: smooth; -webkit-overflow-scrolling: touch; min-height: 0; }
+        .chat-messages .msg { max-width: 86%; padding: 8px 12px; border-radius: 12px; word-break: break-word; animation: msgAppear 0.2s ease-out; font-size: 14px; line-height: 1.5; flex-shrink: 0; }
+        .chat-messages .msg.own { align-self: flex-end; background: var(--acc); border-radius: 14px 4px 14px 14px; color: #fff; }
+        .chat-messages .msg.other { align-self: flex-start; background: var(--bg3); border-radius: 4px 14px 14px 14px; border: 1px solid var(--bd2); }
+        .chat-messages .msg .sender { font-size: 11px; color: var(--tx2); display: flex; align-items: center; gap: 6px; margin-bottom: 2px; flex-wrap: wrap; }
+        .chat-messages .msg.own .sender .name { color: #fff; font-weight: 600; }
+        .chat-messages .msg .sender .name { color: var(--gld); font-weight: 600; cursor: pointer; }
+        .chat-messages .msg .sender .name:hover { text-decoration: underline; }
+        .chat-messages .msg .text { font-size: 14px; margin-top: 2px; word-wrap: break-word; }
+        .chat-messages .msg .private-tag { font-size: 9px; color: var(--acc2); margin-left: 4px; }
+        .chat-messages .system-msg { text-align: center; font-size: 12px; color: var(--tx2); padding: 8px; font-style: italic; }
 
-        .chat-messages {
-            flex: 1;
-            overflow-y: auto;
-            padding: 10px 8px;
-            background: var(--bg4);
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-            scroll-behavior: smooth;
-            -webkit-overflow-scrolling: touch;
-            min-height: 0;
-        }
-        .chat-messages .msg {
-            max-width: 86%;
-            padding: 8px 12px;
-            border-radius: 12px;
-            word-break: break-word;
-            animation: msgAppear 0.2s ease-out;
-            font-size: 14px;
-            line-height: 1.5;
-            flex-shrink: 0;
-        }
-        .chat-messages .msg.own {
-            align-self: flex-end;
-            background: var(--acc);
-            border-radius: 14px 4px 14px 14px;
-            color: #fff;
-        }
-        .chat-messages .msg.other {
-            align-self: flex-start;
-            background: var(--bg3);
-            border-radius: 4px 14px 14px 14px;
-            border: 1px solid var(--bd2);
-        }
-        .chat-messages .msg .sender {
-            font-size: 11px;
-            color: var(--tx2);
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            margin-bottom: 2px;
-            flex-wrap: wrap;
-        }
-        .chat-messages .msg.own .sender .name {
-            color: #fff;
-            font-weight: 600;
-        }
-        .chat-messages .msg .sender .name {
-            color: var(--gld);
-            font-weight: 600;
-            cursor: pointer;
-        }
-        .chat-messages .msg .sender .name:hover {
-            text-decoration: underline;
-        }
-        .chat-messages .msg .text {
-            font-size: 14px;
-            margin-top: 2px;
-            word-wrap: break-word;
-        }
-        .chat-messages .msg .private-tag {
-            font-size: 9px;
-            color: var(--acc2);
-            margin-left: 4px;
-        }
-        .chat-messages .system-msg {
-            text-align: center;
-            font-size: 12px;
-            color: var(--tx2);
-            padding: 8px;
-            font-style: italic;
-        }
+        .chat-input-wrap { display: flex; gap: 8px; padding: 8px 10px; background: var(--bg2); border-top: 1px solid var(--bd); flex-shrink: 0; }
+        .chat-input-wrap input { flex: 1; min-width: 60px; height: 48px; margin: 0; padding: 10px 14px; font-size: 16px !important; border-radius: 25px !important; background: var(--bg3) !important; border: 1.5px solid var(--bd2) !important; color: var(--tx) !important; outline: none !important; -webkit-appearance: none !important; appearance: none !important; }
+        .chat-input-wrap input:focus { border-color: var(--acc2) !important; box-shadow: 0 0 0 3px rgba(124,58,237,0.2) !important; }
+        .chat-input-wrap input::placeholder { color: var(--tx2) !important; opacity: 0.7 !important; }
+        .chat-input-wrap input:disabled { opacity: 0.5 !important; cursor: not-allowed !important; }
+        .chat-input-wrap button { width: 48px !important; height: 48px !important; min-width: 48px !important; padding: 0 !important; border-radius: 50% !important; flex-shrink: 0 !important; display: flex !important; align-items: center !important; justify-content: center !important; background: linear-gradient(135deg, var(--acc), var(--acc2)) !important; box-shadow: 0 4px 16px rgba(124,58,237,0.3) !important; border: none !important; cursor: pointer !important; }
+        .chat-input-wrap button:active { transform: scale(0.9) !important; }
+        .chat-input-wrap button span { font-size: 22px !important; line-height: 1 !important; color: #fff !important; }
+        .chat-info { font-size: 11px; color: var(--tx2); padding: 4px 12px; text-align: center; background: var(--bg4); flex-shrink: 0; min-height: 28px; display: flex; align-items: center; justify-content: center; }
+        .chat-info .highlight { color: var(--gld); font-weight: 600; }
+        .chat-info .private-info { color: var(--acc2); font-weight: 500; }
 
-        .chat-input-wrap {
-            display: flex;
-            gap: 8px;
-            padding: 8px 10px;
-            background: var(--bg2);
-            border-top: 1px solid var(--bd);
-            flex-shrink: 0;
-        }
-        .chat-input-wrap input {
-            flex: 1;
-            min-width: 60px;
-            height: 48px;
-            margin: 0;
-            padding: 10px 14px;
-            font-size: 16px !important;
-            border-radius: 25px !important;
-            background: var(--bg3) !important;
-            border: 1.5px solid var(--bd2) !important;
-            color: var(--tx) !important;
-            outline: none !important;
-            -webkit-appearance: none !important;
-            appearance: none !important;
-        }
-        .chat-input-wrap input:focus {
-            border-color: var(--acc2) !important;
-            box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.2) !important;
-        }
-        .chat-input-wrap input::placeholder {
-            color: var(--tx2) !important;
-            opacity: 0.7 !important;
-        }
-        .chat-input-wrap input:disabled {
-            opacity: 0.5 !important;
-            cursor: not-allowed !important;
-        }
-        .chat-input-wrap button {
-            width: 48px !important;
-            height: 48px !important;
-            min-width: 48px !important;
-            padding: 0 !important;
-            border-radius: 50% !important;
-            flex-shrink: 0 !important;
-            display: flex !important;
-            align-items: center !important;
-            justify-content: center !important;
-            background: linear-gradient(135deg, var(--acc), var(--acc2)) !important;
-            box-shadow: 0 4px 16px rgba(124, 58, 237, 0.3) !important;
-            border: none !important;
-            cursor: pointer !important;
-        }
-        .chat-input-wrap button:active {
-            transform: scale(0.9) !important;
-        }
-        .chat-input-wrap button span {
-            font-size: 22px !important;
-            line-height: 1 !important;
-            color: #fff !important;
-        }
-        .chat-info {
-            font-size: 11px;
-            color: var(--tx2);
-            padding: 4px 12px;
-            text-align: center;
-            background: var(--bg4);
-            flex-shrink: 0;
-            min-height: 28px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .chat-info .highlight {
-            color: var(--gld);
-            font-weight: 600;
-        }
-        .chat-info .private-info {
-            color: var(--acc2);
-            font-weight: 500;
-        }
+        @media (max-width: 600px) { .chat-container { height: 80vh !important; max-height: none !important; border-radius: 0 !important; margin: -10px -10px 0 -10px; } .chat-header { padding: 8px 10px !important; min-height: 48px; } .chat-header-left .chat-title { font-size: 14px !important; } .chat-mode-toggle { padding: 3px 10px !important; font-size: 10px !important; min-height: 28px; } .chat-header-right .online-count { font-size: 10px !important; } .chat-messages { padding: 8px 6px !important; gap: 3px !important; min-height: 200px; } .chat-messages .msg { max-width: 90% !important; padding: 8px 12px !important; font-size: 14px !important; border-radius: 14px !important; } .chat-messages .msg .text { font-size: 14px !important; line-height: 1.5; } .chat-messages .msg .sender { font-size: 10px !important; gap: 4px !important; } .chat-messages .msg .sender .name { font-size: 11px !important; } .chat-input-wrap { padding: 6px 8px !important; gap: 6px !important; background: var(--bg2) !important; } .chat-input-wrap input { padding: 10px 14px !important; font-size: 16px !important; height: 48px !important; border-radius: 25px !important; } .chat-input-wrap button { width: 48px !important; height: 48px !important; min-width: 48px !important; } .chat-input-wrap button span { font-size: 22px !important; } .chat-search-container input { font-size: 13px !important; padding: 6px 12px !important; } .chat-search-results .result-item { padding: 6px 8px !important; } .chat-info { font-size: 10px !important; padding: 4px 8px !important; min-height: 28px !important; } }
+        @media (max-width: 380px) { .chat-input-wrap input { font-size: 14px !important; height: 42px !important; padding: 8px 12px !important; } .chat-input-wrap button { width: 42px !important; height: 42px !important; min-width: 42px !important; } .chat-input-wrap button span { font-size: 18px !important; } .chat-messages .msg { max-width: 94% !important; padding: 6px 10px !important; font-size: 13px !important; } }
 
-        @media (max-width: 600px) {
-            .chat-container {
-                height: 80vh !important;
-                max-height: none !important;
-                border-radius: 0 !important;
-                margin: -10px -10px 0 -10px;
-            }
-            .chat-header {
-                padding: 8px 10px !important;
-                min-height: 48px;
-            }
-            .chat-header-left .chat-title {
-                font-size: 14px !important;
-            }
-            .chat-mode-toggle {
-                padding: 3px 10px !important;
-                font-size: 10px !important;
-                min-height: 28px;
-            }
-            .chat-header-right .online-count {
-                font-size: 10px !important;
-            }
-            .chat-messages {
-                padding: 8px 6px !important;
-                gap: 3px !important;
-                min-height: 200px;
-            }
-            .chat-messages .msg {
-                max-width: 90% !important;
-                padding: 8px 12px !important;
-                font-size: 14px !important;
-                border-radius: 14px !important;
-            }
-            .chat-messages .msg .text {
-                font-size: 14px !important;
-                line-height: 1.5;
-            }
-            .chat-messages .msg .sender {
-                font-size: 10px !important;
-                gap: 4px !important;
-            }
-            .chat-messages .msg .sender .name {
-                font-size: 11px !important;
-            }
-            .chat-input-wrap {
-                padding: 6px 8px !important;
-                gap: 6px !important;
-                background: var(--bg2) !important;
-            }
-            .chat-input-wrap input {
-                padding: 10px 14px !important;
-                font-size: 16px !important;
-                height: 48px !important;
-                border-radius: 25px !important;
-            }
-            .chat-input-wrap button {
-                width: 48px !important;
-                height: 48px !important;
-                min-width: 48px !important;
-            }
-            .chat-input-wrap button span {
-                font-size: 22px !important;
-            }
-            .chat-search-container input {
-                font-size: 13px !important;
-                padding: 6px 12px !important;
-            }
-            .chat-search-results .result-item {
-                padding: 6px 8px !important;
-            }
-            .chat-info {
-                font-size: 10px !important;
-                padding: 4px 8px !important;
-                min-height: 28px !important;
-            }
-        }
+        .avatar-selector { position: fixed !important; top: 50% !important; left: 50% !important; transform: translate(-50%, -50%) !important; width: 90vw !important; max-width: 320px !important; max-height: 70vh !important; overflow-y: auto !important; z-index: 999 !important; padding: 16px !important; border-radius: 16px !important; }
+        .avatar-selector.show::before { content: '' !important; position: fixed !important; top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important; background: rgba(0,0,0,0.7) !important; z-index: -1 !important; }
+        @media (max-width: 700px) { .avatar-selector { top: 50% !important; left: 50% !important; transform: translate(-50%, -50%) !important; width: 85vw !important; max-width: 300px !important; padding: 12px !important; } .avatar-grid { grid-template-columns: repeat(3,1fr) !important; gap: 6px !important; } .avatar-option { padding: 3px !important; } }
 
-        @media (max-width: 380px) {
-            .chat-input-wrap input {
-                font-size: 14px !important;
-                height: 42px !important;
-                padding: 8px 12px !important;
-            }
-            .chat-input-wrap button {
-                width: 42px !important;
-                height: 42px !important;
-                min-width: 42px !important;
-            }
-            .chat-input-wrap button span {
-                font-size: 18px !important;
-            }
-            .chat-messages .msg {
-                max-width: 94% !important;
-                padding: 6px 10px !important;
-                font-size: 13px !important;
-            }
-        }
-        /* ===== ИСПРАВЛЕНИЕ ДЛЯ ВЫБОРА АВАТАРКИ ===== */
-.avatar-selector {
-    position: fixed !important;
-    top: 50% !important;
-    left: 50% !important;
-    transform: translate(-50%, -50%) !important;
-    width: 90vw !important;
-    max-width: 320px !important;
-    max-height: 70vh !important;
-    overflow-y: auto !important;
-    z-index: 999 !important;
-    padding: 16px !important;
-    border-radius: 16px !important;
-}
+        .auction-timer { font-size: 20px; font-weight: 700; color: var(--gld); text-align: center; padding: 8px 0; }
+        .auction-winner { font-size: 16px; font-weight: 600; color: var(--gold); text-align: center; padding: 8px 0; }
+        .auction-status { font-size: 13px; color: var(--tx2); text-align: center; padding: 4px 0; }
+        .auction-start-btn { background: linear-gradient(135deg, #b45309, #f0b429); color: #fff; border: none; padding: 10px 20px; border-radius: var(--r2); font-weight: 700; font-size: 14px; cursor: pointer; transition: .3s; }
+        .auction-start-btn:hover { transform: scale(1.05); box-shadow: 0 0 30px #f0b42944; }
+        .auction-start-btn:disabled { opacity: .5; cursor: not-allowed; transform: none !important; }
 
-/* Затемнение фона при открытии */
-.avatar-selector.show::before {
-    content: '' !important;
-    position: fixed !important;
-    top: 0 !important;
-    left: 0 !important;
-    right: 0 !important;
-    bottom: 0 !important;
-    background: rgba(0, 0, 0, 0.7) !important;
-    z-index: -1 !important;
-}
-
-/* Сетка на телефоне */
-@media (max-width: 700px) {
-    .avatar-selector {
-        top: 50% !important;
-        left: 50% !important;
-        transform: translate(-50%, -50%) !important;
-        width: 85vw !important;
-        max-width: 300px !important;
-        padding: 12px !important;
-    }
-    
-    .avatar-grid {
-        grid-template-columns: repeat(3, 1fr) !important;
-        gap: 6px !important;
-    }
-    
-    .avatar-option {
-        padding: 3px !important;
-    }
-}
-
-/* ===== СТИЛИ ДЛЯ АУКЦИОНА ===== */
-.auction-timer {
-    font-size: 20px;
-    font-weight: 700;
-    color: var(--gld);
-    text-align: center;
-    padding: 8px 0;
-}
-.auction-winner {
-    font-size: 16px;
-    font-weight: 600;
-    color: var(--gold);
-    text-align: center;
-    padding: 8px 0;
-}
-.auction-status {
-    font-size: 13px;
-    color: var(--tx2);
-    text-align: center;
-    padding: 4px 0;
-}
-.auction-start-btn {
-    background: linear-gradient(135deg, #b45309, #f0b429);
-    color: #fff;
-    border: none;
-    padding: 10px 20px;
-    border-radius: var(--r2);
-    font-weight: 700;
-    font-size: 14px;
-    cursor: pointer;
-    transition: .3s;
-}
-.auction-start-btn:hover {
-    transform: scale(1.05);
-    box-shadow: 0 0 30px #f0b42944;
-}
-.auction-start-btn:disabled {
-    opacity: .5;
-    cursor: not-allowed;
-    transform: none !important;
-}
-
-/* ===== СТИЛИ ДЛЯ АДМИН ПАНЕЛИ ===== */
-.admin-panel {
-    background: var(--bg4);
-    border: 1px solid #4c1d95;
-    border-radius: var(--r);
-    padding: 12px;
-    margin-top: 10px;
-    display: none;
-}
-.admin-panel .ct {
-    color: var(--acc2);
-}
-.admin-panel .inp {
-    background: var(--bg3);
-}
-.admin-panel .btn {
-    margin-top: 8px;
-}
+        .admin-panel { background: var(--bg4); border: 1px solid #4c1d95; border-radius: var(--r); padding: 12px; margin-top: 10px; display: none; }
+        .admin-panel .ct { color: var(--acc2); }
+        .admin-panel .inp { background: var(--bg3); }
+        .admin-panel .btn { margin-top: 8px; }
     </style>
 </head>
 <body>
@@ -2182,10 +686,7 @@
                                 💬 <span class="highlight">Общий чат</span> — все видят все сообщения
                             </div>
                             <div class="chat-input-wrap">
-                                <input id="chatInput" placeholder="Напишите сообщение..." 
-                                       autocomplete="off"
-                                       inputmode="text"
-                                       onkeydown="if(event.key==='Enter') sendMessage()">
+                                <input id="chatInput" placeholder="Напишите сообщение..." autocomplete="off" inputmode="text" onkeydown="if(event.key==='Enter') sendMessage()">
                                 <button class="btn bp" id="sendBtn" onclick="sendMessage()">
                                     <span>➤</span>
                                 </button>
@@ -2193,10 +694,8 @@
                         </div>
                     </div>
                 </div>
-
             </div>
 
-            <!-- НАВИГАЦИЯ -->
             <nav class="nav">
                 <button class="nb on" onclick="window.goSc('home')"><span>🏠</span>Главная</button>
                 <button class="nb" onclick="window.goSc('games')"><span>🎲</span>Игры</button>
@@ -2204,18 +703,14 @@
                 <button class="nb" onclick="window.goSc('shop')"><span>🛒</span>Магазин</button>
                 <button class="nb" onclick="window.goSc('top')"><span>🏆</span>Топ</button>
             </nav>
-
         </div>
-
     </div>
 
-    <!-- Баннер -->
     <div class="static-banner show" id="mainBanner" onclick="window.open('https://t.me/minercoinsf', '_blank')">
         <img id="staticBannerImg" src="https://i.ibb.co/hRSsFg5R/Chat-GPT-Image-19-2026-20-55-28.png" alt="CoinMine Баннер" onerror="this.style.display='none';this.parentElement.querySelector('.placeholder').style.display='flex'">
         <div class="placeholder" style="display:none;">⛏ CoinMine</div>
     </div>
 
-    <!-- Модалки -->
     <div class="mod-bg" id="M_conf">
         <div class="mod-box">
             <div class="mod-title" id="M_t">Подтверждение</div>
@@ -3386,632 +1881,567 @@
         }
 
         // ============================================================
-// 13. БОСС (ОБЩИЙ ДЛЯ ВСЕХ, НЕ БЕССМЕРТНЫЙ)
-// ============================================================
+        // 13. БОСС (ОБЩИЙ ДЛЯ ВСЕХ, НЕ БЕССМЕРТНЫЙ)
+        // ============================================================
 
-// Загрузка состояния босса
-async function loadBossState() {
-    try {
-        const { data, ok } = await sbFetch(`/rest/v1/boss_state?limit=1`);
-        if (ok && data && data.length > 0) {
-            const state = data[0];
-            BOSS_STATE = {
-                hp: state.hp || 1000,
-                lastKill: state.last_kill || 0,
-                currentBoss: state.current_boss || 'Рябчик'
-            };
-        } else {
-            // Создаем запись, если её нет
-            await sbFetch('/rest/v1/boss_state', {
-                method: 'POST',
-                body: {
-                    hp: 1000,
-                    last_kill: 0,
-                    current_boss: 'Рябчик',
-                    updated_at: new Date().toISOString()
+        // Загрузка состояния босса
+        async function loadBossState() {
+            try {
+                const { data, ok } = await sbFetch(`/rest/v1/boss_state?limit=1`);
+                if (ok && data && data.length > 0) {
+                    const state = data[0];
+                    BOSS_STATE = {
+                        hp: state.hp || 1000,
+                        lastKill: state.last_kill || 0,
+                        currentBoss: state.current_boss || 'Рябчик'
+                    };
+                } else {
+                    await sbFetch('/rest/v1/boss_state', {
+                        method: 'POST',
+                        body: {
+                            hp: 1000,
+                            last_kill: 0,
+                            current_boss: 'Рябчик',
+                            updated_at: new Date().toISOString()
+                        }
+                    });
+                    BOSS_STATE = { hp: 1000, lastKill: 0, currentBoss: 'Рябчик' };
                 }
-            });
-            BOSS_STATE = { hp: 1000, lastKill: 0, currentBoss: 'Рябчик' };
-        }
-        renderBoss();
-        return BOSS_STATE;
-    } catch (e) {
-        console.warn('⚠️ Ошибка загрузки босса:', e);
-        return null;
-    }
-}
-
-// Сохранение состояния босса
-async function saveBossState() {
-    try {
-        const { data, ok } = await sbFetch(`/rest/v1/boss_state?limit=1`);
-        if (ok && data && data.length > 0) {
-            await sbFetch(`/rest/v1/boss_state?id=eq.${data[0].id}`, {
-                method: 'PATCH',
-                body: {
-                    hp: BOSS_STATE.hp,
-                    last_kill: BOSS_STATE.lastKill,
-                    current_boss: BOSS_STATE.currentBoss,
-                    updated_at: new Date().toISOString()
-                }
-            });
-            return true;
-        }
-        return false;
-    } catch (e) {
-        console.warn('⚠️ Ошибка сохранения босса:', e);
-        return false;
-    }
-}
-
-// Атака босса (общая для всех)
-window.atkBoss = async function() {
-    if (G.coins < 20) {
-        window.toast('Нужно 20 монет', 'err');
-        return;
-    }
-
-    // Загружаем актуальное состояние
-    await loadBossState();
-
-    if (BOSS_STATE.hp <= 0) {
-        window.toast('Босс мёртв, ждите завтра 12:00', 'err');
-        return;
-    }
-
-    G.coins -= 20;
-    const dmg = Math.floor(Math.random() * 41) + 10;
-    BOSS_STATE.hp = Math.max(0, BOSS_STATE.hp - dmg);
-
-    let msg = '⚔️ Урон: ' + dmg;
-    if (Math.random() < .2) {
-        G.chests++;
-        msg += ' 🎁 Сундук!';
-    }
-
-    if (BOSS_STATE.hp <= 0) {
-        msg += ' 🎉 Рябчик повержён!';
-        G.chests += 3;
-        BOSS_STATE.lastKill = Date.now();
-
-        // Уведомление в чат для всех
-        await sbFetch('/rest/v1/messages', {
-            method: 'POST',
-            body: {
-                sender_id: 'system',
-                sender_name: 'Система',
-                sender_avatar: AVATAR_LIST[0],
-                message: `⚔️ Босс Рябчик повержён игроком ${G.name}! 🎉`,
-                is_private: false,
-                created_at: new Date().toISOString()
-            }
-        });
-        window.toast('🎉 Босс повержён! +3 сундука!', 'gld');
-    }
-
-    document.getElementById('ATK_l').textContent = msg;
-
-    // Сохраняем изменения
-    await saveBossState();
-    await saveUserData();
-    renderUI();
-    window.toast(msg, 'gld');
-};
-
-// Проверка возрождения босса (только на следующий день)
-async function checkBossRespawn() {
-    await loadBossState();
-
-    const now = Date.now();
-    const msk = new Date(now + 3 * 3600000);
-    const h = msk.getUTCHours();
-
-    // Босс активен с 12:00 до 18:00 МСК
-    const active = (h >= 12 && h < 18);
-
-    // ВОЗРОЖДАЕМ ТОЛЬКО ЕСЛИ:
-    // 1. Босс активен по времени (12:00-18:00)
-    // 2. HP босса <= 0 (мёртв)
-    // 3. Сегодня не тот же день, когда его убили
-    if (active && BOSS_STATE.hp <= 0) {
-        const today = msk.toISOString().slice(0, 10);
-        const killDay = new Date(BOSS_STATE.lastKill + 3 * 3600000).toISOString().slice(0, 10);
-        
-        if (today !== killDay) {
-            BOSS_STATE.hp = 1000;
-            await saveBossState();
-            
-            // Уведомление в чат для всех
-            await sbFetch('/rest/v1/messages', {
-                method: 'POST',
-                body: {
-                    sender_id: 'system',
-                    sender_name: 'Система',
-                    sender_avatar: AVATAR_LIST[0],
-                    message: `👹 Босс Рябчик возродился! Атакуйте!`,
-                    is_private: false,
-                    created_at: new Date().toISOString()
-                }
-            });
-            window.toast('👹 Босс Рябчик возродился!', 'gld');
-        }
-    }
-}
-
-// Обмен ключа на монеты
-window.exchangeKey = function() {
-    if (G.keys < 1) {
-        window.toast('❌ У вас нет ключей для обмена!', 'err');
-        return;
-    }
-    G.keys -= 1;
-    G.coins += 100;
-    scheduleSave();
-    renderUI();
-    window.toast('🔄 Обмен: -1 ключ, +100 монет!', 'gld');
-};
-
-// Открытие сундука
-window.openChest = function() {
-    if (G.chests <= 0) {
-        window.toast('Нет сундуков!', 'err');
-        return;
-    }
-    G.chests--;
-    const r = Math.random();
-    let rw;
-    if (r < .5) {
-        const a = Math.floor(Math.random() * 40) + 10;
-        G.coins += a;
-        rw = `+${a} монет`;
-    } else if (r < .8) {
-        const k = Math.floor(Math.random() * 3) + 1;
-        G.keys += k;
-        rw = `+${k} ключей`;
-    } else {
-        const sn = SHARDS_LIST[Math.floor(Math.random() * SHARDS_LIST.length)];
-        G.shards[sn] = (G.shards[sn] || 0) + 1;
-        rw = '✨ ' + sn;
-    }
-    scheduleSave();
-    renderUI();
-    window.toast('🎁 Сундук: ' + rw, 'gld');
-};
-
-// ============================================================
-// 14. АУКЦИОН (ГЛОБАЛЬНЫЙ - ВИДЕН ВСЕМ)
-// ============================================================
-
-// Загрузка состояния аукциона
-async function loadAuctionState() {
-    try {
-        const { data, ok } = await sbFetch(`/rest/v1/auction_state?limit=1`);
-        if (ok && data && data.length > 0) {
-            const state = data[0];
-            auctionData = {
-                active: state.active || false,
-                startTime: state.start_time || 0,
-                endTime: state.end_time || 0,
-                bids: state.bids || [],
-                winner: state.winner || null,
-                winnerBid: state.winner_bid || 0
-            };
-        } else {
-            // Создаем запись, если её нет
-            await sbFetch('/rest/v1/auction_state', {
-                method: 'POST',
-                body: {
-                    active: false,
-                    start_time: 0,
-                    end_time: 0,
-                    bids: [],
-                    winner: null,
-                    winner_bid: 0,
-                    updated_at: new Date().toISOString()
-                }
-            });
-            auctionData = {
-                active: false,
-                startTime: 0,
-                endTime: 0,
-                bids: [],
-                winner: null,
-                winnerBid: 0
-            };
-        }
-        updateAuctionUI();
-        
-        // Если аукцион активен и таймер не запущен - запускаем
-        if (auctionData.active && Date.now() < auctionData.endTime) {
-            if (!auctionTimerInterval) {
-                startAuctionTimer();
+                renderBoss();
+            } catch (e) {
+                console.warn('⚠️ Ошибка загрузки босса:', e);
             }
         }
-        return auctionData;
-    } catch (e) {
-        console.warn('⚠️ Ошибка загрузки состояния аукциона:', e);
-        return null;
-    }
-}
 
-// Сохранение состояния аукциона
-async function saveAuctionState() {
-    try {
-        const payload = {
-            active: auctionData.active,
-            start_time: auctionData.startTime,
-            end_time: auctionData.endTime,
-            bids: auctionData.bids,
-            winner: auctionData.winner,
-            winner_bid: auctionData.winnerBid,
-            updated_at: new Date().toISOString()
-        };
-
-        const { data, ok } = await sbFetch(`/rest/v1/auction_state?limit=1`);
-        if (ok && data && data.length > 0) {
-            await sbFetch(`/rest/v1/auction_state?id=eq.${data[0].id}`, {
-                method: 'PATCH',
-                body: payload
-            });
-            return true;
-        } else {
-            await sbFetch('/rest/v1/auction_state', {
-                method: 'POST',
-                body: payload
-            });
-            return true;
-        }
-    } catch (e) {
-        console.warn('⚠️ Ошибка сохранения состояния аукциона:', e);
-        return false;
-    }
-}
-
-// Периодическая проверка аукциона (для всех игроков)
-function startAuctionPolling() {
-    if (auctionPollInterval) clearInterval(auctionPollInterval);
-    auctionPollInterval = setInterval(async () => {
-        await loadAuctionState();
-        updateAuctionUI();
-    }, 3000);
-}
-
-// Обновление UI аукциона
-function updateAuctionUI() {
-    const statusEl = document.getElementById('auctionStatus');
-    const timerEl = document.getElementById('auctionTimer');
-    const winnerEl = document.getElementById('auctionWinner');
-    const bidAmountEl = document.getElementById('AU_a');
-    const leaderEl = document.getElementById('AU_l');
-    const myBidEl = document.getElementById('MY_b');
-
-    if (!statusEl) return;
-
-    const now = Date.now();
-
-    if (auctionData.active && now < auctionData.endTime) {
-        statusEl.textContent = '🟢 Аукцион активен!';
-        statusEl.style.color = 'var(--grn)';
-        winnerEl.textContent = '';
-
-        const timeLeft = auctionData.endTime - now;
-        const hours = Math.floor(timeLeft / 3600000);
-        const minutes = Math.floor((timeLeft % 3600000) / 60000);
-        const seconds = Math.floor((timeLeft % 60000) / 1000);
-        timerEl.textContent = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
-
-        const sortedBids = [...(auctionData.bids || [])].sort((a, b) => b.bid - a.bid);
-        if (sortedBids.length > 0) {
-            bidAmountEl.textContent = fmt(sortedBids[0].bid);
-            leaderEl.textContent = `Лидирует: ${sortedBids[0].name} (${fmt(sortedBids[0].bid)} 💰)`;
-        } else {
-            bidAmountEl.textContent = '0';
-            leaderEl.textContent = 'Ставок пока нет';
+        // Сохранение состояния босса
+        async function saveBossState() {
+            try {
+                const { data, ok } = await sbFetch(`/rest/v1/boss_state?limit=1`);
+                if (ok && data && data.length > 0) {
+                    await sbFetch(`/rest/v1/boss_state?id=eq.${data[0].id}`, {
+                        method: 'PATCH',
+                        body: {
+                            hp: BOSS_STATE.hp,
+                            last_kill: BOSS_STATE.lastKill,
+                            current_boss: BOSS_STATE.currentBoss,
+                            updated_at: new Date().toISOString()
+                        }
+                    });
+                }
+            } catch (e) {
+                console.warn('⚠️ Ошибка сохранения босса:', e);
+            }
         }
 
-        const myBid = (auctionData.bids || []).find(b => b.id === UID);
-        myBidEl.textContent = myBid ? fmt(myBid.bid) : '0';
+        // Атака босса (общая)
+        window.atkBoss = async function() {
+            if (G.coins < 20) {
+                window.toast('Нужно 20 монет', 'err');
+                return;
+            }
 
-        renderPodiumAuction();
+            await loadBossState();
 
-    } else if (auctionData.active && now >= auctionData.endTime) {
-        statusEl.textContent = '🔴 Аукцион завершён!';
-        statusEl.style.color = 'var(--red)';
-        timerEl.textContent = '00:00:00';
+            if (BOSS_STATE.hp <= 0) {
+                window.toast('Босс мёртв, ждите завтра 12:00', 'err');
+                return;
+            }
 
-        if (auctionData.winner) {
-            winnerEl.textContent = `🏆 Победитель: ${auctionData.winner} (${fmt(auctionData.winnerBid)} 💰)`;
-            winnerEl.style.color = 'var(--gold)';
-            bidAmountEl.textContent = fmt(auctionData.winnerBid);
-            leaderEl.textContent = `Победитель: ${auctionData.winner}`;
-        } else {
-            winnerEl.textContent = 'Победитель не определён';
-            bidAmountEl.textContent = '0';
-            leaderEl.textContent = 'Ставок нет';
-        }
+            G.coins -= 20;
+            const dmg = Math.floor(Math.random() * 41) + 10;
+            BOSS_STATE.hp = Math.max(0, BOSS_STATE.hp - dmg);
 
-        const myBid = (auctionData.bids || []).find(b => b.id === UID);
-        myBidEl.textContent = myBid ? fmt(myBid.bid) : '0';
+            let msg = '⚔️ Урон: ' + dmg;
+            if (Math.random() < .2) {
+                G.chests++;
+                msg += ' 🎁 Сундук!';
+            }
 
-        renderPodiumAuction();
+            if (BOSS_STATE.hp <= 0) {
+                msg += ' 🎉 Рябчик повержён!';
+                G.chests += 3;
+                BOSS_STATE.lastKill = Date.now();
 
-    } else {
-        statusEl.textContent = '⏳ Аукцион не запущен';
-        statusEl.style.color = 'var(--tx2)';
-        timerEl.textContent = '--:--:--';
-        winnerEl.textContent = '';
-        bidAmountEl.textContent = '0';
-        leaderEl.textContent = 'Ставок пока нет';
-        myBidEl.textContent = '0';
-        document.getElementById('podiumList').innerHTML =
-            '<div class="tm tc" style="padding:12px;">Пока нет ставок</div>';
-    }
-
-    // Показываем кнопки админа если он уже есть
-    if (isAdmin) {
-        document.getElementById('auctionStartContainer').style.display = 'block';
-        document.getElementById('auctionCodeContainer').style.display = 'none';
-        document.getElementById('adminPanel').style.display = 'block';
-        document.getElementById('shopCodeContainer').style.display = 'none';
-    } else {
-        document.getElementById('auctionStartContainer').style.display = 'none';
-        document.getElementById('auctionCodeContainer').style.display = 'block';
-        document.getElementById('adminPanel').style.display = 'none';
-        document.getElementById('shopCodeContainer').style.display = 'block';
-    }
-}
-
-// Рендер подиума для аукциона
-function renderPodiumAuction() {
-    const podiumEl = document.getElementById('podiumList');
-    if (!podiumEl) return;
-
-    const sorted = [...(auctionData.bids || [])].sort((a, b) => b.bid - a.bid);
-    if (sorted.length === 0) {
-        podiumEl.innerHTML = `<div class="tm tc" style="padding:12px;">Пока нет ставок</div>`;
-        return;
-    }
-
-    const top3 = sorted.slice(0, 3);
-    const medals = ['🥇', '🥈', '🥉'];
-    podiumEl.innerHTML = top3.map((bidder, index) => {
-        const isMe = bidder.id === UID;
-        return `<div class="row" style="justify-content:space-between;padding:8px 0;${isMe ? 'background:var(--bg5);border-radius:6px;' : ''}">
-            <span>${medals[index]} ${bidder.name} ${isMe ? '👈' : ''}</span>
-            <span style="color:var(--gld);font-weight:700;">${fmt(bidder.bid)} 💰</span>
-        </div>`;
-    }).join('');
-    if (sorted.length > 3) {
-        podiumEl.innerHTML += `<div class="tm tc" style="padding:4px;">+ ещё ${sorted.length - 3} участников</div>`;
-    }
-}
-
-// Проверка кода администратора для аукциона
-window.checkAuctionCode = function() {
-    const code = prompt('Введите код администратора для запуска аукциона:');
-    if (code === 'denchik9995066943') {
-        isAdmin = true;
-        sessionStorage.setItem('coinmine_admin', 'true');
-        window.toast('🔐 Админ-доступ активирован! Теперь вы можете запустить аукцион.', 'ok');
-        document.getElementById('adminPanel').style.display = 'block';
-        document.getElementById('shopCodeContainer').style.display = 'none';
-        document.getElementById('auctionStartContainer').style.display = 'block';
-        document.getElementById('auctionCodeContainer').style.display = 'none';
-        updateAuctionUI();
-    } else if (code !== null) {
-        window.toast('❌ Неверный код!', 'err');
-    }
-};
-
-// Проверка кода в магазине
-window.checkAdminCode = function() {
-    const code = prompt('Введите код администратора:');
-    if (code === 'denchik9995066943') {
-        isAdmin = true;
-        sessionStorage.setItem('coinmine_admin', 'true');
-        window.toast('🔐 Админ-доступ активирован!', 'ok');
-        document.getElementById('adminPanel').style.display = 'block';
-        document.getElementById('shopCodeContainer').style.display = 'none';
-        document.getElementById('auctionStartContainer').style.display = 'block';
-        document.getElementById('auctionCodeContainer').style.display = 'none';
-        updateAuctionUI();
-    } else if (code !== null) {
-        window.toast('❌ Неверный код!', 'err');
-    }
-};
-
-// Запуск аукциона (только для админа, глобально для всех)
-window.startAuction = async function() {
-    if (!isAdmin) {
-        window.toast('⚠️ Только администратор может запустить аукцион!', 'err');
-        document.getElementById('auctionCodeContainer').style.display = 'block';
-        return;
-    }
-
-    if (auctionData.active) {
-        window.toast('Аукцион уже запущен!', 'err');
-        return;
-    }
-
-    if (!confirm('Запустить аукцион на 24 часа?')) return;
-
-    const now = Date.now();
-    auctionData.active = true;
-    auctionData.startTime = now;
-    auctionData.endTime = now + 24 * 60 * 60 * 1000;
-    auctionData.bids = [];
-    auctionData.winner = null;
-    auctionData.winnerBid = 0;
-
-    await saveAuctionState();
-    updateAuctionUI();
-    startAuctionTimer();
-
-    // Уведомление в чат для всех игроков
-    await sbFetch('/rest/v1/messages', {
-        method: 'POST',
-        body: {
-            sender_id: 'system',
-            sender_name: 'Система',
-            sender_avatar: AVATAR_LIST[0],
-            message: `🏛 АУКЦИОН ЗАПУЩЕН! Делайте ставки в разделе "Игры"! (24 часа)`,
-            is_private: false,
-            created_at: new Date().toISOString()
-        }
-    });
-
-    window.toast('🚀 Аукцион запущен на 24 часа!', 'gld');
-};
-
-// Таймер обратного отсчёта
-function startAuctionTimer() {
-    if (auctionTimerInterval) clearInterval(auctionTimerInterval);
-    auctionTimerInterval = setInterval(async () => {
-        if (!auctionData.active) {
-            clearInterval(auctionTimerInterval);
-            return;
-        }
-        updateAuctionUI();
-        if (Date.now() >= auctionData.endTime) {
-            clearInterval(auctionTimerInterval);
-            await finishAuction();
-        }
-    }, 1000);
-}
-
-// Завершение аукциона
-async function finishAuction() {
-    if (!auctionData.active) return;
-
-    const sorted = [...(auctionData.bids || [])].sort((a, b) => b.bid - a.bid);
-    if (sorted.length > 0) {
-        auctionData.winner = sorted[0].name;
-        auctionData.winnerBid = sorted[0].bid;
-
-        // Награждаем победителя
-        try {
-            const { data: users } = await sbFetch(
-                `/rest/v1/users?data->>name=eq.${encodeURIComponent(auctionData.winner)}&select=id,data`
-            );
-            if (users && users.length > 0) {
-                const winner = users[0];
-                const currentCoins = winner.data?.coins || 0;
-                const prize = Math.floor(auctionData.winnerBid * 0.7);
-                await sbFetch(`/rest/v1/users?id=eq.${winner.id}`, {
-                    method: 'PATCH',
-                    body: { data: { ...winner.data, coins: currentCoins + prize } }
-                });
-
-                // Уведомление в чат
                 await sbFetch('/rest/v1/messages', {
                     method: 'POST',
                     body: {
                         sender_id: 'system',
                         sender_name: 'Система',
                         sender_avatar: AVATAR_LIST[0],
-                        message: `🏆 Победитель аукциона: ${auctionData.winner} с суммой ${fmt(auctionData.winnerBid)}💰! Награда ${fmt(prize)} монет!`,
+                        message: `⚔️ Босс Рябчик повержён игроком ${G.name}! 🎉`,
                         is_private: false,
                         created_at: new Date().toISOString()
                     }
                 });
-
-                window.toast(`🏆 Победитель ${auctionData.winner} получил ${fmt(prize)} монет!`, 'gld');
+                window.toast('🎉 Босс повержён! +3 сундука!', 'gld');
             }
-        } catch (e) {
-            console.warn('⚠️ Ошибка награждения победителя:', e);
+
+            document.getElementById('ATK_l').textContent = msg;
+
+            await saveBossState();
+            await saveUserData();
+            renderUI();
+            window.toast(msg, 'gld');
+        };
+
+        // Проверка возрождения босса (только на следующий день)
+        async function checkBossRespawn() {
+            await loadBossState();
+
+            const now = Date.now();
+            const msk = new Date(now + 3 * 3600000);
+            const h = msk.getUTCHours();
+
+            const active = (h >= 12 && h < 18);
+
+            if (active && BOSS_STATE.hp <= 0) {
+                const today = msk.toISOString().slice(0, 10);
+                const killDay = new Date(BOSS_STATE.lastKill + 3 * 3600000).toISOString().slice(0, 10);
+                
+                if (today !== killDay) {
+                    BOSS_STATE.hp = 1000;
+                    await saveBossState();
+                    
+                    await sbFetch('/rest/v1/messages', {
+                        method: 'POST',
+                        body: {
+                            sender_id: 'system',
+                            sender_name: 'Система',
+                            sender_avatar: AVATAR_LIST[0],
+                            message: `👹 Босс Рябчик возродился! Атакуйте!`,
+                            is_private: false,
+                            created_at: new Date().toISOString()
+                        }
+                    });
+                    window.toast('👹 Босс Рябчик возродился!', 'gld');
+                }
+            }
         }
-    } else {
-        auctionData.winner = null;
-        auctionData.winnerBid = 0;
-    }
 
-    auctionData.active = false;
-    await saveAuctionState();
-    updateAuctionUI();
-    window.toast('🏁 Аукцион завершён!', 'info');
-}
+        // Обмен ключа на монеты
+        window.exchangeKey = function() {
+            if (G.keys < 1) {
+                window.toast('❌ У вас нет ключей для обмена!', 'err');
+                return;
+            }
+            G.keys -= 1;
+            G.coins += 100;
+            scheduleSave();
+            renderUI();
+            window.toast('🔄 Обмен: -1 ключ, +100 монет!', 'gld');
+        };
 
-// Ставка в аукционе
-window.bid = async function(amount) {
-    // Сначала загружаем актуальное состояние
-    await loadAuctionState();
-    
-    if (!auctionData.active) {
-        window.toast('Аукцион не активен!', 'err');
-        return;
-    }
-    if (Date.now() >= auctionData.endTime) {
-        window.toast('Аукцион завершён!', 'err');
-        return;
-    }
-    if (G.coins < amount) {
-        window.toast('Недостаточно монет!', 'err');
-        return;
-    }
+        // Открытие сундука
+        window.openChest = function() {
+            if (G.chests <= 0) {
+                window.toast('Нет сундуков!', 'err');
+                return;
+            }
+            G.chests--;
+            const r = Math.random();
+            let rw;
+            if (r < .5) {
+                const a = Math.floor(Math.random() * 40) + 10;
+                G.coins += a;
+                rw = `+${a} монет`;
+            } else if (r < .8) {
+                const k = Math.floor(Math.random() * 3) + 1;
+                G.keys += k;
+                rw = `+${k} ключей`;
+            } else {
+                const sn = SHARDS_LIST[Math.floor(Math.random() * SHARDS_LIST.length)];
+                G.shards[sn] = (G.shards[sn] || 0) + 1;
+                rw = '✨ ' + sn;
+            }
+            scheduleSave();
+            renderUI();
+            window.toast('🎁 Сундук: ' + rw, 'gld');
+        };
 
-    G.coins -= amount;
+        // ============================================================
+        // 14. АУКЦИОН (ГЛОБАЛЬНЫЙ - ВИДЕН ВСЕМ)
+        // ============================================================
 
-    const existing = auctionData.bids.find(b => b.id === UID);
-    if (existing) {
-        existing.bid += amount;
-    } else {
-        auctionData.bids.push({
-            id: UID,
-            name: G.name,
-            bid: amount
-        });
-    }
+        // Загрузка состояния аукциона
+        async function loadAuctionState() {
+            try {
+                const { data, ok } = await sbFetch(`/rest/v1/auction_state?limit=1`);
+                if (ok && data && data.length > 0) {
+                    const state = data[0];
+                    auctionData = {
+                        active: state.active || false,
+                        startTime: state.start_time || 0,
+                        endTime: state.end_time || 0,
+                        bids: state.bids || [],
+                        winner: state.winner || null,
+                        winnerBid: state.winner_bid || 0
+                    };
+                } else {
+                    await sbFetch('/rest/v1/auction_state', {
+                        method: 'POST',
+                        body: {
+                            active: false,
+                            start_time: 0,
+                            end_time: 0,
+                            bids: [],
+                            winner: null,
+                            winner_bid: 0,
+                            updated_at: new Date().toISOString()
+                        }
+                    });
+                    auctionData = {
+                        active: false,
+                        startTime: 0,
+                        endTime: 0,
+                        bids: [],
+                        winner: null,
+                        winnerBid: 0
+                    };
+                }
+                updateAuctionUI();
+                
+                // Если аукцион активен и таймер не запущен - запускаем
+                if (auctionData.active && Date.now() < auctionData.endTime) {
+                    if (!auctionTimerInterval) {
+                        startAuctionTimer();
+                    }
+                }
+            } catch (e) {
+                console.warn('⚠️ Ошибка загрузки состояния аукциона:', e);
+            }
+        }
 
-    await saveAuctionState();
-    await loadAuctionState();
-    await saveUserData();
-    renderUI();
-    window.toast(`💰 Ставка +${fmt(amount)} монет!`, 'gld');
-};
+        // Сохранение состояния аукциона
+        async function saveAuctionState() {
+            try {
+                const payload = {
+                    active: auctionData.active,
+                    start_time: auctionData.startTime,
+                    end_time: auctionData.endTime,
+                    bids: auctionData.bids,
+                    winner: auctionData.winner,
+                    winner_bid: auctionData.winnerBid,
+                    updated_at: new Date().toISOString()
+                };
 
-// ============================================================
-// ФУНКЦИЯ ДЛЯ РЕНДЕРА БОССА
-// ============================================================
+                const { data, ok } = await sbFetch(`/rest/v1/auction_state?limit=1`);
+                if (ok && data && data.length > 0) {
+                    await sbFetch(`/rest/v1/auction_state?id=eq.${data[0].id}`, {
+                        method: 'PATCH',
+                        body: payload
+                    });
+                } else {
+                    await sbFetch('/rest/v1/auction_state', {
+                        method: 'POST',
+                        body: payload
+                    });
+                }
+            } catch (e) {
+                console.warn('⚠️ Ошибка сохранения состояния аукциона:', e);
+            }
+        }
 
-function renderBoss() {
-    const now = Date.now();
-    const msk = new Date(now + 3 * 3600000);
-    const h = msk.getUTCHours();
+        // Периодическая проверка аукциона (для всех игроков)
+        function startAuctionPolling() {
+            if (auctionPollInterval) clearInterval(auctionPollInterval);
+            auctionPollInterval = setInterval(async () => {
+                await loadAuctionState();
+                updateAuctionUI();
+            }, 3000);
+        }
 
-    const active = (h >= 12 && h < 18);
+        // Обновление UI аукциона
+        function updateAuctionUI() {
+            const statusEl = document.getElementById('auctionStatus');
+            const timerEl = document.getElementById('auctionTimer');
+            const winnerEl = document.getElementById('auctionWinner');
+            const bidAmountEl = document.getElementById('AU_a');
+            const leaderEl = document.getElementById('AU_l');
+            const myBidEl = document.getElementById('MY_b');
 
-    const hp = BOSS_STATE.hp || 0;
-    const maxHp = 1000;
-    const pct = Math.max(0, Math.round(hp / maxHp * 100));
-    
-    const hpEl = document.getElementById('BS_h');
-    if (hpEl) hpEl.style.width = pct + '%';
-    
-    const htEl = document.getElementById('BS_ht');
-    if (htEl) htEl.textContent = fmt(hp) + ' / ' + maxHp + ' ХП';
+            if (!statusEl) return;
 
-    const atkBtn = document.getElementById('ATK_btn');
-    const statusEl = document.getElementById('BS_s');
-    const rsEl = document.getElementById('BS_rs');
+            const now = Date.now();
 
-    if (active && hp > 0) {
-        if (statusEl) statusEl.textContent = '⚔️ Активен! Атакуйте!';
-        if (rsEl) rsEl.textContent = 'Исчезнет в 18:00 МСК';
-        if (atkBtn) atkBtn.disabled = false;
-    } else if (active && hp <= 0) {
-        if (statusEl) statusEl.textContent = '💀 Повержён! Ждите завтра 12:00.';
-        if (rsEl) rsEl.textContent = 'Следующий в 12:00 МСК';
-        if (atkBtn) atkBtn.disabled = true;
-    } else {
-        const next12 = new Date(msk);
-        next12.setUTCHours(12, 0, 0, 0);
-        if (h >= 18) next12.setUTCDate(next12.getUTCDate() + 1);
-        const rem = next12 - msk;
-        if (statusEl) statusEl.textContent = 'Появится в 12:00 МСК';
-        if (rsEl) rsEl.textContent = `Через ${Math.floor(rem/3600000)}ч ${Math.floor((rem%3600000)/60000)}м`;
-        if (atkBtn) atkBtn.disabled = true;
-    }
-}
+            if (auctionData.active && now < auctionData.endTime) {
+                statusEl.textContent = '🟢 Аукцион активен!';
+                statusEl.style.color = 'var(--grn)';
+                winnerEl.textContent = '';
+
+                const timeLeft = auctionData.endTime - now;
+                const hours = Math.floor(timeLeft / 3600000);
+                const minutes = Math.floor((timeLeft % 3600000) / 60000);
+                const seconds = Math.floor((timeLeft % 60000) / 1000);
+                timerEl.textContent = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+
+                const sortedBids = [...(auctionData.bids || [])].sort((a, b) => b.bid - a.bid);
+                if (sortedBids.length > 0) {
+                    bidAmountEl.textContent = fmt(sortedBids[0].bid);
+                    leaderEl.textContent = `Лидирует: ${sortedBids[0].name} (${fmt(sortedBids[0].bid)} 💰)`;
+                } else {
+                    bidAmountEl.textContent = '0';
+                    leaderEl.textContent = 'Ставок пока нет';
+                }
+
+                const myBid = (auctionData.bids || []).find(b => b.id === UID);
+                myBidEl.textContent = myBid ? fmt(myBid.bid) : '0';
+
+                renderPodiumAuction();
+
+            } else if (auctionData.active && now >= auctionData.endTime) {
+                statusEl.textContent = '🔴 Аукцион завершён!';
+                statusEl.style.color = 'var(--red)';
+                timerEl.textContent = '00:00:00';
+
+                if (auctionData.winner) {
+                    winnerEl.textContent = `🏆 Победитель: ${auctionData.winner} (${fmt(auctionData.winnerBid)} 💰)`;
+                    winnerEl.style.color = 'var(--gold)';
+                    bidAmountEl.textContent = fmt(auctionData.winnerBid);
+                    leaderEl.textContent = `Победитель: ${auctionData.winner}`;
+                } else {
+                    winnerEl.textContent = 'Победитель не определён';
+                    bidAmountEl.textContent = '0';
+                    leaderEl.textContent = 'Ставок нет';
+                }
+
+                const myBid = (auctionData.bids || []).find(b => b.id === UID);
+                myBidEl.textContent = myBid ? fmt(myBid.bid) : '0';
+
+                renderPodiumAuction();
+
+            } else {
+                statusEl.textContent = '⏳ Аукцион не запущен';
+                statusEl.style.color = 'var(--tx2)';
+                timerEl.textContent = '--:--:--';
+                winnerEl.textContent = '';
+                bidAmountEl.textContent = '0';
+                leaderEl.textContent = 'Ставок пока нет';
+                myBidEl.textContent = '0';
+                document.getElementById('podiumList').innerHTML =
+                    '<div class="tm tc" style="padding:12px;">Пока нет ставок</div>';
+            }
+
+            // Показываем кнопки админа если он уже есть
+            if (isAdmin) {
+                document.getElementById('auctionStartContainer').style.display = 'block';
+                document.getElementById('auctionCodeContainer').style.display = 'none';
+                document.getElementById('adminPanel').style.display = 'block';
+                document.getElementById('shopCodeContainer').style.display = 'none';
+            } else {
+                document.getElementById('auctionStartContainer').style.display = 'none';
+                document.getElementById('auctionCodeContainer').style.display = 'block';
+                document.getElementById('adminPanel').style.display = 'none';
+                document.getElementById('shopCodeContainer').style.display = 'block';
+            }
+        }
+
+        // Рендер подиума для аукциона
+        function renderPodiumAuction() {
+            const podiumEl = document.getElementById('podiumList');
+            if (!podiumEl) return;
+
+            const sorted = [...(auctionData.bids || [])].sort((a, b) => b.bid - a.bid);
+            if (sorted.length === 0) {
+                podiumEl.innerHTML = `<div class="tm tc" style="padding:12px;">Пока нет ставок</div>`;
+                return;
+            }
+
+            const top3 = sorted.slice(0, 3);
+            const medals = ['🥇', '🥈', '🥉'];
+            podiumEl.innerHTML = top3.map((bidder, index) => {
+                const isMe = bidder.id === UID;
+                return `<div class="row" style="justify-content:space-between;padding:8px 0;${isMe ? 'background:var(--bg5);border-radius:6px;' : ''}">
+                    <span>${medals[index]} ${bidder.name} ${isMe ? '👈' : ''}</span>
+                    <span style="color:var(--gld);font-weight:700;">${fmt(bidder.bid)} 💰</span>
+                </div>`;
+            }).join('');
+            if (sorted.length > 3) {
+                podiumEl.innerHTML += `<div class="tm tc" style="padding:4px;">+ ещё ${sorted.length - 3} участников</div>`;
+            }
+        }
+
+        // Проверка кода администратора для аукциона
+        window.checkAuctionCode = function() {
+            const code = prompt('Введите код администратора для запуска аукциона:');
+            if (code === 'denchik9995066943') {
+                isAdmin = true;
+                sessionStorage.setItem('coinmine_admin', 'true');
+                window.toast('🔐 Админ-доступ активирован! Теперь вы можете запустить аукцион.', 'ok');
+                document.getElementById('adminPanel').style.display = 'block';
+                document.getElementById('shopCodeContainer').style.display = 'none';
+                document.getElementById('auctionStartContainer').style.display = 'block';
+                document.getElementById('auctionCodeContainer').style.display = 'none';
+                updateAuctionUI();
+            } else if (code !== null) {
+                window.toast('❌ Неверный код!', 'err');
+            }
+        };
+
+        // Проверка кода в магазине
+        window.checkAdminCode = function() {
+            const code = prompt('Введите код администратора:');
+            if (code === 'denchik9995066943') {
+                isAdmin = true;
+                sessionStorage.setItem('coinmine_admin', 'true');
+                window.toast('🔐 Админ-доступ активирован!', 'ok');
+                document.getElementById('adminPanel').style.display = 'block';
+                document.getElementById('shopCodeContainer').style.display = 'none';
+                document.getElementById('auctionStartContainer').style.display = 'block';
+                document.getElementById('auctionCodeContainer').style.display = 'none';
+                updateAuctionUI();
+            } else if (code !== null) {
+                window.toast('❌ Неверный код!', 'err');
+            }
+        };
+
+        // Запуск аукциона (только для админа, глобально для всех)
+        window.startAuction = async function() {
+            if (!isAdmin) {
+                window.toast('⚠️ Только администратор может запустить аукцион!', 'err');
+                document.getElementById('auctionCodeContainer').style.display = 'block';
+                return;
+            }
+
+            if (auctionData.active) {
+                window.toast('Аукцион уже запущен!', 'err');
+                return;
+            }
+
+            if (!confirm('Запустить аукцион на 24 часа?')) return;
+
+            const now = Date.now();
+            auctionData.active = true;
+            auctionData.startTime = now;
+            auctionData.endTime = now + 24 * 60 * 60 * 1000;
+            auctionData.bids = [];
+            auctionData.winner = null;
+            auctionData.winnerBid = 0;
+
+            await saveAuctionState();
+            updateAuctionUI();
+            startAuctionTimer();
+
+            // Уведомление в чат для всех игроков
+            await sbFetch('/rest/v1/messages', {
+                method: 'POST',
+                body: {
+                    sender_id: 'system',
+                    sender_name: 'Система',
+                    sender_avatar: AVATAR_LIST[0],
+                    message: `🏛 АУКЦИОН ЗАПУЩЕН! Делайте ставки в разделе "Игры"! (24 часа)`,
+                    is_private: false,
+                    created_at: new Date().toISOString()
+                }
+            });
+
+            window.toast('🚀 Аукцион запущен на 24 часа!', 'gld');
+        };
+
+        // Таймер обратного отсчёта
+        function startAuctionTimer() {
+            if (auctionTimerInterval) clearInterval(auctionTimerInterval);
+            auctionTimerInterval = setInterval(async () => {
+                if (!auctionData.active) {
+                    clearInterval(auctionTimerInterval);
+                    return;
+                }
+                updateAuctionUI();
+                if (Date.now() >= auctionData.endTime) {
+                    clearInterval(auctionTimerInterval);
+                    await finishAuction();
+                }
+            }, 1000);
+        }
+
+        // Завершение аукциона
+        async function finishAuction() {
+            if (!auctionData.active) return;
+
+            const sorted = [...(auctionData.bids || [])].sort((a, b) => b.bid - a.bid);
+            if (sorted.length > 0) {
+                auctionData.winner = sorted[0].name;
+                auctionData.winnerBid = sorted[0].bid;
+
+                // Награждаем победителя
+                try {
+                    const { data: users } = await sbFetch(
+                        `/rest/v1/users?data->>name=eq.${encodeURIComponent(auctionData.winner)}&select=id,data`
+                    );
+                    if (users && users.length > 0) {
+                        const winner = users[0];
+                        const currentCoins = winner.data?.coins || 0;
+                        const prize = Math.floor(auctionData.winnerBid * 0.7);
+                        await sbFetch(`/rest/v1/users?id=eq.${winner.id}`, {
+                            method: 'PATCH',
+                            body: { data: { ...winner.data, coins: currentCoins + prize } }
+                        });
+
+                        // Уведомление в чат
+                        await sbFetch('/rest/v1/messages', {
+                            method: 'POST',
+                            body: {
+                                sender_id: 'system',
+                                sender_name: 'Система',
+                                sender_avatar: AVATAR_LIST[0],
+                                message: `🏆 Победитель аукциона: ${auctionData.winner} с суммой ${fmt(auctionData.winnerBid)}💰! Награда ${fmt(prize)} монет!`,
+                                is_private: false,
+                                created_at: new Date().toISOString()
+                            }
+                        });
+
+                        window.toast(`🏆 Победитель ${auctionData.winner} получил ${fmt(prize)} монет!`, 'gld');
+                    }
+                } catch (e) {
+                    console.warn('⚠️ Ошибка награждения победителя:', e);
+                }
+            } else {
+                auctionData.winner = null;
+                auctionData.winnerBid = 0;
+            }
+
+            auctionData.active = false;
+            await saveAuctionState();
+            updateAuctionUI();
+            window.toast('🏁 Аукцион завершён!', 'info');
+        }
+
+        // Ставка в аукционе
+        window.bid = async function(amount) {
+            // Сначала загружаем актуальное состояние
+            await loadAuctionState();
+            
+            if (!auctionData.active) {
+                window.toast('Аукцион не активен!', 'err');
+                return;
+            }
+            if (Date.now() >= auctionData.endTime) {
+                window.toast('Аукцион завершён!', 'err');
+                return;
+            }
+            if (G.coins < amount) {
+                window.toast('Недостаточно монет!', 'err');
+                return;
+            }
+
+            G.coins -= amount;
+
+            const existing = auctionData.bids.find(b => b.id === UID);
+            if (existing) {
+                existing.bid += amount;
+            } else {
+                auctionData.bids.push({
+                    id: UID,
+                    name: G.name,
+                    bid: amount
+                });
+            }
+
+            await saveAuctionState();
+            await loadAuctionState();
+            await saveUserData();
+            renderUI();
+            window.toast(`💰 Ставка +${fmt(amount)} монет!`, 'gld');
+        };
 
         // ============================================================
         // 15. МАГАЗИН
@@ -4163,29 +2593,35 @@ function renderBoss() {
 
             const active = (h >= 12 && h < 18);
 
-            const pct = Math.max(0, Math.round(BOSS_STATE.hp / 1000 * 100));
+            const hp = BOSS_STATE.hp || 0;
+            const maxHp = 1000;
+            const pct = Math.max(0, Math.round(hp / maxHp * 100));
+            
             const hpEl = document.getElementById('BS_h');
             if (hpEl) hpEl.style.width = pct + '%';
+            
             const htEl = document.getElementById('BS_ht');
-            if (htEl) htEl.textContent = fmt(BOSS_STATE.hp) + ' / 1000 ХП';
+            if (htEl) htEl.textContent = fmt(hp) + ' / ' + maxHp + ' ХП';
 
             const atkBtn = document.getElementById('ATK_btn');
-            if (active && BOSS_STATE.hp > 0) {
-                document.getElementById('BS_s').textContent = '⚔️ Активен! Атакуйте!';
-                document.getElementById('BS_rs').textContent = 'Исчезнет в 18:00 МСК';
+            const statusEl = document.getElementById('BS_s');
+            const rsEl = document.getElementById('BS_rs');
+
+            if (active && hp > 0) {
+                if (statusEl) statusEl.textContent = '⚔️ Активен! Атакуйте!';
+                if (rsEl) rsEl.textContent = 'Исчезнет в 18:00 МСК';
                 if (atkBtn) atkBtn.disabled = false;
-            } else if (active && BOSS_STATE.hp <= 0) {
-                document.getElementById('BS_s').textContent = '💀 Повержён! Ждите завтра 12:00.';
-                document.getElementById('BS_rs').textContent = 'Следующий в 12:00 МСК';
+            } else if (active && hp <= 0) {
+                if (statusEl) statusEl.textContent = '💀 Повержён! Ждите завтра 12:00.';
+                if (rsEl) rsEl.textContent = 'Следующий в 12:00 МСК';
                 if (atkBtn) atkBtn.disabled = true;
             } else {
                 const next12 = new Date(msk);
                 next12.setUTCHours(12, 0, 0, 0);
                 if (h >= 18) next12.setUTCDate(next12.getUTCDate() + 1);
                 const rem = next12 - msk;
-                document.getElementById('BS_s').textContent = `Появится в 12:00 МСК`;
-                document.getElementById('BS_rs').textContent =
-                    `Через ${Math.floor(rem/3600000)}ч ${Math.floor((rem%3600000)/60000)}м`;
+                if (statusEl) statusEl.textContent = 'Появится в 12:00 МСК';
+                if (rsEl) rsEl.textContent = `Через ${Math.floor(rem/3600000)}ч ${Math.floor((rem%3600000)/60000)}м`;
                 if (atkBtn) atkBtn.disabled = true;
             }
         }
@@ -4950,6 +3386,24 @@ function renderBoss() {
             });
         };
 
+        document.addEventListener('DOMContentLoaded', function() {
+            const diceSection = document.querySelector('.dice-section');
+            if (diceSection) {
+                const rulesBtn = document.createElement('button');
+                rulesBtn.textContent = '📖 Правила';
+                rulesBtn.style.cssText =
+                    'padding:6px 14px;border-radius:8px;border:0.5px solid var(--color-border-secondary);background:var(--color-background-primary);color:var(--color-text-primary);font-size:12px;cursor:pointer;margin-top:4px;';
+                rulesBtn.onclick = showDiceRules;
+
+                const btns = diceSection.querySelector('.dice-btns');
+                if (btns) {
+                    btns.parentNode.insertBefore(rulesBtn, btns.nextSibling);
+                } else {
+                    diceSection.appendChild(rulesBtn);
+                }
+            }
+        });
+
         // ============================================================
         // 22. ТОП-10
         // ============================================================
@@ -5102,11 +3556,14 @@ function renderBoss() {
             initChat();
             updateOnlineStatus();
 
+            // Загружаем глобальные состояния
             loadBossState();
             loadAuctionState();
 
+            // Запускаем поллинг аукциона (обновление для всех)
             startAuctionPolling();
 
+            // Запускаем проверку босса
             if (bossCheckInterval) clearInterval(bossCheckInterval);
             bossCheckInterval = setInterval(async () => {
                 await checkBossRespawn();
