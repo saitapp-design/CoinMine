@@ -2862,45 +2862,7 @@ window.bid = async function(amount) {
             }).join('');
         }
 
-        function renderBoss() {
-            const now = Date.now();
-            const msk = new Date(now + 3 * 3600000);
-            const h = msk.getUTCHours();
-
-            const active = (h >= 12 && h < 18);
-
-            const hp = BOSS_STATE.hp || 0;
-            const maxHp = 1000;
-            const pct = Math.max(0, Math.round(hp / maxHp * 100));
-            
-            const hpEl = document.getElementById('BS_h');
-            if (hpEl) hpEl.style.width = pct + '%';
-            
-            const htEl = document.getElementById('BS_ht');
-            if (htEl) htEl.textContent = fmt(hp) + ' / ' + maxHp + ' ХП';
-
-            const atkBtn = document.getElementById('ATK_btn');
-            const statusEl = document.getElementById('BS_s');
-            const rsEl = document.getElementById('BS_rs');
-
-            if (active && hp > 0) {
-                if (statusEl) statusEl.textContent = '⚔️ Активен! Атакуйте!';
-                if (rsEl) rsEl.textContent = 'Исчезнет в 18:00 МСК';
-                if (atkBtn) atkBtn.disabled = false;
-            } else if (active && hp <= 0) {
-                if (statusEl) statusEl.textContent = '💀 Повержён! Ждите завтра 12:00.';
-                if (rsEl) rsEl.textContent = 'Следующий в 12:00 МСК';
-                if (atkBtn) atkBtn.disabled = true;
-            } else {
-                const next12 = new Date(msk);
-                next12.setUTCHours(12, 0, 0, 0);
-                if (h >= 18) next12.setUTCDate(next12.getUTCDate() + 1);
-                const rem = next12 - msk;
-                if (statusEl) statusEl.textContent = 'Появится в 12:00 МСК';
-                if (rsEl) rsEl.textContent = `Через ${Math.floor(rem/3600000)}ч ${Math.floor((rem%3600000)/60000)}м`;
-                if (atkBtn) atkBtn.disabled = true;
-            }
-        }
+        
 
         let topLastType = 'b';
 
