@@ -1878,14 +1878,12 @@
 
       
 // ============================================================
-// БОСС - ИСПРАВЛЕННАЯ ВЕРСИЯ (С ОТПРАВКОЙ СООБЩЕНИЙ)
+// БОСС - ВЕРСИЯ С ПРОВЕРКОЙ КАЖДЫЕ 30 МИНУТ
 // ============================================================
 
 let BOSS_STATE = { hp: 1000, lastKill: 0, currentBoss: 'Рябчик', respawnDate: null };
 let bossCheckInterval = null;
-let isSpawning = false;
-let isDisappearing = false;
-let isKilledMessageSent = false; // Флаг для сообщения об убийстве
+let bossSpawnedToday = false; // Флаг, что босс уже появился сегодня
 
 // ============================================================
 // ЗАГРУЗКА БОССА ИЗ БД
@@ -1904,6 +1902,21 @@ async function loadBossState() {
                 currentBoss: state.current_boss || 'Рябчик',
                 respawnDate: state.respawn_date || null
             };
+            
+            // Проверяем, появлялся ли босс сегодня
+            if (BOSS_STATE.respawnDate) {
+                const now = new Date();
+                const msk = new Date(now.getTime() + 3 * 3600000);
+                const lastRespawn = new Date(BOSS_STATE.respawnDate);
+                
+                if (lastRespawn.getUTCDate() === msk.getUTCDate() &&
+                    lastRespawn.getUTCMonth() === msk.getUTCMonth() &&
+                    lastRespawn.getUTCFullYear() === msk.getUTCFullYear()) {
+                    bossSpawnedToday = true;
+                } else {
+                    bossSpawnedToday = false;
+                }
+            }
         } else {
             const { data: newData } = await sbFetch('/rest/v1/boss_state', {
                 method: 'POST',
@@ -1923,6 +1936,7 @@ async function loadBossState() {
                     currentBoss: newData[0].current_boss || 'Рябчик',
                     respawnDate: newData[0].respawn_date || null
                 };
+                bossSpawnedToday = false;
             }
         }
         
@@ -1997,50 +2011,6 @@ async function sendBossMessage(message) {
 }
 
 // ============================================================
-// ПОЛУЧЕНИЕ ДАТЫ ДЛЯ СЛЕДУЮЩЕГО ВОЗРОЖДЕНИЯ
-// ============================================================
-
-function getNextRespawnDate() {
-    const now = new Date();
-    const msk = new Date(now.getTime() + 3 * 3600000);
-    const year = msk.getFullYear();
-    const month = msk.getMonth();
-    const day = msk.getDate();
-    
-    let respawn = new Date(Date.UTC(year, month, day, 9, 0, 0));
-    
-    if (msk.getUTCHours() >= 12) {
-        respawn = new Date(Date.UTC(year, month, day + 1, 9, 0, 0));
-    }
-    
-    return respawn.getTime();
-}
-
-// ============================================================
-// ПРОВЕРКА - МОЖНО ЛИ ВОЗРОЖДАТЬ БОССА
-// ============================================================
-
-function canRespawnBoss() {
-    const now = Date.now();
-    const msk = new Date(now + 3 * 3600000);
-    const h = msk.getUTCHours();
-    
-    if (h !== 12) return false;
-    
-    if (BOSS_STATE.respawnDate) {
-        const lastRespawn = new Date(BOSS_STATE.respawnDate);
-        const today = new Date(now + 3 * 3600000);
-        if (lastRespawn.getUTCDate() === today.getUTCDate() &&
-            lastRespawn.getUTCMonth() === today.getUTCMonth() &&
-            lastRespawn.getUTCFullYear() === today.getUTCFullYear()) {
-            return false;
-        }
-    }
-    
-    return true;
-}
-
-// ============================================================
 // АТАКА БОССА
 // ============================================================
 
@@ -2109,7 +2079,7 @@ window.atkBoss = async function() {
 };
 
 // ============================================================
-// ПРОВЕРКА ВОЗРОЖДЕНИЯ
+// ПРОВЕРКА ВОЗРОЖДЕНИЯ (КАЖДЫЕ 30 МИНУТ)
 // ============================================================
 
 async function checkBossRespawn() {
@@ -2121,54 +2091,53 @@ async function checkBossRespawn() {
         const h = msk.getUTCHours();
         const minutes = msk.getUTCMinutes();
         
+        console.log(`🕐 Проверка босса: ${h}:${minutes} МСК, hp: ${BOSS_STATE.hp}, spawnedToday: ${bossSpawnedToday}`);
+        
         // ============================================================
-        // 1. СПАВН БОССА В 12:00 (1 РАЗ В ДЕНЬ)
+        // 1. СПАВН БОССА В 12:00 (ТОЛЬКО 1 РАЗ В ДЕНЬ)
         // ============================================================
-        if (h === 12 && minutes <= 2 && canRespawnBoss() && !isSpawning) {
-            isSpawning = true;
-            
+        if (h === 12 && !bossSpawnedToday && BOSS_STATE.hp <= 0) {
             console.log('👹 ВОЗРОЖДАЕМ БОССА В 12:00!');
+            
             BOSS_STATE.hp = 1000;
             BOSS_STATE.lastKill = Date.now();
             BOSS_STATE.respawnDate = new Date(now + 3 * 3600000).toISOString();
             await saveBossState();
+            
+            bossSpawnedToday = true;
             
             // Отправляем сообщение о спавне
             await sendBossMessage(`👹 Босс Рябчик появился! Активен до 14:00 МСК!`);
             
             window.toast('👹 Босс появился!', 'gld');
             renderBoss();
-            
-            setTimeout(() => {
-                isSpawning = false;
-            }, 60000);
-            
             return;
         }
         
         // ============================================================
-        // 2. ИСЧЕЗНОВЕНИЕ БОССА В 14:00 (1 РАЗ В ДЕНЬ)
+        // 2. ИСЧЕЗНОВЕНИЕ БОССА В 14:00
         // ============================================================
-        if (BOSS_STATE.hp > 0) {
-            const active = (h >= 12 && h < 14);
-            if (!active && !isDisappearing) {
-                isDisappearing = true;
-                
-                console.log('⏰ Босс исчез (время вышло)!');
-                BOSS_STATE.hp = 0;
-                await saveBossState();
-                renderBoss();
-                
-                // Отправляем сообщение об исчезновении
-                await sendBossMessage(`⏰ Босс Рябчик ушёл! Ждите завтра 12:00!`);
-                
-                window.toast('⏰ Босс ушёл до завтра!', 'err');
-                
-                setTimeout(() => {
-                    isDisappearing = false;
-                }, 60000);
-            }
+        if (BOSS_STATE.hp > 0 && h >= 14) {
+            console.log('⏰ Босс исчез (время вышло)!');
+            BOSS_STATE.hp = 0;
+            await saveBossState();
+            renderBoss();
+            
+            // Отправляем сообщение об исчезновении
+            await sendBossMessage(`⏰ Босс Рябчик ушёл! Ждите завтра 12:00!`);
+            
+            window.toast('⏰ Босс ушёл до завтра!', 'err');
         }
+        
+        // ============================================================
+        // 3. СБРАСЫВАЕМ ФЛАГ НА СЛЕДУЮЩИЙ ДЕНЬ
+        // ============================================================
+        if (h === 0 && minutes === 0) {
+            // В полночь сбрасываем флаг для нового дня
+            bossSpawnedToday = false;
+            console.log('🔄 Сброшен флаг spawn для нового дня');
+        }
+        
     } catch (e) {
         console.error('❌ Ошибка проверки:', e);
     }
@@ -2230,10 +2199,11 @@ async function initBoss() {
     renderBoss();
     
     if (bossCheckInterval) clearInterval(bossCheckInterval);
+    // Проверка каждые 30 минут (1800000 мс)
     bossCheckInterval = setInterval(async () => {
         await checkBossRespawn();
         renderBoss();
-    }, 30000);
+    }, 1800000); // 30 минут
 }
 
 if (document.readyState === 'loading') {
