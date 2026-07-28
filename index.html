@@ -1878,92 +1878,11 @@
 
       
 // ============================================================
-// БОСС - ОБЩИЙ ДЛЯ ВСЕХ ИГРОКОВ
+// БОСС - ИСПРАВЛЕННАЯ ВЕРСИЯ
 // ============================================================
 
-
-
-// ============================================================
-// ОТКРЫТИЕ СУНДУКОВ - УПРОЩЕННЫЕ НАГРАДЫ
-// ============================================================
-
-window.openChest = function() {
-    console.log('📦 Попытка открыть сундук...');
-    
-    // Проверяем наличие сундуков
-    if (!G.chests || G.chests <= 0) {
-        window.toast('❌ У вас нет сундуков!', 'err');
-        return;
-    }
-
-    // Уменьшаем количество сундуков
-    G.chests--;
-    
-    // ============================================================
-    // УПРОЩЕННЫЕ НАГРАДЫ
-    // ============================================================
-    
-    // Случайное число от 1 до 100
-    const chance = Math.floor(Math.random() * 100) + 1;
-    
-    let rewardMsg = '';
-    let rewardCoins = 0;
-    let rewardKeys = 0;
-    
-    if (chance <= 40) {
-        // 40% - 10-30 монет
-        rewardCoins = Math.floor(Math.random() * 21) + 10; // 10-30
-        rewardMsg = `${rewardCoins} монет`;
-    } else if (chance <= 70) {
-        // 30% - 30-60 монет
-        rewardCoins = Math.floor(Math.random() * 31) + 30; // 30-60
-        rewardMsg = `${rewardCoins} монет`;
-    } else if (chance <= 85) {
-        // 15% - 60-100 монет
-        rewardCoins = Math.floor(Math.random() * 41) + 60; // 60-100
-        rewardMsg = `${rewardCoins} монет`;
-    } else if (chance <= 95) {
-        // 10% - 1 ключ
-        rewardKeys = 1;
-        rewardMsg = `1 ключ`;
-    } else {
-        // 5% - 100-200 монет + 1 ключ
-        rewardCoins = Math.floor(Math.random() * 101) + 100; // 100-200
-        rewardKeys = 1;
-        rewardMsg = `${rewardCoins} монет + 1 ключ`;
-    }
-    
-    // Применяем награду
-    if (rewardCoins > 0) G.coins += rewardCoins;
-    if (rewardKeys > 0) G.keys = (G.keys || 0) + rewardKeys;
-    
-    // ============================================================
-    // СОХРАНЯЕМ И ОБНОВЛЯЕМ
-    // ============================================================
-    
-    scheduleSave();
-    renderUI();
-    
-    window.toast(`🎁 ${rewardMsg}`, 'gld');
-    console.log('📦 Сундук открыт! Награда:', rewardMsg);
-};
-// ============================================================
-// БОСС - ИСПРАВЛЕННАЯ ВЕРСИЯ (СОХРАНЯЕТСЯ В БД)
-// ============================================================
-
-
-
-// ============================================================
-// ЗАГРУЗКА БОССА ИЗ БД
-// ============================================================
-
-// ============================================================
-// БОСС - УРЕЗАННЫЕ НАГРАДЫ, 2 ЧАСА АКТИВНОСТИ
-// ============================================================
-
-let BOSS_STATE = { hp: 1000, lastKill: 0, currentBoss: 'Рябчик' };
+let BOSS_STATE = { hp: 1000, lastKill: 0, currentBoss: 'Рябчик', respawnDate: null };
 let bossCheckInterval = null;
-let bossActiveUntil = 0; // Время до которого босс активен (2 часа)
 
 // ============================================================
 // ЗАГРУЗКА БОССА ИЗ БД
@@ -1979,7 +1898,8 @@ async function loadBossState() {
                 id: state.id,
                 hp: state.hp || 1000,
                 lastKill: state.last_kill || 0,
-                currentBoss: state.current_boss || 'Рябчик'
+                currentBoss: state.current_boss || 'Рябчик',
+                respawnDate: state.respawn_date || null
             };
         } else {
             const { data: newData } = await sbFetch('/rest/v1/boss_state', {
@@ -1988,6 +1908,7 @@ async function loadBossState() {
                     hp: 1000,
                     last_kill: 0,
                     current_boss: 'Рябчик',
+                    respawn_date: null,
                     updated_at: new Date().toISOString()
                 }
             });
@@ -1996,7 +1917,8 @@ async function loadBossState() {
                     id: newData[0].id,
                     hp: newData[0].hp || 1000,
                     lastKill: newData[0].last_kill || 0,
-                    currentBoss: newData[0].current_boss || 'Рябчик'
+                    currentBoss: newData[0].current_boss || 'Рябчик',
+                    respawnDate: newData[0].respawn_date || null
                 };
             }
         }
@@ -2024,6 +1946,7 @@ async function saveBossState() {
                     hp: BOSS_STATE.hp,
                     last_kill: BOSS_STATE.lastKill,
                     current_boss: BOSS_STATE.currentBoss,
+                    respawn_date: BOSS_STATE.respawnDate,
                     updated_at: new Date().toISOString()
                 }
             });
@@ -2035,6 +1958,7 @@ async function saveBossState() {
                     hp: BOSS_STATE.hp,
                     last_kill: BOSS_STATE.lastKill,
                     current_boss: BOSS_STATE.currentBoss,
+                    respawn_date: BOSS_STATE.respawnDate,
                     updated_at: new Date().toISOString()
                 }
             });
@@ -2047,7 +1971,55 @@ async function saveBossState() {
 }
 
 // ============================================================
-// АТАКА БОССА (УРОН 10-25, НАГРАДЫ УРЕЗАНЫ)
+// ПОЛУЧЕНИЕ ДАТЫ ДЛЯ СЛЕДУЮЩЕГО ВОЗРОЖДЕНИЯ
+// ============================================================
+
+function getNextRespawnDate() {
+    const now = new Date();
+    const msk = new Date(now.getTime() + 3 * 3600000);
+    const year = msk.getFullYear();
+    const month = msk.getMonth();
+    const day = msk.getDate();
+    
+    // Создаем дату на сегодня 12:00 МСК
+    let respawn = new Date(Date.UTC(year, month, day, 9, 0, 0)); // UTC 9:00 = MSK 12:00
+    
+    // Если уже прошло 12:00 MSK сегодня, то следующий босс завтра
+    if (msk.getUTCHours() >= 12) {
+        respawn = new Date(Date.UTC(year, month, day + 1, 9, 0, 0));
+    }
+    
+    return respawn.getTime();
+}
+
+// ============================================================
+// ПРОВЕРКА - МОЖНО ЛИ ВОЗРОЖДАТЬ БОССА
+// ============================================================
+
+function canRespawnBoss() {
+    const now = Date.now();
+    const msk = new Date(now + 3 * 3600000);
+    const h = msk.getUTCHours();
+    
+    // Босс появляется только в 12:00 МСК
+    if (h !== 12) return false;
+    
+    // Проверяем, не возрождался ли уже сегодня
+    if (BOSS_STATE.respawnDate) {
+        const lastRespawn = new Date(BOSS_STATE.respawnDate);
+        const today = new Date(now + 3 * 3600000);
+        if (lastRespawn.getUTCDate() === today.getUTCDate() &&
+            lastRespawn.getUTCMonth() === today.getUTCMonth() &&
+            lastRespawn.getUTCFullYear() === today.getUTCFullYear()) {
+            return false; // Уже возрождался сегодня
+        }
+    }
+    
+    return true;
+}
+
+// ============================================================
+// АТАКА БОССА
 // ============================================================
 
 window.atkBoss = async function() {
@@ -2060,16 +2032,14 @@ window.atkBoss = async function() {
 
     await loadBossState();
     
-    // Проверяем активен ли босс (2 часа с момента появления)
+    // Проверяем активен ли босс (с 12:00 до 14:00 МСК)
     const now = Date.now();
-    const bossStartTime = BOSS_STATE.lastKill || 0;
-    const hoursSinceStart = (now - bossStartTime) / (1000 * 60 * 60);
+    const msk = new Date(now + 3 * 3600000);
+    const h = msk.getUTCHours();
+    const active = (h >= 12 && h < 14);
     
-    // Если прошло больше 2 часов с момента появления - босс уходит
-    if (hoursSinceStart > 2 && BOSS_STATE.hp > 0) {
-        BOSS_STATE.hp = 0;
-        await saveBossState();
-        window.toast('⏰ Босс ушёл! Ждите завтра 12:00', 'err');
+    if (!active) {
+        window.toast('⏰ Босс неактивен! Появляется в 12:00 МСК', 'err');
         renderBoss();
         return;
     }
@@ -2087,20 +2057,16 @@ window.atkBoss = async function() {
     
     let msg = '⚔️ Урон: ' + dmg;
     
-    // Шанс на сундук (уменьшен до 10%)
+    // Шанс на сундук
     if (Math.random() < 0.25) {
         G.chests = (G.chests || 0) + 1;
         msg += ' 🎁 Сундук!';
     }
 
-    // ============================================================
-    // БОСС ПОВЕРЖЕН - УРЕЗАННЫЕ НАГРАДЫ
-    // ============================================================
-    
+    // БОСС ПОВЕРЖЕН
     if (BOSS_STATE.hp <= 0) {
         msg += ' 🎉 Рябчик повержён!';
         
-        // УРЕЗАННАЯ НАГРАДА: 2 сундука (было 5)
         G.chests = (G.chests || 0) + 2;
         BOSS_STATE.lastKill = Date.now();
         
@@ -2133,7 +2099,7 @@ window.atkBoss = async function() {
 };
 
 // ============================================================
-// ПРОВЕРКА ВОЗРОЖДЕНИЯ (КАЖДЫЙ ДЕНЬ В 12:00)
+// ПРОВЕРКА ВОЗРОЖДЕНИЯ
 // ============================================================
 
 async function checkBossRespawn() {
@@ -2145,44 +2111,38 @@ async function checkBossRespawn() {
         const h = msk.getUTCHours();
         const minutes = msk.getUTCMinutes();
         
-        // Босс появляется в 12:00 МСК и активен 2 часа (до 14:00)
-        const active = (h >= 12 && h < 14);
-        
-        // Если сейчас ровно 12:00 или чуть позже - проверяем возрождение
-        if (h === 12 && minutes <= 5) {
-            // Возрождаем если босс мёртв
-            if (BOSS_STATE.hp <= 0) {
-                console.log('👹 ВОЗРОЖДАЕМ БОССА В 12:00!');
-                BOSS_STATE.hp = 1000;
-                BOSS_STATE.lastKill = Date.now();
-                await saveBossState();
-                
-                try {
-                    await sbFetch('/rest/v1/messages', {
-                        method: 'POST',
-                        body: {
-                            sender_id: 'system',
-                            sender_name: 'Система',
-                            sender_avatar: AVATAR_LIST[0],
-                            message: `👹 Босс Рябчик появился! Активен до 14:00!`,
-                            is_private: false,
-                            created_at: new Date().toISOString()
-                        }
-                    });
-                } catch (e) {}
-                
-                window.toast('👹 Босс появился!', 'gld');
-                renderBoss();
-            }
+        // Проверяем нужно ли возродить босса (в 12:00)
+        if (h === 12 && minutes <= 2 && canRespawnBoss()) {
+            console.log('👹 ВОЗРОЖДАЕМ БОССА В 12:00!');
+            BOSS_STATE.hp = 1000;
+            BOSS_STATE.lastKill = Date.now();
+            BOSS_STATE.respawnDate = new Date(now + 3 * 3600000).toISOString();
+            await saveBossState();
+            
+            try {
+                await sbFetch('/rest/v1/messages', {
+                    method: 'POST',
+                    body: {
+                        sender_id: 'system',
+                        sender_name: 'Система',
+                        sender_avatar: AVATAR_LIST[0],
+                        message: `👹 Босс Рябчик появился! Активен до 14:00 МСК!`,
+                        is_private: false,
+                        created_at: new Date().toISOString()
+                    }
+                });
+            } catch (e) {}
+            
+            window.toast('👹 Босс появился!', 'gld');
+            renderBoss();
+            return;
         }
         
-        // Если прошло 2 часа с момента появления - босс исчезает
-        if (active && BOSS_STATE.hp > 0) {
-            const bossStartTime = BOSS_STATE.lastKill || 0;
-            const hoursSinceStart = (now - bossStartTime) / (1000 * 60 * 60);
-            
-            if (hoursSinceStart > 2) {
-                console.log('⏰ Босс исчез (прошло 2 часа)!');
+        // Проверяем активность (если босс жив, но время вышло)
+        if (BOSS_STATE.hp > 0) {
+            const active = (h >= 12 && h < 14);
+            if (!active) {
+                console.log('⏰ Босс исчез (время вышло)!');
                 BOSS_STATE.hp = 0;
                 await saveBossState();
                 renderBoss();
@@ -2240,11 +2200,14 @@ function renderBoss() {
             if (atkBtn) atkBtn.disabled = false;
         } else if (active && hp <= 0) {
             if (statusEl) statusEl.textContent = '💀 Повержён! Ждите завтра 12:00.';
-            if (rsEl) rsEl.textContent = 'Следующий в 12:00 МСК';
+            if (rsEl) rsEl.textContent = 'Следующий завтра в 12:00 МСК';
             if (atkBtn) atkBtn.disabled = true;
         } else {
+            const nextRespawn = getNextRespawnDate();
+            const nextDate = new Date(nextRespawn + 3 * 3600000);
+            const timeStr = nextDate.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
             if (statusEl) statusEl.textContent = '⏳ Появится в 12:00 МСК';
-            if (rsEl) rsEl.textContent = 'Активен 2 часа (12:00-14:00)';
+            if (rsEl) rsEl.textContent = `Следующий: завтра в 12:00 МСК`;
             if (atkBtn) atkBtn.disabled = true;
         }
     } catch (e) {
@@ -2265,10 +2228,9 @@ async function initBoss() {
     
     if (bossCheckInterval) clearInterval(bossCheckInterval);
     bossCheckInterval = setInterval(async () => {
-        await loadBossState();
-        renderBoss();
         await checkBossRespawn();
-    }, 10000);
+        renderBoss();
+    }, 30000); // Проверка каждые 30 секунд
 }
 
 if (document.readyState === 'loading') {
