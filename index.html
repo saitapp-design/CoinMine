@@ -1925,7 +1925,7 @@ window.openChest = function() {
     console.log('📦 Сундук открыт! Награда:', rewardMsg);
 };
 // ============================================================
-// ОБМЕН КЛЮЧЕЙ НА МОНЕТЫ (1 КЛЮЧ = 100 МОНЕТ)
+// ОБМЕН 1 КЛЮЧА НА 100 МОНЕТ (ПРОСТАЯ ВЕРСИЯ)
 // ============================================================
 
 window.exchangeKey = function() {
@@ -1937,41 +1937,19 @@ window.exchangeKey = function() {
         return;
     }
     
-    // Спрашиваем сколько ключей обменять
-    const amount = prompt(`У вас ${G.keys} ключей. Сколько ключей хотите обменять?\n(1 ключ = 100 монет)`, '1');
-    
-    if (amount === null) {
-        window.toast('❌ Обмен отменён', 'err');
-        return;
-    }
-    
-    const keysToExchange = parseInt(amount);
-    
-    // Проверяем валидность ввода
-    if (isNaN(keysToExchange) || keysToExchange < 1) {
-        window.toast('❌ Введите положительное число!', 'err');
-        return;
-    }
-    
-    if (keysToExchange > G.keys) {
-        window.toast(`❌ У вас только ${G.keys} ключей!`, 'err');
-        return;
-    }
-    
     // Обмен: 1 ключ = 100 монет
     const EXCHANGE_RATE = 100;
-    const earnedCoins = keysToExchange * EXCHANGE_RATE;
     
     // Применяем обмен
-    G.keys -= keysToExchange;
-    G.coins += earnedCoins;
+    G.keys -= 1;
+    G.coins += EXCHANGE_RATE;
     
     // Сохраняем и обновляем
     scheduleSave();
     renderUI();
     
-    window.toast(`💰 Обменян ${keysToExchange} ключ(ей) на ${earnedCoins} монет!`, 'gld');
-    console.log(`🔑 Обменян ${keysToExchange} ключей на ${earnedCoins} монет`);
+    window.toast(`💰 Обменян 1 ключ на 100 монет!`, 'gld');
+    console.log(`🔑 Обменян 1 ключ на 100 монет`);
 };
 // ============================================================
 // БОСС - ВЕРСИЯ С ПРОВЕРКОЙ КАЖДЫЕ 30 МИНУТ
