@@ -1878,13 +1878,14 @@
 
       
 // ============================================================
-// БОСС - ИСПРАВЛЕННАЯ ВЕРСИЯ (БЕЗ ДУБЛИРОВАНИЯ СООБЩЕНИЙ)
+// БОСС - ИСПРАВЛЕННАЯ ВЕРСИЯ (С ОТПРАВКОЙ СООБЩЕНИЙ)
 // ============================================================
 
 let BOSS_STATE = { hp: 1000, lastKill: 0, currentBoss: 'Рябчик', respawnDate: null };
 let bossCheckInterval = null;
-let isSpawning = false; // Флаг, чтобы предотвратить множественный спавн
-let isDisappearing = false; // Флаг для исчезновения
+let isSpawning = false;
+let isDisappearing = false;
+let isKilledMessageSent = false; // Флаг для сообщения об убийстве
 
 // ============================================================
 // ЗАГРУЗКА БОССА ИЗ БД
@@ -1969,6 +1970,29 @@ async function saveBossState() {
     } catch (e) {
         console.error('❌ Ошибка сохранения:', e);
         return false;
+    }
+}
+
+// ============================================================
+// ОТПРАВКА СООБЩЕНИЯ В ЧАТ
+// ============================================================
+
+async function sendBossMessage(message) {
+    try {
+        await sbFetch('/rest/v1/messages', {
+            method: 'POST',
+            body: {
+                sender_id: 'system',
+                sender_name: 'Система',
+                sender_avatar: AVATAR_LIST[0],
+                message: message,
+                is_private: false,
+                created_at: new Date().toISOString()
+            }
+        });
+        console.log('✅ Сообщение отправлено:', message);
+    } catch (e) {
+        console.error('❌ Ошибка отправки сообщения:', e);
     }
 }
 
@@ -2058,6 +2082,9 @@ window.atkBoss = async function() {
         msg += ' 🎁 Сундук!';
     }
 
+    // ============================================================
+    // БОСС ПОВЕРЖЕН - ОТПРАВЛЯЕМ СООБЩЕНИЕ
+    // ============================================================
     if (BOSS_STATE.hp <= 0) {
         msg += ' 🎉 Рябчик повержён!';
         
@@ -2067,19 +2094,8 @@ window.atkBoss = async function() {
         await saveBossState();
         await saveUserData();
         
-        try {
-            await sbFetch('/rest/v1/messages', {
-                method: 'POST',
-                body: {
-                    sender_id: 'system',
-                    sender_name: 'Система',
-                    sender_avatar: AVATAR_LIST[0],
-                    message: `⚔️ Босс Рябчик повержён игроком ${G.name}! 🎉`,
-                    is_private: false,
-                    created_at: new Date().toISOString()
-                }
-            });
-        } catch (e) {}
+        // Отправляем сообщение об убийстве
+        await sendBossMessage(`⚔️ Босс Рябчик повержён игроком ${G.name}! 🎉`);
         
         window.toast('🎉 Босс повержён! +2 сундука!', 'gld');
     } else {
@@ -2093,7 +2109,7 @@ window.atkBoss = async function() {
 };
 
 // ============================================================
-// ПРОВЕРКА ВОЗРОЖДЕНИЯ (С ЗАЩИТОЙ ОТ ДУБЛЕЙ)
+// ПРОВЕРКА ВОЗРОЖДЕНИЯ
 // ============================================================
 
 async function checkBossRespawn() {
@@ -2106,10 +2122,10 @@ async function checkBossRespawn() {
         const minutes = msk.getUTCMinutes();
         
         // ============================================================
-        // ПРОВЕРКА СПАВНА (ТОЛЬКО В 12:00, 1 РАЗ)
+        // 1. СПАВН БОССА В 12:00 (1 РАЗ В ДЕНЬ)
         // ============================================================
         if (h === 12 && minutes <= 2 && canRespawnBoss() && !isSpawning) {
-            isSpawning = true; // Блокируем повторный спавн
+            isSpawning = true;
             
             console.log('👹 ВОЗРОЖДАЕМ БОССА В 12:00!');
             BOSS_STATE.hp = 1000;
@@ -2117,24 +2133,12 @@ async function checkBossRespawn() {
             BOSS_STATE.respawnDate = new Date(now + 3 * 3600000).toISOString();
             await saveBossState();
             
-            try {
-                await sbFetch('/rest/v1/messages', {
-                    method: 'POST',
-                    body: {
-                        sender_id: 'system',
-                        sender_name: 'Система',
-                        sender_avatar: AVATAR_LIST[0],
-                        message: `👹 Босс Рябчик появился! Активен до 14:00 МСК!`,
-                        is_private: false,
-                        created_at: new Date().toISOString()
-                    }
-                });
-            } catch (e) {}
+            // Отправляем сообщение о спавне
+            await sendBossMessage(`👹 Босс Рябчик появился! Активен до 14:00 МСК!`);
             
             window.toast('👹 Босс появился!', 'gld');
             renderBoss();
             
-            // Снимаем блокировку через минуту
             setTimeout(() => {
                 isSpawning = false;
             }, 60000);
@@ -2143,7 +2147,7 @@ async function checkBossRespawn() {
         }
         
         // ============================================================
-        // ПРОВЕРКА ИСЧЕЗНОВЕНИЯ (ПОСЛЕ 14:00)
+        // 2. ИСЧЕЗНОВЕНИЕ БОССА В 14:00 (1 РАЗ В ДЕНЬ)
         // ============================================================
         if (BOSS_STATE.hp > 0) {
             const active = (h >= 12 && h < 14);
@@ -2155,19 +2159,8 @@ async function checkBossRespawn() {
                 await saveBossState();
                 renderBoss();
                 
-                try {
-                    await sbFetch('/rest/v1/messages', {
-                        method: 'POST',
-                        body: {
-                            sender_id: 'system',
-                            sender_name: 'Система',
-                            sender_avatar: AVATAR_LIST[0],
-                            message: `⏰ Босс Рябчик ушёл! Ждите завтра 12:00!`,
-                            is_private: false,
-                            created_at: new Date().toISOString()
-                        }
-                    });
-                } catch (e) {}
+                // Отправляем сообщение об исчезновении
+                await sendBossMessage(`⏰ Босс Рябчик ушёл! Ждите завтра 12:00!`);
                 
                 window.toast('⏰ Босс ушёл до завтра!', 'err');
                 
