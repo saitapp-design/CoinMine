@@ -2230,7 +2230,7 @@ function renderBoss() {
         const msk = new Date(now + 3 * 3600000);
         const h = msk.getUTCHours();
         
-        const active = (h >= 12 && h < 14);
+        const active = (h >= 12 && h < 14); // ✅ Исправлено на 14:00
         
         const hp = BOSS_STATE?.hp || 0;
         const maxHp = 1000;
@@ -2248,7 +2248,7 @@ function renderBoss() {
         
         if (active && hp > 0) {
             if (statusEl) statusEl.textContent = '⚔️ Активен! Атакуйте!';
-            if (rsEl) rsEl.textContent = 'Исчезнет в 14:00 МСК';
+            if (rsEl) rsEl.textContent = 'Исчезнет в 14:00 МСК'; // ✅ Исправлено
             if (atkBtn) atkBtn.disabled = false;
         } else if (active && hp <= 0) {
             if (statusEl) statusEl.textContent = '💀 Повержён! Ждите завтра 12:00.';
