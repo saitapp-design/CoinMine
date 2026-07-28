@@ -1878,12 +1878,61 @@
 
       
 // ============================================================
+// ОТКРЫТИЕ СУНДУКОВ
+// ============================================================
+
+window.openChest = function() {
+    console.log('📦 Попытка открыть сундук...');
+    
+    if (!G.chests || G.chests <= 0) {
+        window.toast('❌ У вас нет сундуков!', 'err');
+        return;
+    }
+
+    G.chests--;
+    
+    const chance = Math.floor(Math.random() * 100) + 1;
+    
+    let rewardMsg = '';
+    let rewardCoins = 0;
+    let rewardKeys = 0;
+    
+    if (chance <= 40) {
+        rewardCoins = Math.floor(Math.random() * 21) + 10;
+        rewardMsg = `${rewardCoins} монет`;
+    } else if (chance <= 70) {
+        rewardCoins = Math.floor(Math.random() * 31) + 30;
+        rewardMsg = `${rewardCoins} монет`;
+    } else if (chance <= 85) {
+        rewardCoins = Math.floor(Math.random() * 41) + 60;
+        rewardMsg = `${rewardCoins} монет`;
+    } else if (chance <= 95) {
+        rewardKeys = 1;
+        rewardMsg = `1 ключ`;
+    } else {
+        rewardCoins = Math.floor(Math.random() * 101) + 100;
+        rewardKeys = 1;
+        rewardMsg = `${rewardCoins} монет + 1 ключ`;
+    }
+    
+    if (rewardCoins > 0) G.coins += rewardCoins;
+    if (rewardKeys > 0) G.keys = (G.keys || 0) + rewardKeys;
+    
+    scheduleSave();
+    renderUI();
+    
+    window.toast(`🎁 ${rewardMsg}`, 'gld');
+    console.log('📦 Сундук открыт! Награда:', rewardMsg);
+};
+
+// ============================================================
 // БОСС - ВЕРСИЯ С ПРОВЕРКОЙ КАЖДЫЕ 30 МИНУТ
 // ============================================================
 
 let BOSS_STATE = { hp: 1000, lastKill: 0, currentBoss: 'Рябчик', respawnDate: null };
 let bossCheckInterval = null;
-let bossSpawnedToday = false; // Флаг, что босс уже появился сегодня
+let bossSpawnedToday = false;
+let spawnMessageSent = false; // Флаг для отправки сообщения о спавне
 
 // ============================================================
 // ЗАГРУЗКА БОССА ИЗ БД
@@ -1913,8 +1962,10 @@ async function loadBossState() {
                     lastRespawn.getUTCMonth() === msk.getUTCMonth() &&
                     lastRespawn.getUTCFullYear() === msk.getUTCFullYear()) {
                     bossSpawnedToday = true;
+                    spawnMessageSent = true;
                 } else {
                     bossSpawnedToday = false;
+                    spawnMessageSent = false;
                 }
             }
         } else {
@@ -1937,6 +1988,7 @@ async function loadBossState() {
                     respawnDate: newData[0].respawn_date || null
                 };
                 bossSpawnedToday = false;
+                spawnMessageSent = false;
             }
         }
         
@@ -2064,7 +2116,6 @@ window.atkBoss = async function() {
         await saveBossState();
         await saveUserData();
         
-        // Отправляем сообщение об убийстве
         await sendBossMessage(`⚔️ Босс Рябчик повержён игроком ${G.name}! 🎉`);
         
         window.toast('🎉 Босс повержён! +2 сундука!', 'gld');
@@ -2091,7 +2142,7 @@ async function checkBossRespawn() {
         const h = msk.getUTCHours();
         const minutes = msk.getUTCMinutes();
         
-        console.log(`🕐 Проверка босса: ${h}:${minutes} МСК, hp: ${BOSS_STATE.hp}, spawnedToday: ${bossSpawnedToday}`);
+        console.log(`🕐 Проверка босса: ${h}:${String(minutes).padStart(2, '0')} МСК, hp: ${BOSS_STATE.hp}, spawned: ${bossSpawnedToday}, msgSent: ${spawnMessageSent}`);
         
         // ============================================================
         // 1. СПАВН БОССА В 12:00 (ТОЛЬКО 1 РАЗ В ДЕНЬ)
@@ -2105,6 +2156,7 @@ async function checkBossRespawn() {
             await saveBossState();
             
             bossSpawnedToday = true;
+            spawnMessageSent = true;
             
             // Отправляем сообщение о спавне
             await sendBossMessage(`👹 Босс Рябчик появился! Активен до 14:00 МСК!`);
@@ -2123,19 +2175,18 @@ async function checkBossRespawn() {
             await saveBossState();
             renderBoss();
             
-            // Отправляем сообщение об исчезновении
             await sendBossMessage(`⏰ Босс Рябчик ушёл! Ждите завтра 12:00!`);
             
             window.toast('⏰ Босс ушёл до завтра!', 'err');
         }
         
         // ============================================================
-        // 3. СБРАСЫВАЕМ ФЛАГ НА СЛЕДУЮЩИЙ ДЕНЬ
+        // 3. СБРАСЫВАЕМ ФЛАГИ В ПОЛНОЧЬ
         // ============================================================
         if (h === 0 && minutes === 0) {
-            // В полночь сбрасываем флаг для нового дня
             bossSpawnedToday = false;
-            console.log('🔄 Сброшен флаг spawn для нового дня');
+            spawnMessageSent = false;
+            console.log('🔄 Сброшены флаги для нового дня');
         }
         
     } catch (e) {
@@ -2199,7 +2250,6 @@ async function initBoss() {
     renderBoss();
     
     if (bossCheckInterval) clearInterval(bossCheckInterval);
-    // Проверка каждые 30 минут (1800000 мс)
     bossCheckInterval = setInterval(async () => {
         await checkBossRespawn();
         renderBoss();
