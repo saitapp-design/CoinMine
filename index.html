@@ -2784,7 +2784,35 @@ function renderPodiumAuction() {
         podiumEl.innerHTML += `<div class="tm tc" style="padding:4px;">+ ещё ${sorted.length - 3} участников</div>`;
     }
 }
+// ============================================================
+// ПРОВЕРКА КОДА АДМИНИСТРАТОРА
+// ============================================================
 
+window.checkAdminCode = function() {
+    const code = prompt('🔑 Введите код администратора:');
+    if (code === 'denchik9995066943') {
+        isAdmin = true;
+        sessionStorage.setItem('coinmine_admin', 'true');
+        window.toast('🔐 Админ-доступ активирован!', 'ok');
+        
+        // Показываем админ-панель
+        const panel = document.getElementById('adminPanel');
+        if (panel) panel.style.display = 'block';
+        
+        // Обновляем аукцион
+        if (typeof updateAuctionUI === 'function') updateAuctionUI();
+        
+        // Загружаем статистику
+        if (typeof loadFullStats === 'function') {
+            setTimeout(() => loadFullStats(), 500);
+        }
+    } else if (code !== null) {
+        window.toast('❌ Неверный код!', 'err');
+    }
+};
+
+// Дублируем для аукциона (на всякий случай)
+window.checkAuctionCode = window.checkAdminCode;
 // Проверка кода администратора
 window.checkAuctionCode = function() {
     const code = prompt('Введите код администратора для запуска аукциона:');
