@@ -826,8 +826,10 @@
         let music = null;
         let musicPlaying = false;
 
+        // АДМИН-СТАТУС
         let isAdmin = sessionStorage.getItem('coinmine_admin') === 'true';
 
+        // АУКЦИОН (ГЛОБАЛЬНЫЙ)
         let auctionData = {
             active: false,
             startTime: 0,
@@ -839,11 +841,10 @@
         let auctionTimerInterval = null;
         let auctionPollInterval = null;
 
-        let BOSS_STATE = { hp: 1000, lastKill: 0, currentBoss: 'Рябчик', respawnDate: null };
-        let bossCheckInterval = null;
-        let bossSpawnedToday = false;
-        let spawnMessageSent = false;
-
+        // БОСС (ГЛОБАЛЬНЫЙ)
+        
+        
+        let bossInitialized = false;
         const NICK_S = {
             gold: { e: '🌟', n: 'Золотой' },
             diamond: { e: '💎', n: 'Алмазный' },
@@ -898,55 +899,58 @@
         };
 
         // ============================================================
-        // 6. API - С RLS ПОДДЕРЖКОЙ
+        // 6. API
         // ============================================================
         async function sbFetch(path, opts = {}) {
-            const headers = {
-                'apikey': SB_ANON_KEY,
-                'Content-Type': 'application/json',
-                'Prefer': 'return=representation',
-                ...(opts.headers || {})
-            };
+    const headers = {
+        'apikey': SB_ANON_KEY,
+        'Content-Type': 'application/json',
+        'Prefer': 'return=representation',
+        ...(opts.headers || {})
+    };
 
-            if (UID) {
-                headers['x-user-id'] = UID;
+    // ============================================================
+    // ДОБАВЛЯЕМ ID ПОЛЬЗОВАТЕЛЯ ДЛЯ RLS (ЭТО ВСЁ, ЧТО НУЖНО)
+    // ============================================================
+    if (UID) {
+        headers['x-user-id'] = UID;
+    }
+
+    let body = opts.body;
+    if (body && typeof body === 'object') {
+        body = JSON.stringify(body);
+    }
+
+    let attempts = 0;
+    while (attempts < CONFIG.MAX_RETRIES) {
+        try {
+            const r = await fetch(SB_URL + path, {
+                ...opts,
+                body: body,
+                headers,
+                signal: AbortSignal.timeout(10000)
+            });
+
+            const txt = await r.text();
+            let d;
+            try { d = JSON.parse(txt); } catch (e) { d = txt; }
+
+            if (!r.ok) {
+                console.warn(`⚠️ API Error ${r.status}:`, {
+                    path,
+                    status: r.status,
+                    data: d
+                });
             }
 
-            let body = opts.body;
-            if (body && typeof body === 'object') {
-                body = JSON.stringify(body);
-            }
-
-            let attempts = 0;
-            while (attempts < CONFIG.MAX_RETRIES) {
-                try {
-                    const r = await fetch(SB_URL + path, {
-                        ...opts,
-                        body: body,
-                        headers,
-                        signal: AbortSignal.timeout(10000)
-                    });
-
-                    const txt = await r.text();
-                    let d;
-                    try { d = JSON.parse(txt); } catch (e) { d = txt; }
-
-                    if (!r.ok) {
-                        console.warn(`⚠️ API Error ${r.status}:`, {
-                            path,
-                            status: r.status,
-                            data: d
-                        });
-                    }
-
-                    return { ok: r.ok, status: r.status, data: d };
-                } catch (e) {
-                    attempts++;
-                    if (attempts >= CONFIG.MAX_RETRIES) throw e;
-                    await new Promise(r => setTimeout(r, 1000 * attempts));
-                }
-            }
+            return { ok: r.ok, status: r.status, data: d };
+        } catch (e) {
+            attempts++;
+            if (attempts >= CONFIG.MAX_RETRIES) throw e;
+            await new Promise(r => setTimeout(r, 1000 * attempts));
         }
+    }
+}
 
         // ============================================================
         // 7. АВТОРИЗАЦИЯ
@@ -1855,7 +1859,7 @@
             const input = document.getElementById('chatInput');
             if (input) {
                 input.disabled = false;
-                input.placeholder = 'Напишите сообщение...';
+                input.placeholder = '(введите первое сообщение цыфрой)';
                 input.value = '';
             }
 
@@ -1875,773 +1879,867 @@
             return div.innerHTML;
         }
 
-        // ============================================================
-        // ОТКРЫТИЕ СУНДУКОВ
-        // ============================================================
-        window.openChest = function() {
-            console.log('📦 Попытка открыть сундук...');
+      
+// ============================================================
+// ОТКРЫТИЕ СУНДУКОВ
+// ============================================================
 
-            if (!G.chests || G.chests <= 0) {
-                window.toast('❌ У вас нет сундуков!', 'err');
-                return;
-            }
+window.openChest = function() {
+    console.log('📦 Попытка открыть сундук...');
+    
+    if (!G.chests || G.chests <= 0) {
+        window.toast('❌ У вас нет сундуков!', 'err');
+        return;
+    }
 
-            G.chests--;
+    G.chests--;
+    
+    const chance = Math.floor(Math.random() * 100) + 1;
+    
+    let rewardMsg = '';
+    let rewardCoins = 0;
+    let rewardKeys = 0;
+    
+    if (chance <= 40) {
+        rewardCoins = Math.floor(Math.random() * 21) + 10;
+        rewardMsg = `${rewardCoins} монет`;
+    } else if (chance <= 70) {
+        rewardCoins = Math.floor(Math.random() * 31) + 30;
+        rewardMsg = `${rewardCoins} монет`;
+    } else if (chance <= 85) {
+        rewardCoins = Math.floor(Math.random() * 41) + 60;
+        rewardMsg = `${rewardCoins} монет`;
+    } else if (chance <= 95) {
+        rewardKeys = 1;
+        rewardMsg = `1 ключ`;
+    } else {
+        rewardCoins = Math.floor(Math.random() * 101) + 100;
+        rewardKeys = 1;
+        rewardMsg = `${rewardCoins} монет + 1 ключ`;
+    }
+    
+    if (rewardCoins > 0) G.coins += rewardCoins;
+    if (rewardKeys > 0) G.keys = (G.keys || 0) + rewardKeys;
+    
+    scheduleSave();
+    renderUI();
+    
+    window.toast(`🎁 ${rewardMsg}`, 'gld');
+    console.log('📦 Сундук открыт! Награда:', rewardMsg);
+};
+// ============================================================
+// ОБМЕН 1 КЛЮЧА НА 100 МОНЕТ (ПРОСТАЯ ВЕРСИЯ)
+// ============================================================
 
-            const chance = Math.floor(Math.random() * 100) + 1;
+// ============================================================
+// ОБМЕН 1 КЛЮЧА НА 100 МОНЕТ (С ПРИНУДИТЕЛЬНЫМ СОХРАНЕНИЕМ)
+// ============================================================
 
-            let rewardMsg = '';
-            let rewardCoins = 0;
-            let rewardKeys = 0;
+window.exchangeKey = function() {
+    console.log('🔑 Попытка обмена ключа...');
+    
+    // Проверяем наличие ключей
+    if (!G.keys || G.keys < 1) {
+        window.toast('❌ У вас нет ключей для обмена!', 'err');
+        return;
+    }
+    
+    // Подтверждение обмена
+    if (!confirm(`Обменять 1 ключ на 100 монет?\nУ вас: ${G.keys} ключей`)) {
+        window.toast('❌ Обмен отменён', 'err');
+        return;
+    }
+    
+    // Обмен: 1 ключ = 100 монет
+    const EXCHANGE_RATE = 100;
+    
+    // Применяем обмен
+    G.keys -= 1;
+    G.coins += EXCHANGE_RATE;
+    
+    // ПРИНУДИТЕЛЬНОЕ СОХРАНЕНИЕ (немедленно)
+    scheduleSave();
+    
+    // ДОПОЛНИТЕЛЬНО: принудительно сохраняем сразу
+    setTimeout(async () => {
+        await saveUserData();
+        console.log('💾 Данные сохранены после обмена ключей');
+    }, 100);
+    
+    // Обновляем UI
+    renderUI();
+    
+    window.toast(`💰 +100 монет! Осталось ключей: ${G.keys}`, 'gld');
+    console.log(`🔑 Обменян 1 ключ на 100 монет. Ключей: ${G.keys}, монет: ${G.coins}`);
+};
+// ============================================================
+// БОСС - ВЕРСИЯ С ПРОВЕРКОЙ КАЖДЫЕ 30 МИНУТ
+// ============================================================
 
-            if (chance <= 40) {
-                rewardCoins = Math.floor(Math.random() * 21) + 10;
-                rewardMsg = `${rewardCoins} монет`;
-            } else if (chance <= 70) {
-                rewardCoins = Math.floor(Math.random() * 31) + 30;
-                rewardMsg = `${rewardCoins} монет`;
-            } else if (chance <= 85) {
-                rewardCoins = Math.floor(Math.random() * 41) + 60;
-                rewardMsg = `${rewardCoins} монет`;
-            } else if (chance <= 95) {
-                rewardKeys = 1;
-                rewardMsg = `1 ключ`;
-            } else {
-                rewardCoins = Math.floor(Math.random() * 101) + 100;
-                rewardKeys = 1;
-                rewardMsg = `${rewardCoins} монет + 1 ключ`;
-            }
+let BOSS_STATE = { hp: 1000, lastKill: 0, currentBoss: 'Рябчик', respawnDate: null };
+let bossCheckInterval = null;
+let bossSpawnedToday = false;
+let spawnMessageSent = false; // Флаг для отправки сообщения о спавне
 
-            if (rewardCoins > 0) G.coins += rewardCoins;
-            if (rewardKeys > 0) G.keys = (G.keys || 0) + rewardKeys;
+// ============================================================
+// ЗАГРУЗКА БОССА ИЗ БД
+// ============================================================
 
-            scheduleSave();
-            renderUI();
-
-            window.toast(`🎁 ${rewardMsg}`, 'gld');
-            console.log('📦 Сундук открыт! Награда:', rewardMsg);
-        };
-
-        // ============================================================
-        // ОБМЕН 1 КЛЮЧА НА 100 МОНЕТ
-        // ============================================================
-        window.exchangeKey = function() {
-            console.log('🔑 Попытка обмена ключа...');
-
-            if (!G.keys || G.keys < 1) {
-                window.toast('❌ У вас нет ключей для обмена!', 'err');
-                return;
-            }
-
-            if (!confirm(`Обменять 1 ключ на 100 монет?\nУ вас: ${G.keys} ключей`)) {
-                window.toast('❌ Обмен отменён', 'err');
-                return;
-            }
-
-            const EXCHANGE_RATE = 100;
-
-            G.keys -= 1;
-            G.coins += EXCHANGE_RATE;
-
-            scheduleSave();
-
-            setTimeout(async () => {
-                await saveUserData();
-                console.log('💾 Данные сохранены после обмена ключей');
-            }, 100);
-
-            renderUI();
-
-            window.toast(`💰 +100 монет! Осталось ключей: ${G.keys}`, 'gld');
-            console.log(`🔑 Обменян 1 ключ на 100 монет. Ключей: ${G.keys}, монет: ${G.coins}`);
-        };
-
-        // ============================================================
-        // БОСС
-        // ============================================================
-        async function loadBossState() {
-            try {
-                const { data, ok } = await sbFetch(`/rest/v1/boss_state?select=*&limit=1`);
-
-                if (ok && data && data.length > 0) {
-                    const state = data[0];
-                    BOSS_STATE = {
-                        id: state.id,
-                        hp: state.hp || 1000,
-                        lastKill: state.last_kill || 0,
-                        currentBoss: state.current_boss || 'Рябчик',
-                        respawnDate: state.respawn_date || null
-                    };
-
-                    if (BOSS_STATE.respawnDate) {
-                        const now = new Date();
-                        const msk = new Date(now.getTime() + 3 * 3600000);
-                        const lastRespawn = new Date(BOSS_STATE.respawnDate);
-
-                        if (lastRespawn.getUTCDate() === msk.getUTCDate() &&
-                            lastRespawn.getUTCMonth() === msk.getUTCMonth() &&
-                            lastRespawn.getUTCFullYear() === msk.getUTCFullYear()) {
-                            bossSpawnedToday = true;
-                            spawnMessageSent = true;
-                        } else {
-                            bossSpawnedToday = false;
-                            spawnMessageSent = false;
-                        }
-                    }
-                } else {
-                    const { data: newData } = await sbFetch('/rest/v1/boss_state', {
-                        method: 'POST',
-                        body: {
-                            hp: 1000,
-                            last_kill: 0,
-                            current_boss: 'Рябчик',
-                            respawn_date: null,
-                            updated_at: new Date().toISOString()
-                        }
-                    });
-                    if (newData && newData.length > 0) {
-                        BOSS_STATE = {
-                            id: newData[0].id,
-                            hp: newData[0].hp || 1000,
-                            lastKill: newData[0].last_kill || 0,
-                            currentBoss: newData[0].current_boss || 'Рябчик',
-                            respawnDate: newData[0].respawn_date || null
-                        };
-                        bossSpawnedToday = false;
-                        spawnMessageSent = false;
-                    }
-                }
-
-                renderBoss();
-                return BOSS_STATE;
-            } catch (e) {
-                console.error('❌ Ошибка загрузки:', e);
-                return BOSS_STATE;
-            }
-        }
-
-        async function saveBossState() {
-            try {
-                const { data, ok } = await sbFetch(`/rest/v1/boss_state?select=id&limit=1`);
-
-                if (ok && data && data.length > 0) {
-                    const result = await sbFetch(`/rest/v1/boss_state?id=eq.${data[0].id}`, {
-                        method: 'PATCH',
-                        body: {
-                            hp: BOSS_STATE.hp,
-                            last_kill: BOSS_STATE.lastKill,
-                            current_boss: BOSS_STATE.currentBoss,
-                            respawn_date: BOSS_STATE.respawnDate,
-                            updated_at: new Date().toISOString()
-                        }
-                    });
-                    return result.ok;
-                } else {
-                    const result = await sbFetch('/rest/v1/boss_state', {
-                        method: 'POST',
-                        body: {
-                            hp: BOSS_STATE.hp,
-                            last_kill: BOSS_STATE.lastKill,
-                            current_boss: BOSS_STATE.currentBoss,
-                            respawn_date: BOSS_STATE.respawnDate,
-                            updated_at: new Date().toISOString()
-                        }
-                    });
-                    return result.ok;
-                }
-            } catch (e) {
-                console.error('❌ Ошибка сохранения:', e);
-                return false;
-            }
-        }
-
-        async function sendBossMessage(message) {
-            try {
-                await sbFetch('/rest/v1/messages', {
-                    method: 'POST',
-                    body: {
-                        sender_id: 'system',
-                        sender_name: 'Система',
-                        sender_avatar: AVATAR_LIST[0],
-                        message: message,
-                        is_private: false,
-                        created_at: new Date().toISOString()
-                    }
-                });
-                console.log('✅ Сообщение отправлено:', message);
-            } catch (e) {
-                console.error('❌ Ошибка отправки сообщения:', e);
-            }
-        }
-
-        window.atkBoss = async function() {
-            console.log('⚔️ АТАКА!');
-
-            if (G.coins < 20) {
-                window.toast('❌ Нужно 20 монет', 'err');
-                return;
-            }
-
-            await loadBossState();
-
-            const now = Date.now();
-            const msk = new Date(now + 3 * 3600000);
-            const h = msk.getUTCHours();
-            const active = (h >= 12 && h < 14);
-
-            if (!active) {
-                window.toast('⏰ Босс неактивен! Появляется в 12:00 МСК', 'err');
-                renderBoss();
-                return;
-            }
-
-            if (BOSS_STATE.hp <= 0) {
-                window.toast('❌ Босс мёртв! Ждите завтра 12:00', 'err');
-                return;
-            }
-
-            G.coins -= 20;
-
-            const dmg = Math.floor(Math.random() * 16) + 10;
-            BOSS_STATE.hp = Math.max(0, BOSS_STATE.hp - dmg);
-
-            let msg = '⚔️ Урон: ' + dmg;
-
-            if (Math.random() < 0.25) {
-                G.chests = (G.chests || 0) + 1;
-                msg += ' 🎁 Сундук!';
-            }
-
-            if (BOSS_STATE.hp <= 0) {
-                msg += ' 🎉 Рябчик повержён!';
-
-                G.chests = (G.chests || 0) + 2;
-                BOSS_STATE.lastKill = Date.now();
-
-                await saveBossState();
-                await saveUserData();
-
-                await sendBossMessage(`⚔️ Босс Рябчик повержён игроком ${G.name}! 🎉`);
-
-                window.toast('🎉 Босс повержён! +2 сундука!', 'gld');
-            } else {
-                await saveBossState();
-                await saveUserData();
-            }
-
-            document.getElementById('ATK_l').textContent = msg;
-            renderUI();
-            window.toast(msg, 'gld');
-        };
-
-        async function checkBossRespawn() {
-            try {
-                await loadBossState();
-
-                const now = Date.now();
-                const msk = new Date(now + 3 * 3600000);
-                const h = msk.getUTCHours();
-                const minutes = msk.getUTCMinutes();
-
-                console.log(`🕐 Проверка босса: ${h}:${String(minutes).padStart(2, '0')} МСК, hp: ${BOSS_STATE.hp}, spawned: ${bossSpawnedToday}, msgSent: ${spawnMessageSent}`);
-
-                if (h === 12 && !bossSpawnedToday && BOSS_STATE.hp <= 0) {
-                    console.log('👹 ВОЗРОЖДАЕМ БОССА В 12:00!');
-
-                    BOSS_STATE.hp = 1000;
-                    BOSS_STATE.lastKill = Date.now();
-                    BOSS_STATE.respawnDate = new Date(now + 3 * 3600000).toISOString();
-                    await saveBossState();
-
+async function loadBossState() {
+    try {
+        const { data, ok } = await sbFetch(`/rest/v1/boss_state?select=*&limit=1`);
+        
+        if (ok && data && data.length > 0) {
+            const state = data[0];
+            BOSS_STATE = {
+                id: state.id,
+                hp: state.hp || 1000,
+                lastKill: state.last_kill || 0,
+                currentBoss: state.current_boss || 'Рябчик',
+                respawnDate: state.respawn_date || null
+            };
+            
+            // Проверяем, появлялся ли босс сегодня
+            if (BOSS_STATE.respawnDate) {
+                const now = new Date();
+                const msk = new Date(now.getTime() + 3 * 3600000);
+                const lastRespawn = new Date(BOSS_STATE.respawnDate);
+                
+                if (lastRespawn.getUTCDate() === msk.getUTCDate() &&
+                    lastRespawn.getUTCMonth() === msk.getUTCMonth() &&
+                    lastRespawn.getUTCFullYear() === msk.getUTCFullYear()) {
                     bossSpawnedToday = true;
                     spawnMessageSent = true;
-
-                    await sendBossMessage(`👹 Босс Рябчик появился! Активен до 14:00 МСК!`);
-
-                    window.toast('👹 Босс появился!', 'gld');
-                    renderBoss();
-                    return;
-                }
-
-                if (BOSS_STATE.hp > 0 && h >= 14) {
-                    console.log('⏰ Босс исчез (время вышло)!');
-                    BOSS_STATE.hp = 0;
-                    await saveBossState();
-                    renderBoss();
-
-                    await sendBossMessage(`⏰ Босс Рябчик ушёл! Ждите завтра 12:00!`);
-
-                    window.toast('⏰ Босс ушёл до завтра!', 'err');
-                }
-
-                if (h === 0 && minutes === 0) {
+                } else {
                     bossSpawnedToday = false;
                     spawnMessageSent = false;
-                    console.log('🔄 Сброшены флаги для нового дня');
                 }
-
-            } catch (e) {
-                console.error('❌ Ошибка проверки:', e);
             }
-        }
-
-        function renderBoss() {
-            try {
-                const now = Date.now();
-                const msk = new Date(now + 3 * 3600000);
-                const h = msk.getUTCHours();
-
-                const active = (h >= 12 && h < 14);
-
-                const hp = BOSS_STATE?.hp || 0;
-                const maxHp = 1000;
-                const pct = Math.max(0, Math.round(hp / maxHp * 100));
-
-                const hpEl = document.getElementById('BS_h');
-                if (hpEl) hpEl.style.width = pct + '%';
-
-                const htEl = document.getElementById('BS_ht');
-                if (htEl) htEl.textContent = fmt(hp) + ' / ' + maxHp + ' ХП';
-
-                const atkBtn = document.getElementById('ATK_btn');
-                const statusEl = document.getElementById('BS_s');
-                const rsEl = document.getElementById('BS_rs');
-
-                if (active && hp > 0) {
-                    if (statusEl) statusEl.textContent = '⚔️ Активен! Атакуйте!';
-                    if (rsEl) rsEl.textContent = 'Исчезнет в 14:00 МСК';
-                    if (atkBtn) atkBtn.disabled = false;
-                } else if (active && hp <= 0) {
-                    if (statusEl) statusEl.textContent = '💀 Повержён! Ждите завтра 12:00.';
-                    if (rsEl) rsEl.textContent = 'Следующий завтра в 12:00 МСК';
-                    if (atkBtn) atkBtn.disabled = true;
-                } else {
-                    if (statusEl) statusEl.textContent = '⏳ Появится в 12:00 МСК';
-                    if (rsEl) rsEl.textContent = 'Следующий: завтра в 12:00 МСК';
-                    if (atkBtn) atkBtn.disabled = true;
-                }
-            } catch (e) {
-                console.error('❌ Ошибка рендера:', e);
-            }
-        }
-
-        // ============================================================
-        // АУКЦИОН
-        // ============================================================
-        async function loadAuctionState() {
-            try {
-                const { data, ok } = await sbFetch(`/rest/v1/auction_state?select=*&limit=1`);
-                console.log('📊 Загрузка аукциона:', data);
-
-                if (ok && data && data.length > 0) {
-                    const state = data[0];
-                    auctionData = {
-                        id: state.id,
-                        active: state.active || false,
-                        startTime: state.start_time || 0,
-                        endTime: state.end_time || 0,
-                        bids: state.bids || [],
-                        winner: state.winner || null,
-                        winnerBid: state.winner_bid || 0
-                    };
-                } else {
-                    const { data: newData, ok: newOk } = await sbFetch('/rest/v1/auction_state', {
-                        method: 'POST',
-                        body: {
-                            active: false,
-                            start_time: 0,
-                            end_time: 0,
-                            bids: [],
-                            winner: null,
-                            winner_bid: 0,
-                            updated_at: new Date().toISOString()
-                        }
-                    });
-                    console.log('📊 Создание аукциона:', newData);
-                    auctionData = {
-                        id: newData?.[0]?.id || 1,
-                        active: false,
-                        startTime: 0,
-                        endTime: 0,
-                        bids: [],
-                        winner: null,
-                        winnerBid: 0
-                    };
-                }
-                updateAuctionUI();
-
-                if (auctionData.active && Date.now() < auctionData.endTime) {
-                    if (!auctionTimerInterval) {
-                        startAuctionTimer();
-                    }
-                }
-                return auctionData;
-            } catch (e) {
-                console.error('❌ Ошибка загрузки аукциона:', e);
-                if (!auctionData.active) {
-                    auctionData = { active: false, startTime: 0, endTime: 0, bids: [], winner: null, winnerBid: 0 };
-                }
-                updateAuctionUI();
-                return auctionData;
-            }
-        }
-
-        async function saveAuctionState() {
-            try {
-                const payload = {
-                    active: auctionData.active,
-                    start_time: auctionData.startTime,
-                    end_time: auctionData.endTime,
-                    bids: auctionData.bids || [],
-                    winner: auctionData.winner || null,
-                    winner_bid: auctionData.winnerBid || 0,
+        } else {
+            const { data: newData } = await sbFetch('/rest/v1/boss_state', {
+                method: 'POST',
+                body: {
+                    hp: 1000,
+                    last_kill: 0,
+                    current_boss: 'Рябчик',
+                    respawn_date: null,
                     updated_at: new Date().toISOString()
+                }
+            });
+            if (newData && newData.length > 0) {
+                BOSS_STATE = {
+                    id: newData[0].id,
+                    hp: newData[0].hp || 1000,
+                    lastKill: newData[0].last_kill || 0,
+                    currentBoss: newData[0].current_boss || 'Рябчик',
+                    respawnDate: newData[0].respawn_date || null
                 };
-                console.log('💾 Сохранение аукциона:', payload);
-
-                const { data, ok } = await sbFetch(`/rest/v1/auction_state?select=*&limit=1`);
-
-                if (ok && data && data.length > 0) {
-                    const result = await sbFetch(`/rest/v1/auction_state?id=eq.${data[0].id}`, {
-                        method: 'PATCH',
-                        body: payload
-                    });
-                    console.log('💾 Результат обновления аукциона:', result);
-                    return result.ok;
-                } else {
-                    const result = await sbFetch('/rest/v1/auction_state', {
-                        method: 'POST',
-                        body: payload
-                    });
-                    console.log('💾 Результат создания аукциона:', result);
-                    return result.ok;
-                }
-            } catch (e) {
-                console.error('❌ Ошибка сохранения аукциона:', e);
-                return false;
+                bossSpawnedToday = false;
+                spawnMessageSent = false;
             }
         }
+        
+        renderBoss();
+        return BOSS_STATE;
+    } catch (e) {
+        console.error('❌ Ошибка загрузки:', e);
+        return BOSS_STATE;
+    }
+}
 
-        function startAuctionPolling() {
-            if (auctionPollInterval) clearInterval(auctionPollInterval);
-            auctionPollInterval = setInterval(async () => {
-                await loadAuctionState();
-                updateAuctionUI();
-            }, 5000);
+// ============================================================
+// СОХРАНЕНИЕ БОССА В БД
+// ============================================================
+
+async function saveBossState() {
+    try {
+        const { data, ok } = await sbFetch(`/rest/v1/boss_state?select=id&limit=1`);
+        
+        if (ok && data && data.length > 0) {
+            const result = await sbFetch(`/rest/v1/boss_state?id=eq.${data[0].id}`, {
+                method: 'PATCH',
+                body: {
+                    hp: BOSS_STATE.hp,
+                    last_kill: BOSS_STATE.lastKill,
+                    current_boss: BOSS_STATE.currentBoss,
+                    respawn_date: BOSS_STATE.respawnDate,
+                    updated_at: new Date().toISOString()
+                }
+            });
+            return result.ok;
+        } else {
+            const result = await sbFetch('/rest/v1/boss_state', {
+                method: 'POST',
+                body: {
+                    hp: BOSS_STATE.hp,
+                    last_kill: BOSS_STATE.lastKill,
+                    current_boss: BOSS_STATE.currentBoss,
+                    respawn_date: BOSS_STATE.respawnDate,
+                    updated_at: new Date().toISOString()
+                }
+            });
+            return result.ok;
         }
+    } catch (e) {
+        console.error('❌ Ошибка сохранения:', e);
+        return false;
+    }
+}
 
-        function updateAuctionUI() {
-            try {
-                const statusEl = document.getElementById('auctionStatus');
-                const timerEl = document.getElementById('auctionTimer');
-                const winnerEl = document.getElementById('auctionWinner');
-                const bidAmountEl = document.getElementById('AU_a');
-                const leaderEl = document.getElementById('AU_l');
-                const myBidEl = document.getElementById('MY_b');
+// ============================================================
+// ОТПРАВКА СООБЩЕНИЯ В ЧАТ
+// ============================================================
 
-                if (!statusEl) return;
+async function sendBossMessage(message) {
+    try {
+        await sbFetch('/rest/v1/messages', {
+            method: 'POST',
+            body: {
+                sender_id: 'system',
+                sender_name: 'Система',
+                sender_avatar: AVATAR_LIST[0],
+                message: message,
+                is_private: false,
+                created_at: new Date().toISOString()
+            }
+        });
+        console.log('✅ Сообщение отправлено:', message);
+    } catch (e) {
+        console.error('❌ Ошибка отправки сообщения:', e);
+    }
+}
 
-                const now = Date.now();
-                console.log('🔄 Обновление UI аукциона:', auctionData);
+// ============================================================
+// АТАКА БОССА
+// ============================================================
 
-                if (auctionData.active && now < auctionData.endTime) {
-                    statusEl.textContent = '🟢 Аукцион активен!';
-                    statusEl.style.color = 'var(--grn)';
-                    if (winnerEl) winnerEl.textContent = '';
+window.atkBoss = async function() {
+    console.log('⚔️ АТАКА!');
+    
+    if (G.coins < 20) {
+        window.toast('❌ Нужно 20 монет', 'err');
+        return;
+    }
 
-                    const timeLeft = Math.max(0, auctionData.endTime - now);
-                    const hours = Math.floor(timeLeft / 3600000);
-                    const minutes = Math.floor((timeLeft % 3600000) / 60000);
-                    const seconds = Math.floor((timeLeft % 60000) / 1000);
-                    if (timerEl) {
-                        timerEl.textContent = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
-                    }
+    await loadBossState();
+    
+    const now = Date.now();
+    const msk = new Date(now + 3 * 3600000);
+    const h = msk.getUTCHours();
+    const active = (h >= 12 && h < 14);
+    
+    if (!active) {
+        window.toast('⏰ Босс неактивен! Появляется в 12:00 МСК', 'err');
+        renderBoss();
+        return;
+    }
+    
+    if (BOSS_STATE.hp <= 0) {
+        window.toast('❌ Босс мёртв! Ждите завтра 12:00', 'err');
+        return;
+    }
 
-                    const sortedBids = [...(auctionData.bids || [])].sort((a, b) => b.bid - a.bid);
-                    if (sortedBids.length > 0 && bidAmountEl) {
-                        bidAmountEl.textContent = fmt(sortedBids[0].bid);
-                        if (leaderEl) leaderEl.textContent = `Лидирует: ${sortedBids[0].name} (${fmt(sortedBids[0].bid)} 💰)`;
-                    } else {
-                        if (bidAmountEl) bidAmountEl.textContent = '0';
-                        if (leaderEl) leaderEl.textContent = 'Ставок пока нет';
-                    }
+    G.coins -= 20;
+    
+    const dmg = Math.floor(Math.random() * 16) + 10;
+    BOSS_STATE.hp = Math.max(0, BOSS_STATE.hp - dmg);
+    
+    let msg = '⚔️ Урон: ' + dmg;
+    
+    if (Math.random() < 0.25) {
+        G.chests = (G.chests || 0) + 1;
+        msg += ' 🎁 Сундук!';
+    }
 
-                    const myBid = (auctionData.bids || []).find(b => b.id === UID);
-                    if (myBidEl) myBidEl.textContent = myBid ? fmt(myBid.bid) : '0';
+    // ============================================================
+    // БОСС ПОВЕРЖЕН - ОТПРАВЛЯЕМ СООБЩЕНИЕ
+    // ============================================================
+    if (BOSS_STATE.hp <= 0) {
+        msg += ' 🎉 Рябчик повержён!';
+        
+        G.chests = (G.chests || 0) + 2;
+        BOSS_STATE.lastKill = Date.now();
+        
+        await saveBossState();
+        await saveUserData();
+        
+        await sendBossMessage(`⚔️ Босс Рябчик повержён игроком ${G.name}! 🎉`);
+        
+        window.toast('🎉 Босс повержён! +2 сундука!', 'gld');
+    } else {
+        await saveBossState();
+        await saveUserData();
+    }
 
-                    renderPodiumAuction();
+    document.getElementById('ATK_l').textContent = msg;
+    renderUI();
+    window.toast(msg, 'gld');
+};
 
-                } else if (auctionData.active && now >= auctionData.endTime) {
-                    statusEl.textContent = '🔴 Аукцион завершён!';
-                    statusEl.style.color = 'var(--red)';
-                    if (timerEl) timerEl.textContent = '00:00:00';
+// ============================================================
+// ПРОВЕРКА ВОЗРОЖДЕНИЯ (КАЖДЫЕ 30 МИНУТ)
+// ============================================================
 
-                    if (auctionData.winner && winnerEl) {
-                        winnerEl.textContent = `🏆 Победитель: ${auctionData.winner} (${fmt(auctionData.winnerBid)} 💰)`;
-                        winnerEl.style.color = 'var(--gold)';
-                        if (bidAmountEl) bidAmountEl.textContent = fmt(auctionData.winnerBid);
-                        if (leaderEl) leaderEl.textContent = `Победитель: ${auctionData.winner}`;
-                    } else {
-                        if (winnerEl) winnerEl.textContent = 'Победитель не определён';
-                        if (bidAmountEl) bidAmountEl.textContent = '0';
-                        if (leaderEl) leaderEl.textContent = 'Ставок нет';
-                    }
+async function checkBossRespawn() {
+    try {
+        await loadBossState();
+        
+        const now = Date.now();
+        const msk = new Date(now + 3 * 3600000);
+        const h = msk.getUTCHours();
+        const minutes = msk.getUTCMinutes();
+        
+        console.log(`🕐 Проверка босса: ${h}:${String(minutes).padStart(2, '0')} МСК, hp: ${BOSS_STATE.hp}, spawned: ${bossSpawnedToday}, msgSent: ${spawnMessageSent}`);
+        
+        // ============================================================
+        // 1. СПАВН БОССА В 12:00 (ТОЛЬКО 1 РАЗ В ДЕНЬ)
+        // ============================================================
+        if (h === 12 && !bossSpawnedToday && BOSS_STATE.hp <= 0) {
+            console.log('👹 ВОЗРОЖДАЕМ БОССА В 12:00!');
+            
+            BOSS_STATE.hp = 1000;
+            BOSS_STATE.lastKill = Date.now();
+            BOSS_STATE.respawnDate = new Date(now + 3 * 3600000).toISOString();
+            await saveBossState();
+            
+            bossSpawnedToday = true;
+            spawnMessageSent = true;
+            
+            // Отправляем сообщение о спавне
+            await sendBossMessage(`👹 Босс Рябчик появился! Активен до 14:00 МСК!`);
+            
+            window.toast('👹 Босс появился!', 'gld');
+            renderBoss();
+            return;
+        }
+        
+        // ============================================================
+        // 2. ИСЧЕЗНОВЕНИЕ БОССА В 14:00
+        // ============================================================
+        if (BOSS_STATE.hp > 0 && h >= 14) {
+            console.log('⏰ Босс исчез (время вышло)!');
+            BOSS_STATE.hp = 0;
+            await saveBossState();
+            renderBoss();
+            
+            await sendBossMessage(`⏰ Босс Рябчик ушёл! Ждите завтра 12:00!`);
+            
+            window.toast('⏰ Босс ушёл до завтра!', 'err');
+        }
+        
+        // ============================================================
+        // 3. СБРАСЫВАЕМ ФЛАГИ В ПОЛНОЧЬ
+        // ============================================================
+        if (h === 0 && minutes === 0) {
+            bossSpawnedToday = false;
+            spawnMessageSent = false;
+            console.log('🔄 Сброшены флаги для нового дня');
+        }
+        
+    } catch (e) {
+        console.error('❌ Ошибка проверки:', e);
+    }
+}
 
-                    const myBid = (auctionData.bids || []).find(b => b.id === UID);
-                    if (myBidEl) myBidEl.textContent = myBid ? fmt(myBid.bid) : '0';
+// ============================================================
+// РЕНДЕР БОССА
+// ============================================================
 
-                    renderPodiumAuction();
+function renderBoss() {
+    try {
+        const now = Date.now();
+        const msk = new Date(now + 3 * 3600000);
+        const h = msk.getUTCHours();
+        
+        const active = (h >= 12 && h < 14); // ✅ Исправлено на 14:00
+        
+        const hp = BOSS_STATE?.hp || 0;
+        const maxHp = 1000;
+        const pct = Math.max(0, Math.round(hp / maxHp * 100));
+        
+        const hpEl = document.getElementById('BS_h');
+        if (hpEl) hpEl.style.width = pct + '%';
+        
+        const htEl = document.getElementById('BS_ht');
+        if (htEl) htEl.textContent = fmt(hp) + ' / ' + maxHp + ' ХП';
+        
+        const atkBtn = document.getElementById('ATK_btn');
+        const statusEl = document.getElementById('BS_s');
+        const rsEl = document.getElementById('BS_rs');
+        
+        if (active && hp > 0) {
+            if (statusEl) statusEl.textContent = '⚔️ Активен! Атакуйте!';
+            if (rsEl) rsEl.textContent = 'Исчезнет в 14:00 МСК'; // ✅ Исправлено
+            if (atkBtn) atkBtn.disabled = false;
+        } else if (active && hp <= 0) {
+            if (statusEl) statusEl.textContent = '💀 Повержён! Ждите завтра 12:00.';
+            if (rsEl) rsEl.textContent = 'Следующий завтра в 12:00 МСК';
+            if (atkBtn) atkBtn.disabled = true;
+        } else {
+            if (statusEl) statusEl.textContent = '⏳ Появится в 12:00 МСК';
+            if (rsEl) rsEl.textContent = 'Следующий: завтра в 12:00 МСК';
+            if (atkBtn) atkBtn.disabled = true;
+        }
+    } catch (e) {
+        console.error('❌ Ошибка рендера:', e);
+    }
+}
 
-                } else {
-                    statusEl.textContent = '⏳ Аукцион не запущен';
-                    statusEl.style.color = 'var(--tx2)';
-                    if (timerEl) timerEl.textContent = '--:--:--';
-                    if (winnerEl) winnerEl.textContent = '';
-                    if (bidAmountEl) bidAmountEl.textContent = '0';
-                    if (leaderEl) leaderEl.textContent = 'Ставок пока нет';
-                    if (myBidEl) myBidEl.textContent = '0';
+// ============================================================
+// ЗАПУСК
+// ============================================================
 
-                    const podiumEl = document.getElementById('podiumList');
-                    if (podiumEl) {
-                        podiumEl.innerHTML = '<div class="tm tc" style="padding:12px;">Пока нет ставок</div>';
-                    }
+async function initBoss() {
+    console.log('🚀 Инициализация босса...');
+    
+    await loadBossState();
+    await checkBossRespawn();
+    renderBoss();
+    
+    if (bossCheckInterval) clearInterval(bossCheckInterval);
+    bossCheckInterval = setInterval(async () => {
+        await checkBossRespawn();
+        renderBoss();
+    }, 1800000); // 30 минут
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initBoss);
+} else {
+    initBoss();
+}
+// ============================================================
+// АУКЦИОН (ГЛОБАЛЬНЫЙ) - ИСПРАВЛЕННАЯ ВЕРСИЯ
+// ============================================================
+
+// Загрузка состояния аукциона
+async function loadAuctionState() {
+    try {
+        const { data, ok } = await sbFetch(`/rest/v1/auction_state?select=*&limit=1`);
+        console.log('📊 Загрузка аукциона:', data);
+        
+        if (ok && data && data.length > 0) {
+            const state = data[0];
+            auctionData = {
+                id: state.id,
+                active: state.active || false,
+                startTime: state.start_time || 0,
+                endTime: state.end_time || 0,
+                bids: state.bids || [],
+                winner: state.winner || null,
+                winnerBid: state.winner_bid || 0
+            };
+        } else {
+            // Создаем запись
+            const { data: newData, ok: newOk } = await sbFetch('/rest/v1/auction_state', {
+                method: 'POST',
+                body: {
+                    active: false,
+                    start_time: 0,
+                    end_time: 0,
+                    bids: [],
+                    winner: null,
+                    winner_bid: 0,
+                    updated_at: new Date().toISOString()
                 }
-
-                const startContainer = document.getElementById('auctionStartContainer');
-                const codeContainer = document.getElementById('auctionCodeContainer');
-                const adminPanel = document.getElementById('adminPanel');
-                const shopCodeContainer = document.getElementById('shopCodeContainer');
-
-                if (isAdmin) {
-                    if (startContainer) startContainer.style.display = 'block';
-                    if (codeContainer) codeContainer.style.display = 'none';
-                    if (adminPanel) adminPanel.style.display = 'block';
-                    if (shopCodeContainer) shopCodeContainer.style.display = 'none';
-                } else {
-                    if (startContainer) startContainer.style.display = 'none';
-                    if (codeContainer) codeContainer.style.display = 'block';
-                    if (adminPanel) adminPanel.style.display = 'none';
-                    if (shopCodeContainer) shopCodeContainer.style.display = 'block';
-                }
-            } catch (e) {
-                console.error('❌ Ошибка обновления UI аукциона:', e);
+            });
+            console.log('📊 Создание аукциона:', newData);
+            auctionData = { 
+                id: newData?.[0]?.id || 1,
+                active: false, 
+                startTime: 0, 
+                endTime: 0, 
+                bids: [], 
+                winner: null, 
+                winnerBid: 0 
+            };
+        }
+        updateAuctionUI();
+        
+        if (auctionData.active && Date.now() < auctionData.endTime) {
+            if (!auctionTimerInterval) {
+                startAuctionTimer();
             }
         }
+        return auctionData;
+    } catch (e) {
+        console.error('❌ Ошибка загрузки аукциона:', e);
+        if (!auctionData.active) {
+            auctionData = { active: false, startTime: 0, endTime: 0, bids: [], winner: null, winnerBid: 0 };
+        }
+        updateAuctionUI();
+        return auctionData;
+    }
+}
 
-        function renderPodiumAuction() {
+// Сохранение состояния аукциона
+async function saveAuctionState() {
+    try {
+        const payload = {
+            active: auctionData.active,
+            start_time: auctionData.startTime,
+            end_time: auctionData.endTime,
+            bids: auctionData.bids || [],
+            winner: auctionData.winner || null,
+            winner_bid: auctionData.winnerBid || 0,
+            updated_at: new Date().toISOString()
+        };
+        console.log('💾 Сохранение аукциона:', payload);
+
+        const { data, ok } = await sbFetch(`/rest/v1/auction_state?select=*&limit=1`);
+        
+        if (ok && data && data.length > 0) {
+            // Обновляем
+            const result = await sbFetch(`/rest/v1/auction_state?id=eq.${data[0].id}`, {
+                method: 'PATCH',
+                body: payload
+            });
+            console.log('💾 Результат обновления аукциона:', result);
+            return result.ok;
+        } else {
+            // Создаем
+            const result = await sbFetch('/rest/v1/auction_state', {
+                method: 'POST',
+                body: payload
+            });
+            console.log('💾 Результат создания аукциона:', result);
+            return result.ok;
+        }
+    } catch (e) {
+        console.error('❌ Ошибка сохранения аукциона:', e);
+        return false;
+    }
+}
+
+// Периодическая проверка аукциона
+function startAuctionPolling() {
+    if (auctionPollInterval) clearInterval(auctionPollInterval);
+    auctionPollInterval = setInterval(async () => {
+        await loadAuctionState();
+        updateAuctionUI();
+    }, 5000); // Каждые 5 секунд
+}
+
+// Обновление UI аукциона
+function updateAuctionUI() {
+    try {
+        const statusEl = document.getElementById('auctionStatus');
+        const timerEl = document.getElementById('auctionTimer');
+        const winnerEl = document.getElementById('auctionWinner');
+        const bidAmountEl = document.getElementById('AU_a');
+        const leaderEl = document.getElementById('AU_l');
+        const myBidEl = document.getElementById('MY_b');
+
+        if (!statusEl) return;
+
+        const now = Date.now();
+        console.log('🔄 Обновление UI аукциона:', auctionData);
+
+        if (auctionData.active && now < auctionData.endTime) {
+            statusEl.textContent = '🟢 Аукцион активен!';
+            statusEl.style.color = 'var(--grn)';
+            if (winnerEl) winnerEl.textContent = '';
+
+            const timeLeft = Math.max(0, auctionData.endTime - now);
+            const hours = Math.floor(timeLeft / 3600000);
+            const minutes = Math.floor((timeLeft % 3600000) / 60000);
+            const seconds = Math.floor((timeLeft % 60000) / 1000);
+            if (timerEl) {
+                timerEl.textContent = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+            }
+
+            const sortedBids = [...(auctionData.bids || [])].sort((a, b) => b.bid - a.bid);
+            if (sortedBids.length > 0 && bidAmountEl) {
+                bidAmountEl.textContent = fmt(sortedBids[0].bid);
+                if (leaderEl) leaderEl.textContent = `Лидирует: ${sortedBids[0].name} (${fmt(sortedBids[0].bid)} 💰)`;
+            } else {
+                if (bidAmountEl) bidAmountEl.textContent = '0';
+                if (leaderEl) leaderEl.textContent = 'Ставок пока нет';
+            }
+
+            const myBid = (auctionData.bids || []).find(b => b.id === UID);
+            if (myBidEl) myBidEl.textContent = myBid ? fmt(myBid.bid) : '0';
+
+            renderPodiumAuction();
+
+        } else if (auctionData.active && now >= auctionData.endTime) {
+            statusEl.textContent = '🔴 Аукцион завершён!';
+            statusEl.style.color = 'var(--red)';
+            if (timerEl) timerEl.textContent = '00:00:00';
+
+            if (auctionData.winner && winnerEl) {
+                winnerEl.textContent = `🏆 Победитель: ${auctionData.winner} (${fmt(auctionData.winnerBid)} 💰)`;
+                winnerEl.style.color = 'var(--gold)';
+                if (bidAmountEl) bidAmountEl.textContent = fmt(auctionData.winnerBid);
+                if (leaderEl) leaderEl.textContent = `Победитель: ${auctionData.winner}`;
+            } else {
+                if (winnerEl) winnerEl.textContent = 'Победитель не определён';
+                if (bidAmountEl) bidAmountEl.textContent = '0';
+                if (leaderEl) leaderEl.textContent = 'Ставок нет';
+            }
+
+            const myBid = (auctionData.bids || []).find(b => b.id === UID);
+            if (myBidEl) myBidEl.textContent = myBid ? fmt(myBid.bid) : '0';
+
+            renderPodiumAuction();
+
+        } else {
+            statusEl.textContent = '⏳ Аукцион не запущен';
+            statusEl.style.color = 'var(--tx2)';
+            if (timerEl) timerEl.textContent = '--:--:--';
+            if (winnerEl) winnerEl.textContent = '';
+            if (bidAmountEl) bidAmountEl.textContent = '0';
+            if (leaderEl) leaderEl.textContent = 'Ставок пока нет';
+            if (myBidEl) myBidEl.textContent = '0';
+            
             const podiumEl = document.getElementById('podiumList');
-            if (!podiumEl) return;
-
-            const sorted = [...(auctionData.bids || [])].sort((a, b) => b.bid - a.bid);
-            if (sorted.length === 0) {
-                podiumEl.innerHTML = `<div class="tm tc" style="padding:12px;">Пока нет ставок</div>`;
-                return;
-            }
-
-            const top3 = sorted.slice(0, 3);
-            const medals = ['🥇', '🥈', '🥉'];
-            podiumEl.innerHTML = top3.map((bidder, index) => {
-                const isMe = bidder.id === UID;
-                return `<div class="row" style="justify-content:space-between;padding:8px 0;${isMe ? 'background:var(--bg5);border-radius:6px;' : ''}">
-                    <span>${medals[index]} ${bidder.name} ${isMe ? '👈' : ''}</span>
-                    <span style="color:var(--gld);font-weight:700;">${fmt(bidder.bid)} 💰</span>
-                </div>`;
-            }).join('');
-
-            if (sorted.length > 3) {
-                podiumEl.innerHTML += `<div class="tm tc" style="padding:4px;">+ ещё ${sorted.length - 3} участников</div>`;
+            if (podiumEl) {
+                podiumEl.innerHTML = '<div class="tm tc" style="padding:12px;">Пока нет ставок</div>';
             }
         }
 
-        window.checkAuctionCode = function() {
-            const code = prompt('Введите код администратора для запуска аукциона:');
-            if (code === 'denchik9995066943') {
-                isAdmin = true;
-                sessionStorage.setItem('coinmine_admin', 'true');
-                window.toast('🔐 Админ-доступ активирован!', 'ok');
-                updateAuctionUI();
-            } else if (code !== null) {
-                window.toast('❌ Неверный код!', 'err');
+        // Показываем кнопки админа
+        const startContainer = document.getElementById('auctionStartContainer');
+        const codeContainer = document.getElementById('auctionCodeContainer');
+        const adminPanel = document.getElementById('adminPanel');
+        const shopCodeContainer = document.getElementById('shopCodeContainer');
+
+        if (isAdmin) {
+            if (startContainer) startContainer.style.display = 'block';
+            if (codeContainer) codeContainer.style.display = 'none';
+            if (adminPanel) adminPanel.style.display = 'block';
+            if (shopCodeContainer) shopCodeContainer.style.display = 'none';
+        } else {
+            if (startContainer) startContainer.style.display = 'none';
+            if (codeContainer) codeContainer.style.display = 'block';
+            if (adminPanel) adminPanel.style.display = 'none';
+            if (shopCodeContainer) shopCodeContainer.style.display = 'block';
+        }
+    } catch (e) {
+        console.error('❌ Ошибка обновления UI аукциона:', e);
+    }
+}
+
+// Рендер подиума
+function renderPodiumAuction() {
+    const podiumEl = document.getElementById('podiumList');
+    if (!podiumEl) return;
+
+    const sorted = [...(auctionData.bids || [])].sort((a, b) => b.bid - a.bid);
+    if (sorted.length === 0) {
+        podiumEl.innerHTML = `<div class="tm tc" style="padding:12px;">Пока нет ставок</div>`;
+        return;
+    }
+
+    const top3 = sorted.slice(0, 3);
+    const medals = ['🥇', '🥈', '🥉'];
+    podiumEl.innerHTML = top3.map((bidder, index) => {
+        const isMe = bidder.id === UID;
+        return `<div class="row" style="justify-content:space-between;padding:8px 0;${isMe ? 'background:var(--bg5);border-radius:6px;' : ''}">
+            <span>${medals[index]} ${bidder.name} ${isMe ? '👈' : ''}</span>
+            <span style="color:var(--gld);font-weight:700;">${fmt(bidder.bid)} 💰</span>
+        </div>`;
+    }).join('');
+    
+    if (sorted.length > 3) {
+        podiumEl.innerHTML += `<div class="tm tc" style="padding:4px;">+ ещё ${sorted.length - 3} участников</div>`;
+    }
+}
+
+// Проверка кода администратора
+window.checkAuctionCode = function() {
+    const code = prompt('Введите код администратора для запуска аукциона:');
+    if (code === 'denchik9995066943') {
+        isAdmin = true;
+        sessionStorage.setItem('coinmine_admin', 'true');
+        window.toast('🔐 Админ-доступ активирован!', 'ok');
+        updateAuctionUI();
+    } else if (code !== null) {
+        window.toast('❌ Неверный код!', 'err');
+    }
+};
+
+window.checkAdminCode = function() {
+    const code = prompt('Введите код администратора:');
+    if (code === 'denchik9995066943') {
+        isAdmin = true;
+        sessionStorage.setItem('coinmine_admin', 'true');
+        window.toast('🔐 Админ-доступ активирован!', 'ok');
+        updateAuctionUI();
+    } else if (code !== null) {
+        window.toast('❌ Неверный код!', 'err');
+    }
+};
+
+// Запуск аукциона
+window.startAuction = async function() {
+    console.log('🚀 Попытка запуска аукциона, isAdmin:', isAdmin);
+    
+    if (!isAdmin) {
+        window.toast('⚠️ Только администратор может запустить аукцион!', 'err');
+        return;
+    }
+
+    if (auctionData.active) {
+        window.toast('❌ Аукцион уже запущен!', 'err');
+        return;
+    }
+
+    if (!confirm('Запустить аукцион на 24 часа?')) return;
+
+    const now = Date.now();
+    auctionData.active = true;
+    auctionData.startTime = now;
+    auctionData.endTime = now + 24 * 60 * 60 * 1000;
+    auctionData.bids = [];
+    auctionData.winner = null;
+    auctionData.winnerBid = 0;
+
+    console.log('🚀 Запуск аукциона:', auctionData);
+
+    const saved = await saveAuctionState();
+    if (!saved) {
+        window.toast('❌ Ошибка сохранения!', 'err');
+        return;
+    }
+    
+    updateAuctionUI();
+    startAuctionTimer();
+
+    try {
+        await sbFetch('/rest/v1/messages', {
+            method: 'POST',
+            body: {
+                sender_id: 'system',
+                sender_name: 'Система',
+                sender_avatar: AVATAR_LIST[0],
+                message: `🏛 АУКЦИОН ЗАПУЩЕН! Делайте ставки в разделе "Игры"! (24 часа)`,
+                is_private: false,
+                created_at: new Date().toISOString()
             }
-        };
+        });
+    } catch (e) {
+        console.warn('⚠️ Не удалось отправить уведомление');
+    }
 
-        window.checkAdminCode = function() {
-            const code = prompt('Введите код администратора:');
-            if (code === 'denchik9995066943') {
-                isAdmin = true;
-                sessionStorage.setItem('coinmine_admin', 'true');
-                window.toast('🔐 Админ-доступ активирован!', 'ok');
-                updateAuctionUI();
-            } else if (code !== null) {
-                window.toast('❌ Неверный код!', 'err');
-            }
-        };
+    window.toast('🚀 Аукцион запущен на 24 часа!', 'gld');
+};
 
-        window.startAuction = async function() {
-            console.log('🚀 Попытка запуска аукциона, isAdmin:', isAdmin);
+// Таймер
+function startAuctionTimer() {
+    if (auctionTimerInterval) clearInterval(auctionTimerInterval);
+    auctionTimerInterval = setInterval(async () => {
+        if (!auctionData.active) {
+            clearInterval(auctionTimerInterval);
+            return;
+        }
+        updateAuctionUI();
+        if (Date.now() >= auctionData.endTime) {
+            clearInterval(auctionTimerInterval);
+            await finishAuction();
+        }
+    }, 1000);
+}
 
-            if (!isAdmin) {
-                window.toast('⚠️ Только администратор может запустить аукцион!', 'err');
-                return;
-            }
+// Завершение аукциона
+async function finishAuction() {
+    console.log('🏁 Завершение аукциона');
+    if (!auctionData.active) return;
 
-            if (auctionData.active) {
-                window.toast('❌ Аукцион уже запущен!', 'err');
-                return;
-            }
+    const sorted = [...(auctionData.bids || [])].sort((a, b) => b.bid - a.bid);
+    console.log('📊 Ставки:', sorted);
+    
+    if (sorted.length > 0) {
+        auctionData.winner = sorted[0].name;
+        auctionData.winnerBid = sorted[0].bid;
+        console.log('🏆 Победитель:', auctionData.winner, auctionData.winnerBid);
 
-            if (!confirm('Запустить аукцион на 24 часа?')) return;
+        try {
+            const { data: users } = await sbFetch(
+                `/rest/v1/users?data->>name=eq.${encodeURIComponent(auctionData.winner)}&select=id,data`
+            );
+            if (users && users.length > 0) {
+                const winner = users[0];
+                const currentCoins = winner.data?.coins || 0;
+                const prize = Math.floor(auctionData.winnerBid * 0.7);
+                await sbFetch(`/rest/v1/users?id=eq.${winner.id}`, {
+                    method: 'PATCH',
+                    body: { data: { ...winner.data, coins: currentCoins + prize } }
+                });
 
-            const now = Date.now();
-            auctionData.active = true;
-            auctionData.startTime = now;
-            auctionData.endTime = now + 24 * 60 * 60 * 1000;
-            auctionData.bids = [];
-            auctionData.winner = null;
-            auctionData.winnerBid = 0;
-
-            console.log('🚀 Запуск аукциона:', auctionData);
-
-            const saved = await saveAuctionState();
-            if (!saved) {
-                window.toast('❌ Ошибка сохранения!', 'err');
-                return;
-            }
-
-            updateAuctionUI();
-            startAuctionTimer();
-
-            try {
                 await sbFetch('/rest/v1/messages', {
                     method: 'POST',
                     body: {
                         sender_id: 'system',
                         sender_name: 'Система',
                         sender_avatar: AVATAR_LIST[0],
-                        message: `🏛 АУКЦИОН ЗАПУЩЕН! Делайте ставки в разделе "Игры"! (24 часа)`,
+                        message: `🏆 Победитель аукциона: ${auctionData.winner} с суммой ${fmt(auctionData.winnerBid)}💰! Награда ${fmt(prize)} монет!`,
                         is_private: false,
                         created_at: new Date().toISOString()
                     }
                 });
-            } catch (e) {
-                console.warn('⚠️ Не удалось отправить уведомление');
+
+                window.toast(`🏆 Победитель ${auctionData.winner} получил ${fmt(prize)} монет!`, 'gld');
             }
-
-            window.toast('🚀 Аукцион запущен на 24 часа!', 'gld');
-        };
-
-        function startAuctionTimer() {
-            if (auctionTimerInterval) clearInterval(auctionTimerInterval);
-            auctionTimerInterval = setInterval(async () => {
-                if (!auctionData.active) {
-                    clearInterval(auctionTimerInterval);
-                    return;
-                }
-                updateAuctionUI();
-                if (Date.now() >= auctionData.endTime) {
-                    clearInterval(auctionTimerInterval);
-                    await finishAuction();
-                }
-            }, 1000);
+        } catch (e) {
+            console.error('❌ Ошибка награждения победителя:', e);
         }
+    } else {
+        auctionData.winner = null;
+        auctionData.winnerBid = 0;
+    }
 
-        async function finishAuction() {
-            console.log('🏁 Завершение аукциона');
-            if (!auctionData.active) return;
+    auctionData.active = false;
+    await saveAuctionState();
+    updateAuctionUI();
+    window.toast('🏁 Аукцион завершён!', 'info');
+}
 
-            const sorted = [...(auctionData.bids || [])].sort((a, b) => b.bid - a.bid);
-            console.log('📊 Ставки:', sorted);
+// Ставка
+window.bid = async function(amount) {
+    console.log('💰 Ставка:', amount);
+    
+    await loadAuctionState();
+    
+    if (!auctionData.active) {
+        window.toast('❌ Аукцион не активен!', 'err');
+        return;
+    }
+    if (Date.now() >= auctionData.endTime) {
+        window.toast('❌ Аукцион завершён!', 'err');
+        return;
+    }
+    if (G.coins < amount) {
+        window.toast('❌ Недостаточно монет!', 'err');
+        return;
+    }
 
-            if (sorted.length > 0) {
-                auctionData.winner = sorted[0].name;
-                auctionData.winnerBid = sorted[0].bid;
-                console.log('🏆 Победитель:', auctionData.winner, auctionData.winnerBid);
+    G.coins -= amount;
 
-                try {
-                    const { data: users } = await sbFetch(
-                        `/rest/v1/users?data->>name=eq.${encodeURIComponent(auctionData.winner)}&select=id,data`
-                    );
-                    if (users && users.length > 0) {
-                        const winner = users[0];
-                        const currentCoins = winner.data?.coins || 0;
-                        const prize = Math.floor(auctionData.winnerBid * 0.7);
-                        await sbFetch(`/rest/v1/users?id=eq.${winner.id}`, {
-                            method: 'PATCH',
-                            body: { data: { ...winner.data, coins: currentCoins + prize } }
-                        });
+    const existing = auctionData.bids.find(b => b.id === UID);
+    if (existing) {
+        existing.bid += amount;
+    } else {
+        auctionData.bids.push({
+            id: UID,
+            name: G.name,
+            bid: amount
+        });
+    }
 
-                        await sbFetch('/rest/v1/messages', {
-                            method: 'POST',
-                            body: {
-                                sender_id: 'system',
-                                sender_name: 'Система',
-                                sender_avatar: AVATAR_LIST[0],
-                                message: `🏆 Победитель аукциона: ${auctionData.winner} с суммой ${fmt(auctionData.winnerBid)}💰! Награда ${fmt(prize)} монет!`,
-                                is_private: false,
-                                created_at: new Date().toISOString()
-                            }
-                        });
-
-                        window.toast(`🏆 Победитель ${auctionData.winner} получил ${fmt(prize)} монет!`, 'gld');
-                    }
-                } catch (e) {
-                    console.error('❌ Ошибка награждения победителя:', e);
-                }
-            } else {
-                auctionData.winner = null;
-                auctionData.winnerBid = 0;
-            }
-
-            auctionData.active = false;
-            await saveAuctionState();
-            updateAuctionUI();
-            window.toast('🏁 Аукцион завершён!', 'info');
-        }
-
-        window.bid = async function(amount) {
-            console.log('💰 Ставка:', amount);
-
-            await loadAuctionState();
-
-            if (!auctionData.active) {
-                window.toast('❌ Аукцион не активен!', 'err');
-                return;
-            }
-            if (Date.now() >= auctionData.endTime) {
-                window.toast('❌ Аукцион завершён!', 'err');
-                return;
-            }
-            if (G.coins < amount) {
-                window.toast('❌ Недостаточно монет!', 'err');
-                return;
-            }
-
-            G.coins -= amount;
-
-            const existing = auctionData.bids.find(b => b.id === UID);
-            if (existing) {
-                existing.bid += amount;
-            } else {
-                auctionData.bids.push({
-                    id: UID,
-                    name: G.name,
-                    bid: amount
-                });
-            }
-
-            const saved = await saveAuctionState();
-            if (!saved) {
-                G.coins += amount;
-                window.toast('❌ Ошибка сохранения ставки!', 'err');
-                return;
-            }
-
-            await loadAuctionState();
-            await saveUserData();
-            renderUI();
-            window.toast(`💰 Ставка +${fmt(amount)} монет!`, 'gld');
-        };
-
+    const saved = await saveAuctionState();
+    if (!saved) {
+        // Возвращаем монеты при ошибке
+        G.coins += amount;
+        window.toast('❌ Ошибка сохранения ставки!', 'err');
+        return;
+    }
+    
+    await loadAuctionState();
+    await saveUserData();
+    renderUI();
+    window.toast(`💰 Ставка +${fmt(amount)} монет!`, 'gld');
+};
         // ============================================================
         // 15. МАГАЗИН
         // ============================================================
@@ -2784,6 +2882,8 @@
                 </div>`;
             }).join('');
         }
+
+        
 
         let topLastType = 'b';
 
@@ -3633,7 +3733,7 @@
 
             const rem = Math.max(0, Math.ceil((topCache.timestamp + CONFIG.TOP_CACHE_TIME - now) / 1000));
             document.getElementById('TOP_u').textContent = rem > 30 ? `обновление через ${Math.round(rem/60)}м` :
-                'только что';
+            'только что';
 
             const shardCount = getShardCount();
             const topPlayers = topCache.data || [];
@@ -3715,11 +3815,14 @@
             initChat();
             updateOnlineStatus();
 
+            // Загружаем глобальные состояния
             loadBossState();
             loadAuctionState();
 
+            // Запускаем поллинг аукциона (обновление для всех)
             startAuctionPolling();
 
+            // Запускаем проверку босса
             if (bossCheckInterval) clearInterval(bossCheckInterval);
             bossCheckInterval = setInterval(async () => {
                 await checkBossRespawn();
@@ -3846,11 +3949,11 @@
 
         console.log('✅ ВСЁ ИСПРАВЛЕНО:');
         console.log('  💬 Чат полностью рабочий');
-        console.log('  👹 БОСС ОБЩИЙ ДЛЯ ВСЕХ (12:00-14:00 МСК)');
-        console.log('  🏛 АУКЦИОН ОБЩИЙ ДЛЯ ВСЕХ');
-        console.log('  🔄 ОБМЕН 1 КЛЮЧА НА 100 МОНЕТ');
-        console.log('  🔐 RLS ПОДДЕРЖКА (x-user-id в заголовках)');
+        console.log('  👹 БОСС ОБЩИЙ ДЛЯ ВСЕХ (НЕ БЕССМЕРТНЫЙ - умирает и возрождается на следующий день)');
+        console.log('  🏛 АУКЦИОН ОБЩИЙ ДЛЯ ВСЕХ (синхронизация через поллинг, виден всем)');
+        console.log('  🔄 ОБМЕН 1 КЛЮЧА НА 100 МОНЕТ (добавлен)');
         console.log('  🛒 Магазин отправляет запрос @Denchak_15');
+        console.log('  🎨 Исправлена подсветка вкладок в играх');
     </script>
 </body>
 </html>
