@@ -2750,51 +2750,7 @@ window.bid = async function(amount) {
             window.toast('✉️ Запрос отправлен @Denchak_15', 'ok');
         };
 
-        window.adminGiveCoins = async function() {
-            if (!isAdmin) {
-                window.toast('⚠️ Требуется код администратора!', 'err');
-                window.checkAdminCode();
-                return;
-            }
-
-            const targetUser = document.getElementById('adminTargetUser').value.trim();
-            const amount = parseInt(document.getElementById('adminCoinAmount').value) || 100;
-
-            if (!targetUser) {
-                window.toast('Введите имя пользователя', 'err');
-                return;
-            }
-            if (amount <= 0) {
-                window.toast('Количество должно быть > 0', 'err');
-                return;
-            }
-
-            try {
-                const { data, ok } = await sbFetch(
-                    `/rest/v1/users?data->>name=eq.${encodeURIComponent(targetUser)}&select=id,data`
-                );
-
-                if (!ok || !data || data.length === 0) {
-                    window.toast('Пользователь не найден', 'err');
-                    return;
-                }
-
-                const user = data[0];
-                const currentCoins = user.data?.coins || 0;
-                const newCoins = currentCoins + amount;
-
-                await sbFetch(`/rest/v1/users?id=eq.${user.id}`, {
-                    method: 'PATCH',
-                    body: { data: { ...user.data, coins: newCoins } }
-                });
-
-                window.toast(`✅ ${targetUser} получил ${fmt(amount)} монет!`, 'ok');
-                document.getElementById('adminTargetUser').value = '';
-            } catch (e) {
-                window.toast('Ошибка начисления', 'err');
-                console.error(e);
-            }
-        };
+        
 
         // ============================================================
         // 16. ВСЕ ИГРОВЫЕ ФУНКЦИИ
