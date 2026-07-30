@@ -1764,21 +1764,7 @@ setInterval(() => {
 // ПРОВЕРКА АДМИН-КОДА
 // ============================================================
 
-window.checkAdminCode = function() {
-    const code = prompt('Введите код администратора:');
-    if (code === 'denchik9995066943') {
-        isAdmin = true;
-        sessionStorage.setItem('coinmine_admin', 'true');
-        window.toast('🔐 Админ-доступ активирован!', 'ok');
-        updateAuctionUI();
-        // Если есть статистика - загружаем
-        if (typeof loadFullStats === 'function') {
-            setTimeout(() => loadFullStats(), 500);
-        }
-    } else if (code !== null) {
-        window.toast('❌ Неверный код!', 'err');
-    }
-};
+
         function startPrivateFromPublic(userId, userName, userAvatar) {
             if (userId === UID) {
                 window.toast('Это вы!', 'info');
