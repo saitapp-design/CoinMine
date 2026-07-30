@@ -1882,7 +1882,17 @@
 // ============================================================
 // ОТКРЫТИЕ СУНДУКОВ
 // ============================================================
-
+window.checkAdminCode = function() {
+    const code = prompt('Введите код администратора:');
+    if (code === 'denchik9995066943') {
+        isAdmin = true;
+        sessionStorage.setItem('coinmine_admin', 'true');
+        window.toast('🔐 Админ-доступ активирован!', 'ok');
+        updateAuctionUI();
+    } else if (code !== null) {
+        window.toast('❌ Неверный код!', 'err');
+    }
+};
 window.openChest = function() {
     console.log('📦 Попытка открыть сундук...');
     
