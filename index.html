@@ -639,12 +639,82 @@
                         </div>
                     </div>
                     <div class="admin-panel" id="adminPanel">
-                        <div class="ct">🔐 АДМИН ПАНЕЛЬ</div>
-                        <input class="inp" id="adminTargetUser" placeholder="Имя пользователя">
-                        <input class="inp" id="adminCoinAmount" type="number" placeholder="Количество монет" value="100">
-                        <button class="btn bp" onclick="window.adminGiveCoins()">💰 Начислить монеты</button>
-                        <div style="margin-top:8px;font-size:11px;color:var(--tx2);text-align:center;">Для входа в панель используйте код: denchik9995066943</div>
-                    </div>
+    <div class="ct">📊 СТАТИСТИКА СЕРВЕРА</div>
+    
+    <div id="adminStats" style="font-size:13px;color:var(--tx2);line-height:2;">
+        <!-- ОНЛАЙН -->
+        <div style="display:flex;justify-content:space-between;padding:4px 8px;background:var(--bg4);border-radius:6px;margin-bottom:4px;">
+            <span>🟢 Онлайн сейчас:</span>
+            <span style="color:var(--grn);font-weight:700;" id="statOnlineNow">...</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;padding:4px 8px;background:var(--bg4);border-radius:6px;margin-bottom:4px;">
+            <span>📈 Пиковый онлайн (сегодня):</span>
+            <span style="color:var(--gld);font-weight:700;" id="statPeakOnline">...</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;padding:4px 8px;background:var(--bg4);border-radius:6px;margin-bottom:4px;">
+            <span>⏰ Время пика:</span>
+            <span style="color:var(--acc2);font-weight:700;" id="statPeakTime">...</span>
+        </div>
+        
+        <!-- РЕГИСТРАЦИИ -->
+        <div style="border-top:1px solid var(--bd);margin:8px 0;padding-top:8px;"></div>
+        <div style="display:flex;justify-content:space-between;padding:4px 8px;">
+            <span>👥 Всего пользователей:</span>
+            <span style="color:var(--gld);font-weight:700;" id="statTotalUsers">...</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;padding:4px 8px;">
+            <span>🆕 Сегодня:</span>
+            <span style="color:var(--grn);font-weight:700;" id="statTodayUsers">...</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;padding:4px 8px;">
+            <span>📅 За неделю:</span>
+            <span style="color:var(--acc2);font-weight:700;" id="statWeekUsers">...</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;padding:4px 8px;">
+            <span>📊 За месяц:</span>
+            <span style="color:var(--acc3);font-weight:700;" id="statMonthUsers">...</span>
+        </div>
+        
+        <!-- РЕФЕРАЛЫ -->
+        <div style="border-top:1px solid var(--bd);margin:8px 0;padding-top:8px;"></div>
+        <div style="display:flex;justify-content:space-between;padding:4px 8px;">
+            <span>🔑 Всего рефералов:</span>
+            <span style="color:var(--gld);font-weight:700;" id="statTotalRefs">...</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;padding:4px 8px;">
+            <span>👥 Активировали реф-код:</span>
+            <span style="color:var(--grn);font-weight:700;" id="statActivatedRefs">...</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;padding:4px 8px;">
+            <span>🏆 Лучший рефераловод:</span>
+            <span style="color:var(--gld);font-weight:700;" id="statTopReferrer">...</span>
+        </div>
+        
+        <!-- ЭКОНОМИКА -->
+        <div style="border-top:1px solid var(--bd);margin:8px 0;padding-top:8px;"></div>
+        <div style="display:flex;justify-content:space-between;padding:4px 8px;">
+            <span>💰 Всего монет:</span>
+            <span style="color:var(--gld);font-weight:700;" id="statTotalCoins">...</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;padding:4px 8px;">
+            <span>⛏ Всего фармов:</span>
+            <span style="color:var(--acc2);font-weight:700;" id="statTotalFarms">...</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;padding:4px 8px;">
+            <span>🔑 Всего ключей:</span>
+            <span style="color:var(--gld);font-weight:700;" id="statTotalKeys">...</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;padding:4px 8px;">
+            <span>👑 Самый богатый игрок:</span>
+            <span style="color:var(--gld);font-weight:700;" id="statRichestPlayer">...</span>
+        </div>
+    </div>
+    
+    <button class="btn bs" onclick="window.loadFullStats()" style="margin-top:8px;padding:8px;font-size:12px;">
+        🔄 Обновить статистику
+    </button>
+    <div style="font-size:10px;color:var(--tx2);text-align:center;margin-top:4px;" id="statLastUpdate">Последнее обновление: —</div>
+</div>
                     <div id="shopCodeContainer" style="margin-top:10px;">
                         <button class="btn bs" onclick="window.checkAdminCode()">🔑 Ввести код администратора</button>
                     </div>
@@ -1015,7 +1085,173 @@
 
             return await authLogin(username, password);
         }
+// ============================================================
+// РАСШИРЕННАЯ СТАТИСТИКА С ПИКОВЫМ ОНЛАЙНОМ
+// ============================================================
 
+// Храним пиковый онлайн в localStorage
+const PEAK_KEY = 'coinmine_peak_online';
+
+function getPeakOnline() {
+    try {
+        const data = JSON.parse(localStorage.getItem(PEAK_KEY));
+        if (data && data.date === new Date().toDateString()) {
+            return data;
+        }
+        return { count: 0, time: null };
+    } catch {
+        return { count: 0, time: null };
+    }
+}
+
+function updatePeakOnline(currentOnline) {
+    const peak = getPeakOnline();
+    if (currentOnline > peak.count) {
+        localStorage.setItem(PEAK_KEY, JSON.stringify({
+            count: currentOnline,
+            time: new Date().toISOString(),
+            date: new Date().toDateString()
+        }));
+    }
+}
+
+// ============================================================
+// ГЛАВНАЯ ФУНКЦИЯ СТАТИСТИКИ
+// ============================================================
+
+window.loadFullStats = async function() {
+    try {
+        window.toast('📊 Загрузка статистики...', 'info');
+        
+        // ============================================================
+        // 1. ЗАГРУЖАЕМ ВСЕХ ПОЛЬЗОВАТЕЛЕЙ
+        // ============================================================
+        const { data: users, ok } = await sbFetch(
+            `/rest/v1/users?select=id,data,created_at,updated_at&limit=10000`
+        );
+        
+        if (!ok || !users) {
+            window.toast('❌ Ошибка загрузки статистики', 'err');
+            return;
+        }
+        
+        console.log('📊 Загружено пользователей:', users.length);
+        
+        // ============================================================
+        // 2. ОНЛАЙН (последние 5 минут)
+        // ============================================================
+        const fiveMinAgo = new Date(Date.now() - 5 * 60 * 1000);
+        const onlineUsers = users.filter(u => {
+            if (!u.updated_at) return false;
+            return new Date(u.updated_at) >= fiveMinAgo;
+        });
+        const onlineCount = onlineUsers.length;
+        
+        // Обновляем пиковый онлайн
+        updatePeakOnline(onlineCount);
+        const peak = getPeakOnline();
+        
+        // ============================================================
+        // 3. РЕГИСТРАЦИИ
+        // ============================================================
+        const now = new Date();
+        const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+        const monthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+        
+        let todayUsers = 0;
+        let weekUsers = 0;
+        let monthUsers = 0;
+        let totalRefs = 0;
+        let activatedRefs = 0;
+        let totalCoins = 0;
+        let totalFarms = 0;
+        let totalKeys = 0;
+        let richestPlayer = { name: '—', coins: 0 };
+        let topReferrer = { name: '—', refs: 0 };
+        
+        users.forEach(u => {
+            const data = u.data || {};
+            const created = new Date(u.created_at);
+            
+            // Считаем регистрации
+            if (created >= today) todayUsers++;
+            if (created >= weekAgo) weekUsers++;
+            if (created >= monthAgo) monthUsers++;
+            
+            // Считаем рефералов
+            totalRefs += data.refs || 0;
+            if (data.activatedRef) activatedRefs++;
+            
+            // Экономика
+            const coins = data.coins || 0;
+            totalCoins += coins;
+            totalFarms += data.farms || 0;
+            totalKeys += data.keys || 0;
+            
+            // Самый богатый
+            if (coins > richestPlayer.coins) {
+                richestPlayer = { name: data.name || u.username, coins: coins };
+            }
+            
+            // Лучший рефераловод
+            const refs = data.refs || 0;
+            if (refs > topReferrer.refs) {
+                topReferrer = { name: data.name || u.username, refs: refs };
+            }
+        });
+        
+        // ============================================================
+        // 4. ОБНОВЛЯЕМ UI
+        // ============================================================
+        
+        // Онлайн
+        document.getElementById('statOnlineNow').textContent = onlineCount;
+        document.getElementById('statPeakOnline').textContent = peak.count;
+        document.getElementById('statPeakTime').textContent = peak.time ? 
+            new Date(peak.time).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' }) : 
+            '—';
+        
+        // Регистрации
+        document.getElementById('statTotalUsers').textContent = users.length;
+        document.getElementById('statTodayUsers').textContent = `+${todayUsers}`;
+        document.getElementById('statWeekUsers').textContent = `+${weekUsers}`;
+        document.getElementById('statMonthUsers').textContent = `+${monthUsers}`;
+        
+        // Рефералы
+        document.getElementById('statTotalRefs').textContent = totalRefs;
+        document.getElementById('statActivatedRefs').textContent = activatedRefs;
+        document.getElementById('statTopReferrer').textContent = 
+            topReferrer.refs > 0 ? `${topReferrer.name} (${topReferrer.refs} реф.)` : '—';
+        
+        // Экономика
+        document.getElementById('statTotalCoins').textContent = fmt(totalCoins);
+        document.getElementById('statTotalFarms').textContent = fmt(totalFarms);
+        document.getElementById('statTotalKeys').textContent = fmt(totalKeys);
+        document.getElementById('statRichestPlayer').textContent = 
+            richestPlayer.coins > 0 ? `${richestPlayer.name} (${fmt(richestPlayer.coins)} 💰)` : '—';
+        
+        // Время обновления
+        document.getElementById('statLastUpdate').textContent = 
+            `Последнее обновление: ${new Date().toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}`;
+        
+        window.toast(`✅ Статистика обновлена! Онлайн: ${onlineCount}`, 'ok');
+        
+    } catch (e) {
+        console.error('❌ Ошибка:', e);
+        window.toast('❌ Ошибка загрузки статистики', 'err');
+    }
+};
+
+// ============================================================
+// АВТОМАТИЧЕСКОЕ ОБНОВЛЕНИЕ ОНЛАЙНА (каждые 30 секунд)
+// ============================================================
+
+setInterval(() => {
+    if (document.getElementById('adminPanel')?.style?.display !== 'none') {
+        window.loadFullStats();
+    }
+}, 30000);
         async function authLogin(username, password) {
             const { data, ok } = await sbFetch(
                 `/rest/v1/users?username=eq.${encodeURIComponent(username)}&password=eq.${encodeURIComponent(password)}&select=id,username,data,fingerprint`
